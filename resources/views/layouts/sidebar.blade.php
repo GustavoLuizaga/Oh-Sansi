@@ -21,7 +21,7 @@
             <h4 class="titulo-menu"><i class="fas fa-cog"></i> <span>CONFIGURACIÓN</span></h4>
             <ul>
                 <li><a href="#" class="{{ request()->is('perfil') ? 'active' : '' }}"><i class="fas fa-user-cog"></i> <span>Perfil</span></a></li>
-                <li><a href="#" class="{{ request()->is('seguridad') ? 'active' : '' }}"><i class="fas fa-shield-alt"></i> <span>Seguridad</span></a></li>
+                <li><a href="{{ route('servicios') }}" class="{{ request()->is('servicios') ? 'active' : '' }}" class="{{ request()->is('seguridad') ? 'active' : '' }}"><i class="fas fa-shield-alt"></i> <span>Seguridad</span></a></li>
             </ul>
         </div>
     </div>

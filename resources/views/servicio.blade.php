@@ -10,7 +10,7 @@
             <div >
                 
                 <div >
-                    estas en servicios
+                    estas en servicios osea seguridada jasjdasjdasjdajsdajsdajsdjasdjajsd
                 </div>
             </div>
         </div>

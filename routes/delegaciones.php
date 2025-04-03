@@ -1,12 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
-
-    Route::get()->name('delegaciones')
-        ->get('/delegaciones', function () {
-            return view('delegaciones.delegaciones');
-        })->name('delegaciones');
-
-
+    Route::get('/delegaciones', function () {
+        return view('delegaciones.delegaciones');
+    })->name('delegaciones');
 });

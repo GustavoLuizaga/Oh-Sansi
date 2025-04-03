@@ -15,7 +15,7 @@ yarn-error.log
 /.vscode
 .qodo
 
-/package-lock.json
+package-lock.json
 /postcss.config.js
 /tailwind.config.js
 /vite.config.js

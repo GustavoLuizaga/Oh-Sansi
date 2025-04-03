@@ -2,7 +2,7 @@
     <!-- Logo -->
     <div class="logo">
         <a href="{{ route('dashboard') }}">
-            <img src="/path/to/logo.png" alt="Logo">
+            Oh! Sansi
         </a>
     </div>
 

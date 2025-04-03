@@ -1,47 +1,43 @@
-/* Estilos generales para el sidebar */
+/* Estilos generales para el nav */
 nav {
     position: fixed;
-    left: 0;
     top: 0;
-    width: 250px; /* Ancho del sidebar */
-    height: 100vh; /* Ocupar toda la pantalla */
+    left: 0;
+    width: 100%; /* Ocupa todo el ancho de la pantalla */
+    height: 60px; /* Altura del navbar */
     background-color: #1e293b; /* Azul oscuro */
-    padding-top: 20px;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between; /* Distribuir elementos entre sí */
     align-items: center;
+    padding: 0 20px; /* Espaciado de los lados */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
 
 /* Logo */
 .logo img {
     width: 120px;
-    margin-bottom: 20px;
 }
 
-/* Estilos de los enlaces */
+/* Estilos de los enlaces horizontales */
 .nav-links {
     list-style: none;
     padding: 0;
-    width: 100%;
+    display: flex; /* Para que los enlaces se distribuyan en línea */
+    gap: 20px; /* Espacio entre los enlaces */
 }
 
 .nav-links li {
-    width: 100%;
+    display: inline;
 }
 
 .nav-links a {
-    display: flex;
-    align-items: center;
-    justify-content: left;
     text-decoration: none;
     color: white;
     font-size: 16px;
     padding: 15px 20px;
-    width: 100%;
-    border: none;
     background: none;
     cursor: pointer;
-    text-align: left;
+    text-align: center;
 }
 
 .nav-links a:hover {
@@ -52,25 +48,49 @@ nav {
     background-color: #2563eb;
 }
 
+/* Estilos de los enlaces verticales */
+.vertical-links {
+    list-style: none;
+    padding: 0;
+    position: fixed;
+    left: 0;
+    top: 60px; /* Inicia debajo del navbar horizontal */
+    width: 200px; /* Ancho del menú vertical */
+    background-color: #1e293b; /* Azul oscuro */
+    display: flex;
+    flex-direction: column; /* Para que los elementos estén uno debajo del otro */
+}
+
+.vertical-links li {
+    display: block;
+}
+
+.vertical-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    padding: 15px 20px;
+    background: none;
+    cursor: pointer;
+}
+
+.vertical-links a:hover {
+    background-color: #2d3b4f;
+}
+
 /* Botón de logout */
 .logout-form {
-    width: 100%;
-    margin-top: auto;
-    padding: 20px;
+    display: flex;
+    align-items: center;
 }
 
 .logout-form button {
-    display: flex;
-    align-items: center;
     text-decoration: none;
     color: white;
     font-size: 16px;
     padding: 12px 20px;
-    width: 100%;
-    border: none;
     background: none;
     cursor: pointer;
-    text-align: left;
 }
 
 .logout-form button:hover {
@@ -78,7 +98,9 @@ nav {
 }
 
 /* Ajuste del contenido principal */
+/* Ajuste del contenido principal */
 .main-content {
-    margin-left: 250px; /* Espacio para el sidebar */
+    margin-left: 200px; /* Espacio para el sidebar vertical */
+    padding-top: 60px; /* Espacio para el navbar superior */
     padding: 20px;
 }

@@ -1,0 +1,16 @@
+/* Botón de Login */
+.auth-links a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff; /* Color de fondo azul */
+    color: white; /* Color del texto */
+    text-decoration: none; /* Sin subrayado */
+    border-radius: 5px; /* Bordes redondeados */
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease; /* Transición suave */
+}
+
+.auth-links a:hover {
+    background-color: #0056b3; /* Color más oscuro al pasar el mouse */
+}

@@ -20,22 +20,19 @@
     <body class="font-sans antialiased">
     <!-- Sidebar -->
     @include('layouts.navigation')
-
+    @include('layouts.sidebar')
+ 
     <!-- Contenido principal -->
     <div class="min-h-screen bg-gray-100 main-content">
         <!-- Page Heading -->
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {{ $header }}
-                <h1>nasa</h1>
-            </div>
-        </header>
+
 
         <!-- Page Content -->
         <main>
             {{ $slot }}
         </main>
     </div>
+    @include('layouts.rigthbar')
 </body>
 
 </html>

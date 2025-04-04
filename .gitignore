@@ -15,7 +15,16 @@ yarn-error.log
 /.vscode
 .qodo
 
+<<<<<<< HEAD
+/node_modules
+/package-lock.json
+/yarn.lock
+/public/hot
+
+/package-lock.json
+=======
 package-lock.json
+>>>>>>> 426f4e99f525ef5623fd8328829764b1cea93fa1
 /postcss.config.js
 /tailwind.config.js
 /vite.config.js

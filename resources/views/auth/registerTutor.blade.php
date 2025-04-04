@@ -2,10 +2,10 @@
     <div class="registration-container">
         <div class="registration-card">
             <div class="registration-header">
-                <h2><i class="fas fa-user-graduate"></i> Registro de Estudiante</h2>
+                <h2><i class="fas fa-chalkboard-teacher"></i> Registro de Tutor</h2>
             </div>
 
-            <form method="POST" action="{{ route('register') }}" class="registration-form">
+            <form method="POST" action="{{ route('register.tutor.store') }}" class="registration-form" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-grid">
@@ -60,6 +60,22 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="telefono">Teléfono*</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-phone"></i>
+                            <input id="telefono" type="tel" name="telefono" value="{{ old('telefono') }}" placeholder="70707070" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profesion">Profesión*</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                            <input id="profesion" type="text" name="profesion" value="{{ old('profesion') }}" placeholder="Ingeniero en Sistemas" required />
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="email">Correo Electrónico*</label>
@@ -86,6 +102,24 @@
                             <i class="fas fa-eye toggle-password"></i>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="cv">Validar ser tutor(PDF)*</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-file-pdf"></i>
+                            <input 
+                                id="cv" 
+                                type="file" 
+                                name="cv" 
+                                accept=".pdf"
+                                required 
+                                class="file-input" 
+                            />
+                        </div>
+                        @error('cv')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="terms-checkbox">
@@ -95,7 +129,7 @@
 
                 <div class="form-footer">
                     <button type="submit" class="register-button">
-                        Crear Cuenta
+                        Crear Cuenta de Tutor
                     </button>
                     <p class="login">¿Ya tienes una cuenta? <a href="{{ route('login') }}">Inicia Sesión aquí</a></p>
                 </div>

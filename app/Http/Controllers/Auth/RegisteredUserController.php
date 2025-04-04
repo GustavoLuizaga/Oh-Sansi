@@ -51,4 +51,11 @@ class RegisteredUserController extends Controller
 
         return redirect(RouteServiceProvider::HOME);
     }
+
+    //Para el registro de tutores//
+    public function createTutor()
+    {
+    return view('auth.registerTutor'); 
+      }
+
 }

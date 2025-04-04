@@ -9,4 +9,5 @@ return [
     'AREA_CATEGORIA' => 6,
     'PERFIL' => 7,
     'SEGURIDAD' => 8,
+    
 ];

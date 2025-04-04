@@ -86,6 +86,44 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="delegacion_tutoria">Delegacion Tutoria*</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-school"></i>
+                            <select id="delegacion_tutoria" name="delegacion_tutoria" required>
+                                @if(isset($unidades) && $unidades->count() > 0)
+                                    <option value="">Seleccionar Unidad Educativa</option>
+                                    @foreach($unidades as $unidad)
+                                        <option value="{{ $unidad->codigo }}" {{ old('delegacion_tutoria') == $unidad->codigo ? 'selected' : '' }}>
+                                            {{ $unidad->nombre }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="">No hay unidades educativas disponibles</option>
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="area_tutoria">Área de Tutoría*</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-book"></i>
+                            <select id="area_tutoria" name="area_tutoria" required>
+                                @if(isset($areas) && $areas->count() > 0)
+                                    <option value="">Seleccionar área</option>
+                                    @foreach($areas as $area)
+                                        <option value="{{ $area->codigo }}" {{ old('area_tutoria') == $area->codigo ? 'selected' : '' }}>
+                                            {{ $area->nombre }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    <option value="">No hay áreas de tutoría disponibles</option>
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="password">Contraseña*</label>
                         <div class="input-with-icon">
                             <i class="fas fa-lock"></i>

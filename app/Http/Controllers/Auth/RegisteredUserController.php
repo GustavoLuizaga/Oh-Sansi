@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Rol;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -42,8 +43,18 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'apellidoPaterno' => $request->apellidoPaterno,
+            'apellidoMaterno' => $request->apellidoMaterno,
+            'ci' => $request->ci,
+            'fechaNacimiento' => $request->fechaNacimiento,
+            'genero' => $request->genero,
             'password' => Hash::make($request->password),
         ]);
+
+        $rol = Rol::find(3);
+        if ($rol) { 
+            $user->roles()->syncWithoutDetaching([$rol->idRol]);
+        }
 
         event(new Registered($user));
 

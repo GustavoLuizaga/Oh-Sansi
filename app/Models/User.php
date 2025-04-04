@@ -22,6 +22,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'apellidoPaterno',
+        'apellidoMaterno',
+        'ci',
+        'fechaNacimiento',
+        'genero',
+        
     ];
 
     public function roles(){

@@ -7,7 +7,7 @@
                 <i class="fas fa-user-graduate"></i>
                 <span>Estudiante</span>
             </a>
-            <a href="#" class="register-option">
+            <a href="{{ route('register.tutor') }}" class="register-option">
                 <i class="fas fa-chalkboard-teacher"></i>
                 <span>Tutor</span>
             </a>

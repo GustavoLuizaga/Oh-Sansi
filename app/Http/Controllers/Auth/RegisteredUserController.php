@@ -69,4 +69,36 @@ class RegisteredUserController extends Controller
     return view('auth.registerTutor'); 
       }
 
+    public function storeTutor(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+  
+        $user = User::create([
+              'name' => $request->name,
+              'email' => $request->email,
+              'apellidoPaterno' => $request->apellidoPaterno,
+              'apellidoMaterno' => $request->apellidoMaterno,
+              'ci' => $request->ci,
+              'fechaNacimiento' => $request->fechaNacimiento,
+              'genero' => $request->genero,
+              'password' => Hash::make($request->password),
+          ]);
+  
+          $rol = Rol::find(2);
+          if ($rol) { 
+              $user->roles()->syncWithoutDetaching([$rol->idRol]);
+          }
+  
+          event(new Registered($user));
+  
+          Auth::login($user);
+  
+          return redirect(RouteServiceProvider::HOME);
+      }
+  
+
 }

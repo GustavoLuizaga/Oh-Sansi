@@ -126,7 +126,7 @@
 }
 
 /* Botones de acción */
-.action-buttons {
+.actions {
     display: flex;
     gap: 10px;
     justify-content: center;
@@ -142,22 +142,62 @@
     color: white;
     cursor: pointer;
     transition: opacity 0.3s;
+    text-decoration: none;
 }
 
 .action-button:hover {
     opacity: 0.8;
 }
 
-.view-button {
+.action-button.view {
     background-color: var(--primary-color);
 }
 
-.edit-button {
+.action-button.edit {
     background-color: var(--accent-color);
 }
 
-.delete-button {
+.action-button.delete {
     background-color: var(--secondary-color);
+}
+
+/* Update Excel button color */
+.export-button.excel {
+    background-color: #00A389; /* Green color for Excel button */
+}
+
+.filter-select {
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
+
+/* Tabla de delegaciones */
+.delegaciones-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.delegaciones-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.delegaciones-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.delegaciones-table tr:hover {
+    background-color: #f5f9fc;
 }
 
 /* Paginación */

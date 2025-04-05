@@ -8,9 +8,36 @@ use Illuminate\Support\Facades\Validator;
 
 class DelegacionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $delegaciones = DB::table('delegacion')->get();
+        $query = DB::table('delegacion');
+        
+        // Search by name or SIE code
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', '%' . $search . '%')
+                  ->orWhere('codigo_sie', 'like', '%' . $search . '%');
+            });
+        }
+        
+        // Filter by department
+        if ($request->has('departamento') && !empty($request->departamento)) {
+            $query->where('departamento', $request->departamento);
+        }
+        
+        // Filter by province
+        if ($request->has('provincia') && !empty($request->provincia)) {
+            $query->where('provincia', $request->provincia);
+        }
+        
+        // Filter by municipality
+        if ($request->has('municipio') && !empty($request->municipio)) {
+            $query->where('municipio', $request->municipio);
+        }
+        
+        $delegaciones = $query->paginate(10);
+        
         return view('delegaciones.delegaciones', compact('delegaciones'));
     }
 
@@ -61,5 +88,38 @@ class DelegacionController extends Controller
 
         return redirect()->route('delegaciones')
             ->with('success', 'Colegio agregado correctamente');
+    }
+
+    public function show($codigo_sie)
+    {
+        $delegacion = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->first();
+        
+        if (!$delegacion) {
+            return redirect()->route('delegaciones')->with('error', 'Colegio no encontrado');
+        }
+        
+        return view('delegaciones.ver', compact('delegacion'));
+    }
+
+    public function edit($codigo_sie)
+    {
+        $delegacion = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->first();
+        
+        if (!$delegacion) {
+            return redirect()->route('delegaciones')->with('error', 'Colegio no encontrado');
+        }
+        
+        return view('delegaciones.editar', compact('delegacion'));
+    }
+
+    public function destroy($codigo_sie)
+    {
+        $deleted = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->delete();
+        
+        if ($deleted) {
+            return response()->json(['success' => true]);
+        }
+        
+        return response()->json(['success' => false]);
     }
 }

@@ -53,7 +53,9 @@ class RegisteredUserController extends Controller
 
         $rol = Rol::find(3);
         if ($rol) { 
-            $user->roles()->syncWithoutDetaching([$rol->idRol]);
+            $user->roles()->attach($rol->idRol, ['habilitado' => true]);
+            $user->estudiante()->create();
+
         }
 
         event(new Registered($user));
@@ -91,6 +93,13 @@ class RegisteredUserController extends Controller
           $rol = Rol::find(2);
           if ($rol) { 
               $user->roles()->syncWithoutDetaching([$rol->idRol]);
+              $user->tutor()->create([
+                'profesion' => $request->profesion,
+                'telefono' => $request->telefono,
+                //aqui poner la loguica para el link de recurso
+                'linkRecurso' => "link",
+                //poner l alogica para que a un tutor le asigne una delegacion y area
+            ]);
           }
   
           event(new Registered($user));

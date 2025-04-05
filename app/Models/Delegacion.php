@@ -9,6 +9,7 @@ class Delegacion extends Model
 {
     use HasFactory;
     protected $table = 'delegacion';
+    protected $primaryKey = 'idDelegacion';
     protected $fillable = [
         'codigo_sie', 
         'nombre', 

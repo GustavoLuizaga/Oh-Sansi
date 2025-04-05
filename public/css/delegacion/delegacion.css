@@ -157,7 +157,7 @@
     background-color: var(--accent-color);
 }
 
-.action-button.delete {
+.action-button.delete, .action-button.delete-button {
     background-color: var(--secondary-color);
 }
 

@@ -1,0 +1,399 @@
+/* Estilos para la página de información de delegación */
+:root {
+    /* Colores principales - Paleta corporativa */
+    --primary-color: #0086CE; /* Azul principal */
+    --primary-dark: #002A4C; /* Azul oscuro */
+    --primary-light: #20BBFF; /* Azul claro */
+    --secondary-color: #B30D1F; /* Rojo */
+    --secondary-dark: #631A33; /* Burdeos */
+    --accent-color: #FF9E1B; /* Naranja complementario */
+    --success-color: #28a745; /* Verde para éxito */
+    --warning-color: #ffc107; /* Amarillo para advertencias */
+    --danger-color: #dc3545; /* Rojo para peligro */
+    --light-gray: #f8f9fa; /* Gris claro para fondos */
+    --medium-gray: #e9ecef; /* Gris medio para bordes */
+    --dark-gray: #343a40; /* Gris oscuro para textos */
+}
+
+.delegacion-info-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+}
+
+.delegacion-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.delegacion-info-header h1 {
+    font-size: 24px;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.action-button {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: white !important;
+    border: none;
+    font-size: 15px;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.action-button i {
+    margin-right: 6px;
+}
+
+.edit-button {
+    background-color: var(--accent-color);
+    color: white !important;
+}
+
+.edit-button:hover {
+    background-color: #e08500;
+}
+
+.delete-button {
+    background-color: var(--secondary-color);
+    color: white !important;
+}
+
+.delete-button:hover {
+    background-color: var(--secondary-dark);
+}
+
+.back-button {
+    background-color: var(--dark-gray);
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.back-button:hover {
+    background-color: #23272b;
+}
+
+.back-button i {
+    margin-right: 6px;
+}
+
+.delegacion-info-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+
+.info-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+.info-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+.info-item {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--medium-gray);
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+    display: block;
+    font-size: 15px;
+}
+
+.info-value {
+    color: #495057;
+    font-size: 16px;
+    padding: 4px 0;
+}
+
+/* Enhance form elements */
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.2);
+    outline: none;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+/* Enhance submit button */
+.submit-button {
+    padding: 12px 28px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 134, 206, 0.3);
+}
+
+.submit-button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 134, 206, 0.4);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(0, 134, 206, 0.3);
+}
+
+.delegacion-info-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.info-section {
+    background-color: var(--light-gray);
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.info-section h2 {
+    font-size: 18px;
+    color: var(--primary-light);
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.info-item {
+    margin-bottom: 15px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 5px;
+    display: block;
+}
+
+.info-value {
+    color: #495057;
+}
+
+.timestamps {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid var(--medium-gray);
+    font-size: 14px;
+    color: #6c757d;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .delegacion-info-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .delegacion-info-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .action-buttons {
+        width: 100%;
+    }
+    
+    .action-button {
+        flex: 1;
+    }
+}
+
+
+/* Estilos para el formulario de edición */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 8px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.25);
+    outline: none;
+}
+
+.form-control:disabled {
+    background-color: var(--light-gray);
+    cursor: not-allowed;
+}
+
+.form-text {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--medium-gray);
+}
+
+.submit-button {
+    padding: 10px 24px;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #218838;
+}
+
+.cancel-button {
+    padding: 10px 24px;
+    background-color: var(--medium-gray);
+    color: var(--dark-gray);
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+    background-color: #dae0e5;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* Responsive styles for the form */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .submit-button, .cancel-button {
+        width: 100%;
+    }
+}

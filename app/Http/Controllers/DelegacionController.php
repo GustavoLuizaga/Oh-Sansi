@@ -117,14 +117,53 @@ class DelegacionController extends Controller
         return view('delegaciones.editar', compact('delegacion'));
     }
 
+    public function update(Request $request, $codigo_sie)
+    {
+        // Validar los datos del formulario
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:100|unique:delegacion,nombre,' . $codigo_sie . ',codigo_sie',
+            'dependencia' => 'required|in:Fiscal,Convenio,Privado,Comunitaria',
+            'departamento' => 'required|string',
+            'provincia' => 'required|string|max:20',
+            'municipio' => 'required|string|max:20',
+            'zona' => 'required|string|max:30',
+            'direccion' => 'required|string|max:40',
+            'telefono' => 'required|numeric',
+            'nombre_responsable' => 'required|string|max:40',
+            'correo_responsable' => 'required|email|unique:delegacion,responsable_email,' . $codigo_sie . ',codigo_sie',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Actualizar en la base de datos
+        DB::table('delegacion')
+            ->where('codigo_sie', $codigo_sie)
+            ->update([
+                'nombre' => $request->nombre,
+                'dependencia' => $request->dependencia,
+                'departamento' => $request->departamento,
+                'provincia' => $request->provincia,
+                'municipio' => $request->municipio,
+                'zona' => $request->zona,
+                'direccion' => $request->direccion,
+                'telefono' => $request->telefono,
+                'responsable_nombre' => $request->nombre_responsable,
+                'responsable_email' => $request->correo_responsable,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('delegaciones.ver', $codigo_sie)
+            ->with('success', 'Colegio actualizado correctamente');
+    }
+
     public function destroy($codigo_sie)
     {
         $deleted = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->delete();
         
-        if ($deleted) {
-            return response()->json(['success' => true]);
-        }
-        
-        return response()->json(['success' => false]);
+        return response()->json(['success' => true]);
     }
 }

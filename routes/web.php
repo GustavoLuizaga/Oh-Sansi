@@ -28,6 +28,7 @@ Route::get('/servicios', function () {
 
 
 require __DIR__.'/auth.php';
+require __DIR__.'/areasCategorias.php';
 require __DIR__.'/areas.php';
 require __DIR__.'/categorias.php';
 require __DIR__.'/convocatoria.php';

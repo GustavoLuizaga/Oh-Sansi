@@ -1,4 +1,4 @@
 <x-app-layout>
-
+<h1>ESTO DEBERIA MOSTRARSE EN CONVOCATORIA, Y SOLO EN CONVOCATORIA</h1>
 
 </x-app-layout>

@@ -19,9 +19,48 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+
+    @stack('styles')
+
 </head>
 
 <body class="font-sans antialiased">
+    <!-- Navigation -->
+    @include('layouts.navigation')
+    
+    <!-- Contenedor principal flex -->
+    <div class="min-h-screen bg-gray-100 flex flex-col">
+        <!-- Contenido principal + sidebars -->
+        <div class="flex flex-1">
+            <!-- Sidebar izquierdo -->
+            @include('layouts.sidebar')
+            
+            <!-- Contenido principal que se expande -->
+            <main class="flex-1 p-4 overflow-auto">
+                <!-- Header del contenido -->
+                @if (isset($header))
+                <header class="area-header">
+                    {{ $header }}
+                </header>
+                @endif
+                {{ $slot }}
+            </main>
+            
+            <!-- Right Sidebar -->
+            @include('layouts.rigthbar')
+        </div>
+        
+        <!-- Footer -->
+        @include('layouts.footer')
+    </div>
+</body>
+
+</html>
+
+
+{{-- Codigo anterior del body, porsiacaso, eliminar el Title header si les da error--}}
+
+{{-- <body class="font-sans antialiased">
     <!-- Navigation -->
     @include('layouts.navigation')
     <!-- Contenido principal -->
@@ -30,6 +69,12 @@
         @include('layouts.sidebar')
         <!-- Page Content -->
         <main>
+            <!-- Header del contenido -->
+            @if (isset($header))
+            <header class="area-header">
+                {{ $header }}
+            </header>
+            @endif
             {{ $slot }}
         </main>
         <!-- Right Sidebar -->
@@ -37,6 +82,4 @@
     </div>
     <!-- Footer -->
     @include('layouts.footer')
-</body>
-
-</html>
+</body> --}}

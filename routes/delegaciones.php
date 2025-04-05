@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DelegacionController;
 
+// Add these routes for exports
+Route::get('/delegaciones/exportar/pdf', [DelegacionController::class, 'exportPdf'])->name('delegaciones.exportar.pdf');
+Route::get('/delegaciones/exportar/excel', [DelegacionController::class, 'exportExcel'])->name('delegaciones.exportar.excel');
+
 Route::middleware('auth')->group(function () {
     Route::get('/delegaciones', [DelegacionController::class, 'index'])->name('delegaciones');
     Route::get('/delegaciones/agregar', [DelegacionController::class, 'create'])->name('delegaciones.agregar');

@@ -93,11 +93,16 @@ class RegisteredUserController extends Controller
           $rol = Rol::find(2);
           if ($rol) { 
               $user->roles()->syncWithoutDetaching([$rol->idRol]);
+              $fileUrl = null;
+              if ($request->hasFile('cv')) {
+                  $path = $request->file('cv')->store('public/cvs');
+                  $fileUrl = asset('storage/' . str_replace('public/', '', $path));
+              }
               $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
                 //aqui poner la loguica para el link de recurso
-                'linkRecurso' => "link",
+                'linkRecurso' => $fileUrl,
                 //poner l alogica para que a un tutor le asigne una delegacion y area
             ]);
           }

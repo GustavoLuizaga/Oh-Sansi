@@ -36,6 +36,11 @@ class DelegacionController extends Controller
             $query->where('municipio', $request->municipio);
         }
         
+        // Filter by dependencia
+        if ($request->has('dependencia') && !empty($request->dependencia)) {
+            $query->where('dependencia', $request->dependencia);
+        }
+        
         $delegaciones = $query->paginate(10);
         
         return view('delegaciones.delegaciones', compact('delegaciones'));

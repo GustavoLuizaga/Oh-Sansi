@@ -33,7 +33,18 @@
                     <button type="button" class="export-button excel" id="exportExcel">
                         <i class="fas fa-file-excel"></i> Excel
                     </button>
-                    
+                </div>
+                
+                <div class="delegaciones-filters">
+                    <select class="filter-select" name="dependencia" id="dependencia">
+                        <option value="">Dependencia</option>
+                        <option value="Fiscal" {{ request('dependencia') == 'Fiscal' ? 'selected' : '' }}>Fiscal</option>
+                        <option value="Convenio" {{ request('dependencia') == 'Convenio' ? 'selected' : '' }}>Convenio</option>
+                        <option value="Privado" {{ request('dependencia') == 'Privado' ? 'selected' : '' }}>Privado</option>
+                        <option value="Comunitaria" {{ request('dependencia') == 'Comunitaria' ? 'selected' : '' }}>Comunitaria</option>
+                    </select>
+
+
                     <select class="filter-select" name="departamento" id="departamento">
                         <option value="">Departamento</option>
                         <option value="La Paz" {{ request('departamento') == 'La Paz' ? 'selected' : '' }}>La Paz</option>
@@ -46,6 +57,8 @@
                         <option value="Beni" {{ request('departamento') == 'Beni' ? 'selected' : '' }}>Beni</option>
                         <option value="Pando" {{ request('departamento') == 'Pando' ? 'selected' : '' }}>Pando</option>
                     </select>
+                    
+                    
                     
                     <select class="filter-select" name="provincia" id="provincia">
                         <option value="">Provincia</option>
@@ -113,6 +126,7 @@
             const departamentoSelect = document.getElementById('departamento');
             const provinciaSelect = document.getElementById('provincia');
             const municipioSelect = document.getElementById('municipio');
+            const dependenciaSelect = document.getElementById('dependencia');
             const filterForm = document.getElementById('filterForm');
             
             // Datos de provincias por departamento
@@ -130,21 +144,134 @@
             
             // Datos de municipios por provincia
             const municipiosPorProvincia = {
-                // La Paz
+                // La paz
                 'Murillo': ['La Paz', 'El Alto', 'Palca', 'Mecapaca', 'Achocalla'],
                 'Omasuyos': ['Achacachi', 'Ancoraimes', 'Huarina', 'Santiago de Huata', 'Huatajata'],
                 'Pacajes': ['Coro Coro', 'Caquiaviri', 'Calacoto', 'Comanche', 'Charaña', 'Waldo Ballivián', 'Nazacara de Pacajes', 'Santiago de Callapa'],
-                // Add more municipalities as needed
+                'Camacho': ['Puerto Acosta', 'Mocomoco', 'Puerto Carabuco', 'Humanata', 'Escoma'],
+                'Muñecas': ['Chuma', 'Ayata', 'Aucapata'],
+                'Larecaja': ['Sorata', 'Guanay', 'Tacacoma', 'Quiabaya', 'Combaya', 'Tipuani', 'Mapiri', 'Teoponte'],
+                'Franz Tamayo': ['Apolo', 'Pelechuco'],
+                'Ingavi': ['Viacha', 'Guaqui', 'Tiahuanacu', 'Desaguadero', 'San Andrés de Machaca', 'Jesús de Machaca', 'Taraco'],
+                'Loayza': ['Luribay', 'Sapahaqui', 'Yaco', 'Malla', 'Cairoma'],
+                'Inquisivi': ['Inquisivi', 'Quime', 'Cajuata', 'Colquiri', 'Ichoca', 'Villa Libertad Licoma'],
+                'Sud Yungas': ['Chulumani', 'Irupana', 'Yanacachi', 'Palos Blancos', 'La Asunta'],
+                'Los Andes': ['Pucarani', 'Laja', 'Batallas', 'Puerto Pérez'],
+                'Aroma': ['Sica Sica', 'Umala', 'Ayo Ayo', 'Calamarca', 'Patacamaya', 'Colquencha', 'Collana'],
+                'Nor Yungas': ['Coroico', 'Coripata'],
+                'Abel Iturralde': ['Ixiamas', 'San Buenaventura'],
+                'Bautista Saavedra': ['Charazani', 'Curva'],
+                'Manco Kapac': ['Copacabana', 'San Pedro de Tiquina', 'Tito Yupanqui'],
+                'Gualberto Villarroel': ['San Pedro de Curahuara', 'Papel Pampa', 'Chacarilla'],
+                'José Manuel Pando': ['Santiago de Machaca', 'Catacora'],
                 
                 // Santa Cruz
                 'Andrés Ibáñez': ['Santa Cruz de la Sierra', 'Cotoca', 'Porongo', 'La Guardia', 'El Torno'],
                 'Ignacio Warnes': ['Warnes', 'Okinawa Uno'],
+                'José Miguel de Velasco': ['San Ignacio', 'San Miguel', 'San Rafael'],
+                'Ichilo': ['Buena Vista', 'San Carlos', 'Yapacaní', 'San Juan de Yapacaní'],
+                'Chiquitos': ['San José', 'Pailón', 'Roboré', 'San José de Chiquitos'],
+                'Sara': ['Portachuelo', 'Santa Rosa del Sara', 'Colpa Bélgica'],
+                'Cordillera': ['Lagunillas', 'Charagua', 'Cabezas', 'Cuevo', 'Gutiérrez', 'Camiri', 'Boyuibe'],
+                'Vallegrande': ['Vallegrande', 'Trigal', 'Moro Moro', 'Postrer Valle', 'Pucará'],
+                'Florida': ['Samaipata', 'Pampa Grande', 'Mairana', 'Quirusillas'],
+                'Obispo Santistevan': ['Montero', 'General Saavedra', 'Mineros', 'Fernández Alonso', 'San Pedro'],
+                'Ñuflo de Chávez': ['Concepción', 'San Javier', 'San Ramón', 'San Julián', 'San Antonio de Lomerío', 'Cuatro Cañadas'],
+                'Ángel Sandoval': ['San Matías'],
+                'Manuel María Caballero': ['Comarapa', 'Saipina'],
+                'Germán Busch': ['Puerto Suárez', 'Puerto Quijarro', 'El Carmen Rivero Tórrez'],
+                'Guarayos': ['Ascensión de Guarayos', 'Urubichá', 'El Puente'],
                 
                 // Cochabamba
                 'Cercado': ['Cochabamba'],
+                'Campero': ['Aiquile', 'Pasorapa', 'Omereque'],
+                'Ayopaya': ['Independencia', 'Morochata', 'Cocapata'],
+                'Esteban Arce': ['Tarata', 'Anzaldo', 'Arbieto', 'Sacabamba'],
+                'Arani': ['Arani', 'Vacas'],
+                'Arque': ['Arque', 'Tacopaya'],
+                'Capinota': ['Capinota', 'Santivañez', 'Sicaya'],
+                'Germán Jordán': ['Cliza', 'Toco', 'Tolata'],
                 'Quillacollo': ['Quillacollo', 'Sipe Sipe', 'Tiquipaya', 'Vinto', 'Colcapirhua'],
+                'Chapare': ['Sacaba', 'Colomi', 'Villa Tunari'],
+                'Tapacarí': ['Tapacarí'],
+                'Carrasco': ['Totora', 'Pojo', 'Pocona', 'Chimoré', 'Puerto Villarroel', 'Entre Ríos'],
+                'Mizque': ['Mizque', 'Vila Vila', 'Alalay'],
+                'Punata': ['Punata', 'Villa Rivero', 'San Benito', 'Tacachi', 'Cuchumuela'],
+                'Bolívar': ['Bolívar'],
+                'Tiraque': ['Tiraque', 'Shinahota'],
                 
-                // Add more municipalities for other provinces
+                // Oruro
+                'Cercado': ['Oruro', 'Caracollo', 'El Choro', 'Paria'],
+                'Abaroa': ['Challapata', 'Santuario de Quillacas'],
+                'Carangas': ['Corque', 'Choquecota'],
+                'Sajama': ['Curahuara de Carangas', 'Turco'],
+                'Litoral': ['Huachacalla', 'Escara', 'Cruz de Machacamarca', 'Yunguyo del Litoral', 'Esmeralda'],
+                'Poopó': ['Poopó', 'Pazña', 'Antequera'],
+                'Pantaleón Dalence': ['Huanuni', 'Machacamarca'],
+                'Ladislao Cabrera': ['Salinas de Garcí Mendoza', 'Pampa Aullagas'],
+                'Sabaya': ['Sabaya', 'Coipasa', 'Chipaya'],
+                'Saucarí': ['Toledo'],
+                'Tomás Barrón': ['Eucaliptus'],
+                'Sud Carangas': ['Santiago de Andamarca', 'Belén de Andamarca'],
+                'San Pedro de Totora': ['Totora'],
+                'Sebastián Pagador': ['Santiago de Huari'],
+                'Mejillones': ['La Rivera', 'Todos Santos', 'Carangas'],
+                'Nor Carangas': ['Huayllamarca'],
+                
+                // Potosí
+                'Tomás Frías': ['Potosí', 'Yocalla', 'Urmiri'],
+                'Rafael Bustillo': ['Uncía', 'Chayanta', 'Llallagua', 'Chuquihuta'],
+                'Cornelio Saavedra': ['Betanzos', 'Chaquí', 'Tacobamba'],
+                'Chayanta': ['Colquechaca', 'Ravelo', 'Pocoata', 'Ocurí'],
+                'Charcas': ['San Pedro de Buena Vista', 'Toro Toro'],
+                'Nor Chichas': ['Cotagaita', 'Vitichi'],
+                'Alonso de Ibáñez': ['Sacaca', 'Caripuyo'],
+                'Sud Chichas': ['Tupiza', 'Atocha'],
+                'Nor Lípez': ['Colcha K', 'San Pedro de Quemes'],
+                'Sud Lípez': ['San Pablo de Lípez', 'Mojinete', 'San Antonio de Esmoruco'],
+                'José María Linares': ['Puna', 'Caiza D', 'Ckochas'],
+                'Antonio Quijarro': ['Uyuni', 'Tomave', 'Porco'],
+                'Bernardino Bilbao': ['Arampampa', 'Acasio'],
+                'Daniel Campos': ['Llica', 'Tahua'],
+                'Modesto Omiste': ['Villazón'],
+                'Enrique Baldivieso': ['San Agustín'],
+                
+                // Tarija
+                'Cercado': ['Tarija'],
+                'Aniceto Arce': ['Padcaya', 'Bermejo'],
+                'Gran Chaco': ['Yacuiba', 'Caraparí', 'Villamontes'],
+                'Avilés': ['Uriondo', 'Yunchará'],
+                'Méndez': ['San Lorenzo', 'El Puente'],
+                'Burnet O\'Connor': ['Entre Ríos'],
+                
+                // Chuquisaca
+                'Oropeza': ['Sucre', 'Yotala', 'Poroma'],
+                'Juana Azurduy de Padilla': ['Azurduy', 'Tarvita'],
+                'Jaime Zudáñez': ['Zudáñez', 'Presto', 'Mojocoya', 'Icla'],
+                'Tomina': ['Padilla', 'Tomina', 'Sopachuy', 'Villa Alcalá', 'El Villar'],
+                'Hernando Siles': ['Monteagudo', 'Huacareta'],
+                'Yamparáez': ['Tarabuco', 'Yamparáez'],
+                'Nor Cinti': ['Camargo', 'San Lucas', 'Incahuasi', 'Villa Charcas'],
+                'Sud Cinti': ['Camataqui', 'Culpina', 'Las Carreras'],
+                'Belisario Boeto': ['Villa Serrano'],
+                'Luis Calvo': ['Villa Vaca Guzmán', 'Huacaya', 'Macharetí'],
+                
+                // Beni
+                'Cercado': ['Trinidad', 'San Javier'],
+                'Vaca Díez': ['Riberalta', 'Guayaramerín'],
+                'José Ballivián': ['Reyes', 'San Borja', 'Santa Rosa', 'Rurrenabaque'],
+                'Yacuma': ['Santa Ana', 'Exaltación'],
+                'Moxos': ['San Ignacio', 'San Lorenzo', 'San Francisco'],
+                'Marbán': ['Loreto', 'San Andrés'],
+                'Mamoré': ['San Joaquín', 'Puerto Siles', 'San Ramón'],
+                'Iténez': ['Magdalena', 'Baures', 'Huacaraje'],
+                
+                // Pando
+                'Nicolás Suárez': ['Cobija', 'Porvenir', 'Bolpebra', 'Bella Flor', 'Puerto Rico'],
+                'Manuripi': ['Puerto Gonzalo Moreno', 'San Lorenzo', 'Sena', 'Ingavi'],
+                'Madre de Dios': ['Puerto Gonzalo Moreno', 'San Lorenzo', 'Sena'],
+                'Abuná': ['Santa Rosa del Abuná', 'Ingavi'],
+                'Federico Román': ['Nueva Esperanza', 'Villa Nueva', 'Santos Mercado']
             };
             
             // Función para cargar las provincias según el departamento seleccionado
@@ -208,6 +335,10 @@
             });
             
             municipioSelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+            
+            dependenciaSelect.addEventListener('change', function() {
                 filterForm.submit();
             });
             

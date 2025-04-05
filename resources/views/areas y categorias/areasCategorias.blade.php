@@ -13,10 +13,10 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <div>
-                    <a  class="action-btn">
+                    <a href="{{ route('gestionAreas') }}" class="action-btn">
                         <i class="fas fa-th-large"></i> Gestionar Áreas
                     </a>
-                    <a  class="action-btn">
+                    <a href="{{ route('gestionCategorias') }}" class="action-btn">
                         <i class="fas fa-tags"></i> Gestionar Categorías
                     </a>
                 </div>

@@ -24,4 +24,18 @@ class Tutor extends Model
     {
         return $this->belongsTo(User::class, 'id');
     }
+
+    public function areas()
+    {
+        return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')
+                    ->withPivot('idDelegacion', 'tokenTutor')
+                    ->withTimestamps();
+    }
+    
+    public function delegaciones()
+    {
+        return $this->belongsToMany(Delegacion::class,  'tutorAreaDelegacion','id','idDelegacion')->withTimestamps();
+    }
+
+
 }

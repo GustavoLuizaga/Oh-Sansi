@@ -98,12 +98,17 @@ class RegisteredUserController extends Controller
                   $path = $request->file('cv')->store('public/cvs');
                   $fileUrl = asset('storage/' . str_replace('public/', '', $path));
               }
-              $user->tutor()->create([
+              $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
+                
+            ]);
                 //poner l alogica para que a un tutor le asigne una delegacion y area
+                $tutor->areas()->attach($request->idArea, [
+                'idDelegacion' => $request->idDelegacion,
+                'tokenTutor' => Str::random(20) // o genera como prefieras
             ]);
           }
   

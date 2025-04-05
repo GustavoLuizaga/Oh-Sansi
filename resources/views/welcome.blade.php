@@ -4,64 +4,45 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Oh! SanSi - Olimpiadas Universitarias</title>
-
-    <!-- Fonts -->
+    <title>Oh! Sansi</title>
+    <link rel="stylesheet" href="{{ asset('CSS/welcome.css') }}">
+    <link rel="stylesheet" href="{{ asset('CSS/barraNavegacionPrincipal.css') }}">
+    <link rel="stylesheet" href="{{ asset('CSS/contentFooter.css') }}">
+    <link rel="stylesheet" href="{{ asset('CSS/registerModal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('css/customWelcome.css') }}">
 </head>
 
-<body>
-    <div class="container">
-        @if (Route::has('login'))
-        <header class="auth-links">
-            <nav>
-                <div class="logo">OH! <span>SANSI</span></div>
-                <div class="nav-links">
-                    <a href="{{ url('/') }}">Inicio</a>
-                    <a href="#">Comvocatoria</a>
-                    <a href="#">Reglamento</a>
-                </div>
-                <div>
-                    @auth
-                    <a href="{{ url('/dashboard') }}">Dashboard</a>
-                    @else
-                    <a href="{{ route('login') }}">Iniciar Sesion</a>
-
-                    @if (Route::has('register'))
-                    <a href="{{ route('register') }}">Registrarse</a>
-                    @endif
-                    @endauth
-                </div>
-            </nav>
-        </header>
-        @endif
-
+<body class="antialiased">
+    @include('layouts.BarraNavegacionPrincipal')
+    @include('layouts.registerModal')
+    <div class="relative">
         <main class="contenedor">
-            <section class="welcome">
-                <!-- Hero section remains unchanged -->
-                <div class="svg-superior">
-                    <svg class="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                        <path fill="#cc0000" fill-opacity="1" d="M0,160L60,138.7C120,117,240,75,360,74.7C480,75,600,117,720,144C840,171,960,181,1080,165.3C1200,149,1320,107,1380,85.3L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
-                    </svg>
-                </div>
-                <div class="umss-mensaje">
-                    <div class="umss-text">
+            <section class="hero">
+                 <!-- <div class="wave-top">
+                    <img src="{{ asset('img/superior.svg') }}">
+                </div> -->
+                
+
+                <div class="hero-content">
+                    <div class="hero-text">
                         <h1>¡Bienvenido a Oh! SanSi!</h1>
-                        <p class="text">"Participa en las Olimpiadas Oh! SanSi 2025 y demuestra tu talento en Matemáticas, Física, Informática, Robótica y más. ¡Gana premios, reconocimiento y diviértete aprendiendo!</p>
+                        <p class="quote">"Participa en las Olimpiadas Oh! SanSi 2025 y demuestra tu talento en Matemáticas, Física, Informática, Robótica y más. ¡Gana premios, reconocimiento y diviértete aprendiendo!</p>
+                        @if (Route::has('register'))
+                        <div class="hero-buttons">
+                            <a href="{{ route('register') }}" class="register-hero-btn">
+                                <i class="fas fa-user-plus"></i> ¡Registrarse Ahora!
+                            </a>
+                        </div>
+                        @endif
                     </div>
-                    <div class="umss-img">
-                        <img src="{{ asset('img/albert.png') }}" alt="umss logo">
+                    <div class="hero-image">
+                        <img src="/img/images/LogoUmss.png" pading-left:50px walt="Trofeo">
                     </div>
                 </div>
 
-                <div class="svg-inferior">
+                <div class="wave-bottom">
                     <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
                         <path class="wave-path" fill="#ffffff" fill-opacity="1" d="M0,128L120,154.7C240,181,480,235,720,218.7C960,203,1200,117,1320,74.7L1440,32L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path>
                     </svg>
@@ -69,17 +50,12 @@
             </section>
 
             <!-- About Section -->
-            <section class="informacion">
+            <section class="about-olympiad">
                 <h2>¿Qué son las Olimpiadas Oh! SanSi?</h2>
-                <p>Las Olimpiadas Ohsansi son una iniciativa de la Universidad Mayor de San Simón (UMSS) en Cochabamba, Bolivia. Estas olimpiadas están dirigidas a estudiantes de nivel secundario y abarcan diversas áreas de ciencia y tecnología, incluyendo matemáticas, biología, astronomía y robótica. El objetivo es promover el interés por las ciencias entre los jóvenes estudiantes, ofreciendo un espacio competitivo donde puedan demostrar sus habilidades en resolución de problemas y conocimientos científicos.</p>
-
-            </section>
-
-            <!-- NEW: Areas Section -->
-            <section class="areas">
-                <h2>Áreas de Competición</h2>
+                <p>Las Olimpiadas Oh! SanSi son un evento anual que busca fomentar el conocimiento y 
+                    la competencia en diversas áreas académicas.</p>
+                
                 <div class="areas-grid">
-                    <!-- Matemáticas -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-calculator"></i>
@@ -88,7 +64,6 @@
                         <p>Desarrolla tu pensamiento lógico y resolución de problemas</p>
                     </div>
 
-                    <!-- Física -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-atom"></i>
@@ -97,7 +72,6 @@
                         <p>Explora las leyes fundamentales del universo</p>
                     </div>
 
-                    <!-- Informática -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-laptop-code"></i>
@@ -106,7 +80,6 @@
                         <p>Programa soluciones innovadoras</p>
                     </div>
 
-                    <!-- Robótica -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-robot"></i>
@@ -115,7 +88,6 @@
                         <p>Construye y programa robots del futuro</p>
                     </div>
 
-                    <!-- Química -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-flask"></i>
@@ -124,7 +96,6 @@
                         <p>Descubre la ciencia de la materia</p>
                     </div>
 
-                    <!-- Biología -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-dna"></i>
@@ -133,7 +104,6 @@
                         <p>Estudia los misterios de la vida</p>
                     </div>
 
-                    <!-- Astronomía -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-star"></i>
@@ -142,7 +112,6 @@
                         <p>Explora los secretos del cosmos</p>
                     </div>
 
-                    <!-- Ingeniería -->
                     <div class="area-card">
                         <div class="area-icon">
                             <i class="fas fa-cogs"></i>
@@ -152,11 +121,9 @@
                     </div>
                 </div>
             </section>
-
-            <!-- How to Participate Section (unchanged) -->
-            <section class="como-participar">
+            <section class="how-to-participate">
                 <h2>¿Cómo participar?</h2>
-                <ol class="pasos-participar">
+                <ol class="participation-steps">
                     <li>
                         <i class="fas fa-file-alt fa-3x"></i>
                         <p>Completar el formulario.</p>
@@ -174,58 +141,16 @@
                         <p>Recibir la confirmación.</p>
                     </li>
                 </ol>
-                <a href="#" class="registro-btn"><i class="fas fa-pen-to-square"></i> Iniciar Inscripción</a>
+                <a href="#" class="start-registration-btn"><i class="fas fa-pen-to-square"></i> Iniciar Inscripción</a>
             </section>
         </main>
-
-        <footer>
-            <div class="contenedor footer-content">
-                <div class="footer-logo">
-                    <div class="logo">OH! <span>SANSI</span></div>
-                    <p>Impulsando el talento científico y tecnológico en la nueva generación de estudiantes bolivianos.</p>
-                </div>
-
-                <div class="footer-links">
-                    <div class="footer-columna">
-                        <h3>Olimpiadas</h3>
-                        <ul>
-                            <li><a href="#">Categorías</a></li>
-                            <li><a href="#">Calendario</a></li>
-                            <li><a href="#">Premios</a></li>
-                            <li><a href="#">Resultados</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="footer-columna">
-                        <h3>Recursos</h3>
-                        <ul>
-                            <li><a href="#">Material de Estudio</a></li>
-                            <li><a href="#">Guía del Participante</a></li>
-                            <li><a href="#">Preguntas Frecuentes</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="footer-columna">
-                        <h3>Contacto</h3>
-                        <ul class="contacto-info">
-                            <li><i class="fas fa-map-marker-alt"></i> Campus UMSS, Cochabamba</li>
-                            <li><i class="fas fa-phone"></i> +591 4 4525252</li>
-                            <li><i class="fas fa-envelope"></i> olimpiadas@umss.edu</li>
-                        </ul>
-                        <div class="social-media">
-                            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-inferior">
-                <p>&copy; 2025 Olimpiadas Oh! SanSi - Universidad Mayor de San Simón</p>
-            </div>
-        </footer>
     </div>
-</body>
 
+    @include('layouts.contentFooter')
+
+    <script src="{{ asset('JS/home.js') }}"></script>
+    <script src="{{ asset('JS/themeToggle.js') }}"></script>
+    <script src="{{ asset('JS/registerModal.js') }}"></script>
+</body>
 </html>
+

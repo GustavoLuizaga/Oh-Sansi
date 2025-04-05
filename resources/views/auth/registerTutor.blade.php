@@ -89,11 +89,11 @@
                         <label for="delegacion_tutoria">Delegacion Tutoria*</label>
                         <div class="input-with-icon">
                             <i class="fas fa-school"></i>
-                            <select id="delegacion_tutoria" name="delegacion_tutoria" >
+                            <select id="delegacion_tutoria" name="delegacion_tutoria" required>
                                 @if(isset($unidades) && $unidades->count() > 0)
                                     <option value="">Seleccionar Unidad Educativa</option>
                                     @foreach($unidades as $unidad)
-                                        <option value="{{ $unidad->codigo }}" {{ old('delegacion_tutoria') == $unidad->codigo ? 'selected' : '' }}>
+                                        <option value="{{ $unidad->idDelegacion }}" {{ old('delegacion_tutoria') == $unidad->idDelegacion ? 'selected' : '' }}>
                                             {{ $unidad->nombre }}
                                         </option>
                                     @endforeach
@@ -108,11 +108,11 @@
                         <label for="area_tutoria">Área de Tutoría*</label>
                         <div class="input-with-icon">
                             <i class="fas fa-book"></i>
-                            <select id="area_tutoria" name="area_tutoria" >
+                            <select id="area_tutoria" name="area_tutoria" required>
                                 @if(isset($areas) && $areas->count() > 0)
                                     <option value="">Seleccionar área</option>
                                     @foreach($areas as $area)
-                                        <option value="{{ $area->codigo }}" {{ old('area_tutoria') == $area->codigo ? 'selected' : '' }}>
+                                        <option value="{{ $area->idArea }}" {{ old('area_tutoria') == $area->idArea ? 'selected' : '' }}>
                                             {{ $area->nombre }}
                                         </option>
                                     @endforeach

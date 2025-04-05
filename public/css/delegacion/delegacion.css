@@ -1,0 +1,537 @@
+/* Estilos para la página de delegaciones */
+:root {
+    /* Colores principales - Paleta corporativa */
+    --primary-color: #0086CE; /* Azul principal */
+    --primary-dark: #002A4C; /* Azul oscuro */
+    --primary-light: #20BBFF; /* Azul claro */
+    --secondary-color: #B30D1F; /* Rojo */
+    --secondary-dark: #631A33; /* Burdeos */
+    --accent-color: #FF9E1B; /* Naranja complementario */
+}
+
+.delegaciones-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    overflow: hidden;
+    width: calc(100% - 40px);
+}
+
+.delegaciones-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.delegaciones-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a2942;
+    margin: 0;
+}
+
+.delegaciones-search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-input input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background-color: var(--primary-dark);
+}
+
+.export-button {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.export-button:hover {
+    background-color: var(--secondary-dark);
+}
+
+.export-button.pdf {
+    background-color: var(--secondary-color);
+}
+
+.export-button.excel {
+    background-color: var(--primary-color);
+}
+
+.filter-select {
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
+
+/* Tabla de delegaciones */
+.delegaciones-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.delegaciones-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.delegaciones-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.delegaciones-table tr:hover {
+    background-color: #f5f9fc;
+}
+
+/* Botones de acción */
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.action-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    text-decoration: none;
+}
+
+.action-button:hover {
+    opacity: 0.8;
+}
+
+.action-button.view {
+    background-color: var(--primary-color);
+}
+
+.action-button.edit {
+    background-color: var(--accent-color);
+}
+
+.action-button.delete {
+    background-color: var(--secondary-color);
+}
+
+/* Update Excel button color */
+.export-button.excel {
+    background-color: #00A389; /* Green color for Excel button */
+}
+
+.filter-select {
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
+
+/* Tabla de delegaciones */
+.delegaciones-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.delegaciones-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.delegaciones-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.delegaciones-table tr:hover {
+    background-color: #f5f9fc;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.pagination-item {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.pagination-item:hover {
+    background-color: #e9ecef;
+}
+
+.pagination-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.pagination-arrow {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.pagination-arrow:hover {
+    background-color: #e9ecef;
+}
+
+/* Responsive Styles - Enhanced */
+@media (max-width: 1200px) {
+    .delegaciones-search-bar {
+        gap: 8px;
+    }
+    
+    .filter-select {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 992px) {
+    .delegaciones-container {
+        margin: 15px;
+        width: calc(100% - 30px);
+    }
+    
+    .delegaciones-header {
+        padding: 15px;
+    }
+    
+    .delegaciones-header h1 {
+        font-size: 22px;
+        margin-bottom: 15px;
+    }
+    
+    .filter-select {
+        min-width: 130px;
+    }
+    
+    .delegaciones-table th,
+    .delegaciones-table td {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .delegaciones-container {
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+    
+    .delegaciones-header {
+        padding: 12px;
+    }
+    
+    .delegaciones-header h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .delegaciones-search-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-input {
+        min-width: 100%;
+        width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .delegaciones-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .action-buttons {
+        gap: 5px;
+    }
+    
+    .action-button {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 576px) {
+    .delegaciones-container {
+        margin: 5px;
+        width: calc(100% - 10px);
+        border-radius: 6px;
+    }
+    
+    .delegaciones-header {
+        padding: 10px;
+    }
+    
+    .delegaciones-header h1 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .search-button,
+    .export-button {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
+    .export-button {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .pagination {
+        padding: 10px;
+        gap: 3px;
+    }
+    
+    .pagination-item,
+    .pagination-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+    
+    /* Stack export buttons in a row */
+    .export-buttons-container {
+        display: flex;
+        gap: 5px;
+        width: 100%;
+    }
+    
+    /* Responsive table for very small screens */
+    .delegaciones-table th:nth-child(3),
+    .delegaciones-table th:nth-child(4),
+    .delegaciones-table td:nth-child(3),
+    .delegaciones-table td:nth-child(4) {
+        display: none;
+    }
+}
+
+/* Add a class for mobile card view as an alternative to tables on very small screens */
+@media (max-width: 480px) {
+    .mobile-card-view .delegaciones-table {
+        display: none;
+    }
+    
+    .mobile-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .mobile-card {
+        background-color: white;
+        border-radius: 6px;
+        padding: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+    }
+    
+    .mobile-card-title {
+        font-weight: 600;
+        color: #1a2942;
+    }
+    
+    .mobile-card-code {
+        color: #666;
+        font-size: 13px;
+    }
+    
+    .mobile-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .mobile-card-item {
+        display: flex;
+    }
+    
+    .mobile-card-label {
+        font-weight: 500;
+        width: 100px;
+        color: #555;
+        font-size: 13px;
+    }
+    
+    .mobile-card-value {
+        flex: 1;
+        font-size: 13px;
+    }
+    
+    .mobile-card-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 5px;
+    }
+}
+
+/* Add these styles to your existing CSS file */
+
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.add-button:hover {
+    background-color: var(--primary-dark);
+}
+
+.add-button i {
+    font-size: 14px;
+}
+
+/* Update this existing style to remove the bottom margin since it's now in the header-top-row */
+.delegaciones-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a2942;
+    margin: 0;
+}
+
+/* Add responsive styles for the button */
+@media (max-width: 768px) {
+    .header-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .add-button {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .add-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Add this to your existing CSS file */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: var(--secondary-color);
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert ul {
+    margin: 0;
+    padding-left: 20px;
+}

@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/areasCategorias', function () {
-        return view('areas y categorias.areasCategorias');
-    })->name('areasCategorias');
+    Route::get('/gestionAreas', function () {
+        return view('areas y categorias.gestionAreas');
+    })->name('gestionAreas');
 
 
 });

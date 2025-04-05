@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Rol;
+use App\Models\Delegacion;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Str;
+
 
 class RegisteredUserController extends Controller
 {
@@ -68,15 +71,33 @@ class RegisteredUserController extends Controller
     //Para el registro de tutores//
     public function createTutor()
     {
-    return view('auth.registerTutor'); 
+        
+        $unidades = Delegacion::all(); 
+        //Logica para obtener las Areas habilitadas de la base de datos
+        $areas = collect([
+            (object)['idArea' => '1', 'nombre' => 'Matemáticas'],
+          ]);
+
+        return view('auth.registerTutor',compact('unidades', 'areas')); 
       }
 
     public function storeTutor(Request $request)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'apellidoPaterno' => ['required', 'string', 'max:255'],
+            'apellidoMaterno' => ['required', 'string', 'max:255'],
+            'ci' => ['required', 'numeric', 'min:7'],  // Asegura que el CI sea un número con al menos 7 dígitos
+            'fechaNacimiento' => ['required', 'date'],
+            'genero' => ['required', 'in:M,F'],  // Validación para "Masculino" y "Femenino"
+            'telefono' => ['required', 'numeric', 'min:8'],  // Teléfono con mínimo 8 dígitos
+            'profesion' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],  // Validación del email y su unicidad
+            'delegacion_tutoria' => ['required', 'exists:unidades,idDelegacion'],  // Validación de que la delegación existe
+            'area_tutoria' => ['required', 'exists:areas,idArea'],  // Validación de que el área existe
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],  // Validación de la contraseña
+            'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
+            'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones
         ]);
   
         $user = User::create([
@@ -98,13 +119,18 @@ class RegisteredUserController extends Controller
                   $path = $request->file('cv')->store('public/cvs');
                   $fileUrl = asset('storage/' . str_replace('public/', '', $path));
               }
-              $user->tutor()->create([
+              $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
-                //poner l alogica para que a un tutor le asigne una delegacion y area
-            ]);
+                
+                ]);
+                $tutor->areas()->attach($request->area_tutoria, [
+                'idDelegacion' => $request->delegacion_tutoria,
+                'tokenTutor' => Str::random(20) // o genera como prefieras
+                ]);
+                
           }
   
           event(new Registered($user));

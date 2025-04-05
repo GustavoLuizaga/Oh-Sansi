@@ -307,6 +307,7 @@ nav {
 main {
     flex: 1;
     padding: var(--spacing-lg);
+    margin-top: var(--header-height);
     margin-left: var(--sidebar-width);
     margin-right: var(--right-sidebar-width);
     width: calc(100% - var(--sidebar-width) - var(--right-sidebar-width));

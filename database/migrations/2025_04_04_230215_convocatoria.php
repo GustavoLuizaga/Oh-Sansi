@@ -14,11 +14,15 @@ class Convocatoria extends Migration
     public function up(){
         Schema::create('convocatoria', function (Blueprint $table) {
             $table->id('idConvocatoria');
+            $table->string('nombre');
+            $table->text('descripcion')->nullable();
             $table->date('fechaInicio');
             $table->date('fechaFin');
             $table->string('contacto');
+            $table->string('requisitos',300);
             $table->string('metodoPago');
-            $table->boolean('estado');
+            $table->enum('estado', ['Borrador', 'Publicada', 'Cancelada'])->default('Borrador');
+            $table->timestamps();
         });
         
     }

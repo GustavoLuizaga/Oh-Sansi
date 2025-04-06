@@ -13,9 +13,9 @@ class Grado extends Model
     protected $fillable = [
         'grado',
     ];
-    // public function categorias(){
-    //     return $this->belongsToMany(Categoria::class, 'gradoCategoria','idGrado','idCategoria');
-    // }
+    public function categorias(){
+        return $this->belongsToMany(Categoria::class, 'gradocategoria','idGrado','idCategoria');
+    }
 }
 
 

@@ -7,29 +7,24 @@ use App\Models\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\Factory;
 
 class AreaController extends Controller
 {
     /**
-     * Muestra la lista de áreas.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return View
+     * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|Factory
     {
         $query = Area::query();
 
-        // Búsqueda
-        if ($request->has('search')) {
-            $searchTerm = $request->search;
-            $query->where('nombre', 'LIKE', "%{$searchTerm}%");
+        // Filtro de búsqueda por nombre
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('nombre', 'like', '%' . $request->search . '%');
         }
 
         // Ordenamiento
-        switch ($request->orderBy) {
+        switch ($request->get('orderBy')) {
             case 'nombre_asc':
                 $query->orderBy('nombre', 'asc');
                 break;
@@ -38,7 +33,7 @@ class AreaController extends Controller
                 break;
             case 'todos':
             default:
-                // No aplicar ningún orden específico
+                // No aplicar orden
                 break;
         }
 
@@ -48,22 +43,17 @@ class AreaController extends Controller
     }
 
     /**
-     * Redirige a la vista principal ya que no se usa directamente.
-     *
-     * @return RedirectResponse
+     * Show the form for creating a new resource.
      */
-    public function create(): RedirectResponse
+    public function create()
     {
         return redirect()->route('areas.index');
     }
 
     /**
-     * Guarda una nueva área.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return JsonResponse|RedirectResponse
+     * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse|RedirectResponse
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
@@ -93,12 +83,9 @@ class AreaController extends Controller
     }
 
     /**
-     * Muestra una sola área.
-     *
-     * @param  int  $id
-     * @return JsonResponse
+     * Display the specified resource.
      */
-    public function show(int $id): JsonResponse
+    public function show($id)
     {
         $area = Area::findOrFail($id);
 
@@ -109,15 +96,11 @@ class AreaController extends Controller
     }
 
     /**
-     * Devuelve los datos para editar una área (usado por AJAX).
-     *
-     * @param  int  $id
-     * @return JsonResponse
+     * Show the form for editing the specified resource.
      */
-    public function edit(int $id): JsonResponse
+    public function edit($id)
     {
         $area = Area::findOrFail($id);
-
         return response()->json([
             'status' => 'success',
             'area' => $area
@@ -125,13 +108,9 @@ class AreaController extends Controller
     }
 
     /**
-     * Actualiza una área existente.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return JsonResponse|RedirectResponse
+     * Update the specified resource in storage.
      */
-    public function update(Request $request, int $id): JsonResponse|RedirectResponse
+    public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
@@ -162,12 +141,9 @@ class AreaController extends Controller
     }
 
     /**
-     * Elimina una área.
-     *
-     * @param  int  $id
-     * @return JsonResponse|RedirectResponse
+     * Remove the specified resource from storage.
      */
-    public function destroy(int $id): JsonResponse|RedirectResponse
+    public function destroy($id)
     {
         $area = Area::findOrFail($id);
         $area->delete();

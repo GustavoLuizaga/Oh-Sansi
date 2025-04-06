@@ -69,6 +69,11 @@ php artisan db:seed --class=DefaultDataSeeder
 composer remove phpoffice/phpspreadsheet
 ```
 
+- para actualizar composer
+```bash
+composer update
+```
+
 ---
 
 ## 🧙‍♂️ Datos de acceso

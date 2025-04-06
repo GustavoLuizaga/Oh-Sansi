@@ -135,6 +135,18 @@
                                             </button>
                                         </div>
                                     </div>
+                                    
+                                    <div class="precio-container">
+                                        <label for="precio-{{ $index }}-{{ $catIndex }}">Precio (Bs.):</label>
+                                        @php
+                                            $precio = DB::table('convocatoriaAreaCategoria')
+                                                ->where('idConvocatoria', $convocatoria->idConvocatoria)
+                                                ->where('idArea', $area->idArea)
+                                                ->where('idCategoria', $categoria->idCategoria)
+                                                ->value('precio');
+                                        @endphp
+                                        <input type="number" id="precio-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precio]" class="form-control precio-input" min="0" step="0.01" required value="{{ $precio ?? '0.00' }}" placeholder="0.00">
+                                    </div>
 
                                     <div class="grade-options">
                                         @foreach($gradosPorCategoria[$categoria->idCategoria] as $grado)

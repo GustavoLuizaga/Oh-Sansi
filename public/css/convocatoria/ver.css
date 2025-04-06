@@ -139,6 +139,24 @@
   background-color: #e03131;
 }
 
+.btn-recover {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.btn-recover:hover {
+  background-color: #e67700;
+}
+
+.btn-delete {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #e03131;
+}
+
 /* Detail Sections */
 .detail-section {
   padding: 1.5rem 2rem;
@@ -212,6 +230,22 @@
   border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   padding: 1rem;
+}
+
+.precio-info {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.precio-label {
+  font-weight: 500;
+  margin-right: 0.5rem;
+  color: var(--text-color);
+}
+
+.precio-value {
+  font-weight: 600;
+  color: var(--primary-color);
 }
 
 .categoria-title {

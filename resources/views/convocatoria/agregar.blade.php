@@ -345,6 +345,11 @@
                         </button>
                     </div>
                     
+                    <div class="precio-container">
+                        <label for="precio-${areaId}-${categoriaId}">Precio (Bs.):</label>
+                        <input type="number" id="precio-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precio]" class="form-control precio-input" min="0" step="0.01" required value="0.00" placeholder="0.00">
+                    </div>
+                    
                     <div class="grados-container" id="grados-${areaId}-${categoriaId}">
                         <!-- Los grados se mostrarán aquí -->
                     </div>

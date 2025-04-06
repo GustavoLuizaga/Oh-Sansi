@@ -251,6 +251,14 @@
   background-color: var(--success-color);
 }
 
+.btn-cancel {
+  background-color: var(--danger-color);
+}
+
+.btn-recover {
+  background-color: var(--warning-color);
+}
+
 /* Pagination */
 .pagination {
   display: flex;

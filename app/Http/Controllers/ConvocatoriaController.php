@@ -15,6 +15,9 @@ class ConvocatoriaController extends Controller
      */
     public function index()
     {
+        // Verificar y actualizar el estado de las convocatorias vencidas
+        $this->verificarEstadoConvocatorias();
+        
         // Fetch convocatorias from the database
         $convocatorias = DB::table('convocatoria')
             ->orderBy('created_at', 'desc')
@@ -80,7 +83,16 @@ class ConvocatoriaController extends Controller
                 'areas.*.idArea' => 'required|exists:area,idArea',
                 'areas.*.categorias' => 'required|array',
                 'areas.*.categorias.*.idCategoria' => 'required|exists:categoria,idCategoria',
+                'areas.*.categorias.*.precio' => 'required|numeric|min:0',
             ]);
+            
+            // Verificar que la fecha fin no haya pasado
+            $fechaFin = \Carbon\Carbon::parse($validated['fechaFin']);
+            $hoy = \Carbon\Carbon::now();
+            
+            if ($fechaFin->lt($hoy)) {
+                return back()->withInput()->with('error', 'No se puede crear una convocatoria con fecha fin ya pasada.');
+            }
             
             Log::info('Validation passed', ['validated' => $validated]);
             
@@ -114,7 +126,7 @@ class ConvocatoriaController extends Controller
                         'idConvocatoria' => $idConvocatoria,
                         'idArea' => $idArea,
                         'idCategoria' => $idCategoria,
-                        'precio' => 0, // Default price, can be updated later
+                        'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -367,7 +379,18 @@ class ConvocatoriaController extends Controller
                 'metodoPago' => 'required|string|max:100',
                 'contacto' => 'required|string|min:10|max:255',
                 'requisitos' => 'required|string|min:10|max:300',
+                'areas.*.categorias.*.precio' => 'nullable|numeric|min:0',
             ]);
+            
+            // Verificar que la fecha fin no haya pasado si está en estado borrador
+            if ($request->has('fechaFin')) {
+                $fechaFin = \Carbon\Carbon::parse($validated['fechaFin']);
+                $hoy = \Carbon\Carbon::now();
+                
+                if ($fechaFin->lt($hoy)) {
+                    return back()->withInput()->with('error', 'No se puede actualizar la convocatoria con una fecha fin ya pasada.');
+                }
+            }
             
             // Obtener la convocatoria actual para verificar su estado
             $convocatoria = DB::table('convocatoria')
@@ -420,7 +443,7 @@ class ConvocatoriaController extends Controller
                                 'idConvocatoria' => $id,
                                 'idArea' => $idArea,
                                 'idCategoria' => $idCategoria,
-                                'precio' => 0, // Default price, can be updated later
+                                'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
@@ -453,12 +476,48 @@ class ConvocatoriaController extends Controller
      */
     public function destroy($id)
     {
-        // In a real application, you would delete the convocatoria from the database
-        // For now, we'll just log the action and redirect
-        Log::info("Convocatoria $id eliminada");
+        try {
+            // Obtener la convocatoria para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Solo permitir eliminar convocatorias en estado Borrador o Cancelada
+            if ($convocatoria->estado == 'Publicada') {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'No se puede eliminar una convocatoria publicada. Debe cancelarla primero.');
+            }
+            
+            // Eliminar las relaciones de áreas y categorías
+            DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->delete();
+                
+            // Eliminar la convocatoria
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->delete();
+            
+            Log::info("Convocatoria $id eliminada");
 
-        return redirect()->route('convocatoria')
-            ->with('success', 'Convocatoria eliminada exitosamente.');
+            return redirect()->route('convocatoria')
+                ->with('success', 'Convocatoria eliminada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatoria')
+                ->with('error', 'Error al eliminar la convocatoria.');
+        }
     }
 
     /**
@@ -500,6 +559,36 @@ class ConvocatoriaController extends Controller
     public function publicar($id)
     {
         try {
+            // Obtener la convocatoria para verificar su estado y fechas
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Verificar que la fecha fin no haya pasado
+            $fechaFin = \Carbon\Carbon::parse($convocatoria->fechaFin);
+            $hoy = \Carbon\Carbon::now();
+            
+            if ($fechaFin->lt($hoy)) {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'No se puede publicar una convocatoria con fecha fin ya pasada.');
+            }
+            
+            // Verificar que no haya otra convocatoria publicada
+            $convocatoriaPublicada = DB::table('convocatoria')
+                ->where('estado', 'Publicada')
+                ->where('idConvocatoria', '!=', $id)
+                ->first();
+                
+            if ($convocatoriaPublicada) {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Ya existe una convocatoria publicada. Debe cancelar la convocatoria actual antes de publicar una nueva.');
+            }
+            
             // Actualizar el estado de la convocatoria a 'Publicada'
             DB::table('convocatoria')
                 ->where('idConvocatoria', $id)
@@ -622,6 +711,90 @@ class ConvocatoriaController extends Controller
             
             return redirect()->route('convocatorias.ver', $id)
                 ->with('error', 'Error al crear nueva versión de la convocatoria.');
+        }
+    }
+
+    /**
+     * Recuperar una convocatoria cancelada a estado borrador.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function recuperar($id)
+    {
+        try {
+            // Obtener la convocatoria para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Solo permitir recuperar convocatorias en estado Cancelada
+            if ($convocatoria->estado != 'Cancelada') {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Solo se pueden recuperar convocatorias canceladas.');
+            }
+            
+            // Actualizar el estado de la convocatoria a 'Borrador'
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->update([
+                    'estado' => 'Borrador',
+                    'updated_at' => now()
+                ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('success', 'Convocatoria recuperada exitosamente. Ahora está en estado borrador.');
+        } catch (\Exception $e) {
+            Log::error('Error al recuperar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al recuperar la convocatoria.');
+        }
+    }
+    
+    /**
+     * Verificar y actualizar el estado de las convocatorias según sus fechas.
+     * - Cambia a 'Borrador' las convocatorias publicadas cuya fecha fin ya pasó
+     */
+    private function verificarEstadoConvocatorias()
+    {
+        try {
+            $hoy = \Carbon\Carbon::now();
+            
+            // Buscar convocatorias publicadas con fecha fin pasada
+            $convocatoriasVencidas = DB::table('convocatoria')
+                ->where('estado', 'Publicada')
+                ->where('fechaFin', '<', $hoy->format('Y-m-d'))
+                ->get();
+            
+            // Actualizar el estado de las convocatorias vencidas a 'Borrador'
+            foreach ($convocatoriasVencidas as $convocatoria) {
+                DB::table('convocatoria')
+                    ->where('idConvocatoria', $convocatoria->idConvocatoria)
+                    ->update([
+                        'estado' => 'Borrador',
+                        'updated_at' => now()
+                    ]);
+                
+                Log::info("Convocatoria {$convocatoria->idConvocatoria} cambió automáticamente a estado Borrador por fecha vencida");
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al verificar estado de convocatorias: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 }

@@ -26,4 +26,13 @@ Route::middleware('auth')->group(function () {
     
     // Delete Convocatoria
     Route::delete('/convocatoria/{id}', [ConvocatoriaController::class, 'destroy'])->name('convocatorias.eliminar');
+    
+    // Publicar Convocatoria
+    Route::put('/convocatoria/{id}/publicar', [ConvocatoriaController::class, 'publicar'])->name('convocatorias.publicar');
+    
+    // Cancelar Convocatoria
+    Route::put('/convocatoria/{id}/cancelar', [ConvocatoriaController::class, 'cancelar'])->name('convocatorias.cancelar');
+    
+    // Nueva Versión de Convocatoria
+    Route::get('/convocatoria/{id}/nueva-version', [ConvocatoriaController::class, 'nuevaVersion'])->name('convocatorias.nuevaVersion');
 });

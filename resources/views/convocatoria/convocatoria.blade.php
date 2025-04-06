@@ -69,82 +69,94 @@
                 </tr>
             </thead>
             <tbody>
+                @forelse($convocatorias as $convocatoria)
                 <tr>
-                    <td>Olimpiada Matemática 2024</td>
-                    <td>Competencia nacional de matemáticas</td>
-                    <td>01 May, 2024</td>
-                    <td>30 Jun, 2024</td>
+                    <td>{{ $convocatoria->nombre }}</td>
+                    <td>{{ Str::limit($convocatoria->descripcion, 50) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($convocatoria->fechaInicio)->format('d M, Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($convocatoria->fechaFin)->format('d M, Y') }}</td>
                     <td>
-                        <span class="estado-badge estado-publicada">
-                            <i class="fas fa-circle"></i> PUBLICADA
+                        <span class="estado-badge estado-{{ strtolower($convocatoria->estado) }}">
+                            <i class="fas fa-circle"></i> {{ strtoupper($convocatoria->estado) }}
                         </span>
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <a href="#" class="btn-action btn-details" title="Detalles">
+                            <a href="{{ route('convocatorias.ver', $convocatoria->idConvocatoria) }}" class="btn-action btn-details" title="Detalles">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="#" class="btn-action btn-edit" title="Editar">
+                            @if($convocatoria->estado != 'Cancelada')
+                            <a href="{{ route('convocatorias.editar', $convocatoria->idConvocatoria) }}" class="btn-action btn-edit" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <a href="#" class="btn-action btn-delete" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Olimpiada Física 2024</td>
-                    <td>Competencia nacional de física</td>
-                    <td>15 May, 2024</td>
-                    <td>15 Jul, 2024</td>
-                    <td>
-                        <span class="estado-badge estado-borrador">
-                            <i class="fas fa-circle"></i> BORRADOR
-                        </span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="#" class="btn-action btn-details" title="Detalles">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="#" class="btn-action btn-edit" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="#" class="btn-action btn-approve" title="Aprobar">
+                            @endif
+                            
+                            @if($convocatoria->estado == 'Borrador')
+                            @if(\Carbon\Carbon::parse($convocatoria->fechaFin)->gt(\Carbon\Carbon::now()))
+                            <!-- Botón de Publicar para convocatorias en borrador con fecha fin válida -->
+                            <a href="#" class="btn-action btn-approve" title="Publicar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de publicar esta convocatoria?')) document.getElementById('publish-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-check"></i>
                             </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Olimpiada Química 2024</td>
-                    <td>Competencia nacional de química</td>
-                    <td>01 Jun, 2024</td>
-                    <td>30 Jul, 2024</td>
-                    <td>
-                        <span class="estado-badge estado-cancelada">
-                            <i class="fas fa-circle"></i> CANCELADA
-                        </span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="#" class="btn-action btn-details" title="Detalles">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="#" class="btn-action btn-edit" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="#" class="btn-action btn-delete" title="Eliminar">
+                            <form id="publish-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.publicar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('PUT')
+                            </form>
+                            @endif
+                            
+                            <!-- Botón de Eliminar para convocatorias en borrador -->
+                            <a href="#" class="btn-action btn-delete" title="Eliminar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-trash"></i>
                             </a>
+                            <form id="delete-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            @elseif($convocatoria->estado == 'Publicada')
+                            <!-- Botón de Cancelar para convocatorias publicadas (no se pueden eliminar) -->
+                            <a href="#" class="btn-action btn-cancel" title="Cancelar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de cancelar esta convocatoria?')) document.getElementById('cancel-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                            <form id="cancel-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.cancelar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('PUT')
+                            </form>
+                            @elseif($convocatoria->estado == 'Cancelada')
+                            <!-- Botón de Recuperar para convocatorias canceladas (se recuperan como borrador) -->
+                            <a href="#" class="btn-action btn-recover" title="Recuperar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de recuperar esta convocatoria? Se restaurará como borrador.')) document.getElementById('recover-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                            <form id="recover-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.recuperar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('PUT')
+                            </form>
+                            
+                            <!-- Botón de Eliminar para convocatorias canceladas -->
+                            <a href="#" class="btn-action btn-delete" title="Eliminar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            <form id="delete-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="text-center">No hay convocatorias disponibles</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
 
-        <!-- Pagination -->
+        <!-- Pagination - only show when more than 10 convocatorias -->
+        @if(count($convocatorias) > 10)
         <ul class="pagination">
             <li><a href="#"><i class="fas fa-chevron-left"></i></a></li>
             <li><a href="#">1</a></li>
@@ -154,6 +166,7 @@
             <li><a href="#">5</a></li>
             <li><a href="#"><i class="fas fa-chevron-right"></i></a></li>
         </ul>
+        @endif
     </div>
 
     <script>

@@ -156,3 +156,70 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+//Buscar área por nombre
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchArea');
+    const tableRows = document.querySelectorAll('.areas-table tbody tr');
+
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const areaName = row.querySelector('td:first-child').textContent.toLowerCase();
+            
+            if (areaName.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Mostrar mensaje cuando no hay resultados
+        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+        const tbody = document.querySelector('.areas-table tbody');
+        const noResultsRow = tbody.querySelector('.no-results');
+
+        if (visibleRows.length === 0) {
+            if (!noResultsRow) {
+                const tr = document.createElement('tr');
+                tr.className = 'no-results';
+                tr.innerHTML = '<td colspan="2" class="text-center text-danger">No se encontraron áreas con ese nombre</td>';
+                tbody.appendChild(tr);
+            }
+        } else if (noResultsRow) {
+            noResultsRow.remove();
+        }
+    });
+});
+
+
+// Manejador para el select de ordenamiento
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejador para el select de ordenamiento
+    const orderSelect = document.getElementById('orderBy');
+    if (orderSelect) {
+        orderSelect.addEventListener('change', function() {
+            // Obtener los parámetros actuales de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Actualizar o agregar el parámetro de ordenamiento
+            if (this.value) {
+                urlParams.set('orderBy', this.value);
+            } else {
+                urlParams.delete('orderBy');
+            }
+            
+            // Mantener el término de búsqueda si existe
+            const searchTerm = document.getElementById('searchArea').value;
+            if (searchTerm) {
+                urlParams.set('search', searchTerm);
+            }
+            
+            // Recargar la página con los nuevos parámetros
+            window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+        });
+    }
+});

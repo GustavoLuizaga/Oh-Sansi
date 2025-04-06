@@ -15,6 +15,9 @@ class ConvocatoriaController extends Controller
      */
     public function index()
     {
+        // Verificar y actualizar el estado de las convocatorias vencidas
+        $this->verificarEstadoConvocatorias();
+        
         // Fetch convocatorias from the database
         $convocatorias = DB::table('convocatoria')
             ->orderBy('created_at', 'desc')
@@ -80,7 +83,16 @@ class ConvocatoriaController extends Controller
                 'areas.*.idArea' => 'required|exists:area,idArea',
                 'areas.*.categorias' => 'required|array',
                 'areas.*.categorias.*.idCategoria' => 'required|exists:categoria,idCategoria',
+                'areas.*.categorias.*.precio' => 'required|numeric|min:0',
             ]);
+            
+            // Verificar que la fecha fin no haya pasado
+            $fechaFin = \Carbon\Carbon::parse($validated['fechaFin']);
+            $hoy = \Carbon\Carbon::now();
+            
+            if ($fechaFin->lt($hoy)) {
+                return back()->withInput()->with('error', 'No se puede crear una convocatoria con fecha fin ya pasada.');
+            }
             
             Log::info('Validation passed', ['validated' => $validated]);
             
@@ -114,7 +126,7 @@ class ConvocatoriaController extends Controller
                         'idConvocatoria' => $idConvocatoria,
                         'idArea' => $idArea,
                         'idCategoria' => $idCategoria,
-                        'precio' => 0, // Default price, can be updated later
+                        'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -148,42 +160,88 @@ class ConvocatoriaController extends Controller
      */
     public function show($id)
     {
-        // In a real application, you would fetch the convocatoria from the database
-        // For now, we'll use dummy data
-        $convocatoria = [
-            'id' => $id,
-            'nombre' => 'Olimpiada Matemática 2024',
-            'descripcion' => 'Competencia nacional de matemáticas para estudiantes de primaria y secundaria.',
-            'fecha_inicio' => '2024-05-01',
-            'fecha_fin' => '2024-06-30',
-            'estado' => 'publicada',
-            'costo_individual' => 50,
-            'costo_duo' => 80,
-            'costo_equipo' => 120,
-            'contacto' => 'Email: olimpiada@example.com, Teléfono: +591 77777777',
-            'requisitos' => [
-                'Ser estudiante activo de una institución educativa',
-                'Tener entre 8 y 18 años',
-                'Contar con autorización de padres o tutores'
-            ],
-            'areas' => [
-                [
-                    'nombre' => 'Matemáticas',
-                    'categorias' => [
-                        [
-                            'nombre' => 'Primaria',
-                            'grados' => ['1ro', '2do', '3ro', '4to', '5to', '6to']
-                        ],
-                        [
-                            'nombre' => 'Secundaria',
-                            'grados' => ['1ro', '2do', '3ro', '4to', '5to', '6to']
-                        ]
-                    ]
-                ]
-            ]
-        ];
+        try {
+            // Obtener la convocatoria de la base de datos
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+            
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Obtener las áreas, categorías y grados asociados a la convocatoria
+            $areasConCategorias = [];
+            
+            // Obtener las relaciones de convocatoria-área-categoría
+            $convocatoriaAreasCategorias = DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->get();
+            
+            // Agrupar por área
+            $areaIds = $convocatoriaAreasCategorias->pluck('idArea')->unique();
+            
+            foreach ($areaIds as $areaId) {
+                // Obtener información del área
+                $areaInfo = DB::table('area')
+                    ->where('idArea', $areaId)
+                    ->first();
+                
+                if ($areaInfo) {
+                    $area = (object) [
+                        'idArea' => $areaInfo->idArea,
+                        'nombre' => $areaInfo->nombre,
+                        'categorias' => []
+                    ];
+                    
+                    // Obtener categorías para esta área en esta convocatoria
+                    $categoriaIds = $convocatoriaAreasCategorias
+                        ->where('idArea', $areaId)
+                        ->pluck('idCategoria')
+                        ->unique();
+                    
+                    foreach ($categoriaIds as $categoriaId) {
+                        // Obtener información de la categoría
+                        $categoriaInfo = DB::table('categoria')
+                            ->where('idCategoria', $categoriaId)
+                            ->first();
+                        
+                        if ($categoriaInfo) {
+                            $categoria = (object) [
+                                'idCategoria' => $categoriaInfo->idCategoria,
+                                'nombre' => $categoriaInfo->nombre,
+                                'grados' => []
+                            ];
+                            
+                            // Obtener grados para esta categoría
+                            $grados = DB::table('gradoCategoria')
+                                ->join('grado', 'gradoCategoria.idGrado', '=', 'grado.idGrado')
+                                ->where('gradoCategoria.idCategoria', $categoriaId)
+                                ->select('grado.idGrado', 'grado.grado as nombre')
+                                ->get();
+                            
+                            $categoria->grados = $grados;
+                            $area->categorias[] = $categoria;
+                        }
+                    }
+                    
+                    $areasConCategorias[] = $area;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al obtener detalles de la convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatoria')
+                ->with('error', 'Error al cargar los detalles de la convocatoria.');
+        }
 
-        return view('convocatoria.ver', compact('convocatoria'));
+        return view('convocatoria.ver', compact('convocatoria', 'areasConCategorias'));
     }
 
     /**
@@ -194,42 +252,112 @@ class ConvocatoriaController extends Controller
      */
     public function edit($id)
     {
-        // In a real application, you would fetch the convocatoria from the database
-        // For now, we'll use dummy data
-        $convocatoria = [
-            'id' => $id,
-            'nombre' => 'Olimpiada Matemática 2024',
-            'descripcion' => 'Competencia nacional de matemáticas para estudiantes de primaria y secundaria.',
-            'fecha_inicio' => '2024-05-01',
-            'fecha_fin' => '2024-06-30',
-            'estado' => 'publicada',
-            'costo_individual' => 50,
-            'costo_duo' => 80,
-            'costo_equipo' => 120,
-            'contacto' => 'Email: olimpiada@example.com, Teléfono: +591 77777777',
-            'requisitos' => [
-                'Ser estudiante activo de una institución educativa',
-                'Tener entre 8 y 18 años',
-                'Contar con autorización de padres o tutores'
-            ],
-            'areas' => [
-                [
-                    'nombre' => 'Matemáticas',
-                    'categorias' => [
-                        [
-                            'nombre' => 'Primaria',
-                            'grados' => ['1ro', '2do', '3ro', '4to', '5to', '6to']
-                        ],
-                        [
-                            'nombre' => 'Secundaria',
-                            'grados' => ['1ro', '2do', '3ro', '4to', '5to', '6to']
-                        ]
-                    ]
-                ]
-            ]
-        ];
+        try {
+            // Obtener la convocatoria de la base de datos
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+            
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Obtener áreas para el formulario
+            $areas = DB::table('area')->get();
+            
+            // Obtener categorías para el formulario
+            $categorias = DB::table('categoria')->get();
+            
+            // Obtener las áreas, categorías y grados asociados a la convocatoria
+            $areasConCategorias = [];
+            
+            // Obtener las relaciones de convocatoria-área-categoría
+            $convocatoriaAreasCategorias = DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->get();
+            
+            // Agrupar por área
+            $areaIds = $convocatoriaAreasCategorias->pluck('idArea')->unique();
+            
+            foreach ($areaIds as $areaId) {
+                // Obtener información del área
+                $areaInfo = DB::table('area')
+                    ->where('idArea', $areaId)
+                    ->first();
+                
+                if ($areaInfo) {
+                    $area = (object) [
+                        'idArea' => $areaInfo->idArea,
+                        'nombre' => $areaInfo->nombre,
+                        'categorias' => []
+                    ];
+                    
+                    // Obtener categorías para esta área en esta convocatoria
+                    $categoriaIds = $convocatoriaAreasCategorias
+                        ->where('idArea', $areaId)
+                        ->pluck('idCategoria')
+                        ->unique();
+                    
+                    foreach ($categoriaIds as $categoriaId) {
+                        // Obtener información de la categoría
+                        $categoriaInfo = DB::table('categoria')
+                            ->where('idCategoria', $categoriaId)
+                            ->first();
+                        
+                        if ($categoriaInfo) {
+                            $categoria = (object) [
+                                'idCategoria' => $categoriaInfo->idCategoria,
+                                'nombre' => $categoriaInfo->nombre,
+                                'grados' => []
+                            ];
+                            
+                            // Obtener grados para esta categoría
+                            $grados = DB::table('gradoCategoria')
+                                ->join('grado', 'gradoCategoria.idGrado', '=', 'grado.idGrado')
+                                ->where('gradoCategoria.idCategoria', $categoriaId)
+                                ->select('grado.idGrado', 'grado.grado as nombre')
+                                ->get();
+                            
+                            $categoria->grados = $grados;
+                            $area->categorias[] = $categoria;
+                        }
+                    }
+                    
+                    $areasConCategorias[] = $area;
+                }
+            }
+            
+            // Get grades by category
+            $gradosPorCategoria = [];
+            $gradosCategorias = DB::table('gradoCategoria')
+                ->join('grado', 'gradoCategoria.idGrado', '=', 'grado.idGrado')
+                ->select('gradoCategoria.idCategoria', 'grado.idGrado', 'grado.grado')
+                ->get();
+            
+            foreach ($gradosCategorias as $gc) {
+                if (!isset($gradosPorCategoria[$gc->idCategoria])) {
+                    $gradosPorCategoria[$gc->idCategoria] = [];
+                }
+                $gradosPorCategoria[$gc->idCategoria][] = [
+                    'idGrado' => $gc->idGrado,
+                    'grado' => $gc->grado
+                ];
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error al obtener datos para editar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatoria')
+                ->with('error', 'Error al cargar los datos para editar la convocatoria.');
+        }
 
-        return view('convocatoria.editar', compact('convocatoria'));
+        return view('convocatoria.editar', compact('convocatoria', 'areas', 'categorias', 'areasConCategorias', 'gradosPorCategoria'));
     }
 
     /**
@@ -241,26 +369,103 @@ class ConvocatoriaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validate the request
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'costo_individual' => 'nullable|numeric|min:0',
-            'costo_duo' => 'nullable|numeric|min:0',
-            'costo_equipo' => 'nullable|numeric|min:0',
-            'contacto' => 'nullable|string',
-            'requisitos' => 'nullable|array',
-            'areas' => 'nullable|array',
-        ]);
-
-        // In a real application, you would update the convocatoria in the database
-        // For now, we'll just log the data and redirect
-        Log::info("Convocatoria $id actualizada", $validated);
-
-        return redirect()->route('convocatoria')
-            ->with('success', 'Convocatoria actualizada exitosamente.');
+        try {
+            // Validate the request
+            $validated = $request->validate([
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string',
+                'fechaInicio' => 'required|date',
+                'fechaFin' => 'required|date|after_or_equal:fechaInicio',
+                'metodoPago' => 'required|string|max:100',
+                'contacto' => 'required|string|min:10|max:255',
+                'requisitos' => 'required|string|min:10|max:300',
+                'areas.*.categorias.*.precio' => 'nullable|numeric|min:0',
+            ]);
+            
+            // Verificar que la fecha fin no haya pasado si está en estado borrador
+            if ($request->has('fechaFin')) {
+                $fechaFin = \Carbon\Carbon::parse($validated['fechaFin']);
+                $hoy = \Carbon\Carbon::now();
+                
+                if ($fechaFin->lt($hoy)) {
+                    return back()->withInput()->with('error', 'No se puede actualizar la convocatoria con una fecha fin ya pasada.');
+                }
+            }
+            
+            // Obtener la convocatoria actual para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Preparar los datos para actualizar
+            $dataToUpdate = [
+                'descripcion' => $validated['descripcion'],
+                'contacto' => $validated['contacto'],
+                'updated_at' => now(),
+            ];
+            
+            // Si la convocatoria está en estado Borrador, permitir actualizar todos los campos
+            if ($convocatoria->estado == 'Borrador') {
+                $dataToUpdate['nombre'] = $validated['nombre'];
+                $dataToUpdate['fechaInicio'] = $validated['fechaInicio'];
+                $dataToUpdate['fechaFin'] = $validated['fechaFin'];
+                $dataToUpdate['metodoPago'] = $validated['metodoPago'];
+                $dataToUpdate['requisitos'] = $validated['requisitos'];
+            }
+            
+            // Actualizar la convocatoria en la base de datos
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->update($dataToUpdate);
+            
+            // Si la convocatoria está en estado Borrador y se enviaron áreas, actualizar las relaciones
+            if ($convocatoria->estado == 'Borrador' && $request->has('areas')) {
+                // Eliminar las relaciones existentes
+                DB::table('convocatoriaAreaCategoria')
+                    ->where('idConvocatoria', $id)
+                    ->delete();
+                
+                // Guardar las nuevas relaciones
+                foreach ($request->areas as $area) {
+                    $idArea = $area['idArea'];
+                    
+                    if (isset($area['categorias'])) {
+                        foreach ($area['categorias'] as $categoria) {
+                            $idCategoria = $categoria['idCategoria'];
+                            
+                            // Guardar la relación convocatoria-área-categoría
+                            DB::table('convocatoriaAreaCategoria')->insert([
+                                'idConvocatoria' => $id,
+                                'idArea' => $idArea,
+                                'idCategoria' => $idCategoria,
+                                'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            }
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('success', 'Convocatoria actualizada exitosamente.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error', ['errors' => $e->errors()]);
+            return back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->withInput()->with('error', 'Error al actualizar la convocatoria: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -271,12 +476,48 @@ class ConvocatoriaController extends Controller
      */
     public function destroy($id)
     {
-        // In a real application, you would delete the convocatoria from the database
-        // For now, we'll just log the action and redirect
-        Log::info("Convocatoria $id eliminada");
+        try {
+            // Obtener la convocatoria para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Solo permitir eliminar convocatorias en estado Borrador o Cancelada
+            if ($convocatoria->estado == 'Publicada') {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'No se puede eliminar una convocatoria publicada. Debe cancelarla primero.');
+            }
+            
+            // Eliminar las relaciones de áreas y categorías
+            DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->delete();
+                
+            // Eliminar la convocatoria
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->delete();
+            
+            Log::info("Convocatoria $id eliminada");
 
-        return redirect()->route('convocatoria')
-            ->with('success', 'Convocatoria eliminada exitosamente.');
+            return redirect()->route('convocatoria')
+                ->with('success', 'Convocatoria eliminada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatoria')
+                ->with('error', 'Error al eliminar la convocatoria.');
+        }
     }
 
     /**
@@ -307,5 +548,253 @@ class ConvocatoriaController extends Controller
 
         return redirect()->route('convocatoria')
             ->with('info', 'La exportación a Excel se está procesando.');
+    }
+    
+    /**
+     * Publish the specified convocatoria.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function publicar($id)
+    {
+        try {
+            // Obtener la convocatoria para verificar su estado y fechas
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Verificar que la fecha fin no haya pasado
+            $fechaFin = \Carbon\Carbon::parse($convocatoria->fechaFin);
+            $hoy = \Carbon\Carbon::now();
+            
+            if ($fechaFin->lt($hoy)) {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'No se puede publicar una convocatoria con fecha fin ya pasada.');
+            }
+            
+            // Verificar que no haya otra convocatoria publicada
+            $convocatoriaPublicada = DB::table('convocatoria')
+                ->where('estado', 'Publicada')
+                ->where('idConvocatoria', '!=', $id)
+                ->first();
+                
+            if ($convocatoriaPublicada) {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Ya existe una convocatoria publicada. Debe cancelar la convocatoria actual antes de publicar una nueva.');
+            }
+            
+            // Actualizar el estado de la convocatoria a 'Publicada'
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->update([
+                    'estado' => 'Publicada',
+                    'updated_at' => now()
+                ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('success', 'Convocatoria publicada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al publicar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al publicar la convocatoria.');
+        }
+    }
+    
+    /**
+     * Cancel the specified convocatoria.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function cancelar($id)
+    {
+        try {
+            // Actualizar el estado de la convocatoria a 'Cancelada'
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->update([
+                    'estado' => 'Cancelada',
+                    'updated_at' => now()
+                ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('success', 'Convocatoria cancelada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al cancelar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al cancelar la convocatoria.');
+        }
+    }
+
+    /**
+     * Create a new version of a published convocatoria.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function nuevaVersion($id)
+    {
+        try {
+            // Obtener la convocatoria original
+            $convocatoriaOriginal = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+            
+            if (!$convocatoriaOriginal) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Verificar que la convocatoria esté publicada
+            if ($convocatoriaOriginal->estado != 'Publicada') {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Solo se pueden crear nuevas versiones de convocatorias publicadas.');
+            }
+            
+            // Crear una nueva convocatoria como copia de la original pero en estado Borrador
+            $nuevaConvocatoriaId = DB::table('convocatoria')->insertGetId([
+                'nombre' => $convocatoriaOriginal->nombre . ' (Nueva Versión)',
+                'descripcion' => $convocatoriaOriginal->descripcion,
+                'fechaInicio' => $convocatoriaOriginal->fechaInicio,
+                'fechaFin' => $convocatoriaOriginal->fechaFin,
+                'contacto' => $convocatoriaOriginal->contacto,
+                'requisitos' => $convocatoriaOriginal->requisitos,
+                'metodoPago' => $convocatoriaOriginal->metodoPago,
+                'estado' => 'Borrador',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            
+            // Copiar las relaciones de áreas y categorías
+            $convocatoriaAreasCategorias = DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->get();
+            
+            foreach ($convocatoriaAreasCategorias as $relacion) {
+                DB::table('convocatoriaAreaCategoria')->insert([
+                    'idConvocatoria' => $nuevaConvocatoriaId,
+                    'idArea' => $relacion->idArea,
+                    'idCategoria' => $relacion->idCategoria,
+                    'precio' => $relacion->precio,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            
+            return redirect()->route('convocatorias.editar', $nuevaConvocatoriaId)
+                ->with('success', 'Se ha creado una nueva versión de la convocatoria. Puede editarla ahora.');
+        } catch (\Exception $e) {
+            Log::error('Error al crear nueva versión de convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al crear nueva versión de la convocatoria.');
+        }
+    }
+
+    /**
+     * Recuperar una convocatoria cancelada a estado borrador.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function recuperar($id)
+    {
+        try {
+            // Obtener la convocatoria para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Solo permitir recuperar convocatorias en estado Cancelada
+            if ($convocatoria->estado != 'Cancelada') {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Solo se pueden recuperar convocatorias canceladas.');
+            }
+            
+            // Actualizar el estado de la convocatoria a 'Borrador'
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->update([
+                    'estado' => 'Borrador',
+                    'updated_at' => now()
+                ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('success', 'Convocatoria recuperada exitosamente. Ahora está en estado borrador.');
+        } catch (\Exception $e) {
+            Log::error('Error al recuperar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al recuperar la convocatoria.');
+        }
+    }
+    
+    /**
+     * Verificar y actualizar el estado de las convocatorias según sus fechas.
+     * - Cambia a 'Borrador' las convocatorias publicadas cuya fecha fin ya pasó
+     */
+    private function verificarEstadoConvocatorias()
+    {
+        try {
+            $hoy = \Carbon\Carbon::now();
+            
+            // Buscar convocatorias publicadas con fecha fin pasada
+            $convocatoriasVencidas = DB::table('convocatoria')
+                ->where('estado', 'Publicada')
+                ->where('fechaFin', '<', $hoy->format('Y-m-d'))
+                ->get();
+            
+            // Actualizar el estado de las convocatorias vencidas a 'Borrador'
+            foreach ($convocatoriasVencidas as $convocatoria) {
+                DB::table('convocatoria')
+                    ->where('idConvocatoria', $convocatoria->idConvocatoria)
+                    ->update([
+                        'estado' => 'Borrador',
+                        'updated_at' => now()
+                    ]);
+                
+                Log::info("Convocatoria {$convocatoria->idConvocatoria} cambió automáticamente a estado Borrador por fecha vencida");
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al verificar estado de convocatorias: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 }

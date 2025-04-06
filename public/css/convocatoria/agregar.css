@@ -136,7 +136,7 @@ textarea.form-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .category-title {
@@ -144,11 +144,30 @@ textarea.form-control {
   color: var(--text-color);
 }
 
+.precio-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.precio-container label {
+  flex: 0 0 auto;
+  margin-bottom: 0;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.precio-input {
+  flex: 1;
+  width: auto;
+}
+
 .grade-options {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
 .grade-option {

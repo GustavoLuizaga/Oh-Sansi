@@ -29,7 +29,11 @@
         <div class="search-filter">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar categoría...">
+                <input type="text" 
+                       id="searchCategoria" 
+                       name="search" 
+                       placeholder="Buscar categoría..."
+                       value="{{ request('search') }}">
             </div>
             <div class="filter-dropdown">
                 <select>

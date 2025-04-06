@@ -170,3 +170,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+//Buscador de gestios de categotrias
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchCategoria');
+    const tableRows = document.querySelectorAll('.areas-table tbody tr');
+
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const categoriaName = row.querySelector('td:first-child').textContent.toLowerCase();
+            
+            if (categoriaName.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Mostrar mensaje cuando no hay resultados
+        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+        const tbody = document.querySelector('.areas-table tbody');
+        const noResultsRow = tbody.querySelector('.no-results');
+
+        if (visibleRows.length === 0) {
+            if (!noResultsRow) {
+                const tr = document.createElement('tr');
+                tr.className = 'no-results';
+                tr.innerHTML = '<td colspan="3" class="text-center text-danger">No se encontraron categorías con ese nombre</td>';
+                tbody.appendChild(tr);
+            }
+        } else if (noResultsRow) {
+            noResultsRow.remove();
+        }
+    });
+});

@@ -12,11 +12,22 @@ class CategoriaController extends Controller
     /**
      * Muestra la vista de gestión de categorías
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categorias = Categoria::with('grados')->get();
-        $grados = Grado::all();
+        $query = Categoria::query();
+
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where('nombre', 'LIKE', "%{$searchTerm}%");
+        }
+
+        // Obtener categorías con sus grados relacionados
+        $categorias = $query->with('grados')->get();
         
+        // Obtener todos los grados
+        $grados = Grado::all();
+
+        // Pasar tanto las categorías como los grados a la vista
         return view('areas y categorias.gestionCategorias', compact('categorias', 'grados'));
     }
     
@@ -105,4 +116,3 @@ class CategoriaController extends Controller
         ]);
     }
 }
-

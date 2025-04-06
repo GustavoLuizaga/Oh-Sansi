@@ -6,31 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Models\Categoria;
 use App\Models\Grado;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CategoriaController extends Controller
 {
     /**
      * Muestra la vista de gestión de categorías
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $query = Categoria::query();
+        // Inicializa el query para las categorías con su relación de grados
+        $query = Categoria::with('grados');
 
+        // Búsqueda
         if ($request->has('search')) {
             $searchTerm = $request->search;
             $query->where('nombre', 'LIKE', "%{$searchTerm}%");
         }
 
-        // Obtener categorías con sus grados relacionados
-        $categorias = $query->with('grados')->get();
-        
-        // Obtener todos los grados
+        // Ordenamiento
+        switch ($request->orderBy) {
+            case 'nombre_asc':
+                $query->orderBy('nombre', 'asc');
+                break;
+            case 'nombre_desc':
+                $query->orderBy('nombre', 'desc');
+                break;
+            case 'todos':
+            default:
+                $query->orderBy('nombre', 'asc'); // orden por defecto
+                break;
+        }
+
+        $categorias = $query->get();
+
+        // Obtener todos los grados disponibles
         $grados = Grado::all();
 
-        // Pasar tanto las categorías como los grados a la vista
+        // Pasar ambas variables a la vista
         return view('areas y categorias.gestionCategorias', compact('categorias', 'grados'));
     }
-    
+
     /**
      * Almacena una nueva categoría con sus grados relacionados
      */
@@ -57,7 +73,7 @@ class CategoriaController extends Controller
             'categoria' => $categoria->load('grados')
         ]);
     }
-    
+
     /**
      * Obtiene datos para edición
      */
@@ -70,7 +86,7 @@ class CategoriaController extends Controller
             'categoria' => $categoria
         ]);
     }
-    
+
     /**
      * Actualiza una categoría existente
      */
@@ -99,7 +115,7 @@ class CategoriaController extends Controller
             'categoria' => $categoria->load('grados')
         ]);
     }
-    
+
     /**
      * Elimina una categoría
      */

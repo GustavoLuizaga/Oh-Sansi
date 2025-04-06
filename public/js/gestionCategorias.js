@@ -206,3 +206,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+// Ordenamiento de categorías
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejador para el select de ordenamiento
+    const orderSelect = document.getElementById('orderBy');
+    if (orderSelect) {
+        orderSelect.addEventListener('change', function() {
+            // Obtener los parámetros actuales de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Actualizar o agregar el parámetro de ordenamiento
+            if (this.value) {
+                urlParams.set('orderBy', this.value);
+            } else {
+                urlParams.delete('orderBy');
+            }
+            
+            // Mantener el término de búsqueda si existe
+            const searchTerm = document.getElementById('searchCategoria').value;
+            if (searchTerm) {
+                urlParams.set('search', searchTerm);
+            }
+            
+            // Recargar la página con los nuevos parámetros
+            window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+        });
+    }
+});

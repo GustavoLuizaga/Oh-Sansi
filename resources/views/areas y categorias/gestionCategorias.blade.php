@@ -36,11 +36,10 @@
                        value="{{ request('search') }}">
             </div>
             <div class="filter-dropdown">
-                <select>
-                    <option>Ordenar por</option>
-                    <option>Nivel (A-Z)</option>
-                    <option>Categoria (Z-A)</option>
-                    <option>Fecha de creación</option>
+                <select id="orderBy" name="orderBy">
+                    <option value="todos" {{ request('orderBy') == 'todos' || !request('orderBy') ? 'selected' : '' }}>Todos</option>
+                    <option value="nombre_asc" {{ request('orderBy') == 'nombre_asc' ? 'selected' : '' }}>Nivel (A-Z)</option>
+                    <option value="nombre_desc" {{ request('orderBy') == 'nombre_desc' ? 'selected' : '' }}>Nivel (Z-A)</option>
                 </select>
             </div>
         </div>

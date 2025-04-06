@@ -82,13 +82,30 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Validación exitosa - proceder con envío
-        console.log('Datos a enviar:', {
-            categoria: document.getElementById('nombreCategoria').value,
-            grados: gradosValidos.map(select => select.value)
-        });
+        // Recopilar datos
+        const formData = new FormData(FORMULARIO_PRINCIPAL);
         
-        // this.submit(); // Descomentar para enviar realmente
+        // Realizar la solicitud AJAX
+        fetch('/gestionCategorias/', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaCategoriaModal'));
+                modal.hide();
+                window.location.reload();
+                
+                // Aquí puedes hacer lo que necesites después de crear la categoría
+            } else {
+                mostrarError('Hubo un error al crear la categoría');
+            }
+        })
+        .catch(error => {
+            mostrarError('Error en la conexión');
+        });
     }
     
     /**
@@ -106,4 +123,50 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Estado inicial
     actualizarEstados();
+    
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmDeleteModal = document.getElementById('ConfirmarBorradoModal');
+    let categoriaIdEliminar = null;
+
+    // Manejar la apertura del modal y establecer el nombre de la categoría
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function() {
+            const categoriaNombre = this.getAttribute('data-categoria-nombre');
+            categoriaIdEliminar = this.getAttribute('data-categoria-id');
+            document.getElementById('nombreCategoriaEliminar').textContent = categoriaNombre;
+        });
+    });
+
+    // Manejar la confirmación de eliminación
+    document.getElementById('confirmarEliminar').addEventListener('click', function() {
+        if (categoriaIdEliminar) {
+            fetch(`/gestionCategorias/${categoriaIdEliminar}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cerrar el modal
+                    const modalInstance = bootstrap.Modal.getInstance(confirmDeleteModal);
+                    modalInstance.hide();
+
+                    // Eliminar la fila de la tabla
+                    document.querySelector(`tr[data-categoria-id="${categoriaIdEliminar}"]`).remove();
+                } else {
+                    alert('Hubo un error al eliminar la categoría.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un error al eliminar la categoría.');
+            });
+        }
+    });
 });

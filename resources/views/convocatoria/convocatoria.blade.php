@@ -85,14 +85,54 @@
                             <a href="{{ route('convocatorias.ver', $convocatoria->idConvocatoria) }}" class="btn-action btn-details" title="Detalles">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            @if($convocatoria->estado != 'Cancelada')
                             <a href="{{ route('convocatorias.editar', $convocatoria->idConvocatoria) }}" class="btn-action btn-edit" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            @endif
+                            
                             @if($convocatoria->estado == 'Borrador')
-                            <a href="#" class="btn-action btn-approve" title="Aprobar">
+                            <!-- Botón de Publicar para convocatorias en borrador -->
+                            <a href="#" class="btn-action btn-approve" title="Publicar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de publicar esta convocatoria?')) document.getElementById('publish-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-check"></i>
                             </a>
-                            @else
+                            <form id="publish-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.publicar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('PUT')
+                            </form>
+                            
+                            <!-- Botón de Eliminar para convocatorias en borrador -->
+                            <a href="#" class="btn-action btn-delete" title="Eliminar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            <form id="delete-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            @elseif($convocatoria->estado == 'Publicada')
+                            <!-- Botón de Cancelar para convocatorias publicadas (no se pueden eliminar) -->
+                            <a href="#" class="btn-action btn-cancel" title="Cancelar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de cancelar esta convocatoria?')) document.getElementById('cancel-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                            <form id="cancel-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.cancelar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('PUT')
+                            </form>
+                            @elseif($convocatoria->estado == 'Cancelada')
+                            <!-- Botón de Recuperar para convocatorias canceladas (se recuperan como borrador) -->
+                            <a href="#" class="btn-action btn-recover" title="Recuperar" 
+                               onclick="event.preventDefault(); if(confirm('¿Está seguro de recuperar esta convocatoria? Se restaurará como borrador.')) document.getElementById('recover-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                            <form id="recover-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.recuperar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                                @csrf
+                                @method('PUT')
+                            </form>
+                            
+                            <!-- Botón de Eliminar para convocatorias canceladas -->
                             <a href="#" class="btn-action btn-delete" title="Eliminar" 
                                onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-trash"></i>

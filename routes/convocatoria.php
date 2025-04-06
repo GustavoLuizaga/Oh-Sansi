@@ -35,4 +35,7 @@ Route::middleware('auth')->group(function () {
     
     // Nueva Versión de Convocatoria
     Route::get('/convocatoria/{id}/nueva-version', [ConvocatoriaController::class, 'nuevaVersion'])->name('convocatorias.nuevaVersion');
+    
+    // Recuperar Convocatoria Cancelada
+    Route::put('/convocatoria/{id}/recuperar', [ConvocatoriaController::class, 'recuperar'])->name('convocatorias.recuperar');
 });

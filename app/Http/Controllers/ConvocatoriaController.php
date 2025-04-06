@@ -80,6 +80,7 @@ class ConvocatoriaController extends Controller
                 'areas.*.idArea' => 'required|exists:area,idArea',
                 'areas.*.categorias' => 'required|array',
                 'areas.*.categorias.*.idCategoria' => 'required|exists:categoria,idCategoria',
+                'areas.*.categorias.*.precio' => 'required|numeric|min:0',
             ]);
             
             Log::info('Validation passed', ['validated' => $validated]);
@@ -114,7 +115,7 @@ class ConvocatoriaController extends Controller
                         'idConvocatoria' => $idConvocatoria,
                         'idArea' => $idArea,
                         'idCategoria' => $idCategoria,
-                        'precio' => 0, // Default price, can be updated later
+                        'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -367,6 +368,7 @@ class ConvocatoriaController extends Controller
                 'metodoPago' => 'required|string|max:100',
                 'contacto' => 'required|string|min:10|max:255',
                 'requisitos' => 'required|string|min:10|max:300',
+                'areas.*.categorias.*.precio' => 'nullable|numeric|min:0',
             ]);
             
             // Obtener la convocatoria actual para verificar su estado
@@ -420,7 +422,7 @@ class ConvocatoriaController extends Controller
                                 'idConvocatoria' => $id,
                                 'idArea' => $idArea,
                                 'idCategoria' => $idCategoria,
-                                'precio' => 0, // Default price, can be updated later
+                                'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
@@ -453,12 +455,48 @@ class ConvocatoriaController extends Controller
      */
     public function destroy($id)
     {
-        // In a real application, you would delete the convocatoria from the database
-        // For now, we'll just log the action and redirect
-        Log::info("Convocatoria $id eliminada");
+        try {
+            // Obtener la convocatoria para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Solo permitir eliminar convocatorias en estado Borrador o Cancelada
+            if ($convocatoria->estado == 'Publicada') {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'No se puede eliminar una convocatoria publicada. Debe cancelarla primero.');
+            }
+            
+            // Eliminar las relaciones de áreas y categorías
+            DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->delete();
+                
+            // Eliminar la convocatoria
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->delete();
+            
+            Log::info("Convocatoria $id eliminada");
 
-        return redirect()->route('convocatoria')
-            ->with('success', 'Convocatoria eliminada exitosamente.');
+            return redirect()->route('convocatoria')
+                ->with('success', 'Convocatoria eliminada exitosamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatoria')
+                ->with('error', 'Error al eliminar la convocatoria.');
+        }
     }
 
     /**
@@ -622,6 +660,54 @@ class ConvocatoriaController extends Controller
             
             return redirect()->route('convocatorias.ver', $id)
                 ->with('error', 'Error al crear nueva versión de la convocatoria.');
+        }
+    }
+
+    /**
+     * Recuperar una convocatoria cancelada a estado borrador.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function recuperar($id)
+    {
+        try {
+            // Obtener la convocatoria para verificar su estado
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+                
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria')
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Solo permitir recuperar convocatorias en estado Cancelada
+            if ($convocatoria->estado != 'Cancelada') {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Solo se pueden recuperar convocatorias canceladas.');
+            }
+            
+            // Actualizar el estado de la convocatoria a 'Borrador'
+            DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->update([
+                    'estado' => 'Borrador',
+                    'updated_at' => now()
+                ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('success', 'Convocatoria recuperada exitosamente. Ahora está en estado borrador.');
+        } catch (\Exception $e) {
+            Log::error('Error al recuperar convocatoria: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al recuperar la convocatoria.');
         }
     }
 }

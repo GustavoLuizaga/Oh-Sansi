@@ -32,15 +32,44 @@
                         @csrf
                         @method('PUT')
                     </form>
+                    
+                    <!-- Botón de Eliminar para convocatorias en borrador -->
+                    <a href="#" class="btn-action btn-delete" onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-borrador').submit();">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </a>
+                    <form id="delete-form-borrador" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                        @csrf
+                        @method('DELETE')
+                    </form>
                 @endif
                 
-                @if($convocatoria->estado != 'Cancelada')
+                @if($convocatoria->estado == 'Publicada')
                     <a href="#" class="btn-action btn-cancel" onclick="event.preventDefault(); if(confirm('¿Está seguro de cancelar esta convocatoria?')) document.getElementById('cancel-form').submit();">
                         <i class="fas fa-ban"></i> Cancelar
                     </a>
                     <form id="cancel-form" action="{{ route('convocatorias.cancelar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
                         @csrf
                         @method('PUT')
+                    </form>
+                @endif
+                
+                @if($convocatoria->estado == 'Cancelada')
+                    <!-- Botón de Recuperar para convocatorias canceladas (se recuperan como borrador) -->
+                    <a href="#" class="btn-action btn-recover" onclick="event.preventDefault(); if(confirm('¿Está seguro de recuperar esta convocatoria? Se restaurará como borrador.')) document.getElementById('recover-form').submit();">
+                        <i class="fas fa-undo"></i> Recuperar
+                    </a>
+                    <form id="recover-form" action="{{ route('convocatorias.recuperar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                        @csrf
+                        @method('PUT')
+                    </form>
+                    
+                    <!-- Botón de Eliminar para convocatorias canceladas -->
+                    <a href="#" class="btn-action btn-delete" onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-cancelada').submit();">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </a>
+                    <form id="delete-form-cancelada" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
+                        @csrf
+                        @method('DELETE')
                     </form>
                 @endif
             </div>
@@ -85,6 +114,18 @@
                         @foreach($area->categorias as $categoria)
                         <div class="categoria-item">
                             <h4 class="categoria-title">{{ $categoria->nombre }}</h4>
+                            
+                            @php
+                                $precio = DB::table('convocatoriaAreaCategoria')
+                                    ->where('idConvocatoria', $convocatoria->idConvocatoria)
+                                    ->where('idArea', $area->idArea)
+                                    ->where('idCategoria', $categoria->idCategoria)
+                                    ->value('precio');
+                            @endphp
+                            <div class="precio-info">
+                                <span class="precio-label">Precio:</span>
+                                <span class="precio-value">{{ number_format($precio ?? 0, 2) }} Bs.</span>
+                            </div>
                             
                             <div class="grados-list">
                                 @foreach($categoria->grados as $grado)

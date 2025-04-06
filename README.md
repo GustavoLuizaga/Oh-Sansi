@@ -1,3 +1,98 @@
+# 🎯 Sistema de Inscripción para las Olimpiadas Oh! SanSi
+
+<p align="center"><a href="https://tecnocursosedu.com/olimpiadas-osansi-2024/" target="_blank"><img src="https://tecnocursosedu.com/wp-content/uploads/2024/10/ohsansi.jpg" width="400"></a></p>
+
+## 🚀 Descripción del Proyecto
+
+Este sistema permite gestionar el proceso de inscripción de estudiantes a las Olimpiadas Oh! SanSi. Incluye funcionalidades para que los administradores, tutores y estudiantes realicen sus tareas de manera eficiente y organizada.
+
+---
+
+## 🔧 Tecnologías Usadas
+
+- **PHP 7.4.22**  
+- **Laravel 8.83.29**  
+- **MySQL 5.7**  
+- **Apache 2.4.28**  
+- **Visual Studio Code**  
+- **PowerDesigner** *(para el modelado de base de datos)*  
+- **StarUML** *(para diagramas UML)*  
+- **GIMP 2.10** *(para edición gráfica)*  
+
+---
+
+## 🔥 Instalación y Configuración
+
+1. **Clonar el repositorio:**
+```bash
+    git clone https://github.com/KleberVM/sansi-system.git
+```
+
+2. **Instalar dependencias (Recomendable estar dentro de la carpeta del proyecto):**
+```bash
+    composer install
+    npm install
+```
+
+3. **Configurar el archivo .env:**
+```bash
+    cp .env.example .env
+    php artisan key:generate
+```
+
+4. **Configurar la base de datos (Puedes saltarte al paso 5):**
+```bash
+    php artisan migrate --seed
+```
+
+5. **Levantar el servidor local:**
+```bash
+    php artisan serve
+```
+
+---
+
+## Comandos útiles para el proyecto
+
+- Refresca la base de datos (Ten en cuenta que se perderan los datos que estan guardados en la base de datos.)
+```bash
+php artisan migrate:fresh --seed 
+```
+
+- Ejecuta el seeder que tenemos (llena la base de datos con datos escenciales como roles , funciones ,ui).
+```bash
+php artisan db:seed --class=DefaultDataSeeder 
+```
+
+- Para los que tienen php superior a 7.4.22 
+```bash
+composer remove phpoffice/phpspreadsheet
+```
+
+---
+
+## 🧙‍♂️ Datos de acceso
+Cuando ejcutas el seeder tendras al admin por defecto
+- **Admin:**
+    - **Usuario:** admin
+    - **email:** admin@gmail.com
+    - **Contraseña:** 12345678
+
+---
+
+## 📝 PHP INI
+Extenciones que debes de tener habilitadas
+- extension=curl
+- extension=fileinfo
+- extension=mbstring
+- extension=mysqli
+- extension=openssl
+- extension=pdo_mysql
+- extension=zip
+- extension_dir = "ext"
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class ConvocatoriaController extends Controller
 {
@@ -13,9 +14,9 @@ class ConvocatoriaController extends Controller
      * Display a listing of the convocatorias.
      *
      * @param  Request  $request
-     * @return View
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         // Verificar y actualizar el estado de las convocatorias vencidas
         $this->verificarEstadoConvocatorias();
@@ -46,9 +47,9 @@ class ConvocatoriaController extends Controller
     /**
      * Show the form for creating a new convocatoria.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function create()
+    public function create(): View|RedirectResponse
     {
         // Fetch data from the database
         $areas = DB::table('area')->get();
@@ -79,9 +80,9 @@ class ConvocatoriaController extends Controller
      * Store a newly created convocatoria in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         // Log the incoming request data for debugging
         Log::info('Convocatoria store request received', ['data' => $request->all()]);
@@ -173,9 +174,9 @@ class ConvocatoriaController extends Controller
      * Display the specified convocatoria.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function show($id)
+    public function show($id): View|RedirectResponse
     {
         try {
             // Obtener la convocatoria de la base de datos
@@ -265,9 +266,9 @@ class ConvocatoriaController extends Controller
      * Show the form for editing the specified convocatoria.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function edit($id)
+    public function edit($id): View|RedirectResponse
     {
         try {
             // Obtener la convocatoria de la base de datos
@@ -382,9 +383,9 @@ class ConvocatoriaController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): RedirectResponse
     {
         try {
             // Validate the request
@@ -489,9 +490,9 @@ class ConvocatoriaController extends Controller
      * Remove the specified convocatoria from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
         try {
             // Obtener la convocatoria para verificar su estado
@@ -540,9 +541,9 @@ class ConvocatoriaController extends Controller
     /**
      * Export convocatorias to PDF.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function exportPdf()
+    public function exportPdf(): RedirectResponse
     {
         // In a real application, you would generate a PDF with the convocatorias
         // For now, we'll just log the action and redirect
@@ -555,9 +556,9 @@ class ConvocatoriaController extends Controller
     /**
      * Export convocatorias to Excel.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function exportExcel()
+    public function exportExcel(): RedirectResponse
     {
         // In a real application, you would generate an Excel file with the convocatorias
         // For now, we'll just log the action and redirect
@@ -571,9 +572,9 @@ class ConvocatoriaController extends Controller
      * Publish the specified convocatoria.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function publicar($id)
+    public function publicar($id): RedirectResponse
     {
         try {
             // Obtener la convocatoria para verificar su estado y fechas
@@ -633,9 +634,9 @@ class ConvocatoriaController extends Controller
      * Cancel the specified convocatoria.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function cancelar($id)
+    public function cancelar($id): RedirectResponse
     {
         try {
             // Actualizar el estado de la convocatoria a 'Cancelada'
@@ -665,9 +666,9 @@ class ConvocatoriaController extends Controller
      * Create a new version of a published convocatoria.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function nuevaVersion($id)
+    public function nuevaVersion($id): RedirectResponse
     {
         try {
             // Obtener la convocatoria original
@@ -735,9 +736,9 @@ class ConvocatoriaController extends Controller
      * Recuperar una convocatoria cancelada a estado borrador.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function recuperar($id)
+    public function recuperar($id): RedirectResponse
     {
         try {
             // Obtener la convocatoria para verificar su estado

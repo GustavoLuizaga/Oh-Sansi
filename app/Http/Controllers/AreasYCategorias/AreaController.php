@@ -14,9 +14,17 @@ class AreaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $areas = Area::all();
+        $query = Area::query();
+
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where('nombre', 'LIKE', "%{$searchTerm}%");
+        }
+
+        $areas = $query->get();
+
         return view('areas y categorias.gestionAreas', compact('areas'));
     }
 
@@ -168,5 +176,4 @@ class AreaController extends Controller
         return redirect()->route('areas.index')
             ->with('success', 'Área eliminada exitosamente');
     }
-    
 }

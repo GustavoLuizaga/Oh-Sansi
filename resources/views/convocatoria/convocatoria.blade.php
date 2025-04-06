@@ -1,3 +1,6 @@
+@push('scripts')
+    <script src="{{ asset('js/convocatoria.js') }}"></script>
+@endpush
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/convocatoria/convocatoria.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -40,21 +43,25 @@
         </div>
 
         <!-- Search and Filter -->
-        <div class="search-filter-container">
+        <form action="{{ route('convocatoria') }}" method="GET" class="search-filter-container">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar convocatoria...">
+                <input type="text" 
+                       id="searchConvocatoria" 
+                       name="search" 
+                       placeholder="Buscar convocatoria..."
+                       value="{{ request('search') }}">
             </div>
             <div class="filter-dropdown">
                 <label for="estado">Estado:</label>
-                <select id="estado">
+                <select id="estado" name="estado">
                     <option value="">Todos</option>
-                    <option value="publicada">Publicada</option>
-                    <option value="borrador">Borrador</option>
-                    <option value="cancelada">Cancelada</option>
+                    <option value="publicada" {{ request('estado') == 'publicada' ? 'selected' : '' }}>Publicada</option>
+                    <option value="borrador" {{ request('estado') == 'borrador' ? 'selected' : '' }}>Borrador</option>
+                    <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
                 </select>
             </div>
-        </div>
+        </form>
 
         <!-- Table -->
         <table class="convocatoria-table">
@@ -169,21 +176,4 @@
         @endif
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Export PDF button
-            document.getElementById('exportPdf').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Add PDF export functionality here
-                alert('Exportando a PDF...');
-            });
-            
-            // Export Excel button
-            document.getElementById('exportExcel').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Add Excel export functionality here
-                alert('Exportando a Excel...');
-            });
-        });
-    </script>
 </x-app-layout>

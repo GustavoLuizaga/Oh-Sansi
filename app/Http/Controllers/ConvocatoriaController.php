@@ -5,23 +5,40 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class ConvocatoriaController extends Controller
 {
     /**
      * Display a listing of the convocatorias.
      *
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return View
      */
-    public function index()
+    public function index(Request $request): View
     {
         // Verificar y actualizar el estado de las convocatorias vencidas
         $this->verificarEstadoConvocatorias();
         
-        // Fetch convocatorias from the database
-        $convocatorias = DB::table('convocatoria')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Iniciar la consulta
+        $query = DB::table('convocatoria');
+
+        // Aplicar filtro de búsqueda si existe
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where('nombre', 'LIKE', "%{$searchTerm}%");
+        }
+
+        // Aplicar filtro de estado si existe
+        if ($request->has('estado') && !empty($request->estado)) {
+            $query->where('estado', $request->estado);
+        }
+
+        // Ordenar por fecha de creación descendente (más reciente primero)
+        $query->orderBy('created_at', 'desc');
+
+        // Ejecutar la consulta
+        $convocatorias = $query->get();
         
         return view('convocatoria.convocatoria', compact('convocatorias'));
     }

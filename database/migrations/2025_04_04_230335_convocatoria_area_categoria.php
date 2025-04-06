@@ -13,7 +13,7 @@ class ConvocatoriaAreaCategoria extends Migration
             $table->unsignedBigInteger('idConvocatoria');
             $table->unsignedBigInteger('idArea');
             $table->unsignedBigInteger('idCategoria');
-            $table->integer('precio');
+            $table->decimal('precio', 8, 2); // Changed from integer to decimal
             $table->timestamps();
 
             $table->foreign('idConvocatoria')->references('idConvocatoria')->on('convocatoria')->onDelete('cascade');

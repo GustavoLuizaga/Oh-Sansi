@@ -6,15 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class AreaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra la lista de áreas.
      *
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request  $request
+     * @return View
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = Area::query();
 
@@ -29,25 +33,23 @@ class AreaController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Redirige a la vista principal ya que no se usa directamente.
      *
-     * @return \Illuminate\Http\Response
+     * @return RedirectResponse
      */
-    public function create()
+    public function create(): RedirectResponse
     {
-        // Este método no se usará directamente ya que la creación se hace desde un modal
         return redirect()->route('areas.index');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guarda una nueva área.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse|RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse|RedirectResponse
     {
-        // Validar la entrada
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
         ]);
@@ -59,12 +61,10 @@ class AreaController extends Controller
             ], 422);
         }
 
-        // Crear una nueva área
         $area = Area::create([
             'nombre' => $request->nombre,
         ]);
 
-        // Si es una solicitud AJAX, devolver respuesta JSON
         if ($request->expectsJson()) {
             return response()->json([
                 'status' => 'success',
@@ -73,22 +73,20 @@ class AreaController extends Controller
             ]);
         }
 
-        // Si es una solicitud normal, redirigir con mensaje de éxito
         return redirect()->route('areas.index')
             ->with('success', 'Área creada exitosamente');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra una sola área.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
         $area = Area::findOrFail($id);
-        
-        // Este método está implementado por completitud RESTful
+
         return response()->json([
             'status' => 'success',
             'area' => $area
@@ -96,16 +94,15 @@ class AreaController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Devuelve los datos para editar una área (usado por AJAX).
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function edit($id)
+    public function edit(int $id): JsonResponse
     {
-        // Este método no se usará directamente ya que la edición se hará
-        // desde un modal en la vista index
         $area = Area::findOrFail($id);
+
         return response()->json([
             'status' => 'success',
             'area' => $area
@@ -113,15 +110,14 @@ class AreaController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza una área existente.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse|RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse|RedirectResponse
     {
-        // Validar la entrada
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
         ]);
@@ -133,13 +129,11 @@ class AreaController extends Controller
             ], 422);
         }
 
-        // Actualizar el área
         $area = Area::findOrFail($id);
         $area->update([
             'nombre' => $request->nombre,
         ]);
 
-        // Si es una solicitud AJAX, devolver respuesta JSON
         if ($request->expectsJson()) {
             return response()->json([
                 'status' => 'success',
@@ -148,23 +142,21 @@ class AreaController extends Controller
             ]);
         }
 
-        // Si es una solicitud normal, redirigir con mensaje de éxito
         return redirect()->route('areas.index')
             ->with('success', 'Área actualizada exitosamente');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Elimina una área.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse|RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse|RedirectResponse
     {
         $area = Area::findOrFail($id);
         $area->delete();
 
-        // Si es una solicitud AJAX, devolver respuesta JSON
         if (request()->expectsJson()) {
             return response()->json([
                 'status' => 'success',
@@ -172,7 +164,6 @@ class AreaController extends Controller
             ]);
         }
 
-        // Si es una solicitud normal, redirigir con mensaje de éxito
         return redirect()->route('areas.index')
             ->with('success', 'Área eliminada exitosamente');
     }

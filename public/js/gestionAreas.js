@@ -157,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-//Buscar área por nombre
 
+//Buscar área por nombre
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchArea');
     const tableRows = document.querySelectorAll('.areas-table tbody tr');
@@ -192,4 +192,34 @@ document.addEventListener('DOMContentLoaded', function() {
             noResultsRow.remove();
         }
     });
+});
+
+
+// Manejador para el select de ordenamiento
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejador para el select de ordenamiento
+    const orderSelect = document.getElementById('orderBy');
+    if (orderSelect) {
+        orderSelect.addEventListener('change', function() {
+            // Obtener los parámetros actuales de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Actualizar o agregar el parámetro de ordenamiento
+            if (this.value) {
+                urlParams.set('orderBy', this.value);
+            } else {
+                urlParams.delete('orderBy');
+            }
+            
+            // Mantener el término de búsqueda si existe
+            const searchTerm = document.getElementById('searchArea').value;
+            if (searchTerm) {
+                urlParams.set('search', searchTerm);
+            }
+            
+            // Recargar la página con los nuevos parámetros
+            window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+        });
+    }
 });

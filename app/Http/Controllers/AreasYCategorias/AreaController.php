@@ -22,9 +22,24 @@ class AreaController extends Controller
     {
         $query = Area::query();
 
+        // Búsqueda
         if ($request->has('search')) {
             $searchTerm = $request->search;
             $query->where('nombre', 'LIKE', "%{$searchTerm}%");
+        }
+
+        // Ordenamiento
+        switch ($request->orderBy) {
+            case 'nombre_asc':
+                $query->orderBy('nombre', 'asc');
+                break;
+            case 'nombre_desc':
+                $query->orderBy('nombre', 'desc');
+                break;
+            case 'todos':
+            default:
+                // No aplicar ningún orden específico
+                break;
         }
 
         $areas = $query->get();

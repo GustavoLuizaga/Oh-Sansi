@@ -1,142 +1,132 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/delegacion/modal.css') }}">
-    
-    <div class="delegaciones-container">
-        <div class="delegaciones-header">
-            <div class="header-top-row">
-                <h1>Lista de Colegios</h1>
-                <a href="{{ route('delegaciones.agregar') }}" class="add-button">
-                    <i class="fas fa-plus"></i> Agregar Colegio
+
+    <link rel="stylesheet" href="{{ asset('css/delegacion/informacion.css') }}">
+
+    <div class="delegacion-info-container">
+        <div class="delegacion-info-header">
+            <h1>Editar Colegio: {{ $delegacion->nombre }}</h1>
+
+            <div class="action-buttons">
+                <a href="javascript:history.back()" class="action-button back-button">
+                    <i class="fas fa-arrow-left"></i> Volver
                 </a>
             </div>
-            
-            @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-            @endif
-            
-            @if(request()->has('deleted') && request()->deleted == 'true')
-            <div class="alert alert-success">
-                Colegio eliminado correctamente.
-            </div>
-            @endif
-            
-            <form action="{{ route('delegaciones') }}" method="GET" id="filterForm">
-                <div class="delegaciones-search-bar">
-                    <div class="search-input">
-                        <input type="text" name="search" placeholder="Buscar por nombre o código SIE" value="{{ request('search') }}">
-                    </div>
-                    
-                    <button type="submit" class="search-button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    
-                    <button type="button" class="export-button pdf" id="exportPdf">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    
-                    <button type="button" class="export-button excel" id="exportExcel">
-                        <i class="fas fa-file-excel"></i> Excel
-                    </button>
+        </div>
+
+        @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        @endif
+
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <form action="{{ route('delegaciones.update', $delegacion->codigo_sie) }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="codigo_sie">Código SIE</label>
+                    <input type="text" id="codigo_sie" value="{{ $delegacion->codigo_sie }}" disabled class="form-control">
+                    <small class="form-text text-muted">El código SIE no se puede modificar</small>
                 </div>
-                
-                <div class="delegaciones-filters">
-                    <select class="filter-select" name="dependencia" id="dependencia">
-                        <option value="">Dependencia</option>
-                        <option value="Fiscal" {{ request('dependencia') == 'Fiscal' ? 'selected' : '' }}>Fiscal</option>
-                        <option value="Convenio" {{ request('dependencia') == 'Convenio' ? 'selected' : '' }}>Convenio</option>
-                        <option value="Privado" {{ request('dependencia') == 'Privado' ? 'selected' : '' }}>Privado</option>
-                        <option value="Comunitaria" {{ request('dependencia') == 'Comunitaria' ? 'selected' : '' }}>Comunitaria</option>
-                    </select>
 
+                <div class="form-group">
+                    <label for="nombre">Nombre del Colegio</label>
+                    <input type="text" id="nombre" name="nombre" value="{{ old('nombre', $delegacion->nombre) }}" class="form-control" required>
+                </div>
 
-                    <select class="filter-select" name="departamento" id="departamento">
-                        <option value="">Departamento</option>
-                        <option value="La Paz" {{ request('departamento') == 'La Paz' ? 'selected' : '' }}>La Paz</option>
-                        <option value="Santa Cruz" {{ request('departamento') == 'Santa Cruz' ? 'selected' : '' }}>Santa Cruz</option>
-                        <option value="Cochabamba" {{ request('departamento') == 'Cochabamba' ? 'selected' : '' }}>Cochabamba</option>
-                        <option value="Oruro" {{ request('departamento') == 'Oruro' ? 'selected' : '' }}>Oruro</option>
-                        <option value="Potosí" {{ request('departamento') == 'Potosí' ? 'selected' : '' }}>Potosí</option>
-                        <option value="Tarija" {{ request('departamento') == 'Tarija' ? 'selected' : '' }}>Tarija</option>
-                        <option value="Chuquisaca" {{ request('departamento') == 'Chuquisaca' ? 'selected' : '' }}>Chuquisaca</option>
-                        <option value="Beni" {{ request('departamento') == 'Beni' ? 'selected' : '' }}>Beni</option>
-                        <option value="Pando" {{ request('departamento') == 'Pando' ? 'selected' : '' }}>Pando</option>
-                    </select>
-                    
-                    
-                    
-                    <select class="filter-select" name="provincia" id="provincia">
-                        <option value="">Provincia</option>
-                        @if(request('provincia'))
-                            <option value="{{ request('provincia') }}" selected>{{ request('provincia') }}</option>
-                        @endif
-                    </select>
-                    
-                    <select class="filter-select" name="municipio" id="municipio">
-                        <option value="">Municipio</option>
-                        @if(request('municipio'))
-                            <option value="{{ request('municipio') }}" selected>{{ request('municipio') }}</option>
-                        @endif
+                <div class="form-group">
+                    <label for="dependencia">Dependencia</label>
+                    <select id="dependencia" name="dependencia" class="form-control" required>
+                        <option value="">Seleccione una dependencia</option>
+                        <option value="Fiscal" {{ old('dependencia', $delegacion->dependencia) == 'Fiscal' ? 'selected' : '' }}>Fiscal</option>
+                        <option value="Convenio" {{ old('dependencia', $delegacion->dependencia) == 'Convenio' ? 'selected' : '' }}>Convenio</option>
+                        <option value="Privado" {{ old('dependencia', $delegacion->dependencia) == 'Privado' ? 'selected' : '' }}>Privado</option>
+                        <option value="Comunitaria" {{ old('dependencia', $delegacion->dependencia) == 'Comunitaria' ? 'selected' : '' }}>Comunitaria</option>
                     </select>
                 </div>
-            </form>
-        </div>
-        
-        <table class="delegaciones-table">
-            <thead>
-                <tr>
-                    <th>Código SIE</th>
-                    <th>Nombre de Colegio</th>
-                    <th>Departamento</th>
-                    <th>Provincia</th>
-                    <th>Municipio</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($delegaciones as $delegacion)
-                <tr>
-                    <td>{{ $delegacion->codigo_sie }}</td>
-                    <td>{{ $delegacion->nombre }}</td>
-                    <td>{{ $delegacion->departamento }}</td>
-                    <td>{{ $delegacion->provincia }}</td>
-                    <td>{{ $delegacion->municipio }}</td>
-                    <!-- In the table section, make sure the delete buttons have the correct attributes -->
-                    <td class="actions">
-                        <a href="{{ route('delegaciones.ver', $delegacion->codigo_sie) }}" class="action-button view">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ route('delegaciones.editar', $delegacion->codigo_sie) }}" class="action-button edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="#" class="action-button delete-button" data-id="{{ $delegacion->codigo_sie }}" data-nombre="{{ $delegacion->nombre }}">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="text-center">No hay colegios registrados</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-        
-        <div class="pagination">
-            {{ $delegaciones->appends(request()->query())->links() }}
-        </div>
+
+                <div class="form-group">
+                    <label for="departamento">Departamento</label>
+                    <select id="departamento" name="departamento" class="form-control" required>
+                        <option value="">Seleccione un departamento</option>
+                        <option value="La Paz" {{ old('departamento', $delegacion->departamento) == 'La Paz' ? 'selected' : '' }}>La Paz</option>
+                        <option value="Santa Cruz" {{ old('departamento', $delegacion->departamento) == 'Santa Cruz' ? 'selected' : '' }}>Santa Cruz</option>
+                        <option value="Cochabamba" {{ old('departamento', $delegacion->departamento) == 'Cochabamba' ? 'selected' : '' }}>Cochabamba</option>
+                        <option value="Oruro" {{ old('departamento', $delegacion->departamento) == 'Oruro' ? 'selected' : '' }}>Oruro</option>
+                        <option value="Potosí" {{ old('departamento', $delegacion->departamento) == 'Potosí' ? 'selected' : '' }}>Potosí</option>
+                        <option value="Tarija" {{ old('departamento', $delegacion->departamento) == 'Tarija' ? 'selected' : '' }}>Tarija</option>
+                        <option value="Chuquisaca" {{ old('departamento', $delegacion->departamento) == 'Chuquisaca' ? 'selected' : '' }}>Chuquisaca</option>
+                        <option value="Beni" {{ old('departamento', $delegacion->departamento) == 'Beni' ? 'selected' : '' }}>Beni</option>
+                        <option value="Pando" {{ old('departamento', $delegacion->departamento) == 'Pando' ? 'selected' : '' }}>Pando</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="provincia">Provincia</label>
+                    <select id="provincia" name="provincia" class="form-control" required>
+                        <option value="">Seleccione una provincia</option>
+                        <option value="{{ $delegacion->provincia }}" selected>{{ $delegacion->provincia }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="municipio">Municipio</label>
+                    <select id="municipio" name="municipio" class="form-control" required>
+                        <option value="">Seleccione un municipio</option>
+                        <option value="{{ $delegacion->municipio }}" selected>{{ $delegacion->municipio }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="zona">Zona</label>
+                    <input type="text" id="zona" name="zona" value="{{ old('zona', $delegacion->zona) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Dirección</label>
+                    <input type="text" id="direccion" name="direccion" value="{{ old('direccion', $delegacion->direccion) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="number" id="telefono" name="telefono" value="{{ old('telefono', $delegacion->telefono) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre_responsable">Nombre del Responsable</label>
+                    <input type="text" id="nombre_responsable" name="nombre_responsable" value="{{ old('nombre_responsable', $delegacion->responsable_nombre) }}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo_responsable">Correo del Responsable</label>
+                    <input type="email" id="correo_responsable" name="correo_responsable" value="{{ old('correo_responsable', $delegacion->responsable_email) }}" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-button">Guardar Cambios</button>
+                <a href="javascript:history.back()" class="cancel-button">Cancelar</a>
+            </div>
+        </form>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const departamentoSelect = document.getElementById('departamento');
             const provinciaSelect = document.getElementById('provincia');
             const municipioSelect = document.getElementById('municipio');
-            const dependenciaSelect = document.getElementById('dependencia');
-            const filterForm = document.getElementById('filterForm');
-            
+
             // Datos de provincias por departamento
             const provinciasPorDepartamento = {
                 'La Paz': ['Murillo', 'Omasuyos', 'Pacajes', 'Camacho', 'Muñecas', 'Larecaja', 'Franz Tamayo', 'Ingavi', 'Loayza', 'Inquisivi', 'Sud Yungas', 'Los Andes', 'Aroma', 'Nor Yungas', 'Abel Iturralde', 'Bautista Saavedra', 'Manco Kapac', 'Gualberto Villarroel', 'José Manuel Pando'],
@@ -149,10 +139,10 @@
                 'Beni': ['Cercado', 'Vaca Díez', 'José Ballivián', 'Yacuma', 'Moxos', 'Marbán', 'Mamoré', 'Iténez'],
                 'Pando': ['Nicolás Suárez', 'Manuripi', 'Madre de Dios', 'Abuná', 'Federico Román']
             };
-            
+
             // Datos de municipios por provincia
             const municipiosPorProvincia = {
-                // La paz
+                // La Paz
                 'Murillo': ['La Paz', 'El Alto', 'Palca', 'Mecapaca', 'Achocalla'],
                 'Omasuyos': ['Achacachi', 'Ancoraimes', 'Huarina', 'Santiago de Huata', 'Huatajata'],
                 'Pacajes': ['Coro Coro', 'Caquiaviri', 'Calacoto', 'Comanche', 'Charaña', 'Waldo Ballivián', 'Nazacara de Pacajes', 'Santiago de Callapa'],
@@ -172,7 +162,7 @@
                 'Manco Kapac': ['Copacabana', 'San Pedro de Tiquina', 'Tito Yupanqui'],
                 'Gualberto Villarroel': ['San Pedro de Curahuara', 'Papel Pampa', 'Chacarilla'],
                 'José Manuel Pando': ['Santiago de Machaca', 'Catacora'],
-                
+
                 // Santa Cruz
                 'Andrés Ibáñez': ['Santa Cruz de la Sierra', 'Cotoca', 'Porongo', 'La Guardia', 'El Torno'],
                 'Ignacio Warnes': ['Warnes', 'Okinawa Uno'],
@@ -189,7 +179,7 @@
                 'Manuel María Caballero': ['Comarapa', 'Saipina'],
                 'Germán Busch': ['Puerto Suárez', 'Puerto Quijarro', 'El Carmen Rivero Tórrez'],
                 'Guarayos': ['Ascensión de Guarayos', 'Urubichá', 'El Puente'],
-                
+
                 // Cochabamba
                 'Cercado': ['Cochabamba'],
                 'Campero': ['Aiquile', 'Pasorapa', 'Omereque'],
@@ -207,7 +197,7 @@
                 'Punata': ['Punata', 'Villa Rivero', 'San Benito', 'Tacachi', 'Cuchumuela'],
                 'Bolívar': ['Bolívar'],
                 'Tiraque': ['Tiraque', 'Shinahota'],
-                
+
                 // Oruro
                 'Cercado': ['Oruro', 'Caracollo', 'El Choro', 'Paria'],
                 'Abaroa': ['Challapata', 'Santuario de Quillacas'],
@@ -225,7 +215,7 @@
                 'Sebastián Pagador': ['Santiago de Huari'],
                 'Mejillones': ['La Rivera', 'Todos Santos', 'Carangas'],
                 'Nor Carangas': ['Huayllamarca'],
-                
+
                 // Potosí
                 'Tomás Frías': ['Potosí', 'Yocalla', 'Urmiri'],
                 'Rafael Bustillo': ['Uncía', 'Chayanta', 'Llallagua', 'Chuquihuta'],
@@ -243,7 +233,7 @@
                 'Daniel Campos': ['Llica', 'Tahua'],
                 'Modesto Omiste': ['Villazón'],
                 'Enrique Baldivieso': ['San Agustín'],
-                
+
                 // Tarija
                 'Cercado': ['Tarija'],
                 'Aniceto Arce': ['Padcaya', 'Bermejo'],
@@ -251,7 +241,7 @@
                 'Avilés': ['Uriondo', 'Yunchará'],
                 'Méndez': ['San Lorenzo', 'El Puente'],
                 'Burnet O\'Connor': ['Entre Ríos'],
-                
+
                 // Chuquisaca
                 'Oropeza': ['Sucre', 'Yotala', 'Poroma'],
                 'Juana Azurduy de Padilla': ['Azurduy', 'Tarvita'],
@@ -263,7 +253,7 @@
                 'Sud Cinti': ['Camataqui', 'Culpina', 'Las Carreras'],
                 'Belisario Boeto': ['Villa Serrano'],
                 'Luis Calvo': ['Villa Vaca Guzmán', 'Huacaya', 'Macharetí'],
-                
+
                 // Beni
                 'Cercado': ['Trinidad', 'San Javier'],
                 'Vaca Díez': ['Riberalta', 'Guayaramerín'],
@@ -273,7 +263,7 @@
                 'Marbán': ['Loreto', 'San Andrés'],
                 'Mamoré': ['San Joaquín', 'Puerto Siles', 'San Ramón'],
                 'Iténez': ['Magdalena', 'Baures', 'Huacaraje'],
-                
+
                 // Pando
                 'Nicolás Suárez': ['Cobija', 'Porvenir', 'Bolpebra', 'Bella Flor', 'Puerto Rico'],
                 'Manuripi': ['Puerto Gonzalo Moreno', 'San Lorenzo', 'Sena', 'Ingavi'],
@@ -281,112 +271,53 @@
                 'Abuná': ['Santa Rosa del Abuná', 'Ingavi'],
                 'Federico Román': ['Nueva Esperanza', 'Villa Nueva', 'Santos Mercado']
             };
-            
+
             // Función para cargar las provincias según el departamento seleccionado
             function cargarProvincias() {
                 const departamento = departamentoSelect.value;
-                provinciaSelect.innerHTML = '<option value="">Provincia</option>';
-                municipioSelect.innerHTML = '<option value="">Municipio</option>';
-                
+                provinciaSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
+                municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
+
                 if (departamento && provinciasPorDepartamento[departamento]) {
                     provinciasPorDepartamento[departamento].forEach(provincia => {
                         const option = document.createElement('option');
                         option.value = provincia;
                         option.textContent = provincia;
-                        option.selected = provincia === "{{ request('provincia') }}";
+                        option.selected = provincia === "{{ $delegacion->provincia }}";
                         provinciaSelect.appendChild(option);
                     });
                 }
-                
-                // Remove automatic form submission
-                // filterForm.submit();
             }
-            
+
             // Función para cargar los municipios según la provincia seleccionada
             function cargarMunicipios() {
                 const provincia = provinciaSelect.value;
-                municipioSelect.innerHTML = '<option value="">Municipio</option>';
-                
+                municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
+
                 if (provincia && municipiosPorProvincia[provincia]) {
                     municipiosPorProvincia[provincia].forEach(municipio => {
                         const option = document.createElement('option');
                         option.value = municipio;
                         option.textContent = municipio;
-                        option.selected = municipio === "{{ request('municipio') }}";
+                        option.selected = municipio === "{{ $delegacion->municipio }}";
                         municipioSelect.appendChild(option);
                     });
                 }
-                
-                // Remove automatic form submission
-                // filterForm.submit();
             }
-            
+
             // Cargar provincias iniciales si hay un departamento seleccionado
             if (departamentoSelect.value) {
                 cargarProvincias();
-                
+
                 // If province is selected, load municipalities
                 if (provinciaSelect.value) {
                     cargarMunicipios();
                 }
             }
-            
+
             // Eventos para detectar cambios en los selects
-            departamentoSelect.addEventListener('change', function() {
-                cargarProvincias();
-                filterForm.submit();
-            });
-            
-            provinciaSelect.addEventListener('change', function() {
-                cargarMunicipios();
-                filterForm.submit();
-            });
-            
-            municipioSelect.addEventListener('change', function() {
-                filterForm.submit();
-            });
-            
-            dependenciaSelect.addEventListener('change', function() {
-                filterForm.submit();
-            });
-            
-            // Exportar a PDF
-            document.getElementById('exportPdf').addEventListener('click', function() {
-                window.location.href = "{{ route('delegaciones.exportar.pdf') }}?" + new URLSearchParams(new FormData(filterForm)).toString();
-            });
-            
-            // Exportar a Excel
-            document.getElementById('exportExcel').addEventListener('click', function() {
-                window.location.href = "{{ route('delegaciones.exportar.excel') }}?" + new URLSearchParams(new FormData(filterForm)).toString();
-            });
-            
-            // Eliminar delegación
-            document.querySelectorAll('.delete').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('¿Está seguro que desea eliminar este colegio?')) {
-                        const id = this.getAttribute('data-id');
-                        fetch("{{ url('delegaciones') }}/" + id, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                window.location.reload();
-                            } else {
-                                alert('Error al eliminar el colegio');
-                            }
-                        });
-                    }
-                });
-            });
+            departamentoSelect.addEventListener('change', cargarProvincias);
+            provinciaSelect.addEventListener('change', cargarMunicipios);
         });
     </script>
 </x-app-layout>
-
-<!-- At the end of the file, make sure to include the modal -->
-@include('delegaciones.modal')

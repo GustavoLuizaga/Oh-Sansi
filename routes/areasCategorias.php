@@ -1,12 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AreasYCategorias\AreaCategoriaGradoController;
+
 
 Route::middleware('auth')->group(function () {
-
-    Route::get('/areasCategorias', function () {
-        return view('areas y categorias.areasCategorias');
-    })->name('areasCategorias');
-
-
+    // Ruta para mostrar áreas, categorías y grados
+    Route::get('/areasCategorias', [AreaCategoriaGradoController::class, 'index'])
+        ->name('areasCategorias');
 });

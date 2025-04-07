@@ -14,7 +14,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/delegaciones/{id}', [DelegacionController::class, 'show'])->name('delegaciones.ver');
     Route::get('/delegaciones/{id}/editar', [DelegacionController::class, 'edit'])->name('delegaciones.editar');
     Route::put('/delegaciones/{id}', [DelegacionController::class, 'update'])->name('delegaciones.update');
-    Route::delete('/delegaciones/{id}', [DelegacionController::class, 'destroy'])->name('delegaciones.destroy');
+    Route::delete('/delegaciones/{codigo_sie}/eliminar', [DelegacionController::class, 'destroy'])->name('delegaciones.destroy');
     Route::get('/delegaciones/exportar/pdf', [DelegacionController::class, 'exportPdf'])->name('delegaciones.exportar.pdf');
     Route::get('/delegaciones/exportar/excel', [DelegacionController::class, 'exportExcel'])->name('delegaciones.exportar.excel');
 });

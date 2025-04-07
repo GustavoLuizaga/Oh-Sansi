@@ -387,8 +387,8 @@ body.dark-theme {
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(to right, var(--pri), var(--for), var(--five));
-}
+    background: var(--guindo);
+    }
 
 .que-son-olmpiadas h2 {
     font-size: 38px;

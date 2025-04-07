@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .filter(select => select.value.trim() !== '');
         
         if (gradosValidos.length === 0) {
-            mostrarError('Por favor selecciona al menos un grado');
+            alert('Por favor selecciona al menos un grado');
             return;
         }
         
@@ -100,21 +100,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Aquí puedes hacer lo que necesites después de crear la categoría
             } else {
-                mostrarError('Hubo un error al crear la categoría');
+                alert('Hubo un error al crear la categoría');
             }
         })
         .catch(error => {
-            mostrarError('Error en la conexión');
+            alert('Error en la conexión');
         });
-    }
-    
-    /**
-     * Muestra mensajes de error al usuario
-     * @param {string} mensaje - Texto del error a mostrar
-     */
-    function mostrarError(mensaje) {
-        // Implementación mejorable con Toast de Bootstrap
-        alert(mensaje);
     }
     
     // Event listeners

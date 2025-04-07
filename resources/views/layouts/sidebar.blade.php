@@ -28,6 +28,9 @@
                 @if($iusIds->contains(config('ius.AREA_CATEGORIA')))
                     <li><a href="{{ route('areasCategorias') }}" class="{{ request()->is('area-categoria') ? 'active' : '' }}"><i class="fas fa-tags"></i> <span>Área y Categoría</span></a></li>
                 @endif
+                @if($iusIds->contains(config('ius.INSCRIPCION')))
+                    <li><a href="{{ route('areasCategorias') }}" class="{{ request()->is('area-categoria') ? 'active' : '' }}"><i class="fas fa-tags"></i> <span>Área y Categoría</span></a></li>
+                @endif
             </ul>
         </div>
 

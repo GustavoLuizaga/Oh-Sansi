@@ -63,7 +63,7 @@ class AreaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return JsonResponse|RedirectResponse
      */
-    public function store(Request $request): JsonResponse|RedirectResponse
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
@@ -131,7 +131,7 @@ class AreaController extends Controller
      * @param  int  $id
      * @return JsonResponse|RedirectResponse
      */
-    public function update(Request $request, int $id): JsonResponse|RedirectResponse
+    public function update(Request $request, int $id)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
@@ -167,7 +167,7 @@ class AreaController extends Controller
      * @param  int  $id
      * @return JsonResponse|RedirectResponse
      */
-    public function destroy(int $id): JsonResponse|RedirectResponse
+    public function destroy(int $id)
     {
         $area = Area::findOrFail($id);
         $area->delete();

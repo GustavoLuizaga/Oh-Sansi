@@ -103,8 +103,8 @@ class RegisteredUserController extends Controller
             'telefono' => ['required', 'numeric', 'min:8'],  // Teléfono con mínimo 8 dígitos
             'profesion' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],  // Validación del email y su unicidad
-            'delegacion_tutoria' => ['required', 'exists:unidades,idDelegacion'],  // Validación de que la delegación existe
-            'area_tutoria' => ['required', 'exists:areas,idArea'],  // Validación de que el área existe
+            'delegacion_tutoria' => ['required', 'exists:delegacion,idDelegacion'],  // Validación de que la delegación existe
+            'area_tutoria' => ['required', 'exists:area,idArea'],  // Validación de que el área existe
             'password' => ['required', 'confirmed', Rules\Password::defaults()],  // Validación de la contraseña
             'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
             'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones

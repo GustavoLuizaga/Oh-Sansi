@@ -170,3 +170,193 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+/**
+ * Gestiona la funcionalidad del modal de edición de categoría
+ * - Carga los datos de la categoría seleccionada
+ * - Permite editar el nombre y los grados
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener referencia al modal de edición
+    const editarModal = document.getElementById('EditarCategoriaModal');
+    
+    if (editarModal) {
+        // Escuchar evento de apertura del modal
+        editarModal.addEventListener('show.bs.modal', function(event) {
+            // Botón que activó el modal
+            const button = event.relatedTarget;
+            
+            // Obtener datos del botón
+            const categoriaId = button.getAttribute('data-categoria-id');
+            const categoriaNombre = button.getAttribute('data-categoria-nombre');
+            const gradosData = JSON.parse(button.getAttribute('data-grados'));
+            
+            // Obtener referencias a elementos del modal
+            const form = editarModal.querySelector('form');
+            const nombreInput = editarModal.querySelector('input[name="nombreCategoria"]');
+            const gradosContainer = editarModal.querySelector('#gradosContainer');
+            
+            // Actualizar nombre de la categoría
+            nombreInput.value = categoriaNombre;
+            
+            // Limpiar contenedor de grados
+            gradosContainer.innerHTML = '';
+            
+            // Agregar cada grado
+            gradosData.forEach((grado, index) => {
+                // Crear elemento de grado
+                const gradoItem = document.createElement('div');
+                gradoItem.className = 'grado-item mb-3 d-flex align-items-center gap-2';
+                
+                // Crear select
+                const select = document.createElement('select');
+                select.className = 'form-select flex-grow-1';
+                select.name = 'grados[]';
+                select.required = true;
+                
+                // Copiar opciones del select original
+                const selectOriginal = document.querySelector('#nuevaCategoriaModal select[name="grados[]"]');
+                if (selectOriginal) {
+                    select.innerHTML = selectOriginal.innerHTML;
+                }
+                
+                // Seleccionar el grado correcto
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value == grado.id) {
+                        select.options[i].selected = true;
+                        break;
+                    }
+                }
+                
+                gradoItem.appendChild(select);
+                
+                // Agregar botón de eliminar (excepto para el primer grado)
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove btn btn-outline-danger btn-sm';
+                btnRemove.innerHTML = '<i class="fas fa-times"></i>';
+                btnRemove.style.display = index === 0 ? 'none' : 'block';
+                
+                btnRemove.addEventListener('click', function() {
+                    gradoItem.remove();
+                    // Asegurar que siempre hay al menos un grado
+                    const remainingGrados = gradosContainer.querySelectorAll('.grado-item');
+                    if (remainingGrados.length === 1) {
+                        remainingGrados[0].querySelector('.btn-remove').style.display = 'none';
+                    }
+                });
+                
+                gradoItem.appendChild(btnRemove);
+                gradosContainer.appendChild(gradoItem);
+            });
+            
+            // Actualizar la acción del formulario
+            form.action = `/gestionCategorias/${categoriaId}`;
+            
+            // Agregar método PUT para Laravel
+            let methodField = form.querySelector('input[name="_method"]');
+            if (!methodField) {
+                methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                form.appendChild(methodField);
+            }
+            methodField.value = 'PUT';
+            
+            // Corregir ID del formulario si es necesario
+            form.id = 'formEditarCategoria';
+            
+            // Corregir el botón de submit
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.setAttribute('form', 'formEditarCategoria');
+            }
+            
+            // Modificar el comportamiento del formulario para usar AJAX
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Obtener los datos del formulario
+                const formData = new FormData(form);
+                
+                // Enviar la solicitud AJAX
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Cerrar el modal
+                        const modal = bootstrap.Modal.getInstance(editarModal);
+                        modal.hide();
+                        
+                        // Recargar la tabla o actualizar los datos (depende de tu implementación)
+                        // Por ejemplo, si usas DataTables:
+                        if (typeof table !== 'undefined') {
+                            table.ajax.reload(null, false);
+                        } else {
+                            // Alternativa si no usas DataTables
+                            location.reload();
+                        }
+                        
+                        // Mostrar mensaje de éxito (opcional)
+                        //alert('Categoría actualizada correctamente');
+                    } else {
+                        // Mostrar errores de validación (opcional)
+                        alert(data.message || 'Error al actualizar la categoría');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocurrió un error al procesar la solicitud');
+                });
+            });
+        });
+        
+        // Agregar función para el botón de agregar grado en el modal de edición
+        const agregarGradoEditarBtn = editarModal.querySelector('#agregarGradoBtn');
+        if (agregarGradoEditarBtn) {
+            agregarGradoEditarBtn.addEventListener('click', function() {
+                const gradosContainer = editarModal.querySelector('#gradosContainer');
+                
+                // Crear nuevo elemento de grado
+                const gradoItem = document.createElement('div');
+                gradoItem.className = 'grado-item mb-3 d-flex align-items-center gap-2';
+                
+                // Crear select
+                const selectOriginal = document.querySelector('#nuevaCategoriaModal select[name="grados[]"]');
+                const select = selectOriginal.cloneNode(true);
+                select.value = '';
+                
+                gradoItem.appendChild(select);
+                
+                // Agregar botón de eliminar
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove btn btn-outline-danger btn-sm';
+                btnRemove.innerHTML = '<i class="fas fa-times"></i>';
+                btnRemove.style.display = 'block';
+                
+                btnRemove.addEventListener('click', function() {
+                    gradoItem.remove();
+                });
+                
+                gradoItem.appendChild(btnRemove);
+                gradosContainer.appendChild(gradoItem);
+                
+                // Enfocar el nuevo select
+                select.focus();
+            });
+        }
+    }
+});

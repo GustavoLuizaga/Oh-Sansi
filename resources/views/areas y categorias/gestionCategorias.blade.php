@@ -24,7 +24,7 @@
                 </button>
             </div>
         </div>
-
+        
         <!-- Search and Filter -->
         <div class="search-filter">
             <div class="search-box">
@@ -63,8 +63,15 @@
                             </div>
                         </td>
                         <td class="action-cell">
-                            <button class="btn-action btn-edit" data-categoria-id="{{ $categoria->idCategoria }}">
-                                <i class="fas fa-edit"></i>
+                            <button class="btn-action btn-edit" 
+                                    data-categoria-id="{{ $categoria->idCategoria }}"
+                                    data-categoria-nombre="{{ $categoria->nombre }}"
+                                    data-grados="{{ json_encode($categoria->grados->map(function($grado) { 
+                                        return ['id' => $grado->idGrado, 'nombre' => $grado->grado]; 
+                                    })) }}"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#EditarCategoriaModal">
+                                    <i class="fas fa-edit"></i>
                             </button>
                             
                             <button class="btn-action btn-delete" 
@@ -80,14 +87,14 @@
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="3" class="text-center">No hay categorías registradas</td>
+                        <td colspan="3" class="text-center">No hay categorías ni grados registrados</td>
                     </tr>
                 @endif
             </tbody>
         </table>
     </div>
 
-    <!-- Modal para crear/editar categoría -->
+    <!-- Modal para crear categoría -->
     <div class="modal fade" id="nuevaCategoriaModal" tabindex="-1" aria-labelledby="nuevaCategoriaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         
@@ -162,6 +169,65 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-danger" id="confirmarEliminar">Sí, estoy seguro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para EDITAR categoría -->
+    <div class="modal fade" id="EditarCategoriaModal" tabindex="-1" aria-labelledby="EditarCategoriaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-4" id="EditarCategoriaModalLabel">Editar Categoria y Grados </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarCategoria" action="{{ route('categorias.update', 0) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="nombreCategoria" class="form-label">Nombre del Nivel/Categoria</label>
+                            <input type="text" class="form-control" id="nombreCategoria" name="nombreCategoria" required minlength="5" maxlength="20">
+                            <div class="form-text">Mínimo 5 caracteres, máximo 20, sin numeros ni simbolos especiales</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Grados</label>
+                            <div id="gradosContainer">
+                                <!-- Primer grado (sin botón de eliminar) -->
+                                <div class="grado-item mb-3 d-flex align-items-center gap-2">
+                                    <select name="grados[]" class="form-select flex-grow-1" required>
+                                        <option value="" disabled selected>Selecciona un grado</option>
+                                        <optgroup label="Primaria">
+                                            @foreach($grados->take(6) as $grado)
+                                                <option value="{{ $grado->idGrado }}">{{ $grado->grado }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                        <optgroup label="Secundaria">
+                                            @foreach($grados->slice(6) as $grado)
+                                                <option value="{{ $grado->idGrado }}">{{ $grado->grado }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    </select>
+                                    <!-- Botón de eliminar (oculto inicialmente) -->
+                                    <button type="button" class="btn-remove btn btn-outline-danger btn-sm" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Botón para agregar nuevo grado -->
+                            <button type="button" id="agregarGradoBtn" class="btn btn-outline-dark w-50 mb-3">
+                                + Agregar Grado
+                            </button>
+                        </div>
+                        <div class="modal-footer ">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-dark" form="formEditarCategoria">Guardar Cambios</button>
+                        </div>
+
+                    </form>
                 </div>
             </div>
         </div>

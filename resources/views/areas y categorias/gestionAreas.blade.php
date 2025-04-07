@@ -30,10 +30,10 @@
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" 
-                       id="searchArea" 
-                       name="search" 
-                       placeholder="Buscar área..."
-                       value="{{ request('search') }}">
+                        id="searchArea" 
+                        name="search" 
+                        placeholder="Buscar área..."
+                        value="{{ request('search') }}">
             </div>
             <div class="filter-dropdown">
                 <select id="orderBy" name="orderBy">
@@ -59,7 +59,11 @@
                     <tr>
                         <td>{{ $area->nombre }}</td>
                         <td class="action-cell">
-                            <button class="btn-action btn-edit" data-id="{{ $area->idArea }}">
+                            <button class="btn-action btn-edit" 
+                                    data-id="{{ $area->idArea }}"
+                                    data-nombre="{{ $area->nombre }}" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#EditarAreaModal">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn-action btn-delete" 
@@ -129,5 +133,32 @@
         </div>
     </div>
 
+
+    <!-- Modal para Editar Área -->
+    <div class="modal fade" id="EditarAreaModal" tabindex="-1" aria-labelledby="EditarAreaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="EditarAreaModalLabel">Editar Área</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarArea" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="nombreAreaEdit" class="form-label">Nombre del Área</label>
+                            <input type="text" class="form-control" id="nombreAreaEdit" name="nombre" required minlength="5">
+                            <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
+                        </div>
+
+                        <div class="modal-footer justify-content-start">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-dark">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>
 

@@ -156,12 +156,11 @@
         e.preventDefault();
         window.location.href = "{{ route('areasCategorias.exportar.pdf') }}";
         });
-        
-        
-    });
-</script>
-{{-- // Export Excel button
+        // Export Excel button
         document.getElementById('exportExcel').addEventListener('click', function(e) {
             e.preventDefault();
             window.location.href = "{{ route('areasCategorias.exportar.excel') }}";
-        }); --}}
+        }); 
+        
+    });
+</script>

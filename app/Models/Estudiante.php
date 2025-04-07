@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Tutor;   
 
 class Estudiante extends Model
 {
@@ -18,5 +20,12 @@ class Estudiante extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id');
+    }
+
+    public function tutores()
+    {
+        return $this->belongsToMany(Tutor::class, 'tutorEstudianteInscripcion', 'idEstudiante', 'idTutor')
+            ->withPivot('idInscripcion') // para tener acceso a ese dato
+            ->withTimestamps();
     }
 }

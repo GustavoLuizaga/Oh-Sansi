@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Convocatoria;
 
 class ConvocatoriaController extends Controller
 {
@@ -19,9 +20,8 @@ class ConvocatoriaController extends Controller
         $this->verificarEstadoConvocatorias();
         
         // Fetch convocatorias from the database
-        $convocatorias = DB::table('convocatoria')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $convocatorias = Convocatoria::all(); // sin orderBy
+
         
         return view('convocatoria.convocatoria', compact('convocatorias'));
     }

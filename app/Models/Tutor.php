@@ -37,5 +37,11 @@ class Tutor extends Model
         return $this->belongsToMany(Delegacion::class,  'tutorAreaDelegacion','id','idDelegacion')->withTimestamps();
     }
 
+    public function estudiantes()
+    {
+        return $this->belongsToMany(Estudiante::class, 'tutorEstudianteInscripcion', 'idTutor', 'idEstudiante')
+            ->withPivot('idInscripcion')
+            ->withTimestamps();
+    }
 
 }

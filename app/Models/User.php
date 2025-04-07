@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Rol;
+use App\Models\Estudiante;
 
 class User extends Authenticatable
 {
@@ -31,9 +32,19 @@ class User extends Authenticatable
     ];
 
     public function roles(){
-        return $this->belongsToMany(Rol::class, 'userRol', 'id', 'idRol');
+        return $this->belongsToMany(Rol::class, 'userRol', 'id', 'idRol')->withPivot('habilitado');;
     }
 
+
+    public function estudiante()
+    {
+        return $this->hasOne(Estudiante::class, 'id');
+    }
+
+public function tutor()
+    {
+        return $this->hasOne(Tutor::class, 'id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

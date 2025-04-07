@@ -10,6 +10,7 @@ use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
 use App\Models\Inscripcion;
 use App\Http\Controllers\Inscripcion\ObtenerIdTutorToken;
+use Illuminate\Support\Facades\Auth;
 
 class InscripcionController extends Controller
 {

@@ -28,8 +28,11 @@
                 @if($iusIds->contains(config('ius.AREA_CATEGORIA')))
                     <li><a href="{{ route('areasCategorias') }}" class="{{ request()->is('area-categoria') ? 'active' : '' }}"><i class="fas fa-tags"></i> <span>Área y Categoría</span></a></li>
                 @endif
-                @if($iusIds->contains(config('ius.INSCRIPCION')))
-                    <li><a href="{{ route('areasCategorias') }}" class="{{ request()->is('area-categoria') ? 'active' : '' }}"><i class="fas fa-tags"></i> <span>Área y Categoría</span></a></li>
+                @if($iusIds->contains(config('ius.INSCRIPCION_ESTUDIANTE')))
+                    <li><a href="{{ route('inscripcion.estudiante') }}" class="{{ request()->is('inscripcion/estudiante') ? 'active' : '' }}"><i class="fas fa-user-graduate"></i> <span>Inscripción Estudiante</span></a></li>
+                @endif
+                @if($iusIds->contains(config('ius.INSCRIPCION_TUTOR')))
+                    <li><a href="{{ route('inscripcion.tutor') }}" class="{{ request()->is('inscripcion/tutor') ? 'active' : '' }}"><i class="fas fa-chalkboard-teacher"></i> <span>Inscripción Tutor</span></a></li>
                 @endif
             </ul>
         </div>

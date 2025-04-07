@@ -13,6 +13,7 @@ class UserRol extends Migration
             $table->unsignedBigInteger('id');
             $table->unsignedBigInteger('idRol');
             $table->timestamps();
+            $table->boolean(habilitado)->default(false);
 
             $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('idRol')->references('idRol')->on('rol')->onDelete('cascade');

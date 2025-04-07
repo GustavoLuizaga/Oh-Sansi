@@ -93,7 +93,7 @@
                                 @if(isset($unidades) && $unidades->count() > 0)
                                     <option value="">Seleccionar Unidad Educativa</option>
                                     @foreach($unidades as $unidad)
-                                        <option value="{{ $unidad->codigo }}" {{ old('delegacion_tutoria') == $unidad->codigo ? 'selected' : '' }}>
+                                        <option value="{{ $unidad->idDelegacion }}" {{ old('delegacion_tutoria') == $unidad->idDelegacion ? 'selected' : '' }}>
                                             {{ $unidad->nombre }}
                                         </option>
                                     @endforeach
@@ -112,7 +112,7 @@
                                 @if(isset($areas) && $areas->count() > 0)
                                     <option value="">Seleccionar área</option>
                                     @foreach($areas as $area)
-                                        <option value="{{ $area->codigo }}" {{ old('area_tutoria') == $area->codigo ? 'selected' : '' }}>
+                                        <option value="{{ $area->idArea }}" {{ old('area_tutoria') == $area->idArea ? 'selected' : '' }}>
                                             {{ $area->nombre }}
                                         </option>
                                     @endforeach

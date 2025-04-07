@@ -7,6 +7,7 @@
     --border-color: #e2e8f0;
     --hover-color: #f7fafc;
     --button-text: #fff;
+    --danger-color: #fa5252;
   }
   
   /* Header Section */
@@ -96,6 +97,7 @@
 
 .export-button.pdf {
   color: var(--secondary-color);
+  /* color: var(--danger-color); */
 }
 
 .export-button.pdf:hover {

@@ -97,7 +97,7 @@
                     <form id="formNuevaArea" action="{{ route('areas.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreArea" class="form-label">Nombre del Área</label>
+                            <label for="nombreArea" class="required-label">Nombre del Área</label>
                             <input type="text" class="form-control" id="nombreArea" name="nombre" required minlength="5" >
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
@@ -146,7 +146,7 @@
                     <form id="formEditarArea" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreAreaEdit" class="form-label">Nombre del Área</label>
+                            <label for="nombreAreaEdit" class="required-label">Nombre del Área</label>
                             <input type="text" class="form-control" id="nombreAreaEdit" name="nombre" required minlength="5">
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>

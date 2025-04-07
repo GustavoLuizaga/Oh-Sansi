@@ -8,7 +8,10 @@
     --button-text: #fff;
   }
   
-
+  .required-label::after {
+    content: " *";
+    color: #B30D1F;
+  }
   /* Header Section */
   .area-header {
     background-color: var(--primary-color);
@@ -190,11 +193,11 @@ td.action-cell {
   }
   
   .btn-edit {
-    background-color: #3b82f6;
+    background-color: #2c5282;
   }
   
   .btn-edit:hover {
-    background-color: #2563eb;
+    background-color: #1a365d;
   }
   
   .btn-delete {

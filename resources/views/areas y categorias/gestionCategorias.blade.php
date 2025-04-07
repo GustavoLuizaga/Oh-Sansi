@@ -107,13 +107,13 @@
                     <form id="formNuevaCategoria" action="{{ route('categorias.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreCategoria" class="form-label">Nombre del Nivel/Categoria</label>
+                            <label for="nombreCategoria" class="required-label">Nombre del Nivel/Categoria</label>
                             <input type="text" class="form-control" id="nombreCategoria" name="nombreCategoria" required minlength="5" maxlength="20">
                             <div class="form-text">Mínimo 5 caracteres, máximo 20, sin numeros ni simbolos especiales</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Grados</label>
+                            <label class="required-label">Grados</label>
                             <div id="gradosContainer">
                                 <!-- Primer grado (sin botón de eliminar) -->
                                 <div class="grado-item mb-3 d-flex align-items-center gap-2">
@@ -187,13 +187,13 @@
                     <form id="formEditarCategoria" action="{{ route('categorias.update', 0) }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreCategoria" class="form-label">Nombre del Nivel/Categoria</label>
+                            <label for="nombreCategoria" class="required-label">Nombre del Nivel/Categoria</label>
                             <input type="text" class="form-control" id="nombreCategoria" name="nombreCategoria" required minlength="5" maxlength="20">
                             <div class="form-text">Mínimo 5 caracteres, máximo 20, sin numeros ni simbolos especiales</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Grados</label>
+                            <label class="required-label">Grados</label>
                             <div id="gradosContainer">
                                 <!-- Primer grado (sin botón de eliminar) -->
                                 <div class="grado-item mb-3 d-flex align-items-center gap-2">

@@ -104,15 +104,13 @@ body.dark-theme {
     }
 
     .hero-image {
-        position: absolute;
-        right: auto;
-        margin: 30px;
-        height: 400px;
-        width: 100%;
+        justify-content: center; /* Volver a centrar en pantallas pequeñas */
+        padding-right: 1rem;
+        margin-left: 0;
     }
+    
     .hero-image img {
-        height: 50px;
-        width: 50px;
+        margin-left: 0; /* Quitar margin en pantallas pequeñas */
     }
 }
 
@@ -183,19 +181,64 @@ body.dark-theme {
 }
 
 .hero-image {
-    position: absolute;
-    right: 60px;
-    bottom: 0;
-    z-index: 3;
-    height: 500px;
-    width: 400px;
+    display: flex;
+    justify-content: flex-end; /* Mantiene la imagen a la derecha */
+    align-items: center;
+    max-width: 100%;
+    padding: 1rem;
+    padding-right: 3rem; /* Aumentamos el padding derecho para más espacio */
+    transition: all 0.3s ease;
+    margin-left: auto; /* Empuja el contenedor hacia la derecha */
 }
 
 .hero-image img {
-    height: 100%;
-    object-fit: contain;
-    position: relative;
-    z-index: 1;
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+    margin-left: auto; /* Empuja la imagen hacia la derecha */
+}
+
+/* Media queries para diferentes tamaños de pantalla */
+@media screen and (max-width: 1024px) {
+    .hero-image {
+        padding: 0.8rem;
+    }
+    
+    .hero-image img {
+        max-width: 90%;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .hero-image {
+        justify-content: center;
+        padding-right: 1rem;
+        margin-left: 0;
+    }
+    
+    .hero-image img {
+        margin-left: 0;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hero-image {
+        padding: 0.6rem;
+    }
+    
+    .hero-image img {
+        max-width: 80%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .hero-image {
+        padding: 0.4rem;
+    }
+    
+    .hero-image img {
+        max-width: 70%;
+    }
 }
 
 /* Wave Elements */
@@ -296,7 +339,7 @@ body.dark-theme {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: var(--terc);
+    background: var(--pri);
     color: white;
     padding: 15px 30px;
     border-radius: 30px;
@@ -307,7 +350,7 @@ body.dark-theme {
 }
 
 .register-hero-btn:hover {
-    background: rgb(29, 29, 49);
+    background: var(--sec);
     transform: translateY(-2px);
 }
 

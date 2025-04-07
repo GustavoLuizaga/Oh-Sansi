@@ -15,14 +15,14 @@
             <button class="btn-new-area" data-bs-toggle="modal" data-bs-target="#nuevaAreaModal">
                 <i class="fas fa-plus-circle"></i> Nueva Área
             </button>
-            <div class="export-buttons">
+            {{-- <div class="export-buttons">
                 <button class="btn-export">
                     <i class="fas fa-file-pdf"></i> Descargar PDF
                 </button>
                 <button class="btn-export">
                     <i class="fas fa-file-excel"></i> Descargar Excel
                 </button>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Search and Filter -->

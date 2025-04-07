@@ -2,58 +2,70 @@
     <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
     <link rel="stylesheet" href="{{ asset('css/delegacion/modal.css') }}">
     
-    <div class="delegaciones-container">
+    <div class="p-6">
+        <!-- Success Message -->
+        @if(session('success'))
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
+        @endif
+        
+        @if(request()->has('deleted') && request()->deleted == 'true')
+        <div class="alert alert-success">
+            Colegio eliminado correctamente.
+        </div>
+        @endif
+        
+        <!-- Header Section -->
         <div class="delegaciones-header">
-            <div class="header-top-row">
-                <h1>Lista de Colegios</h1>
-                <a href="{{ route('delegaciones.agregar') }}" class="add-button">
-                    <i class="fas fa-plus"></i> Agregar Colegio
-                </a>
-            </div>
+            <h1><i class="fas fa-school"></i> {{ __('Administrar Colegios') }}</h1>
+        </div>
+
+        <!-- Actions Container (Add and Export buttons in the same row) -->
+        <div class="actions-container">
+            <a href="{{ route('delegaciones.agregar') }}" class="add-button">
+                <i class="fas fa-plus"></i> Agregar Colegio
+            </a>
             
-            @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+            <div class="export-buttons">
+                <button type="button" class="export-button pdf" id="exportPdf">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </button>
+                
+                <button type="button" class="export-button excel" id="exportExcel">
+                    <i class="fas fa-file-excel"></i> Descargar Excel
+                </button>
             </div>
-            @endif
-            
-            @if(request()->has('deleted') && request()->deleted == 'true')
-            <div class="alert alert-success">
-                Colegio eliminado correctamente.
-            </div>
-            @endif
-            
-            <form action="{{ route('delegaciones') }}" method="GET" id="filterForm">
-                <div class="delegaciones-search-bar">
-                    <div class="search-input">
-                        <input type="text" name="search" placeholder="Buscar por nombre o código SIE" value="{{ request('search') }}">
-                    </div>
-                    
+        </div>
+        
+        <!-- Search and Filter -->
+        <form action="{{ route('delegaciones') }}" method="GET" id="filterForm">
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Buscar por nombre o código SIE" value="{{ request('search') }}">
                     <button type="submit" class="search-button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    
-                    <button type="button" class="export-button pdf" id="exportPdf">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    
-                    <button type="button" class="export-button excel" id="exportExcel">
-                        <i class="fas fa-file-excel"></i> Excel
+                        <i class="fas fa-search"></i> Buscar
                     </button>
                 </div>
-                
-                <div class="delegaciones-filters">
+            </div>
+            
+            <div class="filter-container mb-4">
+                <div class="filter-group">
+                    <label for="dependencia">Dependencia:</label>
                     <select class="filter-select" name="dependencia" id="dependencia">
-                        <option value="">Dependencia</option>
+                        <option value="">Todas</option>
                         <option value="Fiscal" {{ request('dependencia') == 'Fiscal' ? 'selected' : '' }}>Fiscal</option>
                         <option value="Convenio" {{ request('dependencia') == 'Convenio' ? 'selected' : '' }}>Convenio</option>
                         <option value="Privado" {{ request('dependencia') == 'Privado' ? 'selected' : '' }}>Privado</option>
                         <option value="Comunitaria" {{ request('dependencia') == 'Comunitaria' ? 'selected' : '' }}>Comunitaria</option>
                     </select>
+                </div>
 
-
+                <div class="filter-group">
+                    <label for="departamento">Departamento:</label>
                     <select class="filter-select" name="departamento" id="departamento">
-                        <option value="">Departamento</option>
+                        <option value="">Todos</option>
                         <option value="La Paz" {{ request('departamento') == 'La Paz' ? 'selected' : '' }}>La Paz</option>
                         <option value="Santa Cruz" {{ request('departamento') == 'Santa Cruz' ? 'selected' : '' }}>Santa Cruz</option>
                         <option value="Cochabamba" {{ request('departamento') == 'Cochabamba' ? 'selected' : '' }}>Cochabamba</option>
@@ -64,26 +76,31 @@
                         <option value="Beni" {{ request('departamento') == 'Beni' ? 'selected' : '' }}>Beni</option>
                         <option value="Pando" {{ request('departamento') == 'Pando' ? 'selected' : '' }}>Pando</option>
                     </select>
-                    
-                    
-                    
+                </div>
+                
+                <div class="filter-group">
+                    <label for="provincia">Provincia:</label>
                     <select class="filter-select" name="provincia" id="provincia">
-                        <option value="">Provincia</option>
+                        <option value="">Todas</option>
                         @if(request('provincia'))
                             <option value="{{ request('provincia') }}" selected>{{ request('provincia') }}</option>
                         @endif
                     </select>
-                    
+                </div>
+                
+                <div class="filter-group">
+                    <label for="municipio">Municipio:</label>
                     <select class="filter-select" name="municipio" id="municipio">
-                        <option value="">Municipio</option>
+                        <option value="">Todos</option>
                         @if(request('municipio'))
                             <option value="{{ request('municipio') }}" selected>{{ request('municipio') }}</option>
                         @endif
                     </select>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
         
+        <!-- Table -->
         <table class="delegaciones-table">
             <thead>
                 <tr>
@@ -103,7 +120,6 @@
                     <td>{{ $delegacion->departamento }}</td>
                     <td>{{ $delegacion->provincia }}</td>
                     <td>{{ $delegacion->municipio }}</td>
-                    <!-- In the table section, make sure the delete buttons have the correct attributes -->
                     <td class="actions">
                         <a href="{{ route('delegaciones.ver', $delegacion->codigo_sie) }}" class="action-button view">
                             <i class="fas fa-eye"></i>
@@ -124,6 +140,7 @@
             </tbody>
         </table>
         
+        <!-- Pagination -->
         <div class="pagination">
             {{ $delegaciones->appends(request()->query())->links() }}
         </div>
@@ -285,8 +302,8 @@
             // Función para cargar las provincias según el departamento seleccionado
             function cargarProvincias() {
                 const departamento = departamentoSelect.value;
-                provinciaSelect.innerHTML = '<option value="">Provincia</option>';
-                municipioSelect.innerHTML = '<option value="">Municipio</option>';
+                provinciaSelect.innerHTML = '<option value="">Todas</option>';
+                municipioSelect.innerHTML = '<option value="">Todos</option>';
                 
                 if (departamento && provinciasPorDepartamento[departamento]) {
                     provinciasPorDepartamento[departamento].forEach(provincia => {
@@ -297,15 +314,12 @@
                         provinciaSelect.appendChild(option);
                     });
                 }
-                
-                // Remove automatic form submission
-                // filterForm.submit();
             }
             
             // Función para cargar los municipios según la provincia seleccionada
             function cargarMunicipios() {
                 const provincia = provinciaSelect.value;
-                municipioSelect.innerHTML = '<option value="">Municipio</option>';
+                municipioSelect.innerHTML = '<option value="">Todos</option>';
                 
                 if (provincia && municipiosPorProvincia[provincia]) {
                     municipiosPorProvincia[provincia].forEach(municipio => {
@@ -316,77 +330,83 @@
                         municipioSelect.appendChild(option);
                     });
                 }
-                
-                // Remove automatic form submission
-                // filterForm.submit();
             }
             
-            // Cargar provincias iniciales si hay un departamento seleccionado
-            if (departamentoSelect.value) {
-                cargarProvincias();
-                
-                // If province is selected, load municipalities
-                if (provinciaSelect.value) {
-                    cargarMunicipios();
-                }
-            }
-            
-            // Eventos para detectar cambios en los selects
+            // Event listeners
             departamentoSelect.addEventListener('change', function() {
                 cargarProvincias();
-                filterForm.submit();
             });
             
             provinciaSelect.addEventListener('change', function() {
                 cargarMunicipios();
-                filterForm.submit();
-            });
-            
-            municipioSelect.addEventListener('change', function() {
-                filterForm.submit();
             });
             
             dependenciaSelect.addEventListener('change', function() {
                 filterForm.submit();
             });
             
-            // Exportar a PDF
-            document.getElementById('exportPdf').addEventListener('click', function() {
-                window.location.href = "{{ route('delegaciones.exportar.pdf') }}?" + new URLSearchParams(new FormData(filterForm)).toString();
+            // Inicializar
+            cargarProvincias();
+            cargarMunicipios();
+            
+            // Export PDF button
+            document.getElementById('exportPdf').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = "{{ route('delegaciones.exportar.pdf') }}";
             });
             
-            // Exportar a Excel
-            document.getElementById('exportExcel').addEventListener('click', function() {
-                window.location.href = "{{ route('delegaciones.exportar.excel') }}?" + new URLSearchParams(new FormData(filterForm)).toString();
+            // Export Excel button
+            document.getElementById('exportExcel').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = "{{ route('delegaciones.exportar.excel') }}";
             });
+        });
+    </script>
+    
+    <!-- Modal de confirmación para eliminar -->
+    @include('delegaciones.modal')
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('deleteModal');
+            const closeBtn = modal.querySelector('.close');
+            const cancelBtn = document.getElementById('cancelDelete');
+            const deleteForm = document.getElementById('deleteForm');
+            const delegacionNombre = document.getElementById('delegacionNombre');
+            const deleteButtons = document.querySelectorAll('.delete-button');
             
-            // Eliminar delegación
-            document.querySelectorAll('.delete').forEach(button => {
+            // Función para abrir el modal
+            function openModal(id, nombre) {
+                deleteForm.action = `/delegaciones/${id}/eliminar`;
+                delegacionNombre.textContent = nombre;
+                modal.style.display = 'block';
+            }
+            
+            // Función para cerrar el modal
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+            
+            // Event listeners para los botones de eliminar
+            deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    if (confirm('¿Está seguro que desea eliminar este colegio?')) {
-                        const id = this.getAttribute('data-id');
-                        fetch("{{ url('delegaciones') }}/" + id, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                window.location.reload();
-                            } else {
-                                alert('Error al eliminar el colegio');
-                            }
-                        });
-                    }
+                    const id = this.getAttribute('data-id');
+                    const nombre = this.getAttribute('data-nombre');
+                    openModal(id, nombre);
                 });
+            });
+            
+            // Event listeners para cerrar el modal
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            
+            // Cerrar el modal si se hace clic fuera de él
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
             });
         });
     </script>
 </x-app-layout>
-
-<!-- At the end of the file, make sure to include the modal -->
-@include('delegaciones.modal')

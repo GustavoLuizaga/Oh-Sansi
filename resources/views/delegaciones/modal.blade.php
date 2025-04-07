@@ -1,19 +1,24 @@
-<!-- Modal de confirmación para eliminar colegio -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <h5 class="modal-title">Eliminar Colegio</h5>
+                <button type="button" class="btn-close" id="closeModal">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <p>¿Está seguro de que desea eliminar el colegio <span id="colegio-nombre"></span>? Esta acción no se puede deshacer.</p>
+                <p>¿Estás seguro de eliminar el colegio: <strong><span id="colegio-nombre"></span></strong>?</p>
+                <p class="text-muted">Esta operación no se puede revertir.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-cancelar" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn-confirmar" id="confirmDelete">Confirmar</button>
+                <button type="button" class="btn-cancelar" id="cancelDelete">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn-confirmar" id="confirmDelete">
+                    <i class="fas fa-trash"></i> Sí, eliminar
+                </button>
             </div>
         </div>
     </div>
@@ -21,60 +26,77 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Obtener todos los botones de eliminar
-        const deleteButtons = document.querySelectorAll('.delete-button');
+        const modal = document.getElementById('deleteModal');
+        const closeBtn = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelDelete');
+        const confirmBtn = document.getElementById('confirmDelete');
+        const colegioNombre = document.getElementById('colegio-nombre');
         let colegioId = '';
-        
-        // Verificar si hay botones
-        if (deleteButtons.length > 0) {
-            // Agregar evento click a cada botón de eliminar
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Obtener el ID y nombre del colegio
-                    colegioId = this.getAttribute('data-id');
-                    const colegioNombre = this.getAttribute('data-nombre');
-                    
-                    // Actualizar el modal con la información del colegio
-                    document.getElementById('colegio-nombre').textContent = colegioNombre;
-                    
-                    // Mostrar el modal usando jQuery
-                    $('#deleteModal').modal('show');
-                });
-            });
+
+        // Función para abrir el modal
+        function openModal(id, nombre) {
+            colegioId = id;
+            colegioNombre.textContent = nombre;
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
         }
-        
-        // Manejar el evento de confirmación de eliminación
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            // Crear el token CSRF
+
+        // Función para cerrar el modal
+        function closeModal() {
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Event listeners para los botones de eliminar
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                const nombre = this.getAttribute('data-nombre');
+                openModal(id, nombre);
+            });
+        });
+
+        // Event listeners para cerrar el modal
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Event listener para confirmar eliminación
+        confirmBtn.addEventListener('click', function() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
-            // Realizar la solicitud AJAX para eliminar
-            fetch("{{ url('delegaciones') }}/" + colegioId, {
+            fetch(`/delegaciones/${colegioId}/eliminar`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                // Ocultar el modal
-                $('#deleteModal').modal('hide');
-                
+                closeModal();
                 if (data.success) {
-                    // Redireccionar a la página de delegaciones
                     window.location.href = "{{ route('delegaciones') }}?deleted=true";
                 } else {
-                    alert('Hubo un error al eliminar el colegio. Por favor, inténtelo de nuevo.');
+                    alert('No se pudo eliminar el colegio.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Hubo un error al eliminar el colegio. Por favor, inténtelo de nuevo.');
+                alert('Hubo un error al eliminar el colegio.');
             });
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
         });
     });
 </script>

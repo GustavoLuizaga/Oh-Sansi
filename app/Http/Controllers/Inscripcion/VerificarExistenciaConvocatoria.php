@@ -11,20 +11,20 @@ class VerificarExistenciaConvocatoria extends Controller
 {
     public function verificarConvocatoriaActiva()
     {
-        // Obtener la fecha actual
-        $fechaActual = Carbon::now()->toDateString(); // Formato: 'YYYY-MM-DD'
-    
-        // Buscar la convocatoria activa
+        $fechaActual = Carbon::now()->toDateString();
+
         $convocatoria = Convocatoria::where('fechaInicio', '<=', $fechaActual)
-                                     ->where('fechaFin', '>=', $fechaActual)
-                                     ->first(); 
-    
+                                 ->where('fechaFin', '>=', $fechaActual)
+                                 ->where('estado', 'Publicada')
+                                 ->first();
+
         if ($convocatoria) {
             return $convocatoria->idConvocatoria;
         } else {
-        return response()->json([
-            'mensaje' => 'No hay convocatoria activa en este momento',
-        ]);
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'No hay convocatoria publicada en este momento'
+            ]);
         }
     }    
 }

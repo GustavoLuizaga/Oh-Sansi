@@ -10,6 +10,7 @@ use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
 use App\Models\Inscripcion;
 use App\Http\Controllers\Inscripcion\ObtenerIdTutorToken;
+use Illuminate\Support\Facades\Auth;
 
 class InscripcionController extends Controller
 {
@@ -17,31 +18,32 @@ class InscripcionController extends Controller
     {
         //Obtener el ID de la convocatoria activa
         $convocatoria = new VerificarExistenciaConvocatoria();
-        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva();//Esto solo un ID
-        if ($idConvocatoria instanceof \Illuminate\Http\JsonResponse) {
-            return $idConvocatoria; // Retorna la respuesta JSON si no hay convocatoria activa
-        }
+        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva();
+
+        // Obtener las delegaciones (colegios)
+        $colegios = \App\Models\Delegacion::select('idDelegacion as id', 'nombre')
+                        ->orderBy('nombre')
+                        ->get();
+
         //Obtener las areas por el id de la convocatoria
         $obtenerAreas = new ObtenerAreasConvocatoria();
-        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria);//Una lista de areas
-        if ($areas instanceof \Illuminate\Http\JsonResponse) {
-            return $areas; // Retorna la respuesta JSON si no se obtienen áreas
-        }
+        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria);
+
         //Obtener las categorias por el id de la convocatoria
         $obtenerCategorias = new ObtenerCategoriasArea();
-        $categorias = $obtenerCategorias->categoriasAreas($idConvocatoria);//Una lista de categorias
-        if ($categorias instanceof \Illuminate\Http\JsonResponse) {
-            return $categorias; // Retorna la respuesta JSON si no se obtienen categorías
-        }
+        $categorias = $obtenerCategorias->categoriasAreas($idConvocatoria);
+
         //Obtener los grados por las categorias
         $obtenerGrados = new ObtenerGradosArea();
-        $grados = $obtenerGrados->obtenerGradosPorArea($categorias);//Una lista de grados
-        if ($grados instanceof \Illuminate\Http\JsonResponse) {
-            return $grados; // Retorna la respuesta JSON si no se obtienen grados
-        }
+        $grados = $obtenerGrados->obtenerGradosPorArea($categorias);
 
-
-        return view('inscripciones.inscripcionEstudiante',compact('areas','categorias','grados','idConvocatoria'));
+        return view('inscripciones.inscripcionEstudiante', compact(
+            'areas',
+            'categorias',
+            'grados',
+            'idConvocatoria',
+            'colegios'
+        ));
     }
 
 

@@ -82,7 +82,15 @@ Cuando ejcutas el seeder tendras al admin por defecto
     - **Usuario:** admin
     - **email:** admin@gmail.com
     - **Contraseña:** 12345678
-
+- **Estudiante:**
+    - **Usuario:** Estudiante
+    - **email:** estudiante@gmail.com
+    - **Contraseña:** 12345678
+- **Tutor:**
+    - **Usuario:** Tutor
+    - **email:** tutor@gmail.com
+    - **Contraseña:** 12345678
+    
 ---
 
 ## 📝 PHP INI

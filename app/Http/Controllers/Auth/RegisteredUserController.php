@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
+use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
 
 
 class RegisteredUserController extends Controller
@@ -74,9 +76,17 @@ class RegisteredUserController extends Controller
         
         $unidades = Delegacion::all(); 
         //Logica para obtener las Areas habilitadas de la base de datos
-        $areas = collect([
-            (object)['idArea' => '1', 'nombre' => 'Matemáticas'],
-          ]);
+        $convocatoria = new VerificarExistenciaConvocatoria();
+        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva();//Esto solo un ID
+        if ($idConvocatoria instanceof \Illuminate\Http\JsonResponse) {
+            return $idConvocatoria; // Retorna la respuesta JSON si no hay convocatoria activa
+        }
+        //Obtener las areas por el id de la convocatoria
+        $obtenerAreas = new ObtenerAreasConvocatoria();
+        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria);//Una lista de areas
+        if ($areas instanceof \Illuminate\Http\JsonResponse) {
+            return $areas; // Retorna la respuesta JSON si no se obtienen áreas
+        }
 
         return view('auth.registerTutor',compact('unidades', 'areas')); 
       }

@@ -64,7 +64,15 @@ php artisan migrate:fresh --seed
 php artisan db:seed --class=DefaultDataSeeder 
 ```
 
+- Para los que tienen php superior a 7.4.22 
+```bash
+composer remove phpoffice/phpspreadsheet
+```
 
+- para actualizar composer
+```bash
+composer update
+```
 
 ---
 

@@ -16,7 +16,8 @@ class Categoria extends Model
     // Si no quieres usar `created_at` y `updated_at`, puedes desactivarlos
     public $timestamps = false;
     
-    // public function grados(){
-    //     return $this->belongsToMany(Grado::class, 'gradoCategoria', 'idCategoria', 'idGrado');
-    // }
+    public function grados(){
+        return $this->belongsToMany(Grado::class, 'gradocategoria', 'idCategoria', 'idGrado');
+    }
+
 }

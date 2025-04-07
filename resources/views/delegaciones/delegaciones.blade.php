@@ -1,5 +1,6 @@
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/delegacion/modal.css') }}">
     
     <div class="delegaciones-container">
         <div class="delegaciones-header">
@@ -13,6 +14,12 @@
             @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
+            </div>
+            @endif
+            
+            @if(request()->has('deleted') && request()->deleted == 'true')
+            <div class="alert alert-success">
+                Colegio eliminado correctamente.
             </div>
             @endif
             
@@ -96,6 +103,7 @@
                     <td>{{ $delegacion->departamento }}</td>
                     <td>{{ $delegacion->provincia }}</td>
                     <td>{{ $delegacion->municipio }}</td>
+                    <!-- In the table section, make sure the delete buttons have the correct attributes -->
                     <td class="actions">
                         <a href="{{ route('delegaciones.ver', $delegacion->codigo_sie) }}" class="action-button view">
                             <i class="fas fa-eye"></i>
@@ -103,7 +111,7 @@
                         <a href="{{ route('delegaciones.editar', $delegacion->codigo_sie) }}" class="action-button edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="#" class="action-button delete" data-id="{{ $delegacion->codigo_sie }}">
+                        <a href="#" class="action-button delete-button" data-id="{{ $delegacion->codigo_sie }}" data-nombre="{{ $delegacion->nombre }}">
                             <i class="fas fa-trash"></i>
                         </a>
                     </td>
@@ -379,3 +387,6 @@
         });
     </script>
 </x-app-layout>
+
+<!-- At the end of the file, make sure to include the modal -->
+@include('delegaciones.modal')

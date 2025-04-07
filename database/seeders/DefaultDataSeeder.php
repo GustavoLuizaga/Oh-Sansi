@@ -107,5 +107,29 @@ class DefaultDataSeeder extends Seeder
                 'idIu' => $iuAreaCategoria->idIu
             ]);
         }
+        // Insertar grados  
+        $gradosPrimaria = [
+            '1ro de Primaria',
+            '2do de Primaria',
+            '3ro de Primaria',
+            '4to de Primaria',
+            '5to de Primaria',
+            '6to de Primaria',
+        ];
+
+        $gradosSecundaria = [
+            '1ro de Secundaria',
+            '2do de Secundaria',
+            '3ro de Secundaria',
+            '4to de Secundaria',
+            '5to de Secundaria',
+            '6to de Secundaria',
+        ];
+
+        foreach (array_merge($gradosPrimaria, $gradosSecundaria) as $grado) {
+            DB::table('grado')->updateOrInsert([
+                'grado' => $grado
+            ]);
+        }
     }
 }

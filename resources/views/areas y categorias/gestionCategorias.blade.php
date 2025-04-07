@@ -139,12 +139,12 @@
                             
                             <!-- Botón para agregar nuevo grado -->
                             <button type="button" id="agregarGradoBtn" class="btn btn-outline-dark w-50 mb-3">
-                                + Agregar Grado
+                                <i class="fas fa-plus"></i>&nbsp;&nbsp;&nbsp;Agregar Grado
                             </button>
                         </div>
                         <div class="modal-footer ">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark" form="formNuevaCategoria">Guardar</button>
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save" form="formNuevaCategoria">Guardar</button>
                         </div>
 
                     </form>
@@ -219,12 +219,12 @@
                             
                             <!-- Botón para agregar nuevo grado -->
                             <button type="button" id="agregarGradoBtn" class="btn btn-outline-dark w-50 mb-3">
-                                + Agregar Grado
+                                <i class="fas fa-plus"></i>&nbsp;&nbsp;&nbsp;Agregar Grado
                             </button>
                         </div>
                         <div class="modal-footer ">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark" form="formEditarCategoria">Guardar Cambios</button>
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save" form="formEditarCategoria">Guardar Cambios</button>
                         </div>
 
                     </form>

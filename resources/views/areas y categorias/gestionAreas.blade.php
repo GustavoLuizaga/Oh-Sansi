@@ -103,8 +103,8 @@
                         </div>
 
                         <div class="modal-footer ">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark">Guardar</button>
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -152,8 +152,8 @@
                         </div>
 
                         <div class="modal-footer ">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark">Guardar Cambios</button>
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save">Guardar Cambios</button>
                         </div>
                     </form>
                 </div>

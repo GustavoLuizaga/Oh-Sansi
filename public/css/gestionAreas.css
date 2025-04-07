@@ -141,6 +141,35 @@ td.action-cell {
     background-position: right 0.5rem center;
     background-size: 1rem;
   }
+
+  /*Estilos botones de Cancelar y Guardar en el formulario de creacion y edicion*/
+  .btn-cancel {
+    padding: 0.625rem 1.25rem;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .btn-cancel:hover {
+    background-color: var(--border-color);
+  }
+  
+  .btn-save {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .btn-save:hover {
+    background-color: var(--secondary-color);
+  }
+
   
   /* Table Styles */
   .areas-table {

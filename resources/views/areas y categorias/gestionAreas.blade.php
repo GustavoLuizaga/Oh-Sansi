@@ -87,7 +87,7 @@
 
     <!-- Modal para crear Nueva Área -->
     <div class="modal fade" id="nuevaAreaModal" tabindex="-1" aria-labelledby="nuevaAreaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" >
+        <div class="modal-dialog modal-dialog-centered " >
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="nuevaAreaModalLabel">Nueva Área</h2>
@@ -102,7 +102,7 @@
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
 
-                        <div class="modal-footer justify-content-start">
+                        <div class="modal-footer ">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-dark">Guardar</button>
                         </div>
@@ -136,7 +136,7 @@
 
     <!-- Modal para Editar Área -->
     <div class="modal fade" id="EditarAreaModal" tabindex="-1" aria-labelledby="EditarAreaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" >
+        <div class="modal-dialog modal-dialog-centered " >
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="EditarAreaModalLabel">Editar Área</h2>
@@ -151,7 +151,7 @@
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
 
-                        <div class="modal-footer justify-content-start">
+                        <div class="modal-footer ">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-dark">Guardar Cambios</button>
                         </div>

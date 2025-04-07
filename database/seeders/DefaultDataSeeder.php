@@ -27,7 +27,8 @@ class DefaultDataSeeder extends Seeder
 
         // Obtener ID del rol administrador
         $rolAdmin = DB::table('rol')->where('nombre', 'Administrador')->first();
-
+        $rolTutor = DB::table('rol')->where('nombre', 'Tutor')->first();
+        $rolEstudiante = DB::table('rol')->where('nombre', 'Estudiante')->first();
         // Verificar si ya hay un usuario con rol administrador
         $adminYaExiste = DB::table('userRol')->where('idRol', $rolAdmin->idRol)->exists();
 
@@ -49,6 +50,51 @@ class DefaultDataSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+        // Crear usuario Estudiante si no existe
+        $estudianteYaExiste = DB::table('userRol')->where('idRol', $rolEstudiante->idRol)->exists();
+
+        if (!$estudianteYaExiste) {
+            // Crear usuario estudiante
+            $estudianteId = DB::table('users')->insertGetId([
+                'name' => 'Estudiante',
+                'email' => 'estudiante@gmail.com',
+                'password' => Hash::make('12345678'), // Puedes cambiar la contraseña
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Asignar el rol estudiante
+            DB::table('userRol')->insert([
+                'id' => $estudianteId,
+                'idRol' => $rolEstudiante->idRol,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        // Crear usuario Tutor si no existe
+        $tutorYaExiste = DB::table('userRol')->where('idRol', $rolTutor->idRol)->exists();
+
+        if (!$tutorYaExiste) {
+            // Crear usuario tutor
+            $tutorId = DB::table('users')->insertGetId([
+                'name' => 'Tutor',
+                'email' => 'tutor@gmail.com',
+                'password' => Hash::make('12345678'), // Puedes cambiar la contraseña
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            // Verificar si es el primer tutor y asignar habilitado = true
+            $habilitado = DB::table('userRol')->where('idRol', $rolTutor->idRol)->count() == 0 ? true : false;
+            // Asignar el rol tutor
+            DB::table('userRol')->insert([
+                'id' => $tutorId,
+                'idRol' => $rolTutor->idRol,
+                'habilitado' => $habilitado,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
         // Insertar funciones
         $funciones = ['Dashboard', 'Notificaciones', 'Delegaciones', 'Convocatoria', 'Registro', 'AreasCategorias', 'Perfil', 'Seguridad'];
         foreach ($funciones as $funcion) {

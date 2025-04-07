@@ -9,5 +9,6 @@ return [
     'AREA_CATEGORIA' => 6,
     'PERFIL' => 7,
     'SEGURIDAD' => 8,
-    
+    'INSCRIPCION_ESTUDIANTE' => 9,
+    'INSCRIPCION_TUTOR' => 10,
 ];

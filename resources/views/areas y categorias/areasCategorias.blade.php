@@ -20,10 +20,11 @@
                     </a>
                 </div>
                 <div class="export-buttons">
-                    <button class="export-btn">
+                    <button type="button" class="export-button pdf" id="exportPdf">
                         <i class="fas fa-file-pdf"></i> Descargar PDF
                     </button>
-                    <button class="export-btn">
+                    
+                    <button type="button" class="export-button excel" id="exportExcel">
                         <i class="fas fa-file-excel"></i> Descargar Excel
                     </button>
                 </div>
@@ -49,7 +50,6 @@
                     <p>{{ $message }}</p>
                 </div>
             @else
-                <h5 class="mb-3 font-semibold">Relaciones de Áreas, Categorías y Grados de la convocatoria actual</h5>
 
                 <!-- Tabla -->
                 <table class="area-table w-full text-left border">

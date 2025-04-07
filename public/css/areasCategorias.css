@@ -67,28 +67,48 @@
     font-size: 1rem;
   }
   
-  /* Export Buttons */
-  .export-buttons {
-    display: flex;
-    gap: 0.75rem;
-  }
-  
-  .export-btn {
-    background-color: white;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 0.25rem;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .export-btn:hover {
-    background-color: var(--hover-color);
-  }
+/* Export Buttons */
+.export-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0; /* Similar to convocatoria.css */
+}
+
+.export-button {
+  background-color: white;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+  background-color: var(--hover-color);
+}
+
+.export-button.pdf {
+  color: var(--secondary-color);
+}
+
+.export-button.pdf:hover {
+  background-color: rgba(44, 82, 130, 0.1);
+}
+
+.export-button.excel {
+  color: #00A389; /* Green color for Excel button text */
+}
+
+.export-button.excel:hover {
+  background-color: rgba(0, 163, 137, 0.1);
+}
   
   /* Search and Filter */
   .search-filter {

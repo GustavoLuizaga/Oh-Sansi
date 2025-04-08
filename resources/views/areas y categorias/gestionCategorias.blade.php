@@ -107,13 +107,13 @@
                     <form id="formNuevaCategoria" action="{{ route('categorias.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreCategoria" class="form-label">Nombre del Nivel/Categoria</label>
+                            <label for="nombreCategoria" class="required-label">Nombre del Nivel/Categoria</label>
                             <input type="text" class="form-control" id="nombreCategoria" name="nombreCategoria" required minlength="5" maxlength="20">
                             <div class="form-text">Mínimo 5 caracteres, máximo 20, sin numeros ni simbolos especiales</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Grados</label>
+                            <label class="required-label">Grados</label>
                             <div id="gradosContainer">
                                 <!-- Primer grado (sin botón de eliminar) -->
                                 <div class="grado-item mb-3 d-flex align-items-center gap-2">
@@ -139,12 +139,12 @@
                             
                             <!-- Botón para agregar nuevo grado -->
                             <button type="button" id="agregarGradoBtn" class="btn btn-outline-dark w-50 mb-3">
-                                + Agregar Grado
+                                <i class="fas fa-plus"></i>&nbsp;&nbsp;&nbsp;Agregar Grado
                             </button>
                         </div>
                         <div class="modal-footer ">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark" form="formNuevaCategoria">Guardar</button>
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save" form="formNuevaCategoria">Guardar</button>
                         </div>
 
                     </form>
@@ -187,13 +187,13 @@
                     <form id="formEditarCategoria" action="{{ route('categorias.update', 0) }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreCategoria" class="form-label">Nombre del Nivel/Categoria</label>
+                            <label for="nombreCategoria" class="required-label">Nombre del Nivel/Categoria</label>
                             <input type="text" class="form-control" id="nombreCategoria" name="nombreCategoria" required minlength="5" maxlength="20">
                             <div class="form-text">Mínimo 5 caracteres, máximo 20, sin numeros ni simbolos especiales</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Grados</label>
+                            <label class="required-label">Grados</label>
                             <div id="gradosContainer">
                                 <!-- Primer grado (sin botón de eliminar) -->
                                 <div class="grado-item mb-3 d-flex align-items-center gap-2">
@@ -219,12 +219,12 @@
                             
                             <!-- Botón para agregar nuevo grado -->
                             <button type="button" id="agregarGradoBtn" class="btn btn-outline-dark w-50 mb-3">
-                                + Agregar Grado
+                                <i class="fas fa-plus"></i>&nbsp;&nbsp;&nbsp;Agregar Grado
                             </button>
                         </div>
                         <div class="modal-footer ">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark" form="formEditarCategoria">Guardar Cambios</button>
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save" form="formEditarCategoria">Guardar Cambios</button>
                         </div>
 
                     </form>

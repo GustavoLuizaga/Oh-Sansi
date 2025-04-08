@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Convocatoria;
+use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade as PDF;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ConvocatoriaController extends Controller
 {
@@ -520,35 +524,117 @@ class ConvocatoriaController extends Controller
         }
     }
 
-    /**
-     * Export convocatorias to PDF.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function exportPdf()
-    {
-        // In a real application, you would generate a PDF with the convocatorias
-        // For now, we'll just log the action and redirect
-        Log::info('Exportando convocatorias a PDF');
-
-        return redirect()->route('convocatoria')
-            ->with('info', 'La exportación a PDF se está procesando.');
-    }
 
     /**
-     * Export convocatorias to Excel.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function exportExcel()
-    {
-        // In a real application, you would generate an Excel file with the convocatorias
-        // For now, we'll just log the action and redirect
-        Log::info('Exportando convocatorias a Excel');
+ * Export convocatorias to PDF.
+ *
+ * @return \Illuminate\Http\Response
+ */
+public function exportPdf()
+{
+    try {
+        $this->verificarEstadoConvocatorias();
+        
+        // Obtener convocatorias con estado asegurado
+        $convocatorias = Convocatoria::select('nombre', 'descripcion', 'fechaInicio', 'fechaFin', 'estado')
+            ->whereNotNull('estado') // Asegurar que tenga estado
+            ->orderBy('nombre')
+            ->get();
+        
+        // Verificar datos antes de generar PDF
+        if ($convocatorias->isEmpty()) {
+            return redirect()->route('convocatoria')
+                   ->with('warning', 'No hay convocatorias disponibles para exportar');
+        }
+        
+        $tituloPDF = 'Lista de Todas las Convocatorias Creadas';
+        $pdf = \PDF::loadView('convocatoria.pdf', compact('convocatorias', 'tituloPDF'))
+                  ->setPaper('a4', 'landscape');
+        // return $pdf->download('ListaConvocatorias_'.now()->format('Ymd_His').'.pdf');
 
+        return $pdf->download('ListaConvocatorias.pdf');
+        
+    } catch (\Exception $e) {
+        Log::error('Error al exportar convocatorias a PDF: ' . $e->getMessage());
         return redirect()->route('convocatoria')
-            ->with('info', 'La exportación a Excel se está procesando.');
+               ->with('error', 'Error al exportar: '.$e->getMessage());
     }
+}
+/**
+ * Export convocatorias to Excel.
+ *
+ * @return \Illuminate\Http\Response
+ */
+public function exportExcel()
+{
+    try {
+        // Verificar y actualizar el estado de las convocatorias vencidas
+        $this->verificarEstadoConvocatorias();
+        
+        // Obtener todas las convocatorias
+        $convocatorias = Convocatoria::all();
+        
+        // Crear un nuevo archivo de Excel
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Definir encabezados
+        $sheet->setCellValue('A1', 'NOMBRE');
+        $sheet->setCellValue('B1', 'DESCRIPCIÓN');
+        $sheet->setCellValue('C1', 'FECHA INICIO');
+        $sheet->setCellValue('D1', 'FECHA FIN');
+        $sheet->setCellValue('E1', 'ESTADO');
+        
+        // Formatear encabezados con negrita y fondo
+        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:E1')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('0086CE');
+        $sheet->getStyle('A1:E1')->getFont()->getColor()->setRGB('FFFFFF');
+        
+        // Llenar datos
+        $row = 2;
+        foreach ($convocatorias as $convocatoria) {
+            $sheet->setCellValue('A' . $row, $convocatoria->nombre);
+            $sheet->setCellValue('B' . $row, \Illuminate\Support\Str::limit($convocatoria->descripcion, 50));
+            $sheet->setCellValue('C' . $row, \Carbon\Carbon::parse($convocatoria->fechaInicio)->format('d M, Y'));
+            $sheet->setCellValue('D' . $row, \Carbon\Carbon::parse($convocatoria->fechaFin)->format('d M, Y'));
+            $sheet->setCellValue('E' . $row, strtoupper($convocatoria->estado));
+            $row++;
+        }
+        
+        // Ajustar ancho de columnas
+        foreach(range('A', 'E') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+        
+        // Crear un objeto writer
+        $writer = new Xlsx($spreadsheet);
+        
+        // Preparar la respuesta para descarga directa
+        $filename = 'ListaConvocatorias.xlsx';
+        
+        // Encabezados HTTP para la descarga
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        // Guardar directamente en el output stream
+        $writer->save('php://output');
+        exit;
+        
+    } catch (\Exception $e) {
+        Log::error('Error al exportar convocatorias a Excel: ' . $e->getMessage(), [
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return redirect()->route('convocatoria')
+            ->with('error', 'Error al exportar a Excel: ' . $e->getMessage());
+    }
+}
     
     /**
      * Publish the specified convocatoria.

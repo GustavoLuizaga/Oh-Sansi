@@ -87,7 +87,7 @@
 
     <!-- Modal para crear Nueva Área -->
     <div class="modal fade" id="nuevaAreaModal" tabindex="-1" aria-labelledby="nuevaAreaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" >
+        <div class="modal-dialog modal-dialog-centered " >
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="nuevaAreaModalLabel">Nueva Área</h2>
@@ -97,14 +97,14 @@
                     <form id="formNuevaArea" action="{{ route('areas.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreArea" class="form-label">Nombre del Área</label>
+                            <label for="nombreArea" class="required-label">Nombre del Área</label>
                             <input type="text" class="form-control" id="nombreArea" name="nombre" required minlength="5" >
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
 
-                        <div class="modal-footer justify-content-start">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark">Guardar</button>
+                        <div class="modal-footer ">
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -136,7 +136,7 @@
 
     <!-- Modal para Editar Área -->
     <div class="modal fade" id="EditarAreaModal" tabindex="-1" aria-labelledby="EditarAreaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" >
+        <div class="modal-dialog modal-dialog-centered " >
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 class="modal-title" id="EditarAreaModalLabel">Editar Área</h2>
@@ -146,14 +146,14 @@
                     <form id="formEditarArea" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nombreAreaEdit" class="form-label">Nombre del Área</label>
+                            <label for="nombreAreaEdit" class="required-label">Nombre del Área</label>
                             <input type="text" class="form-control" id="nombreAreaEdit" name="nombre" required minlength="5">
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
 
-                        <div class="modal-footer justify-content-start">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-dark">Guardar Cambios</button>
+                        <div class="modal-footer ">
+                            <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn-save">Guardar Cambios</button>
                         </div>
                     </form>
                 </div>

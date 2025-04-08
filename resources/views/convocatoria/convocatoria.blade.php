@@ -28,14 +28,14 @@
             <a href="{{ route('convocatorias.crear') }}" class="btn-nueva-convocatoria">
                 <i class="fas fa-plus-circle"></i> Nueva Convocatoria
             </a>
-            
             <div class="export-buttons">
-                <a href="#" class="btn-export" id="exportPdf">
+                <button type="button" class="export-button pdf" id="exportPdf">
                     <i class="fas fa-file-pdf"></i> Descargar PDF
-                </a>
-                <a href="#" class="btn-export" id="exportExcel">
+                </button>
+                
+                <button type="button" class="export-button excel" id="exportExcel">
                     <i class="fas fa-file-excel"></i> Descargar Excel
-                </a>
+                </button>
             </div>
         </div>
 
@@ -170,20 +170,19 @@
     </div>
 
     <script>
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Export PDF button
-            document.getElementById('exportPdf').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Add PDF export functionality here
-                alert('Exportando a PDF...');
-            });
-            
-            // Export Excel button
-            document.getElementById('exportExcel').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Add Excel export functionality here
-                alert('Exportando a Excel...');
-            });
+        // Export PDF button
+        document.getElementById('exportPdf').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{{ route('convocatoria.exportar.pdf') }}";
         });
+        // Export Excel button
+        document.getElementById('exportExcel').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{{ route('convocatoria.exportar.excel') }}";
+        }); 
+        });
+
     </script>
 </x-app-layout>

@@ -11,6 +11,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
         <link rel="stylesheet" href="{{ asset('CSS/welcome.css') }}">
         <link rel="stylesheet" href="{{ asset('CSS/register.css') }}">
+        <link rel="stylesheet" href="{{ asset('CSS/login.css') }}">
         <link rel="stylesheet" href="{{ asset('CSS/barraNavegacionPrincipal.css') }}">
         
         <!-- Scripts -->

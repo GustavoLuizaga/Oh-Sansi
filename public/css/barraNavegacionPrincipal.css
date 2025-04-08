@@ -114,7 +114,7 @@ body.dark-theme .theme-toggle {
 
 /* Dashboard Button */
 .get-started {
-    background: linear-gradient(135deg, var(--for), var(--pri));
+    background: Var(--for);
     color: white;
     padding: 10px 24px;
     border-radius: 25px;
@@ -134,8 +134,8 @@ body.dark-theme .theme-toggle {
 
 /* Logout Button */
 .join-btn {
-    background: var(--terc);
-    color: var(--txt);
+    background: var(--pri);
+    color: var(--p-pri);
     padding: 10px 24px;
     border-radius: 25px;
     border: none;
@@ -148,8 +148,7 @@ body.dark-theme .theme-toggle {
 }
 
 .join-btn:hover {
-    background: var(--five);
-    color: var(--pri);
+    background: var(--sec);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(109, 210, 255, 0.2);
 }

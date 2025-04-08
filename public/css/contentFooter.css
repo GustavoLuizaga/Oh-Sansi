@@ -1,5 +1,5 @@
 footer {
-    background:linear-gradient(var(--guindo), var(--azul));
+    background:var(--azul);
     color: white;
     padding-top: 100px;
     margin-top: 80px;
@@ -73,7 +73,7 @@ footer {
     bottom: -8px;
     width: 30px;
     height: 2px;
-    background:linear-gradient(var(--guindo),var(--azul));
+    background:linear-gradient(var(--pri),var(--sec));
 }
 
 .footer-column ul {

@@ -38,7 +38,7 @@
                         @endif
                     </div>
                     <div class="hero-image">
-                        <img src="/img/images/LogoUmss.png" pading-left:50px walt="Trofeo">
+                        <img src="/img/images/UmssLogo.png" pading-left:50px walt="Trofeo">
                     </div>
                 </div>
 
@@ -50,11 +50,14 @@
             </section>
 
             <!-- About Section -->
-            <section class="about-olympiad">
+            <section class="que-son-olmpiadas">
                 <h2>¿Qué son las Olimpiadas Oh! SanSi?</h2>
                 <p>Las Olimpiadas Oh! SanSi son un evento anual que busca fomentar el conocimiento y 
                     la competencia en diversas áreas académicas.</p>
-                
+            </section>
+             <section class="about-olympiad">
+             <h2>¿Areas de competicion?</h2>
+                <p>Explora las diferentes areas en las que puedes participar y demostrar tus habilidades.</p>
                 <div class="areas-grid">
                     <div class="area-card">
                         <div class="area-icon">

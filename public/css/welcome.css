@@ -29,7 +29,7 @@
     --btn-active-rojo: #FF4C4C; /* Rojo más claro para efecto de clic */
     /*Nuevos colores de rojo y azul*/
     --guindo: rgb(150, 6, 30); /* Color guindo */
-    --azul: rgba(0,42,76,1); /* Color azul oscuro */
+    --azul: rgb(1, 35, 63); /* Color azul oscuro */
 }
 
 /* Dark theme colors */
@@ -42,7 +42,7 @@ body.dark-theme {
     --bg: #272727;
     --bg1: #151b23;
     --bg2: #202022;
-    --bg3:rgb(40, 40, 46);
+    --bg3:rgb(48, 48, 58);
     --txt: #ffffff;
     --text1: #9e9d9d;
     --p-pri: #e0e0e0;
@@ -104,15 +104,13 @@ body.dark-theme {
     }
 
     .hero-image {
-        position: absolute;
-        right: auto;
-        margin: 30px;
-        height: 400px;
-        width: 100%;
+        justify-content: center; /* Volver a centrar en pantallas pequeñas */
+        padding-right: 1rem;
+        margin-left: 0;
     }
+    
     .hero-image img {
-        height: 50px;
-        width: 50px;
+        margin-left: 0; /* Quitar margin en pantallas pequeñas */
     }
 }
 
@@ -146,7 +144,7 @@ body.dark-theme {
 .hero {
     position: relative;
     /*background: radial-gradient(circle, rgba(32,187,255,1) 9%, rgba(0,129,223,1) 38%, rgba(0,87,149,1) 63%, rgba(0,42,76,1) 100%);*/
-    background: radial-gradient( var(--guindo)19%,60%, var(--azul));
+    background: radial-gradient( var(--guindo)9%,55%, var(--azul));
     border-radius: 20px;
     overflow: hidden;
     color: white;
@@ -183,19 +181,64 @@ body.dark-theme {
 }
 
 .hero-image {
-    position: absolute;
-    right: 60px;
-    bottom: 0;
-    z-index: 3;
-    height: 500px;
-    width: 400px;
+    display: flex;
+    justify-content: flex-end; /* Mantiene la imagen a la derecha */
+    align-items: center;
+    max-width: 100%;
+    padding: 1rem;
+    padding-right: 3rem; /* Aumentamos el padding derecho para más espacio */
+    transition: all 0.3s ease;
+    margin-left: auto; /* Empuja el contenedor hacia la derecha */
 }
 
 .hero-image img {
-    height: 100%;
-    object-fit: contain;
-    position: relative;
-    z-index: 1;
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+    margin-left: auto; /* Empuja la imagen hacia la derecha */
+}
+
+/* Media queries para diferentes tamaños de pantalla */
+@media screen and (max-width: 1024px) {
+    .hero-image {
+        padding: 0.8rem;
+    }
+    
+    .hero-image img {
+        max-width: 90%;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .hero-image {
+        justify-content: center;
+        padding-right: 1rem;
+        margin-left: 0;
+    }
+    
+    .hero-image img {
+        margin-left: 0;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hero-image {
+        padding: 0.6rem;
+    }
+    
+    .hero-image img {
+        max-width: 80%;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .hero-image {
+        padding: 0.4rem;
+    }
+    
+    .hero-image img {
+        max-width: 70%;
+    }
 }
 
 /* Wave Elements */
@@ -296,7 +339,7 @@ body.dark-theme {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: var(--terc);
+    background: var(--pri);
     color: white;
     padding: 15px 30px;
     border-radius: 30px;
@@ -307,7 +350,7 @@ body.dark-theme {
 }
 
 .register-hero-btn:hover {
-    background: rgb(29, 29, 49);
+    background: var(--sec);
     transform: translateY(-2px);
 }
 
@@ -324,6 +367,62 @@ body.dark-theme {
     margin-top: 50px;
     opacity: 0.5;
 }
+
+
+/* Que son las olimpiadas Oh sansi */
+.que-son-olmpiadas {
+    padding: 70px 20px;
+    background-color: var(--pri);
+    border-radius: 15px;
+    margin-top: 60px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.que-son-olmpiadas::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--guindo);
+    }
+
+.que-son-olmpiadas h2 {
+    font-size: 38px;
+    margin-bottom: 30px;
+    color: white;
+    text-align: center;
+    position: relative;
+    font-weight: 700;
+}
+
+.que-son-olmpiadas h2::after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background:linear-gradient( to right,var(--btn-sec),var(--btn-sec));
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.que-son-olmpiadas p {
+    font-size: 18px;
+    margin-bottom: 40px;
+    color: rgb(230, 226, 226);
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+}
+
+/**/
 /* About Olympiad Section Styles */
 .about-olympiad {
     padding: 70px 20px;
@@ -359,7 +458,7 @@ body.dark-theme {
     position: absolute;
     width: 80px;
     height: 4px;
-    background:linear-gradient( to right,var(--guindo),var(--azul));
+    background:linear-gradient( to right,var(--pri),var(--sec));
     bottom: -12px;
     left: 50%;
     transform: translateX(-50%);
@@ -426,7 +525,7 @@ body.dark-theme {
 }
 
 .area-icon {
-    background: linear-gradient(135deg, var(--guindo),var(--azul));
+    background: var(--for);
     width: 80px;
     height: 80px;
     border-radius: 15px;
@@ -449,7 +548,7 @@ body.dark-theme {
 }
 
 .area-card h3 {
-    color:var(--btn-sec);
+    color:var(--for);
     margin-bottom: 1rem;
     font-size: 1.25rem;
 }
@@ -588,7 +687,7 @@ body.dark-theme {
     position: absolute;
     width: 80px;
     height: 4px;
-    background:linear-gradient( to right,var(--guindo),var(--azul));
+    background:linear-gradient( to right,var(--pri),var(--sec));
     bottom: -12px;
     left: 50%;
     transform: translateX(-50%);
@@ -612,7 +711,7 @@ body.dark-theme {
     left: calc(25% + 20px);
     right: calc(25% - 20px);
     height: 2px;
-    background: linear-gradient(to right, var(--guindo), var(--azul));
+    background:var(--five);
     z-index: 1;
 }
 
@@ -638,14 +737,14 @@ body.dark-theme {
 
     border: 2px solid transparent;
     background-image: linear-gradient(var(--bg2), var(--bg2)), 
-                     linear-gradient(to right, var(--guindo), var(--azul));
+                     linear-gradient(to right, var(--five), var(--five));
     background-origin: border-box;
     background-clip: padding-box, border-box;
 }
 
 .participation-steps li:hover i {
     transform: translateY(-5px) scale(1.05);
-    background:linear-gradient(var(--guindo), var(--azul)) ;
+    background:var(--btn-sec) ;
     color: white;
     box-shadow: 0 8px 20px rgba(0, 129, 223, 0.3);
 }

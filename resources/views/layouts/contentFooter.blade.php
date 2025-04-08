@@ -1,7 +1,5 @@
 <footer>
-    <div class="wave-footer">
-        <img src="{{ asset('img/superior.svg') }}">
-    </div>
+
     <div class="contenedor footer-content">
         <div class="footer-logo">
             <div class="logo">OH! <span>SANSI</span></div>

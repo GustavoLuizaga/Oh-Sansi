@@ -32,7 +32,7 @@
                     <li><a href="{{ route('inscripcion.estudiante') }}" class="{{ request()->is('inscripcion/estudiante') ? 'active' : '' }}"><i class="fas fa-user-graduate"></i> <span>Inscripción Estudiante</span></a></li>
                 @endif
                 @if($iusIds->contains(config('ius.INSCRIPCION_TUTOR')))
-                    <li><a href="{{ route('inscripcion.tutor') }}" class="{{ request()->is('inscripcion/tutor') ? 'active' : '' }}"><i class="fas fa-chalkboard-teacher"></i> <span>Inscripción Tutor</span></a></li>
+                    <li><a href="{{ route('inscripcion.tutor') }}" class="{{ request()->is('inscripcion/tutor') ? 'active' : '' }}"><i class="fas fa-chalkboard-teacher"></i> <span>Registro</span></a></li>
                 @endif
             </ul>
         </div>

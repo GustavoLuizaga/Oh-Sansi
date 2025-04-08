@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\TutorAreaDelegacion;
+use App\Models\Inscripcion;
 use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
 use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
-use App\Models\Inscripcion;
 use App\Http\Controllers\Inscripcion\ObtenerIdTutorToken;
-use Illuminate\Support\Facades\Auth;
 
 class InscripcionController extends Controller
 {
@@ -96,5 +98,35 @@ class InscripcionController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
     
+    }
+
+    public function showTutorProfile()
+    {
+        try {
+            $user = Auth::user();
+            $token = null;
+
+            if ($user && $user->tutor) {
+                Log::info('User and tutor found:', ['user_id' => $user->id, 'tutor_id' => $user->tutor->id]);
+                
+                $tutorAreaDelegacion = TutorAreaDelegacion::where('id', $user->tutor->id)
+                    ->select('tokenTutor')
+                    ->first();
+
+                if ($tutorAreaDelegacion) {
+                    Log::info('Token found:', ['token' => $tutorAreaDelegacion->tokenTutor]);
+                    $token = $tutorAreaDelegacion->tokenTutor;
+                } else {
+                    Log::warning('No token found for tutor:', ['tutor_id' => $user->tutor->id]);
+                }
+            } else {
+                Log::warning('No tutor found for user:', ['user_id' => $user->id ?? 'null']);
+            }
+
+            return view('inscripciones.inscripcionTutor', compact('token'));
+        } catch (\Exception $e) {
+            Log::error('Error in showTutorProfile:', ['error' => $e->getMessage()]);
+            return view('inscripciones.inscripcionTutor', ['token' => null]);
+        }
     }
 }

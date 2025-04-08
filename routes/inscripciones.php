@@ -17,9 +17,8 @@ Route::middleware('auth')->group(function () {
         ->name('inscripcion.store');
 
     // Tutor registration routes
-    Route::get('/inscripcion/tutor', function () {
-        return view('inscripciones.inscripcionTutor');
-    })->name('inscripcion.tutor');
+    Route::get('/inscripcion/tutor', [InscripcionController::class, 'showTutorProfile'])
+        ->name('inscripcion.tutor');
     
     Route::post('/inscripcion/tutor/store', [InscripcionController::class, 'storeTutor'])
         ->name('inscripcion.tutor.store');

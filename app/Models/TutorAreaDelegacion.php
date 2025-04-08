@@ -10,21 +10,15 @@ class TutorAreaDelegacion extends Model
     use HasFactory;
 
     protected $table = 'tutorAreaDelegacion';
-    public $incrementing = false; // ya que la clave primaria es compuesta
-    protected $primaryKey = ['id', 'idArea', 'idDelegacion'];
-    public $timestamps = true;
+    protected $fillable = ['id', 'idArea', 'idDelegacion', 'tokenTutor'];
 
-    protected $fillable = [
-        'id',
-        'idArea',
-        'idDelegacion',
-        'tokenTutor',  // Make sure this matches your database column name
-    ];
+    // Deshabilitar el comportamiento de clave primaria compuesta para consultas simples
+    protected $primaryKey = 'id';
+    public $incrementing = false;
 
-    // Relaciones (opcional)
     public function tutor()
     {
-        return $this->belongsTo(Tutor::class, 'id', 'id');
+        return $this->belongsTo(Tutor::class, 'id');
     }
 
     public function area()

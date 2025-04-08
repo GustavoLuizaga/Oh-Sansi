@@ -25,6 +25,11 @@ class Tutor extends Model
         return $this->belongsTo(User::class, 'id');
     }
 
+    public function tutorAreaDelegacion()
+    {
+        return $this->hasOne(TutorAreaDelegacion::class, 'id');
+    }
+
     public function areas()
     {
         return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')

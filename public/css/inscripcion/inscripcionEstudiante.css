@@ -98,7 +98,45 @@
 /* Main Content */
 .main-content {
     flex: 1;
-    padding: 2rem;
+}
+
+/* Token Verification Styles */
+.token-verification-container {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-verificar-token {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-verificar-token:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.token-status {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+}
+
+.token-status.valid {
+    color: #28a745;
+}
+
+.token-status.invalid {
+    color: #dc3545;
 }
 
 /* Top Bar */
@@ -171,39 +209,132 @@
 }
 
 /* Form Styles */
-.form-container {
-    background-color: white;
-    padding: 2rem;
+.inscription-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    background-color: #f8f9fa;
     border-radius: 12px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
-.form-section {
-    margin-bottom: 2.5rem;
-    padding: 1.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+.inscription-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.form-section h3 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
+.inscription-header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-.form-row {
+.convocatoria-info {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.convocatoria-info span {
+    font-weight: 600;
+}
+
+.inscription-form {
+    padding: 2rem;
+}
+
+.form-instructions {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #e9f7fe;
+    border-left: 4px solid #3498db;
+    border-radius: 4px;
+}
+
+.form-instructions h2 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.formulario-seccion {
+    margin-bottom: 2.5rem;
+}
+
+.seccion-card {
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.seccion-header {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 1rem;
+}
+
+.seccion-header h2 {
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.seccion-body {
+    padding-top: 0.5rem;
+}
+
+.info-row {
     display: flex;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
-.input-group {
+.input-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-group {
     flex: 1;
 }
 
-.input-group label {
+.info-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #34495e;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.info-value {
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.input-grupo {
+    flex: 1;
+}
+
+.input-grupo label {
     display: block;
     margin-bottom: 0.5rem;
     color: #34495e;
@@ -244,7 +375,7 @@
     margin-top: 2rem;
 }
 
-.btn-cancel, .btn-submit {
+.btn-cancel, .btn-submit, .btn-subir, .btn-add-tutor {
     padding: 0.75rem 2rem;
     border-radius: 6px;
     cursor: pointer;
@@ -273,10 +404,96 @@
     transform: translateY(-2px);
 }
 
-.btn-submit:hover {
+.btn-submit:hover, .btn-subir:hover {
     background-color: #27ae60;
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
+
+/* Estilos para la sección de tutores */
+.tutor-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+}
+
+.tutor-header {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.75rem;
+}
+
+.tutor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tutor-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #2c3e50;
+}
+
+.btn-eliminar-tutor {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-eliminar-tutor:hover {
+    background-color: #c82333;
+}
+
+.tutor-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e0e0e0;
+}
+
+.btn-add-tutor {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-add-tutor:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.section-subtitle {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: 0.25rem;
+}
+
+/* Estilos para el botón de envío */
+.subir-formulario {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-subir {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 0.75rem 2.5rem;
+    font-size: 1.1rem;
 }
 
 /* Select2 Custom Styles */

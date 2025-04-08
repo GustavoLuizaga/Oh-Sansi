@@ -18,7 +18,7 @@ class TutorAreaDelegacion extends Model
         'id',
         'idArea',
         'idDelegacion',
-        'tokenTutor',
+        'tokenTutor',  // Make sure this matches your database column name
     ];
 
     // Relaciones (opcional)

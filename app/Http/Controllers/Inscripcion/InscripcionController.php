@@ -16,34 +16,48 @@ class InscripcionController extends Controller
 {
     public function index()
     {
-        //Obtener el ID de la convocatoria activa
+        // Obtener el ID de la convocatoria activa
         $convocatoria = new VerificarExistenciaConvocatoria();
-        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva();
+        $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
+        
+        // Verificar si hay una convocatoria activa
+        if ($idConvocatoriaResult instanceof \Illuminate\Http\JsonResponse) {
+            // No hay convocatoria activa
+            return view('inscripciones.inscripcionEstudiante', [
+                'convocatoriaActiva' => false
+            ]);
+        }
+        
+        $idConvocatoria = $idConvocatoriaResult;
+        
+        // Obtener la información de la convocatoria
+        $convocatoriaInfo = \App\Models\Convocatoria::find($idConvocatoria);
 
         // Obtener las delegaciones (colegios)
         $colegios = \App\Models\Delegacion::select('idDelegacion as id', 'nombre')
                         ->orderBy('nombre')
                         ->get();
 
-        //Obtener las areas por el id de la convocatoria
+        // Obtener las areas por el id de la convocatoria
         $obtenerAreas = new ObtenerAreasConvocatoria();
         $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria);
 
-        //Obtener las categorias por el id de la convocatoria
+        // Obtener las categorias por el id de la convocatoria
         $obtenerCategorias = new ObtenerCategoriasArea();
         $categorias = $obtenerCategorias->categoriasAreas($idConvocatoria);
 
-        //Obtener los grados por las categorias
+        // Obtener los grados por las categorias
         $obtenerGrados = new ObtenerGradosArea();
         $grados = $obtenerGrados->obtenerGradosPorArea($categorias);
 
-        return view('inscripciones.inscripcionEstudiante', compact(
-            'areas',
-            'categorias',
-            'grados',
-            'idConvocatoria',
-            'colegios'
-        ));
+        return view('inscripciones.inscripcionEstudiante', [
+            'convocatoriaActiva' => true,
+            'convocatoria' => $convocatoriaInfo,
+            'areas' => $areas,
+            'categorias' => $categorias,
+            'grados' => $grados,
+            'colegios' => $colegios
+        ]);
     }
 
 
@@ -80,7 +94,7 @@ class InscripcionController extends Controller
             'idEstudiante' => $userId,//Recuperar el Id del Est
         ]);
 
-
-        
+        return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
+    
     }
 }

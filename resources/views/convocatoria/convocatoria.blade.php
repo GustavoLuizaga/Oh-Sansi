@@ -28,14 +28,14 @@
             <a href="{{ route('convocatorias.crear') }}" class="btn-nueva-convocatoria">
                 <i class="fas fa-plus-circle"></i> Nueva Convocatoria
             </a>
-            
             <div class="export-buttons">
-                <a href="#" class="btn-export" id="exportPdf">
+                <button type="button" class="export-button pdf" id="exportPdf">
                     <i class="fas fa-file-pdf"></i> Descargar PDF
-                </a>
-                <a href="#" class="btn-export" id="exportExcel">
+                </button>
+                
+                <button type="button" class="export-button excel" id="exportExcel">
                     <i class="fas fa-file-excel"></i> Descargar Excel
-                </a>
+                </button>
             </div>
         </div>
 
@@ -170,7 +170,7 @@
     </div>
 
     <script>
-        
+
         document.addEventListener('DOMContentLoaded', function() {
         // Export PDF button
         document.getElementById('exportPdf').addEventListener('click', function(e) {

@@ -55,9 +55,7 @@
                         <td>{{ $categoria->nombre }}</td>
                         <td>
                             <div class="grades-list">
-                                @foreach($categoria->grados as $grado)
-                                    <span class="grade-pill">{{ $grado->grado }}</span>
-                                @endforeach
+                                {{ $categoria->grados->pluck('grado')->implode(', ') }}
                             </div>
                         </td>
                     </tr>

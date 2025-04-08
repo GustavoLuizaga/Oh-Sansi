@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\ConvocatoriaController;
 use Illuminate\Support\Facades\Route;
+// Add these routes for exports
+Route::get('/convocatoria/exportar/pdf', [ConvocatoriaController::class, 'exportPdf'])->name('convocatoria.exportar.pdf');
+Route::get('/convocatoria/exportar/excel', [ConvocatoriaController::class, 'exportExcel'])->name('convocatoria.exportar.excel');
+
 
 Route::middleware('auth')->group(function () {
     // Index route

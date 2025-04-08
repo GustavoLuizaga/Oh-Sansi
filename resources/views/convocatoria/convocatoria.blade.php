@@ -170,20 +170,19 @@
     </div>
 
     <script>
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Export PDF button
-            document.getElementById('exportPdf').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Add PDF export functionality here
-                alert('Exportando a PDF...');
-            });
-            
-            // Export Excel button
-            document.getElementById('exportExcel').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Add Excel export functionality here
-                alert('Exportando a Excel...');
-            });
+        // Export PDF button
+        document.getElementById('exportPdf').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{{ route('convocatoria.exportar.pdf') }}";
         });
+        // Export Excel button
+        document.getElementById('exportExcel').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{{ route('convocatoria.exportar.excel') }}";
+        }); 
+        });
+
     </script>
 </x-app-layout>

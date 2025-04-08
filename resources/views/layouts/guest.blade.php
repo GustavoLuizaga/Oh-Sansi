@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="{{ asset('CSS/login.css') }}">
         <link rel="stylesheet" href="{{ asset('CSS/forgot-password.css') }}">
         <link rel="stylesheet" href="{{ asset('css/verify-email.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/reset-password.css') }}">
         <link rel="stylesheet" href="{{ asset('CSS/barraNavegacionPrincipal.css') }}">
         
         <!-- Scripts -->

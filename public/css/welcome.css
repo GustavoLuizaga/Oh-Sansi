@@ -30,6 +30,7 @@
     /*Nuevos colores de rojo y azul*/
     --guindo: rgb(150, 6, 30); /* Color guindo */
     --azul: rgb(1, 35, 63); /* Color azul oscuro */
+    --azul-claro: #034a70; /* Azul claro para resaltar */
 }
 
 /* Dark theme colors */
@@ -144,7 +145,7 @@ body.dark-theme {
 .hero {
     position: relative;
     /*background: radial-gradient(circle, rgba(32,187,255,1) 9%, rgba(0,129,223,1) 38%, rgba(0,87,149,1) 63%, rgba(0,42,76,1) 100%);*/
-    background: radial-gradient( var(--guindo)9%,55%, var(--azul));
+    background: radial-gradient( var(--guindo)9%,55%, var(--azul-claro));
     border-radius: 20px;
     overflow: hidden;
     color: white;

@@ -14,12 +14,12 @@
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="join-btn">
-                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión 
+                         Cerrar Sesión 
                     </button>
                 </form>
             @else
                 <a href="{{ route('login') }}" class="login-link">
-                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                     Iniciar Sesión
                 </a>
             @endauth
             <button id="theme-toggle" class="theme-toggle">

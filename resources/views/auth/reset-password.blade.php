@@ -1,48 +1,73 @@
 <x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </x-slot>
+    <div class="centered-logo">
+        <img src="{{ asset('img/images/logoOhSansi.png') }}" alt="SanSi Logo">
+    </div>
+
+    <div class="reset-password-container">
+        <div class="reset-password-text">
+            Por favor, ingrese su nueva contraseña para completar el restablecimiento.
+        </div>
 
         <!-- Validation Errors -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+        <x-auth-validation-errors class="error-message" :errors="$errors" />
 
         <form method="POST" action="{{ route('password.update') }}">
             @csrf
-
-            <!-- Password Reset Token -->
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            <!-- Email Address -->
-            <div>
-                <x-label for="email" :value="__('Email')" />
-
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus />
+            <div class="input-wrapper">
+                <label class="input-label">Correo Electrónico</label>
+                <div class="input-icon-group">
+                    <i class="fas fa-envelope"></i>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        class="form-input"
+                        value="{{ old('email', $request->email) }}" 
+                        required 
+                        autofocus
+                        placeholder="correo@ejemplo.com"
+                    >
+                </div>
             </div>
 
-            <!-- Password -->
-            <div class="mt-4">
-                <x-label for="password" :value="__('Password')" />
-
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required />
+            <div class="input-wrapper">
+                <label class="input-label">Nueva Contraseña</label>
+                <div class="input-icon-group">
+                    <i class="fas fa-lock"></i>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-input"
+                        required
+                        placeholder="Ingrese su nueva contraseña"
+                    >
+                </div>
             </div>
 
-            <!-- Confirm Password -->
-            <div class="mt-4">
-                <x-label for="password_confirmation" :value="__('Confirm Password')" />
-
-                <x-input id="password_confirmation" class="block mt-1 w-full"
-                                    type="password"
-                                    name="password_confirmation" required />
+            <div class="input-wrapper">
+                <label class="input-label">Confirmar Contraseña</label>
+                <div class="input-icon-group">
+                    <i class="fas fa-lock"></i>
+                    <input 
+                        type="password" 
+                        name="password_confirmation" 
+                        class="form-input"
+                        required
+                        placeholder="Confirme su nueva contraseña"
+                    >
+                </div>
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Reset Password') }}
-                </x-button>
+            <button class="reset-button">
+                Restablecer Contraseña
+            </button>
+
+            <div class="back-to-login">
+                <a href="{{ route('login') }}">
+                    <i class="fas fa-arrow-left"></i> Volver a inicio de sesión
+                </a>
             </div>
         </form>
-    </x-auth-card>
+    </div>
 </x-guest-layout>

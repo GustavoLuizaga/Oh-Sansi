@@ -1,33 +1,75 @@
 :root {
-    /* Colores principales */
-    --pri: #002A4C;
-    --sec: #00477a;
-    --terc: #021521;
-    --for: #0081df;
-    --five: #6dd2ff;
+    /* Brand Colors - Blues */
+    --blue-900: #021521;  /* antes --terc */
+    --blue-800: #002A4C;  /* antes --pri */
+    --blue-700: #00477a;  /* antes --sec */
+    --blue-600: #0081df;  /* antes --for */
+    --blue-500: #20bbff;  /* antes --btn-sec */
+    --blue-400: #6dd2ff;  /* antes --five */
+    --blue-300: #8cdbff;  /* nuevo */
+    --blue-200: #b3e7ff;  /* nuevo */
+    --blue-100: #e6f7ff;  /* nuevo */
+
+    /* Brand Colors - Burgundy */
+    --burgundy-900: #4a020e;  /* nuevo */
+    --burgundy-700: #96061e;  /* antes --guindo */
+    --burgundy-500: #cc0828;  /* nuevo */
+    --burgundy-300: #ff1f44;  /* nuevo */
+    --burgundy-100: #ffd7dd;  /* nuevo */
+
+    /* Navy */
+    --navy-900: #01233f;  /* antes --azul */
+    --navy-700: #023561;  /* nuevo */
+    --navy-500: #034783;  /* nuevo */
+    --navy-300: #0469c5;  /* nuevo */
+    --navy-100: #e6f0f9;  /* nuevo */
+
+    /* Surface Colors - Light Mode */
+    --surface-primary: #ffffff;    /* antes --bg */
+    --surface-secondary: #f8f8f8;  /* antes --bg1 */
+    --surface-tertiary: #ffffff;   /* antes --bg2 */
+    --surface-card: #ffffff;       /* antes --bg3 */
     
-    /* Fondos */
-    --bg: #ffffff;
-    --bg1: #f8f8f8;
-    --bg2: #ffffff;
-    --bg3: #ffffff;
+    /* Typography - Light Mode */
+    --text-primary: #333333;       /* antes --txt */
+    --text-secondary: #636363;     /* antes --text1 */
+    --text-light: #ffffff;         /* antes --p-pri */
+    --text-dark: #000000;          /* antes --p-sec */
+
+    /* Interactive Elements */
+    --button-primary: var(--blue-900);
+    --button-secondary: var(--blue-500);
+    --button-text: var(--surface-primary);
     
-    /* Textos */
-    --txt: #333;
-    --text1: rgb(99, 99, 99)0;
-    --p-pri: white;
-    --p-sec: #000;
-    
-    /* Botones */
-    --btn-pri: var(--terc);
-    --btn-sec: #20bbff;
-    --btn-txt: var(--bg);
-    
-    /* Colores temáticos */
-    --guindo: rgb(150, 6, 30);
-    --azul: rgb(1, 35, 63);
+    /* Gradients */
+    --gradient-primary: linear-gradient(to right, var(--blue-800), var(--blue-600));
+    --gradient-secondary: linear-gradient(to right, var(--burgundy-700), var(--navy-900));
+    --gradient-accent: linear-gradient(to right, var(--blue-800), var(--blue-600), var(--blue-400));
 }
 
+/* Dark Theme Colors */
+body.dark-theme {
+    /* Surface Colors - Dark Mode */
+    --surface-primary: #272727;      /* antes --bg dark */
+    --surface-secondary: #151b23;    /* antes --bg1 dark */
+    --surface-tertiary: #202022;     /* antes --bg2 dark */
+    --surface-card: rgb(48, 48, 58); /* antes --bg3 dark */
+    
+    /* Typography - Dark Mode */
+    --text-primary: #e0e0e0;    /* antes --txt dark */
+    --text-secondary: #9e9d9d;  /* antes --text1 dark */
+    --text-light: #ffffff;      /* antes --p-pri dark */
+    --text-dark: #c5c2c2;      /* antes --p-sec dark */
+
+    /* Interactive Elements - Dark Mode */
+    --button-primary: var(--blue-400);
+    --button-secondary: var(--blue-600);
+    
+    /* Gradients - Dark Mode */
+    --gradient-primary: linear-gradient(to right, var(--blue-600), var(--blue-400));
+    --gradient-secondary: linear-gradient(to right, var(--burgundy-500), var(--navy-500));
+    --gradient-accent: linear-gradient(to right, var(--blue-600), var(--blue-400), var(--blue-300));
+}
 /* Estilos base */
 * {
     margin: 0;
@@ -37,23 +79,13 @@
 }
 
 body {
-    background-color: var(--bg);
+    background-color: var(--surface-primary);
     line-height: 1.6;
     transition: background-color 0.3s ease, color 0.3s ease;
+    padding-top: 60px; /* Añadir padding para compensar la barra fija */
 }
-
 /* Dark theme colors */
-body.dark-theme {
-    --bg: #272727;
-    --bg1: #151b23;
-    --bg2: #202022;
-    --bg3: rgb(48, 48, 58);
-    --txt: #c5c2c2;
-    --text1: #9e9d9d;
-    --p-pri: #e0e0e0;
-    --p-sec: #ffffff;
-    color: #ffffff;
-}
+
 
 /* Contenedor principal */
 .contenedor {
@@ -66,7 +98,7 @@ body.dark-theme {
 /* Hero Section */
 .hero {
     position: relative;
-    background: radial-gradient(var(--guindo) 9%, 55%, var(--azul));
+    background: radial-gradient(var(--burgundy-700) 9%, 55%, var(--navy-700));
     border-radius: 20px;
     overflow: hidden;
     color: white;
@@ -97,7 +129,7 @@ body.dark-theme {
 }
 
 .hero-text .quote {
-    color: var(--p-pri);
+    color: var(--text-light);
     font-style: italic;
     margin-bottom: 20px;
     line-height: 1.5;
@@ -132,7 +164,7 @@ body.dark-theme {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: var(--pri);
+    background: var(--blue-800);
     color: white;
     padding: 10px 20px;
     border-radius: 25px;
@@ -143,7 +175,7 @@ body.dark-theme {
 }
 
 .register-hero-btn:hover {
-    background: var(--sec);
+    background: var(--blue-700);
     transform: translateY(-2px);
 }
 
@@ -157,12 +189,12 @@ body.dark-theme {
     line-height: 0;
 }
 .wave-path {
-    fill: var(--bg);
+    fill: var(--surface-primary);
     transition: fill 0.3s ease;
 }
 
 body.dark-theme .wave-path {
-    fill: var(--bg);
+    fill: var(--surface-primary);
 }
 
 /* Main Sections */
@@ -187,7 +219,7 @@ body.dark-theme .wave-path {
     font-weight: 700;
 }
 .que-son-olmpiadas {
-    background-color: var(--pri);
+    background-color: var(--blue-800);
 }
 .que-son-olmpiadas::before{
     content: '';
@@ -196,13 +228,13 @@ body.dark-theme .wave-path {
        left: 0;
        width: 100%;
        height: 5px;
-       background: linear-gradient(to right, var(--guindo));
+       background: linear-gradient(to right, var(--burgundy-700));
    }
 /*Que son las olimpiadas*/
 .que-son-olmpiadas p {
     font-size: 16px;
     margin-bottom: 30px;
-    color: rgb(230, 226, 226);
+    color: var(--text-light);
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
@@ -211,7 +243,7 @@ body.dark-theme .wave-path {
 
 /* Sección: Áreas de Competición */
 .about-olympiad{
-    background-color: var(--bg2);
+    background-color: var(--surface-tertiary);
 }
 .about-olympiad:before {
     content: '';
@@ -220,11 +252,11 @@ body.dark-theme .wave-path {
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(to right, var(--pri), var(--for), var(--five));
+    background: linear-gradient(to right, var(--blue-800), var(--blue-600), var(--blue-400));
 }
 
 .about-olympiad h2 {
-    color: var(--for);
+    color: var(--blue-600);
     font-size: 24px;
     margin-bottom: 16px;
 }
@@ -235,7 +267,7 @@ body.dark-theme .wave-path {
     height: 3px;
     width: 80px;
     margin: 10px auto 0;
-    background: linear-gradient(to right, var(--pri), var(--sec));
+    background: linear-gradient(to right, var(--blue-800), var(--blue-700));
     border-radius: 3px;
 }
 
@@ -276,7 +308,7 @@ body.dark-theme .wave-path {
 }
 
 .next-btn {
-    background: linear-gradient(45deg, var(--pri), var(--sec));
+    background: linear-gradient(45deg, var(--blue-800), var(--blue-700));
     padding: 12px 25px;
     border-radius: 25px;
     font-size: 1rem;
@@ -287,7 +319,7 @@ body.dark-theme .wave-path {
 .next-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 42, 76, 0.3);
-    background: linear-gradient(45deg, var(--sec), var(--for));
+    background: linear-gradient(45deg, var(--blue-700), var(--blue-600));
 }
 
 .next-btn:active {
@@ -303,7 +335,7 @@ body.dark-theme .wave-path {
 }
 
 .nav-btn, .scroll-btn {
-    background: var(--pri);
+    background: var(--blue-800);
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -311,7 +343,7 @@ body.dark-theme .wave-path {
 }
 
 .nav-btn:hover, .scroll-btn:hover {
-    background: var(--sec);
+    background: var(--blue-700);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
@@ -348,7 +380,7 @@ body.dark-theme .wave-path {
 .area-card {
     flex: 0 0 auto;
     width: 150px;
-    background: var(--bg3);
+    background: var(--surface-card);
     border-radius: 8px;
     padding: 15px;
     text-align: center;
@@ -361,7 +393,7 @@ body.dark-theme .wave-path {
 }
 
 .area-icon {
-    background: var(--for);
+    background: var(--blue-600);
     width: 50px;
     height: 50px;
     border-radius: 12px;
@@ -384,14 +416,14 @@ body.dark-theme .wave-path {
 }
 
 .area-card h3 {
-    color: var(--for);
+    color: var(--blue-600);
     margin-bottom: 0.8rem;
     font-size: 1rem;
 }
 
 /* Como participar */
 .how-to-participate {
-    background-color: var(--bg2);
+    background-color: var(--surface-tertiary);
 }
 
 .how-to-participate:before {
@@ -401,11 +433,11 @@ body.dark-theme .wave-path {
     left: 0;
     width: 100%;
     height: 5px;
-    background: linear-gradient(to right, var(--pri), var(--for), var(--five));
+    background: linear-gradient(to right, var(--blue-800), var(--blue-600), var(--blue-400));
 }
 
 .how-to-participate h2 {
-    color: var(--for);
+    color: var(--blue-600);
     font-size: 24px;
     margin-bottom: 10px;
 }
@@ -416,7 +448,7 @@ body.dark-theme .wave-path {
     height: 3px;
     width: 80px;
     margin: 10px auto 0;
-    background: linear-gradient(to right, var(--pri), var(--sec));
+    background: linear-gradient(to right, var(--blue-800), var(--blue-700));
     border-radius: 3px;
 }
 
@@ -455,8 +487,8 @@ body.dark-theme .wave-path {
 }
 
 .participation-steps li i {
-    background-color: var(--bg2);
-    color: var(--for);
+    background-color: var(--surface-tertiary);
+    color: var(--blue-600);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -468,24 +500,27 @@ body.dark-theme .wave-path {
     box-shadow: 0 4px 10px rgba(0, 129, 223, 0.15);
     font-size: 1rem;
     border: 2px solid transparent;
-    background-image: linear-gradient(var(--bg2), var(--bg2)), 
-                     linear-gradient(to right, var(--five), var(--five));
+    background-image: linear-gradient(var(--surface-tertiary), var(--surface-tertiary)), 
+                     linear-gradient(to right, var(--blue-400), var(--blue-400));
     background-origin: border-box;
     background-clip: padding-box, border-box;
 }
 
 .participation-steps li:hover i {
     transform: translateY(-5px) scale(1.05);
-    background: var(--btn-sec);
+    background: var(--blue-500);
     color: white;
     box-shadow: 0 8px 20px rgba(0, 129, 223, 0.3);
+}
+.participation-steps li p {
+   color: var(--text-primary);
 }
 
 .start-registration-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background-color: var(--btn-sec);
+    background-color: var(--blue-500);
     color: white;
     padding: 10px 20px;
     border-radius: 6px;
@@ -498,7 +533,7 @@ body.dark-theme .wave-path {
 }
 
 .start-registration-btn:hover {
-    background-color: var(--for);
+    background-color: var(--blue-600);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 129, 223, 0.3);
 }
@@ -682,8 +717,3 @@ body.dark-theme .wave-path {
         max-width: 150px;
     }
 }
-
-
-
-
-

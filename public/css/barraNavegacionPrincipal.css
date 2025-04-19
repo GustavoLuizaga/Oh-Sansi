@@ -1,10 +1,12 @@
 /* Header Base Styles */
 header {
     padding: 10px 0;
-    position: sticky;
+    position: fixed; /* Cambiado de sticky a fixed */
     top: 0;
+    left: 0;
+    right: 0;
     background-color: var(--surface-secondary);
-    z-index: 100;
+    z-index: 9999; /* Aumentado significativamente */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
@@ -22,6 +24,7 @@ nav {
     justify-content: space-between;
     align-items: center;
 }
+
 
 /* Logo and Menu Toggle Container */
 .menu-toggle {
@@ -46,7 +49,7 @@ nav {
 }
 
 .logo span {
-    color: var(--burgundy-700);
+    color: var(--burgundy-500);
 }
 
 /* Navigation Links */
@@ -256,6 +259,7 @@ body.dark-theme .menu-footer {
     .menu-toggle {
         display: block;
         order: -1;
+        z-index: 10000;
     }
 
     .mobile-only {
@@ -277,8 +281,7 @@ body.dark-theme .menu-footer {
         padding: 60px 15px 20px;
         transition: left 0.3s ease;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-    }
+        z-index: 9998; }
 
     .nav-links.active {
         left: 0;

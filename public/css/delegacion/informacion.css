@@ -13,43 +13,58 @@
     --light-gray: #f8f9fa; /* Gris claro para fondos */
     --medium-gray: #e9ecef; /* Gris medio para bordes */
     --dark-gray: #343a40; /* Gris oscuro para textos */
+    
+    /* Tamaños de fuente reducidos */
+    --font-size-base: 0.65rem;
+    --font-size-small: 0.6rem;
+    --font-size-large: 0.75rem;
+    --font-size-xlarge: 0.9rem;
+    --font-size-xxlarge: 1.1rem;
+    
+    /* Espaciado reducido */
+    --spacing-xs: 0.15rem;
+    --spacing-sm: 0.3rem;
+    --spacing-md: 0.6rem;
+    --spacing-lg: 0.9rem;
+    --spacing-xl: 1.2rem;
 }
 
 .delegacion-info-container {
     max-width: 1200px;
-    margin: 20px auto;
+    margin: 15px auto;
     background-color: white;
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 25px;
+    padding: 15px;
 }
 
 .delegacion-info-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--medium-gray);
 }
 
 .delegacion-info-header h1 {
-    font-size: 24px;
+    font-size: var(--font-size-xxlarge);
     color: var(--primary-dark);
     margin: 0;
 }
 
 .action-buttons {
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 
 .action-button {
-    padding: 10px 18px;
-    border-radius: 6px;
+    padding: 6px 12px;
+    border-radius: 4px;
     font-weight: 600;
     text-decoration: none;
     display: inline-flex;
+    font-size: var(--font-size-base);
     align-items: center;
     justify-content: center;
     gap: 8px;

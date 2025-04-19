@@ -31,24 +31,24 @@
     --warning-color: #ed8936; /* Naranja */
     --info-color: #4299e1; /* Azul información */
 
-    /* Tipografía */
+    /* Tipografía - Reducidos aún más para mejor visualización al 100% */
     --font-primary: 'Nunito', sans-serif;
-    --font-size-base: 16px;
-    --font-size-small: 14px;
-    --font-size-large: 18px;
-    --font-size-xlarge: 24px;
-    --font-size-xxlarge: 32px;
+    --font-size-base: 0.65rem;
+    --font-size-small: 0.6rem;
+    --font-size-large: 0.75rem;
+    --font-size-xlarge: 0.9rem;
+    --font-size-xxlarge: 1.1rem;
     
-    /* Espaciado */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
+    /* Espaciado - Ajustado para mejor visualización */
+    --spacing-xs: 0.15rem;
+    --spacing-sm: 0.3rem;
+    --spacing-md: 0.6rem;
+    --spacing-lg: 0.9rem;
+    --spacing-xl: 1.2rem;
     
     /* Bordes y sombras */
-    --border-radius: 4px;
-    --border-radius-lg: 8px;
+    --border-radius: 0.2rem;
+    --border-radius-lg: 0.4rem;
     --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     --box-shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.1);
     
@@ -57,11 +57,11 @@
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
     
-    /* Dimensiones */
-    --sidebar-width: 250px;
-    --sidebar-collapsed-width: 60px;
-    --right-sidebar-width: 300px;
-    --header-height: 60px;
+    /* Dimensiones - Reducidas para mejor visualización */
+    --sidebar-width: 12rem;
+    --sidebar-collapsed-width: 2.5rem;
+    --right-sidebar-width: 13rem;
+    --header-height: 2.5rem;
 }
 
 /* ======= RESET Y ESTILOS BASE ======= */
@@ -107,7 +107,7 @@ input, select, button {
 .main-content {
     display: flex;
     margin-top: var(--header-height);
-    min-height: calc(100vh - var(--header-height) - 50px);
+    min-height: calc(100vh - var(--header-height) - 3.125rem);
     position: relative;
     background-color: var(--light-color);
 }
@@ -126,6 +126,7 @@ nav {
     padding: 0 var(--spacing-lg);
     z-index: 1000;
     box-shadow: var(--box-shadow);
+    font-size: var(--font-size-base);
 }
 
 .logo {
@@ -135,7 +136,7 @@ nav {
 }
 
 .logo a {
-    font-size: var(--font-size-xlarge);
+    font-size: var(--font-size-large);
     font-weight: 700;
     color: var(--primary-color);
     text-decoration: none;
@@ -188,11 +189,12 @@ nav {
     position: fixed;
     top: var(--header-height);
     left: 0;
-    height: calc(100vh - var(--header-height) - 50px);
+    height: calc(100vh - var(--header-height) - 2.5rem);
     overflow-y: auto;
     z-index: 900;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: var(--font-size-base);
 }
 
 .menu {
@@ -202,7 +204,7 @@ nav {
     padding: var(--spacing-md) 0;
 }
 .main-content {
-    margin-left: 250px; /* Debe ser igual al ancho del sidebar */
+    margin-left: var(--sidebar-width); /* Debe ser igual al ancho del sidebar */
     padding: var(--spacing-md);
 }
 .menu-seccion {
@@ -311,10 +313,11 @@ main {
     flex: 1;
     padding: var(--spacing-lg);
     margin-top: var(--header-height);
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
     margin-left: var(--sidebar-width);
     margin-right: var(--right-sidebar-width);
     width: calc(100% - var(--sidebar-width) - var(--right-sidebar-width));
+    font-size: var(--font-size-base);
 }
 
 /* ======= RIGHT SIDEBAR ======= */
@@ -329,9 +332,10 @@ main {
     position: fixed;
     top: var(--header-height);
     right: 0;
-    height: calc(100vh - var(--header-height) - 50px);
+    height: calc(100vh - var(--header-height) - 2.5rem);
     overflow-y: auto;
     z-index: 800;
+    font-size: var(--font-size-base);
 }
 
 .sidebar-derecho-calendario,
@@ -539,7 +543,7 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 50px;
+    height: 2.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -547,26 +551,83 @@ footer {
 }
 
 .copyright {
-    font-size: 14px;
+    font-size: 0.875rem;
 }
 
 /* ======= RESPONSIVE STYLES ======= */
-@media (max-width: 1200px) {
+@media (min-width: 1401px) {
     :root {
-        --right-sidebar-width: 250px;
+        /* Para pantallas grandes, mantener los valores base pero ligeramente más grandes */
+        --font-size-base: 0.7rem;
+        --font-size-small: 0.65rem;
+        --font-size-large: 0.8rem;
+        --font-size-xlarge: 0.95rem;
+        --font-size-xxlarge: 1.15rem;
+        --sidebar-width: 13rem;
+        --right-sidebar-width: 14rem;
+        --header-height: 2.7rem;
     }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1400px) and (min-width: 1201px) {
+    :root {
+        /* Mantener los valores base pero reducidos */
+        --sidebar-width: 12rem;
+        --right-sidebar-width: 13rem;
+        --font-size-base: 0.65rem;
+        --font-size-small: 0.6rem;
+        --font-size-large: 0.75rem;
+        --font-size-xlarge: 0.9rem;
+        --font-size-xxlarge: 1.1rem;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 993px) {
+    :root {
+        --font-size-base: 0.63rem;
+        --font-size-small: 0.58rem;
+        --font-size-large: 0.73rem;
+        --font-size-xlarge: 0.85rem;
+        --font-size-xxlarge: 1rem;
+        --sidebar-width: 11rem;
+        --right-sidebar-width: 12rem;
+        --spacing-md: 0.55rem;
+        --spacing-lg: 0.85rem;
+        --header-height: 2.4rem;
+    }
+}
+
+@media (max-width: 992px) and (min-width: 769px) {
+    :root {
+        --font-size-base: 0.6rem;
+        --font-size-small: 0.55rem;
+        --font-size-large: 0.7rem;
+        --font-size-xlarge: 0.8rem;
+        --font-size-xxlarge: 0.95rem;
+        --sidebar-width: 10rem;
+        --right-sidebar-width: 11rem;
+        --spacing-md: 0.5rem;
+        --spacing-lg: 0.8rem;
+        --header-height: 2.3rem;
+    }
+    
     main {
         margin-right: var(--right-sidebar-width);
         width: calc(100% - var(--sidebar-width) - var(--right-sidebar-width));
+        padding: var(--spacing-md);
     }
 }
 
 @media (max-width: 768px) {
     :root {
+        --font-size-base: 0.58rem;
+        --font-size-small: 0.53rem;
+        --font-size-large: 0.68rem;
+        --font-size-xlarge: 0.78rem;
+        --font-size-xxlarge: 0.9rem;
         --right-sidebar-width: 100%;
+        --sidebar-width: 9rem;
+        --header-height: 2.2rem;
     }
     
     .main-content {
@@ -599,10 +660,13 @@ footer {
 
 @media (max-width: 576px) {
     :root {
-        --spacing-lg: 16px;
-        --spacing-md: 12px;
-        --font-size-xxlarge: 24px;
-        --font-size-xlarge: 20px;
+        --font-size-base: 0.68rem;
+        --font-size-small: 0.63rem;
+        --font-size-large: 0.83rem;
+        --font-size-xlarge: 0.95rem;
+        --font-size-xxlarge: 1.2rem;
+        --spacing-lg: 0.9rem;
+        --spacing-md: 0.65rem;
     }
     
     .logo a {

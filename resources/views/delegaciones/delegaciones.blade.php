@@ -2,58 +2,57 @@
     <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
     <link rel="stylesheet" href="{{ asset('css/delegacion/modal.css') }}">
     
-    <div class="p-6">
         <!-- Success Message -->
         @if(session('success'))
-        <div class="alert alert-success">
+        <div class="alert alert-success py-1 px-2 mb-1">
             <i class="fas fa-check-circle"></i> {{ session('success') }}
         </div>
         @endif
         
         @if(request()->has('deleted') && request()->deleted == 'true')
-        <div class="alert alert-success">
+        <div class="alert alert-success py-1 px-2 mb-1">
             Colegio eliminado correctamente.
         </div>
         @endif
         
         <!-- Header Section -->
-        <div class="delegaciones-header">
+        <div class="delegaciones-header py-2">
             <h1><i class="fas fa-school"></i> {{ __('Administrar Colegios') }}</h1>
         </div>
 
         <!-- Actions Container (Add and Export buttons in the same row) -->
-        <div class="actions-container">
-            <a href="{{ route('delegaciones.agregar') }}" class="add-button">
+        <div class="actions-container mb-1">
+            <a href="{{ route('delegaciones.agregar') }}" class="add-button py-1 px-2">
                 <i class="fas fa-plus"></i> Agregar Colegio
             </a>
-            
+            <div class="search-filter-container mb-1">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Buscar por nombre o código SIE" value="{{ request('search') }}" class="py-1">
+                    <button type="submit" class="search-button py-1 px-2">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
             <div class="export-buttons">
-                <button type="button" class="export-button pdf" id="exportPdf">
-                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
+                    <i class="fas fa-file-pdf"></i> PDF
                 </button>
                 
-                <button type="button" class="export-button excel" id="exportExcel">
-                    <i class="fas fa-file-excel"></i> Descargar Excel
+                <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
+                    <i class="fas fa-file-excel"></i> Excel
                 </button>
             </div>
         </div>
         
         <!-- Search and Filter -->
         <form action="{{ route('delegaciones') }}" method="GET" id="filterForm">
-            <div class="search-filter-container">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="search" placeholder="Buscar por nombre o código SIE" value="{{ request('search') }}">
-                    <button type="submit" class="search-button">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                </div>
-            </div>
             
-            <div class="filter-container mb-4">
+            
+            <div class="filter-container mb-2 py-1 px-2">
                 <div class="filter-group">
-                    <label for="dependencia">Dependencia:</label>
-                    <select class="filter-select" name="dependencia" id="dependencia">
+                    <label for="dependencia" class="text-xs mb-1">Dependencia:</label>
+                    <select class="filter-select py-1" name="dependencia" id="dependencia">
                         <option value="">Todas</option>
                         <option value="Fiscal" {{ request('dependencia') == 'Fiscal' ? 'selected' : '' }}>Fiscal</option>
                         <option value="Convenio" {{ request('dependencia') == 'Convenio' ? 'selected' : '' }}>Convenio</option>
@@ -63,8 +62,8 @@
                 </div>
 
                 <div class="filter-group">
-                    <label for="departamento">Departamento:</label>
-                    <select class="filter-select" name="departamento" id="departamento">
+                    <label for="departamento" class="text-xs mb-1">Departamento:</label>
+                    <select class="filter-select py-1" name="departamento" id="departamento">
                         <option value="">Todos</option>
                         <option value="La Paz" {{ request('departamento') == 'La Paz' ? 'selected' : '' }}>La Paz</option>
                         <option value="Santa Cruz" {{ request('departamento') == 'Santa Cruz' ? 'selected' : '' }}>Santa Cruz</option>
@@ -79,8 +78,8 @@
                 </div>
                 
                 <div class="filter-group">
-                    <label for="provincia">Provincia:</label>
-                    <select class="filter-select" name="provincia" id="provincia">
+                    <label for="provincia" class="text-xs mb-1">Provincia:</label>
+                    <select class="filter-select py-1" name="provincia" id="provincia">
                         <option value="">Todas</option>
                         @if(request('provincia'))
                             <option value="{{ request('provincia') }}" selected>{{ request('provincia') }}</option>
@@ -89,8 +88,8 @@
                 </div>
                 
                 <div class="filter-group">
-                    <label for="municipio">Municipio:</label>
-                    <select class="filter-select" name="municipio" id="municipio">
+                    <label for="municipio" class="text-xs mb-1">Municipio:</label>
+                    <select class="filter-select py-1" name="municipio" id="municipio">
                         <option value="">Todos</option>
                         @if(request('municipio'))
                             <option value="{{ request('municipio') }}" selected>{{ request('municipio') }}</option>
@@ -121,15 +120,17 @@
                     <td>{{ $delegacion->provincia }}</td>
                     <td>{{ $delegacion->municipio }}</td>
                     <td class="actions">
-                        <a href="{{ route('delegaciones.ver', $delegacion->codigo_sie) }}" class="action-button view">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ route('delegaciones.editar', $delegacion->codigo_sie) }}" class="action-button edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="#" class="action-button delete-button" data-id="{{ $delegacion->codigo_sie }}" data-nombre="{{ $delegacion->nombre }}">
-                            <i class="fas fa-trash"></i>
-                        </a>
+                        <div class="flex space-x-1">
+                            <a href="{{ route('delegaciones.ver', $delegacion->codigo_sie) }}" class="action-button view w-5 h-5">
+                                <i class="fas fa-eye text-xs"></i>
+                            </a>
+                            <a href="{{ route('delegaciones.editar', $delegacion->codigo_sie) }}" class="action-button edit w-5 h-5">
+                                <i class="fas fa-edit text-xs"></i>
+                            </a>
+                            <a href="#" class="action-button delete-button w-5 h-5" data-id="{{ $delegacion->codigo_sie }}" data-nombre="{{ $delegacion->nombre }}">
+                                <i class="fas fa-trash text-xs"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -144,7 +145,6 @@
         <div class="pagination">
             {{ $delegaciones->appends(request()->query())->links() }}
         </div>
-    </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

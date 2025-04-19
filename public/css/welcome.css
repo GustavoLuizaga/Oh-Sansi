@@ -156,6 +156,14 @@ body.dark-theme {
     z-index: 1;
     line-height: 0;
 }
+.wave-path {
+    fill: var(--bg);
+    transition: fill 0.3s ease;
+}
+
+body.dark-theme .wave-path {
+    fill: var(--bg);
+}
 
 /* Main Sections */
 .que-son-olmpiadas,

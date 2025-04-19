@@ -18,7 +18,20 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = auth()->user();
+    $rol = $user->roles->first()->nombre;
+    echo $rol;
+    switch ($rol) {
+        case 'Administrador':
+            return view('dashboard');
+        case 'Estudiante':
+            return view('dashboardEst');
+        case 'Tutor':
+            return view('dashboardTutor');
+        default:
+            return view('dashboard'); // Vista por defecto
+    }
+    //return view('dashboard');
 })->middleware(['auth','verified'])->name('dashboard');
 
 Route::get('/servicios', function () {

@@ -57,10 +57,9 @@ class RegisteredUserController extends Controller
         ]);
 
         $rol = Rol::find(3);
-        if ($rol) { 
+        if ($rol) {
             $user->roles()->attach($rol->idRol, ['habilitado' => true]);
             $user->estudiante()->create();
-
         }
 
         event(new Registered($user));
@@ -73,23 +72,23 @@ class RegisteredUserController extends Controller
     //Para el registro de tutores//
     public function createTutor()
     {
-        
-        $unidades = Delegacion::all(); 
+
+        $unidades = Delegacion::all();
         //Logica para obtener las Areas habilitadas de la base de datos
         $convocatoria = new VerificarExistenciaConvocatoria();
-        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva();//Esto solo un ID
+        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva(); //Esto solo un ID
         if ($idConvocatoria instanceof \Illuminate\Http\JsonResponse) {
             return $idConvocatoria; // Retorna la respuesta JSON si no hay convocatoria activa
         }
         //Obtener las areas por el id de la convocatoria
         $obtenerAreas = new ObtenerAreasConvocatoria();
-        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria);//Una lista de areas
+        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria); //Una lista de areas
         if ($areas instanceof \Illuminate\Http\JsonResponse) {
             return $areas; // Retorna la respuesta JSON si no se obtienen áreas
         }
 
-        return view('auth.registerTutor',compact('unidades', 'areas')); 
-      }
+        return view('auth.registerTutor', compact('unidades', 'areas'));
+    }
 
     public function storeTutor(Request $request)
     {
@@ -109,46 +108,103 @@ class RegisteredUserController extends Controller
             'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
             'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones
         ]);
-  
+
         $user = User::create([
-              'name' => $request->name,
-              'email' => $request->email,
-              'apellidoPaterno' => $request->apellidoPaterno,
-              'apellidoMaterno' => $request->apellidoMaterno,
-              'ci' => $request->ci,
-              'fechaNacimiento' => $request->fechaNacimiento,
-              'genero' => $request->genero,
-              'password' => Hash::make($request->password),
-          ]);
-  
-          $rol = Rol::find(2);
-          if ($rol) { 
-              $user->roles()->syncWithoutDetaching([$rol->idRol]);
-              $fileUrl = null;
-              if ($request->hasFile('cv')) {
-                  $path = $request->file('cv')->store('public/cvs');
-                  $fileUrl = asset('storage/' . str_replace('public/', '', $path));
-              }
-              $tutor = $user->tutor()->create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'apellidoPaterno' => $request->apellidoPaterno,
+            'apellidoMaterno' => $request->apellidoMaterno,
+            'ci' => $request->ci,
+            'fechaNacimiento' => $request->fechaNacimiento,
+            'genero' => $request->genero,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $rol = Rol::find(2);
+        if ($rol) {
+            $user->roles()->syncWithoutDetaching([$rol->idRol]);
+            $fileUrl = null;
+            if ($request->hasFile('cv')) {
+                $path = $request->file('cv')->store('public/cvs');
+                $fileUrl = asset('storage/' . str_replace('public/', '', $path));
+            }
+            $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
-                
-                ]);
-                $tutor->areas()->attach($request->area_tutoria, [
+
+            ]);
+            $tutor->areas()->attach($request->area_tutoria, [
                 'idDelegacion' => $request->delegacion_tutoria,
                 'tokenTutor' => Str::random(20) // o genera como prefieras
-                ]);
-                
-          }
-  
-          event(new Registered($user));
-  
-          Auth::login($user);
-  
-          return redirect(RouteServiceProvider::HOME);
-      }
-  
+            ]);
+        }
 
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(RouteServiceProvider::HOME);
+    }
+
+
+
+    public function storeDelegadoDelegacion(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'apellidoPaterno' => ['required', 'string', 'max:255'],
+            'apellidoMaterno' => ['required', 'string', 'max:255'],
+            'ci' => ['required', 'numeric', 'min:7'],  // Asegura que el CI sea un número con al menos 7 dígitos
+            'fechaNacimiento' => ['required', 'date'],
+            'genero' => ['required', 'in:M,F'],  // Validación para "Masculino" y "Femenino"
+            'telefono' => ['required', 'numeric', 'min:8'],  // Teléfono con mínimo 8 dígitos
+            'profesion' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],  // Validación del email y su unicidad
+            'delegacion_tutoria' => ['required', 'exists:delegacion,idDelegacion'],  // Validación de que la delegación existe
+            'area_tutoria' => ['required', 'exists:area,idArea'],  // Validación de que el área existe
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],  // Validación de la contraseña
+            'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
+            'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'apellidoPaterno' => $request->apellidoPaterno,
+            'apellidoMaterno' => $request->apellidoMaterno,
+            'ci' => $request->ci,
+            'fechaNacimiento' => $request->fechaNacimiento,
+            'genero' => $request->genero,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $rol = Rol::find(2);
+        if ($rol) {
+            $user->roles()->syncWithoutDetaching([$rol->idRol]);
+            $fileUrl = null;
+            if ($request->hasFile('cv')) {
+                $path = $request->file('cv')->store('public/cvs');
+                $fileUrl = asset('storage/' . str_replace('public/', '', $path));
+            }
+            $tutor = $user->tutor()->create([
+                'profesion' => $request->profesion,
+                'telefono' => $request->telefono,
+                //aqui poner la loguica para el link de recurso
+                'linkRecurso' => $fileUrl,
+
+            ]);
+            $tutor->areas()->attach($request->area_tutoria, [
+                'idDelegacion' => $request->delegacion_tutoria,
+                'tokenTutor' => Str::random(20) // o genera como prefieras
+            ]);
+        }
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(RouteServiceProvider::HOME);
+    }
 }

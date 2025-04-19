@@ -146,7 +146,7 @@
                                         <div class="input-row">
                                             <div class="input-grupo">
                                                 <label>Categoría</label>
-                                                <select class="categoria-select" name="idCategoria" required disabled>
+                                                <select class="categoria-select" name="idCategoria" required>
                                                     <option value="">Seleccione una categoría</option>
                                                 </select>
                                             </div>

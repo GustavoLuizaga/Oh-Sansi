@@ -25,13 +25,13 @@
 }
 
 .crear-delegacion-header h1 {
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: #1a2942;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .crear-delegacion-header h1 i {
@@ -47,11 +47,11 @@
 }
 
 .form-section-title {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--primary-color);
-    margin-bottom: 10px;
-    padding-bottom: 5px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
     border-bottom: 1px solid #e0e0e0;
 }
 
@@ -69,18 +69,18 @@
 
 .form-group label {
     display: block;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     font-weight: 500;
     color: #495057;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 6px 8px;
+    padding: 4px 6px;
     border: 1px solid #ced4da;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     transition: border-color 0.3s;
 }
 

@@ -136,7 +136,7 @@ nav {
 }
 
 .logo a {
-    font-size: var(--font-size-large);
+    font-size: 20px;
     font-weight: 700;
     color: var(--primary-color);
     text-decoration: none;
@@ -144,7 +144,9 @@ nav {
 .logo span {
     color: #D50000;
 }
-
+.user-menu-button, .dropdown-item{
+    font-size: 13px;
+}
 .nav-links {
     display: flex;
     list-style: none;

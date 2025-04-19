@@ -28,7 +28,7 @@
         <div class="search-filter-container mb-1">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Buscar por nombre o código SIE" value="{{ request('search') }}" class="py-1">
+                <input type="text" name="search" placeholder="Nombre o código SIE" value="{{ request('search') }}" class="py-1">
                 <button type="submit" class="search-button py-1 px-2">
                     <i class="fas fa-search"></i> Buscar
                 </button>

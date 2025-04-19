@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Inscripcion\InscripcionController;
-
+use App\Http\Controllers\Inscripcion\InscripcionEstController;
 Route::middleware('auth')->group(function () {
     // Main inscripciones view
     Route::get('/inscripciones', function () {
@@ -13,13 +13,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/inscripcion/estudiante', [InscripcionController::class, 'index'])
         ->name('inscripcion.estudiante');
     
-    Route::post('/inscripcion/estudiante/store', [InscripcionController::class, 'store'])
+    Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
         ->name('inscripcion.store');
 
     // Tutor registration routes
-    Route::get('/inscripcion/tutor', function () {
-        return view('inscripciones.inscripcionTutor');
-    })->name('inscripcion.tutor');
+    Route::get('/inscripcion/tutor', [InscripcionController::class, 'showTutorProfile'])
+        ->name('inscripcion.tutor');
     
     Route::post('/inscripcion/tutor/store', [InscripcionController::class, 'storeTutor'])
         ->name('inscripcion.tutor.store');

@@ -112,9 +112,27 @@ class DefaultDataSeeder extends Seeder
         $rolTutorId = DB::table('rol')->where('nombre', 'Tutor')->value('idRol');
         // Obtener funciones
         $funcionesAll = DB::table('funcion')->get();
-
+/*
         // Relacionar Administrador con todas las funciones
         foreach ($funcionesAll as $funcion) {
+            DB::table('rolFuncion')->updateOrInsert([
+                'idFuncion' => $funcion->idFuncion,
+                'idRol' => $rolAdminId
+            ]);
+        }*/
+
+        // Relacionar Administrador con funciones específicas
+        $funcionesAdmin = DB::table('funcion')
+            ->whereIn('nombre', [
+                'Dashboard',
+                'Delegaciones',
+                'Convocatoria',
+                'AreasCategorias',
+                'Seguridad'
+            ])
+            ->get();
+
+        foreach ($funcionesAdmin as $funcion) {
             DB::table('rolFuncion')->updateOrInsert([
                 'idFuncion' => $funcion->idFuncion,
                 'idRol' => $rolAdminId

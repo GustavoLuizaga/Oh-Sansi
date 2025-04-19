@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Inscripcion;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\TutorAreaDelegacion;
+use App\Models\Inscripcion;
 use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
 use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
-use App\Models\Inscripcion;
 use App\Http\Controllers\Inscripcion\ObtenerIdTutorToken;
-use Illuminate\Support\Facades\Auth;
 
 class InscripcionController extends Controller
 {
@@ -63,38 +65,76 @@ class InscripcionController extends Controller
 
     public function store(Request $request)
     {
-       
-        $request->validate([
-            'numeroContacto' => 'required|string|max:15',
-            'idGrado' => 'required|integer',
-            'idConvocatoria' => 'required|integer',
-            'idArea' => 'required|integer',
-            'idDelegacion' => 'required|integer',
-        ]);
+        try {
+            // Validar los datos del formulario
+            $request->validate([
+                'numeroContacto' => 'required|string|max:8',
+                'tutor_tokens' => 'required|array|min:1',
+                'tutor_areas' => 'required|array|min:1',
+                'tutor_delegaciones' => 'required|array|min:1',
+                'idCategoria' => 'required|integer',
+                'idGrado' => 'required|integer',
+                'idConvocatoria' => 'required|integer'
+            ]);
 
-        $inscripcion= Inscripcion::create([
-            'fechaInscripcion' => now(),
-            'numeroContacto' => $request->numeroContacto,
-            'idGrado' => $request->idGrado,
-            'idConvocatoria' => $request->idConvocatoria,
-            'idArea' => $request->idArea,
-            'idDelegacion' => $request->idDelegacion,
-        ]);
+            // Crear la inscripción
+            $inscripcion = Inscripcion::create([
+                'fechaInscripcion' => now(),
+                'numeroContacto' => $request->numeroContacto,
+                'idGrado' => $request->idGrado,
+                'idConvocatoria' => $request->idConvocatoria,
+                'idArea' => $request->tutor_areas[0], // Usar el área del primer tutor
+                'idDelegacion' => $request->tutor_delegaciones[0], // Usar la delegación del primer tutor
+                'idCategoria' => $request->idCategoria
+            ]);
 
-        $idTutorToken = new ObtenerIdTutorToken();
-        $idTutor = $idTutorToken->obtenerIdTutorDesdeToken($request->tokenTutor);
-        if ($idTutor instanceof \Illuminate\Http\JsonResponse) {
-            return $idTutor; // Retorna la respuesta JSON si no se obtiene el ID del tutor
+            // Relacionar con tutores
+            foreach ($request->tutor_tokens as $index => $token) {
+                $tutorAreaDelegacion = TutorAreaDelegacion::where('tokenTutor', $token)->first();
+                
+                if ($tutorAreaDelegacion) {
+                    // Relacionar la inscripción con el tutor y el estudiante
+                    $inscripcion->tutores()->attach($tutorAreaDelegacion->id, [
+                        'idEstudiante' => Auth::id()
+                    ]);
+                }
+            }
+
+            return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
+
+        } catch (\Exception $e) {
+            Log::error('Error en inscripción:', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Hubo un error al procesar la inscripción. Por favor, intente nuevamente.');
         }
-        //Logica para relacionar la inscripcion con el tutor y estudiante
+    }
 
-        $userId = Auth::id();//Dado qeu sera solo para Estudiantes
+    public function showTutorProfile()
+    {
+        try {
+            $user = Auth::user();
+            $token = null;
 
-        $inscripcion->tutores()->attach($idTutor, [
-            'idEstudiante' => $userId,//Recuperar el Id del Est
-        ]);
+            if ($user && $user->tutor) {
+                Log::info('User and tutor found:', ['user_id' => $user->id, 'tutor_id' => $user->tutor->id]);
+                
+                $tutorAreaDelegacion = TutorAreaDelegacion::where('id', $user->tutor->id)
+                    ->select('tokenTutor')
+                    ->first();
 
-        return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
-    
+                if ($tutorAreaDelegacion) {
+                    Log::info('Token found:', ['token' => $tutorAreaDelegacion->tokenTutor]);
+                    $token = $tutorAreaDelegacion->tokenTutor;
+                } else {
+                    Log::warning('No token found for tutor:', ['tutor_id' => $user->tutor->id]);
+                }
+            } else {
+                Log::warning('No tutor found for user:', ['user_id' => $user->id ?? 'null']);
+            }
+
+            return view('inscripciones.inscripcionTutor', compact('token'));
+        } catch (\Exception $e) {
+            Log::error('Error in showTutorProfile:', ['error' => $e->getMessage()]);
+            return view('inscripciones.inscripcionTutor', ['token' => null]);
+        }
     }
 }

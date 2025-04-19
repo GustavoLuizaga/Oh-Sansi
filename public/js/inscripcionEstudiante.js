@@ -260,4 +260,47 @@ document.addEventListener('DOMContentLoaded', function() {
             gradoSelect.innerHTML = '<option value="">Error al cargar grados</option>';
         }
     }
+
+    function validateForm(event) {
+        event.preventDefault();
+
+        // Validar número de contacto
+        const numeroContacto = document.querySelector('input[name="numeroContacto"]');
+        if (!numeroContacto || !numeroContacto.value || numeroContacto.value.length !== 8) {
+            alert('Debe ingresar un número de contacto válido de 8 dígitos');
+            return false;
+        }
+
+        // Validar token de tutor
+        const tutorTokens = document.querySelectorAll('input[name="tutor_tokens[]"]');
+        let validTokenFound = false;
+        tutorTokens.forEach(token => {
+            if (token.value.trim() !== '') {
+                validTokenFound = true;
+            }
+        });
+
+        if (!validTokenFound) {
+            alert('Debe ingresar al menos un token de tutor válido');
+            return false;
+        }
+
+        // Validar categoría y grado
+        const categoria = document.querySelector('select[name="idCategoria"]');
+        const grado = document.querySelector('select[name="idGrado"]');
+
+        if (!categoria || !categoria.value) {
+            alert('Debe seleccionar una categoría');
+            return false;
+        }
+
+        if (!grado || !grado.value) {
+            alert('Debe seleccionar un grado');
+            return false;
+        }
+
+        // Si todo está validado, enviar el formulario
+        document.getElementById('inscriptionForm').submit();
+        return true;
+    }
 });

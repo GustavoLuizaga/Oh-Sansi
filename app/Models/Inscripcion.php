@@ -21,6 +21,7 @@ class Inscripcion extends Model
         'idConvocatoria',
         'idArea',
         'idDelegacion',
+        'idCategoria',
     ];
 
     // Relaciones opcionales

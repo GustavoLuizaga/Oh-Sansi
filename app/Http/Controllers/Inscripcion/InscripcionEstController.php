@@ -73,6 +73,7 @@ class InscripcionEstController extends Controller
                 'tutor_areas' => 'required|array|min:1',
                 'tutor_delegaciones' => 'required|array|min:1',
                 'idConvocatoria' => 'required|integer'
+                
             ]);
 
             // Verificar los tokens de tutor
@@ -94,6 +95,7 @@ class InscripcionEstController extends Controller
                 'idConvocatoria' => $request->idConvocatoria,
                 'idArea' => $request->tutor_areas[0],
                 'idDelegacion' => $request->tutor_delegaciones[0],
+                'idCategoria' => $request->idCategoria, 
                 'idGrado' => $request->idGrado ?? 1 // valor por defecto si no se proporciona
             ]);
 

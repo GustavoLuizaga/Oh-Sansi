@@ -85,7 +85,7 @@ class InscripcionController extends Controller
                 'idConvocatoria' => $request->idConvocatoria,
                 'idArea' => $request->tutor_areas[0], // Usar el área del primer tutor
                 'idDelegacion' => $request->tutor_delegaciones[0], // Usar la delegación del primer tutor
-                'idCategoria' => $request->idCategoria
+                'idCategoria' => $request->idCategoria,
             ]);
 
             // Relacionar con tutores

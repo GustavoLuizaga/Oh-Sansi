@@ -17,16 +17,16 @@
     /* Tamaños de fuente reducidos */
     --font-size-base: 0.65rem;
     --font-size-small: 0.6rem;
-    --font-size-large: 0.75rem;
-    --font-size-xlarge: 0.9rem;
-    --font-size-xxlarge: 1.1rem;
+    --font-size-large: 0.7rem;
+    --font-size-xlarge: 0.8rem;
+    --font-size-xxlarge: 0.9rem;
     
     /* Espaciado reducido */
     --spacing-xs: 0.15rem;
-    --spacing-sm: 0.3rem;
-    --spacing-md: 0.6rem;
-    --spacing-lg: 0.9rem;
-    --spacing-xl: 1.2rem;
+    --spacing-sm: 0.25rem;
+    --spacing-md: 0.5rem;
+    --spacing-lg: 0.75rem;
+    --spacing-xl: 1rem;
 }
 
 .delegacion-info-container {

@@ -57,61 +57,71 @@
             </section>
              <section class="about-olympiad">
              <h2>¿Areas de competicion?</h2>
-                <div class="areas-grid">
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-calculator"></i>
+                <div class="areas-container">
+                    <div class="areas-grid">
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <h3>Matemáticas</h3>
                         </div>
-                        <h3>Matemáticas</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-atom"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-atom"></i>
+                            </div>
+                            <h3>Física</h3>
                         </div>
-                        <h3>Física</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-laptop-code"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h3>Informática</h3>
                         </div>
-                        <h3>Informática</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-robot"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>Robótica</h3>
                         </div>
-                        <h3>Robótica</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-flask"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <h3>Química</h3>
                         </div>
-                        <h3>Química</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-dna"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-dna"></i>
+                            </div>
+                            <h3>Biología</h3>
                         </div>
-                        <h3>Biología</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-star"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3>Astronomía</h3>
                         </div>
-                        <h3>Astronomía</h3>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-cogs"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3>Ingeniería</h3>
                         </div>
-                        <h3>Ingeniería</h3>
+                    </div>
+                    <div class="areas-navigation">
+                        <button class="nav-btn scroll-left">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="nav-btn scroll-right">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </section>

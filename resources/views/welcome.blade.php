@@ -161,6 +161,8 @@
     <script src="{{ asset('JS/registerModal.js') }}"></script>
     <script src="{{ asset('js/mobileMenu.js') }}"></script>
     <script src="{{ asset('js/areasCarousel.js') }}"></script>
+    <script src="{{ asset('js/contentFooter.js') }}"></script>
+
 </body>
 </html>
 

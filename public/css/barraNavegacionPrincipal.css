@@ -1,15 +1,16 @@
 /* Header Base Styles */
 header {
     padding: 10px 0;
-    position: sticky;
+    position: fixed; /* Cambiado de sticky a fixed */
     top: 0;
-    background-color: var(--bg1);
-    z-index: 100;
+    left: 0;
+    right: 0;
+    background-color: var(--surface-secondary);
+    z-index: 9999; /* Aumentado significativamente */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-/* Clases para ocultar/mostrar la barra de navegación */
 header.nav-hidden {
     transform: translateY(-100%);
 }
@@ -24,12 +25,13 @@ nav {
     align-items: center;
 }
 
+
 /* Logo and Menu Toggle Container */
 .menu-toggle {
     display: none;
     background: none;
     border: none;
-    color: var(--txt);
+    color: var(--text-primary);
     font-size: 1.5rem;
     cursor: pointer;
     padding: 5px;
@@ -41,37 +43,13 @@ nav {
 .logo {
     font-weight: bold;
     font-size: 24px;
-    color: var(--sec);
+    color: var(--blue-700);
     display: flex;
     align-items: center;
 }
 
-/* Media queries */
-@media (max-width: 768px) {
-    nav {
-        position: relative;
-    }
-
-    .menu-toggle {
-        display: block;
-        order: -1;
-    }
-
-    nav {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .logo {
-        justify-self: start;
-        margin-left: 5px;
-    }
-}
-
 .logo span {
-    color: var(--btn-color-rojo);
+    color: var(--burgundy-500);
 }
 
 /* Navigation Links */
@@ -83,14 +61,14 @@ nav {
 
 .nav-links a {
     text-decoration: none;
-    color: var(--txt);
+    color: var(--text-primary);
     transition: color 0.3s ease;
     position: relative;
     font-weight: 500;
 }
 
 .nav-links a:hover {
-    color: var(--for);
+    color: var(--blue-600);
 }
 
 .nav-links a::after {
@@ -100,7 +78,7 @@ nav {
     height: 2px;
     bottom: -5px;
     left: 0;
-    background-color: var(--for);
+    background-color: var(--blue-600);
     transition: width 0.3s ease;
 }
 
@@ -115,13 +93,17 @@ nav {
     gap: 15px;
 }
 
+.auth-buttons i {
+    font-size: 1.1rem;
+}
+
 /* Theme Toggle Button */
 .theme-toggle {
     background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
-    color: var(--txt);
+    color: var(--text-primary);
     font-size: 1.2rem;
     transition: color 0.3s ease;
 }
@@ -131,14 +113,10 @@ nav {
     transform: none;
 }
 
-body.dark-theme .theme-toggle {
-    color: #fffffc;
-}
-
 /* Login Button */
 .login-link {
-    background-color: var(--sec);
-    color: white;
+    background-color: var(--blue-700);
+    color: var(--text-light);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -151,15 +129,15 @@ body.dark-theme .theme-toggle {
 }
 
 .login-link:hover {
-    background-color: var(--pri);
+    background: linear-gradient(135deg, var(--blue-800), var(--blue-700));
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 42, 76, 0.25);
 }
 
 /* Dashboard Button */
 .get-started {
-    background: Var(--for);
-    color: white;
+    background: var(--blue-600);
+    color: var(--text-light);
     padding: 10px 24px;
     border-radius: 25px;
     text-decoration: none;
@@ -173,13 +151,13 @@ body.dark-theme .theme-toggle {
 .get-started:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 129, 223, 0.3);
-    background: linear-gradient(135deg, var(--five), var(--for));
+    background: linear-gradient(135deg, var(--blue-400), var(--blue-600));
 }
 
 /* Logout Button */
 .join-btn {
-    background: var(--pri);
-    color: var(--p-pri);
+    background: var(--blue-800);
+    color: var(--text-light);
     padding: 10px 24px;
     border-radius: 25px;
     border: none;
@@ -192,39 +170,54 @@ body.dark-theme .theme-toggle {
 }
 
 .join-btn:hover {
-    background: var(--sec);
+    background: var(--blue-700);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(109, 210, 255, 0.2);
 }
 
-/* Icons */
-.auth-buttons i {
-    font-size: 1.1rem;
-}
-
-/* Dark Theme Specific Styles */
-body.dark-theme header {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-theme .login-link {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-body.dark-theme .join-btn {
-    color: #ffffff;
-}
-
-/* Mobile Menu Button */
-.menu-toggle {
+/* Mobile/Desktop Display Classes */
+.mobile-only {
     display: none;
-    background: none;
-    border: none;
-    color: var(--txt);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
-    z-index: 101;
+}
+
+.desktop-only {
+    display: block;
+}
+
+/* Menu Items and Footer */
+.menu-items {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.menu-footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Theme Toggle Mobile Specific */
+.theme-toggle.mobile-only {
+    width: auto;
+    text-align: center;
+    padding: 8px;
+    border-bottom: none;
+    border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dark Theme Overrides */
+body.dark-theme .theme-toggle.mobile-only {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .menu-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Responsive Design */
@@ -250,82 +243,25 @@ body.dark-theme .join-btn {
 }
 
 @media (max-width: 768px) {
+    nav {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .logo {
+        justify-self: start;
+        margin-left: 5px;
+    }
+
     .menu-toggle {
         display: block;
-    }
-    
-    .nav-links {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 250px;
-        height: 100vh;
-        background-color: var(--bg1);
-        flex-direction: column;
-        padding: 60px 15px 20px;
-        transition: left 0.3s ease;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-    }
-    
-    .nav-links.active {
-        left: 0;
-    }
-    
-    .nav-links a {
-        padding: 12px 0;
-        width: 100%;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    
-    body.dark-theme .nav-links {
-        background-color: var(--bg1);
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-    }
-    
-    body.dark-theme .nav-links a {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-}
-
-@media (max-width: 480px) {
-    .auth-buttons {
-        gap: 8px;
+        order: -1;
+        z-index: 10000;
     }
 
-    .login-link,
-    .get-started,
-    .join-btn {
-        padding: 6px 15px;
-        font-size: 0.85rem;
-    }
-}
-/* Add these new styles */
-.mobile-only {
-    display: none;
-}
-
-.desktop-only {
-    display: block;
-}
-
-.theme-toggle.mobile-only {
-    width: auto;
-    text-align: center;
-    padding: 8px;
-    border-bottom: none;
-    border-radius: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-body.dark-theme .theme-toggle.mobile-only {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Update media query */
-@media (max-width: 768px) {
     .mobile-only {
         display: block;
     }
@@ -340,38 +276,38 @@ body.dark-theme .theme-toggle.mobile-only {
         left: -100%;
         width: 250px;
         height: 100vh;
-        background-color: var(--bg1);
+        background-color: var(--surface-secondary);
         flex-direction: column;
         padding: 60px 15px 20px;
         transition: left 0.3s ease;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        z-index: 100;
+        z-index: 9998; }
+
+    .nav-links.active {
+        left: 0;
     }
-}
 
-.menu-items {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
+    .nav-links a {
+        padding: 12px 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
 
-.menu-footer {
-    margin-top: auto;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
-    display: flex;
-    justify-content: center;
-}
+    body.dark-theme .nav-links {
+        background-color: var(--surface-secondary);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    }
 
-body.dark-theme .menu-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    body.dark-theme .nav-links a {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
 }
 
 @media (min-width: 769px) {
     .nav-links {
         flex-direction: row;
     }
-    
+
     .menu-items {
         flex-direction: row;
         gap: 30px;
@@ -379,5 +315,18 @@ body.dark-theme .menu-footer {
 
     .menu-footer {
         display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-buttons {
+        gap: 8px;
+    }
+
+    .login-link,
+    .get-started,
+    .join-btn {
+        padding: 6px 15px;
+        font-size: 0.85rem;
     }
 }

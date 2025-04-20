@@ -50,11 +50,14 @@
 /* Dark Theme Colors */
 body.dark-theme {
     /* Surface Colors - Dark Mode */
-    --surface-primary: #272727;      /* antes --bg dark */
+    /*--surface-primary: #272727;      /* antes --bg dark */
+    --surface-primary: #1a1f2e; /*--form-bg: #1a1f2e;  */    
     --surface-secondary: #151b23;    /* antes --bg1 dark */
-    --surface-tertiary: #202022;     /* antes --bg2 dark */
-    --surface-card: rgb(48, 48, 58); /* antes --bg3 dark */
-    
+    /*--surface-secondary: #151b23;     antes --bg1 dark */
+    --surface-tertiary: #151b23;     /* antes --bg2 dark */
+    --surface-card: #262c33; /* antes --bg3 dark */
+    /*--surface-card: rgb(48, 48, 58);  antes --bg3 dark */
+
     /* Typography - Dark Mode */
     --text-primary: #e0e0e0;    /* antes --txt dark */
     --text-secondary: #9e9d9d;  /* antes --text1 dark */

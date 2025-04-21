@@ -1,15 +1,50 @@
-// Add this to your existing gestionAreas.js file
 document.addEventListener('DOMContentLoaded', function() {
-    // Formulario para crear nueva área
+    // Helper function to show alerts
+    function showAlert(message, type = 'success') {
+        const alerta = document.createElement('div');
+        alerta.className = `alert alert-${type} alert-dismissible fade show`;
+        alerta.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        const container = document.querySelector('.area-container');
+        if (container) {
+            container.prepend(alerta);
+            setTimeout(() => alerta.remove(), 5000);
+        }
+    }
+
+    // Helper function to resetForm
+    function resetForm(form, submitButton = null) {
+        form.reset();
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = submitButton.dataset.originalText || 'Submit';
+        }
+    }
+
+    // Formulario/Modal para crear nueva área
     const formNuevaArea = document.getElementById('formNuevaArea');
-    
     if (formNuevaArea) {
+        const submitButton = formNuevaArea.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.dataset.originalText = submitButton.innerHTML;
+        }
+
         formNuevaArea.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+            }
+            
             const formData = new FormData(this);
             
-            // Enviar petición AJAX para crear área
             fetch('/areas', {
                 method: 'POST',
                 body: formData,
@@ -21,44 +56,75 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Cerrar modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaAreaModal'));
-                    modal.hide();
+                    if (modal) modal.hide();
                     
-                    // Recargar página para mostrar la nueva área
-                    window.location.reload();
+                    showAlert('Área creada correctamente');
+                    
+                    // Agregar la nueva fila a la tabla
+                    const tablaAreas = document.querySelector('table tbody');
+                    if (tablaAreas) {
+                        const nuevaFila = document.createElement('tr');
+                        nuevaFila.innerHTML = `
+                        <td>${formData.get('nombre')}</td>
+                        <td class="action-cell">
+                            <button class="btn-action btn-edit" 
+                                    data-id="${data.area.idArea}"
+                                    data-nombre="${formData.get('nombre')}" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#EditarAreaModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete" 
+                                    data-id="${data.area.idArea}" 
+                                    data-nombre="${formData.get('nombre')}"  
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#ConfirmarBorradoModal">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td> `;
+                        tablaAreas.appendChild(nuevaFila);
+                    }
+                    
+                    resetForm(formNuevaArea, submitButton);
                 } else {
-                    // Limpiar errores anteriores
-                    document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-                    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = submitButton.dataset.originalText;
+                    }
                     
-                     // Mostrar errores de validación
-                    // const errores = data.errors;
-                    // for (const campo in errores) {
-                    //     const input = document.querySelector(`[name="${campo}"]`);
-                    //     if (input) {
-                    //         input.classList.add('is-invalid');                       
-                    //          // Crear mensaje de error
-                    //         const divError = document.createElement('div');
-                    //         divError.classList.add('invalid-feedback');
-                    //         divError.textContent = errores[campo][0];
-                            
-                    //          // Insertar mensaje después del input
-                    //         input.parentNode.appendChild(divError);
-                    //     }
-                    // }
+                    // Mostrar errores de validación
+                    if (data.errors) {
+                        formNuevaArea.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+                        formNuevaArea.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                        
+                        for (const campo in data.errors) {
+                            const input = formNuevaArea.querySelector(`[name="${campo}"]`);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                
+                                const divError = document.createElement('div');
+                                divError.classList.add('invalid-feedback');
+                                divError.textContent = data.errors[campo][0];
+                                input.parentNode.appendChild(divError);
+                            }
+                        }
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error en creación:', error);
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = submitButton.dataset.originalText;
+                }
+                showAlert('Error al crear el área', 'danger');
             });
         });
         
-        // Limpiar errores cuando se cierra el modal
+        // Limpiar formulario cuando se cierra el modal
         document.getElementById('nuevaAreaModal').addEventListener('hidden.bs.modal', function() {
-            formNuevaArea.reset();
-            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            resetForm(formNuevaArea, submitButton);
         });
     }
     
@@ -95,15 +161,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Agregamos el nuevo evento click
                     newConfirmButton.addEventListener('click', function() {
+                        // Desactivar el botón para evitar múltiples envíos
+                        this.disabled = true;
+                        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Eliminando...';
+                        
                         const areaId = this.getAttribute('data-area-id');
-                        if (!areaId) return;
+                        if (!areaId) {
+                            this.disabled = false;
+                            this.innerHTML = 'Eliminar';
+                            return;
+                        }
                         
                         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                        if (!token) return;
-                        
-                        // Cerrar el modal inmediatamente para mejorar la experiencia de usuario
-                        const modal = bootstrap.Modal.getInstance(deleteModal);
-                        modal.hide();
+                        if (!token) {
+                            this.disabled = false;
+                            this.innerHTML = 'Eliminar';
+                            return;
+                        }
                         
                         fetch(`/areas/${areaId}`, {
                             method: 'DELETE',
@@ -115,38 +189,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                         .then(response => response.json())
                         .then(data => {
-                            if (data.success) {
+                            console.log('Respuesta del backend:', data);
+                        
+                            if (data.status === 'success') {
                                 // 1. Cerrar el modal
                                 const modal = bootstrap.Modal.getInstance(deleteModal);
-                                modal.hide();
-                                
-                                // 2. Eliminar la fila de la tabla sin recargar
-                                const filaAEliminar = document.querySelector(`button[data-id="${areaId}"]`).closest('tr');
+                                if (modal) modal.hide();
+                        
+                                // 2. Eliminar la fila correspondiente
+                                const filaAEliminar = document.querySelector(`button.btn-delete[data-id="${areaId}"]`)?.closest('tr');
                                 if (filaAEliminar) {
                                     filaAEliminar.remove();
-                                    
-                                    // 3. Mostrar mensaje de éxito (opcional)
-                                    const alerta = document.createElement('div');
-                                    alerta.className = 'alert alert-success alert-dismissible fade show';
-                                    alerta.innerHTML = `
-                                        Área eliminada correctamente
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    `;
-                                    
-                                    // Inserta el mensaje al inicio del contenedor
-                                    document.querySelector('.area-container').prepend(alerta);
-                                    
-                                    // Elimina el mensaje después de 3 segundos
-                                    setTimeout(() => alerta.remove(), 3000);
-                                } else {
-                                    // Si no encuentra la fila, recarga como fallback
-                                    window.location.reload();
                                 }
+                        
+                                // 3. Mostrar alerta de éxito
+                                showAlert(data.message || 'Área eliminada correctamente');
+                        
                             } else {
+                                this.disabled = false;
+                                this.innerHTML = 'Eliminar';
                                 console.error('Error en eliminación:', data.message || 'Error desconocido');
-                                window.location.reload(); // Recarga si hay error
                             }
                         })
+                        
+                        .catch(error => {
+                            // Restaurar el botón en caso de error
+                            this.disabled = false;
+                            this.innerHTML = 'Eliminar';
+                            console.error('Error en eliminación:', error);
+                        });
                     });
                 }
             } catch (error) {
@@ -154,7 +225,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // No mostramos alerta, solo registramos en consola
             }
         });
+        
+        // Restaurar botón cuando se cierra el modal de eliminación sin confirmar
+        deleteModal.addEventListener('hidden.bs.modal', function() {
+            const confirmButton = document.getElementById('confirmarEliminar');
+            if (confirmButton) {
+                confirmButton.disabled = false;
+                confirmButton.innerHTML = 'Eliminar';
+            }
+        });
     }
+    
     // Edit Area Modal
     const editModal = document.getElementById('EditarAreaModal');
     if (editModal) {
@@ -201,6 +282,13 @@ document.addEventListener('DOMContentLoaded', function() {
             formEditarArea.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                // Desactivar el botón para evitar múltiples envíos
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Actualizando...';
+                }
+                
                 const formData = new FormData(this);
                 const actionUrl = this.action;
                 
@@ -243,24 +331,30 @@ document.addEventListener('DOMContentLoaded', function() {
                                 deleteButton.setAttribute('data-nombre', formData.get('nombre'));
                             }
                             
-                            // // Show success message
-                            // const alerta = document.createElement('div');
-                            // alerta.className = 'alert alert-success alert-dismissible fade show';
-                            // alerta.innerHTML = `
-                            //     Área actualizada correctamente
-                            //     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            // `;
+                            // Show success message
+                            const alerta = document.createElement('div');
+                            alerta.className = 'alert alert-success alert-dismissible fade show';
+                            alerta.innerHTML = `
+                                Área actualizada correctamente
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            `;
                             
                             // Insert the message at the beginning of the container
                             document.querySelector('.area-container').prepend(alerta);
                             
-                            // Remove the message after 3 seconds
-                            setTimeout(() => alerta.remove(), 3000);
+                            // Remove the message after 5 seconds (increased from 3)
+                            setTimeout(() => alerta.remove(), 5000);
                         } else {
                             // If row not found, reload as fallback
                             window.location.reload();
                         }
                     } else {
+                        // Restaurar el botón si hay errores
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = 'Actualizar';
+                        }
+                        
                         // Clear previous errors
                         editModal.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
                         editModal.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
@@ -287,6 +381,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error('Error en actualización:', error);
+                    // Restaurar el botón en caso de error
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'Actualizar';
+                    }
                 });
             });
             
@@ -295,6 +394,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 formEditarArea.reset();
                 editModal.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
                 editModal.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                
+                // Restaurar el botón al cerrar el modal
+                const submitButton = formEditarArea.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Actualizar';
+                }
             });
         }
     }

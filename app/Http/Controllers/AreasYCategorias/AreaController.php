@@ -76,6 +76,17 @@ class AreaController extends Controller
             ], 422);
         }
 
+        // Validación para evitar nombres duplicados o similares
+        $nombreNormalizado = strtolower(trim($request->nombre));
+        $areaExistente = Area::whereRaw('LOWER(nombre) = ?', [$nombreNormalizado])->exists();
+
+        if ($areaExistente) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El área ya existe o tiene un nombre muy similar a una existente.',
+            ], 422);
+        }
+
         $area = Area::create([
             'nombre' => $request->nombre,
         ]);

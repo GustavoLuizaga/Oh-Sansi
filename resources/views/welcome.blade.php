@@ -44,7 +44,7 @@
 
                 <div class="wave-bottom">
                     <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                        <path class="wave-path" fill="#ffffff" fill-opacity="1" d="M0,128L120,154.7C240,181,480,235,720,218.7C960,203,1200,117,1320,74.7L1440,32L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path>
+                        <path class="wave-path" d="M0,128L120,154.7C240,181,480,235,720,218.7C960,203,1200,117,1320,74.7L1440,32L1440,320L1320,320C1200,320,960,320,720,320C480,320,240,320,120,320L0,320Z"></path>
                     </svg>
                 </div>
             </section>
@@ -57,70 +57,71 @@
             </section>
              <section class="about-olympiad">
              <h2>¿Areas de competicion?</h2>
-                <p>Explora las diferentes areas en las que puedes participar y demostrar tus habilidades.</p>
-                <div class="areas-grid">
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-calculator"></i>
+                <div class="areas-container">
+                    <div class="areas-grid">
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <h3>Matemáticas</h3>
                         </div>
-                        <h3>Matemáticas</h3>
-                        <p>Desarrolla tu pensamiento lógico y resolución de problemas</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-atom"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-atom"></i>
+                            </div>
+                            <h3>Física</h3>
                         </div>
-                        <h3>Física</h3>
-                        <p>Explora las leyes fundamentales del universo</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-laptop-code"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h3>Informática</h3>
                         </div>
-                        <h3>Informática</h3>
-                        <p>Programa soluciones innovadoras</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-robot"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>Robótica</h3>
                         </div>
-                        <h3>Robótica</h3>
-                        <p>Construye y programa robots del futuro</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-flask"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <h3>Química</h3>
                         </div>
-                        <h3>Química</h3>
-                        <p>Descubre la ciencia de la materia</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-dna"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-dna"></i>
+                            </div>
+                            <h3>Biología</h3>
                         </div>
-                        <h3>Biología</h3>
-                        <p>Estudia los misterios de la vida</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-star"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3>Astronomía</h3>
                         </div>
-                        <h3>Astronomía</h3>
-                        <p>Explora los secretos del cosmos</p>
-                    </div>
 
-                    <div class="area-card">
-                        <div class="area-icon">
-                            <i class="fas fa-cogs"></i>
+                        <div class="area-card">
+                            <div class="area-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3>Ingeniería</h3>
                         </div>
-                        <h3>Ingeniería</h3>
-                        <p>Diseña el mundo del mañana</p>
+                    </div>
+                    <div class="areas-navigation">
+                        <button class="nav-btn scroll-left">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="nav-btn scroll-right">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -128,12 +129,16 @@
                 <h2>¿Cómo participar?</h2>
                 <ol class="participation-steps">
                     <li>
+                        <i class="fas fa-user-graduate fa-3x"></i>
+                        <p>Registrarse como estudiante.</p>
+                    </li>
+                    <li>
                         <i class="fas fa-file-alt fa-3x"></i>
                         <p>Completar el formulario.</p>
                     </li>
                     <li>
                         <i class="fas fa-money-bill-wave fa-3x"></i>
-                        <p>Realizar el pago en la Caja UMSS.</p>
+                        <p>Realizar el pago en la Caja FCYT.</p>
                     </li>
                     <li>
                         <i class="fas fa-upload fa-3x"></i>
@@ -154,6 +159,10 @@
     <script src="{{ asset('JS/home.js') }}"></script>
     <script src="{{ asset('JS/themeToggle.js') }}"></script>
     <script src="{{ asset('JS/registerModal.js') }}"></script>
+    <script src="{{ asset('js/mobileMenu.js') }}"></script>
+    <script src="{{ asset('js/areasCarousel.js') }}"></script>
+    <script src="{{ asset('js/contentFooter.js') }}"></script>
+
 </body>
 </html>
 

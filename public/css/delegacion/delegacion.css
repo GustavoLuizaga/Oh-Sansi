@@ -34,16 +34,16 @@
 .delegaciones-header {
     background-color: var(--primary-color);
     color: white;
-    padding: 1rem 2rem;
+    padding: 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
     border-radius: 0.375rem;
 }
 
 .delegaciones-header h1 {
-    font-size: 1.5rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: white;
     margin: 0;
@@ -52,24 +52,24 @@
 }
 
 .delegaciones-header h1 i {
-    margin-right: 0.75rem;
-    font-size: 1.75rem;
+    margin-right: 0.3rem;
+    font-size: 0.85rem;
 }
 
 /* Search and Filter */
 .search-filter {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     background-color: white;
     border-radius: 0.375rem;
-    padding: 1rem;
+    padding: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
     align-items: center;
 }
 .search-filter-container {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 .search-box {
     display: flex;
@@ -82,10 +82,10 @@
 
 .search-box input {
     flex: 1;
-    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    padding: 0.4rem 0.6rem 0.4rem 2rem;
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -109,14 +109,15 @@
     color: var(--button-text);
     border: none;
     border-radius: 0.25rem;
-    padding: 0.5rem 1rem;
+    padding: 0.3rem 0.6rem;
     font-weight: 500;
+    font-size: 0.7rem;
     cursor: pointer;
     transition: background-color 0.2s;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.2rem;
 }
 
 .search-button:hover {
@@ -139,12 +140,13 @@
     color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
-    padding: 0.5rem 1rem;
+    padding: 0.35rem 0.75rem;
     font-weight: 500;
+    font-size: 0.8rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
     transition: background-color 0.2s;
     text-decoration: none;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -172,41 +174,42 @@
 
 .filter-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 10px;
     background-color: white;
     border-radius: 0.375rem;
-    padding: 1rem;
+    padding: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
+    overflow-x: auto;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    min-width: 180px;
+    min-width: 120px;
     flex: 1;
 }
 
 .filter-group label {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     color: #4a5568;
-    font-size: 0.875rem;
+    font-size: 0.65rem;
     font-weight: 500;
 }
 
 .filter-select {
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    padding: 0.4rem 1.5rem 0.4rem 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
     background-color: white;
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-    background-size: 1rem;
+    background-position: right 0.4rem center;
+    background-size: 0.8rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -224,7 +227,8 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
 }
 
 .delegaciones-table th {
@@ -232,17 +236,18 @@
     color: #4a5568;
     font-weight: 600;
     text-align: left;
-    padding: 12px 15px;
+    padding: 4px 8px;
     border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
 }
 
 .delegaciones-table td {
-    padding: 12px 15px;
+    padding: 3px 8px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
     transition: background-color 0.2s;
+    height: 24px;
 }
 
 .delegaciones-table tr:hover {
@@ -256,22 +261,27 @@
 /* Botones de acción */
 .actions {
     display: flex;
-    gap: 10px;
-    justify-content: center;
+    gap: 3px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    min-width: 80px;
 }
 
 .action-button {
-    width: 2rem;
-    height: 2rem;
-    display: flex;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.25rem;
+    border-radius: 4px;
     color: white;
     cursor: pointer;
     transition: background-color 0.2s;
     text-decoration: none;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 0.75rem;
+    margin: 0 1px;
 }
 
 .action-button:hover {
@@ -317,41 +327,42 @@
 
 .filter-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 10px;
     background-color: white;
     border-radius: 0.375rem;
-    padding: 1rem;
+    padding: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
+    overflow-x: auto;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    min-width: 180px;
+    min-width: 120px;
     flex: 1;
 }
 
 .filter-group label {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     color: #4a5568;
-    font-size: 0.875rem;
+    font-size: 0.65rem;
     font-weight: 500;
 }
 
 .filter-select {
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    padding: 0.4rem 1.5rem 0.4rem 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
     background-color: white;
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-    background-size: 1rem;
+    background-position: right 0.4rem center;
+    background-size: 0.8rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -369,7 +380,8 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
 }
 
 .delegaciones-table th {
@@ -377,17 +389,18 @@
     color: #4a5568;
     font-weight: 600;
     text-align: left;
-    padding: 12px 15px;
+    padding: 4px 8px;
     border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
 }
 
 .delegaciones-table td {
-    padding: 12px 15px;
+    padding: 3px 8px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
     transition: background-color 0.2s;
+    height: 24px;
 }
 
 .delegaciones-table tr:hover {
@@ -402,6 +415,8 @@
 .pagination {
     display: flex;
     justify-content: center;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
     padding: 20px;
     gap: 5px;
     flex-wrap: wrap;
@@ -466,7 +481,12 @@
     }
     
     .filter-select {
-        min-width: 150px;
+        min-width: 120px;
+    }
+    
+    .filter-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
     }
 }
 
@@ -502,13 +522,13 @@
     }
     
     .delegaciones-header {
-        padding: 12px;
+        padding: 10px;
     }
     
     .header-top-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 10px;
     }
     
     .add-button,
@@ -528,7 +548,7 @@
     
     .search-filter {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         align-items: flex-start;
     }
     
@@ -542,14 +562,6 @@
         justify-content: center;
     }
     
-    .filter-container {
-        flex-direction: column;
-    }
-    
-    .filter-group {
-        width: 100%;
-    }
-    
     .delegaciones-table {
         display: block;
         overflow-x: auto;
@@ -557,12 +569,12 @@
     }
     
     .action-buttons {
-        gap: 5px;
+        gap: 2px;
     }
     
     .action-button {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
     }
 }
 
@@ -574,18 +586,38 @@
     }
     
     .delegaciones-header {
-        padding: 10px;
+        padding: 8px;
     }
     
     .delegaciones-header h1 {
-        font-size: 18px;
-        margin-bottom: 10px;
+        font-size: 16px;
+        margin-bottom: 8px;
     }
     
     .search-button,
     .export-button {
-        padding: 6px 10px;
-        font-size: 13px;
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .actions {
+        gap: 2px;
+        justify-content: flex-start;
+    }
+    
+    .action-button {
+        width: 1.3rem;
+        height: 1.3rem;
+        font-size: 0.6rem;
     }
     
     .export-button {
@@ -695,7 +727,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: nowrap;
 }
 
 /* Modificar el botón de agregar colegio para que coincida con el estilo de convocatoria */
@@ -704,14 +737,15 @@
   color: var(--button-text);
   border: none;
   border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   transition: background-color 0.2s;
   text-decoration: none;
+  font-size: 0.8rem;
 }
 
 .add-button:hover {
@@ -724,41 +758,42 @@
 
 .filter-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 10px;
     background-color: white;
     border-radius: 0.375rem;
-    padding: 1rem;
+    padding: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
+    overflow-x: auto;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    min-width: 180px;
+    min-width: 120px;
     flex: 1;
 }
 
 .filter-group label {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     color: #4a5568;
-    font-size: 0.875rem;
+    font-size: 0.65rem;
     font-weight: 500;
 }
 
 .filter-select {
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    padding: 0.4rem 1.5rem 0.4rem 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
     background-color: white;
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-    background-size: 1rem;
+    background-position: right 0.4rem center;
+    background-size: 0.8rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -776,7 +811,8 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
 }
 
 .delegaciones-table th {
@@ -784,17 +820,18 @@
     color: #4a5568;
     font-weight: 600;
     text-align: left;
-    padding: 12px 15px;
+    padding: 4px 8px;
     border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
 }
 
 .delegaciones-table td {
-    padding: 12px 15px;
+    padding: 3px 8px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
     transition: background-color 0.2s;
+    height: 24px;
 }
 
 .delegaciones-table tr:hover {
@@ -809,6 +846,8 @@
 .pagination {
     display: flex;
     justify-content: center;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
     padding: 20px;
     gap: 5px;
     flex-wrap: wrap;
@@ -873,7 +912,12 @@
     }
     
     .filter-select {
-        min-width: 150px;
+        min-width: 120px;
+    }
+    
+    .filter-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
     }
 }
 
@@ -909,13 +953,13 @@
     }
     
     .delegaciones-header {
-        padding: 12px;
+        padding: 10px;
     }
     
     .header-top-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 10px;
     }
     
     .add-button,
@@ -935,7 +979,7 @@
     
     .search-filter {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         align-items: flex-start;
     }
     
@@ -949,14 +993,6 @@
         justify-content: center;
     }
     
-    .filter-container {
-        flex-direction: column;
-    }
-    
-    .filter-group {
-        width: 100%;
-    }
-    
     .delegaciones-table {
         display: block;
         overflow-x: auto;
@@ -964,12 +1000,12 @@
     }
     
     .action-buttons {
-        gap: 5px;
+        gap: 2px;
     }
     
     .action-button {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
     }
 }
 
@@ -981,18 +1017,38 @@
     }
     
     .delegaciones-header {
-        padding: 10px;
+        padding: 8px;
     }
     
     .delegaciones-header h1 {
-        font-size: 18px;
-        margin-bottom: 10px;
+        font-size: 16px;
+        margin-bottom: 8px;
     }
     
     .search-button,
     .export-button {
-        padding: 6px 10px;
-        font-size: 13px;
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .actions {
+        gap: 2px;
+        justify-content: flex-start;
+    }
+    
+    .action-button {
+        width: 1.3rem;
+        height: 1.3rem;
+        font-size: 0.6rem;
     }
     
     .export-button {
@@ -1102,7 +1158,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: nowrap;
 }
 
 .add-button:hover {

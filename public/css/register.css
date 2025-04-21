@@ -1,26 +1,75 @@
+:root {
+    /* Form Colors - Light Mode */
+    --form-bg: #f8fafc;
+    --input-border: #e2e8f0;
+    --input-text: #4a5568;
+    --input-placeholder: #999;
+    --input-icon: #718096;
+    --label-text: #4a5568;
+    --checkbox-size: 1rem;
+    
+    /* Shadow */
+    --shadow-sm: 0 0 20px rgba(0, 0, 0, 0.1);
+    --shadow-focus: 0 0 0 3px rgba(0, 42, 76, 0.1);
+
+    /* Colores estáticos */
+    --header-bg: var(--blue-800);
+    --button-bg: var(--blue-800);
+    --button-hover: var(--blue-700);
+}
+
+/* Dark Theme Colors - Versión Profesional */
+body.dark-theme {
+    /* Fondos principales */
+    --form-bg: #1a1f2e;                /* Fondo principal más oscuro y profesional */
+    --surface-primary: #242938;        /* Fondo de tarjeta más suave */
+    --surface-secondaryy: #2d3344;      /* Fondo de inputs */
+    
+    /* Bordes y elementos de formulario */
+    --input-border: #363d4f;           /* Bordes más suaves */
+    --input-text: #e4e6eb;            /* Texto más legible */
+    --input-placeholder: #8b92a5;     /* Placeholder más visible */
+    --input-icon: #8b92a5;            /* Iconos más visibles */
+    
+    /* Textos */
+    --label-text: #d1d5db;           /* Labels más claros */
+    --text-primary: #e4e6eb;         /* Texto principal más claro */
+    --text-secondary: #b0b8c1;       /* Texto secundario más suave */
+    
+    /* Efectos y sombras */
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.15);
+
+    /* Los colores estáticos se mantienen igual para consistencia */
+    --header-bg: var(--blue-800);
+    --button-bg: var(--blue-800);
+    --button-hover: var(--blue-700);
+}
+
+/* Contenedor principal */
 .registration-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background: #f8fafc;
+    background: var(--form-bg);
 }
 
 .registration-card {
-    background: white;
+    background: var(--surface-primary);
     border-radius: 10px;
     padding: 2rem;
     width: 100%;
     max-width: 800px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
 }
 
 .registration-header {
-    background: #002A4C;
-    margin: 0.5rem -2rem 2rem -2rem;
+    background: var(--header-bg) !important;
+    margin: 0.2rem -2rem 2rem -2rem;
     padding: 1rem;
-    color: white;
+    color: white !important;
     text-align: center;
 }
 
@@ -36,7 +85,7 @@
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 0.5rem;
 }
 
 .form-group {
@@ -46,70 +95,73 @@
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #4a5568;
+    color: var(--label-text);
     font-size: 0.9rem;
 }
 
+/* Contenedor de input con icono */
 .input-with-icon {
     position: relative;
 }
 
+/* Estilos base para iconos */
 .input-with-icon i {
     position: absolute;
-    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #666;
+    color: var(--input-icon);
+    transition: color 0.3s ease;
 }
 
-.input-with-icon .toggle-password {
-    left: auto;
-    right: 12px;
-    cursor: pointer;
-}
-
-.input-with-icon input,
-.input-with-icon select {
-    width: 100%;
-    padding: 12px 35px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #333;
-}
-
-.input-with-icon input::placeholder {
-    color: #999;
-}
-
+/* Icono izquierdo */
 .input-with-icon i:first-child {
-    position: absolute;
     left: 1rem;
-    color: #718096;
 }
 
+/* Icono derecho (toggle password) */
 .input-with-icon .toggle-password {
-    position: absolute;
     right: 1rem;
     cursor: pointer;
-    color: #718096;
 }
 
+/* Inputs y selects */
 .input-with-icon input,
 .input-with-icon select {
     width: 100%;
     padding: 0.75rem 2.5rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     font-size: 0.95rem;
-    background: white;
+    color: var(--input-text);
+    background: var(--surface-primary);
+    transition: all 0.3s ease;
 }
 
+/* Placeholder */
+.input-with-icon input::placeholder {
+    color: var(--input-placeholder);
+}
+
+/* Estados focus */
 .input-with-icon input:focus,
 .input-with-icon select:focus {
-    border-color: #002A4C;
+    border-color: var(--blue-800);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 42, 76, 0.1);
+    box-shadow: var(--shadow-focus);
+}
+
+/* Modo oscuro */
+body.dark-theme .input-with-icon input,
+body.dark-theme .input-with-icon select {
+    background: var(--surface-secondaryy);
+    border-color: var(--input-border);
+    color: var(--input-text);
+}
+
+body.dark-theme .input-with-icon input:focus,
+body.dark-theme .input-with-icon select:focus {
+    border-color: var(--blue-600);
+    box-shadow: var(--shadow-focus);
 }
 
 .terms-checkbox {
@@ -120,8 +172,12 @@
 }
 
 .terms-checkbox input[type="checkbox"] {
-    width: 1rem;
-    height: 1rem;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+}
+.terms-checkbox label {
+    font-size: 0.9rem;
+    color: var(--label-text);
 }
 
 .form-footer {
@@ -130,8 +186,8 @@
 }
 
 .register-button {
-    background: #002A4C;
-    color: white;
+    background: var(--button-bg) !important;
+    color: white !important;
     padding: 0.75rem 2rem;
     border: none;
     border-radius: 50px;
@@ -142,7 +198,7 @@
 }
 
 .register-button:hover {
-    background: #003a6b;
+    background: var(--button-hover) !important;
 }
 
 .login {
@@ -151,7 +207,7 @@
 }
 
 .login a {
-    color: #002A4C;
+    color: var(--blue-800);
     
 }
 
@@ -163,16 +219,16 @@
 .file-input {
     width: 100%;
     padding: 2px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     font-size: 12px;
-    background: white;
-    color: #4a5568;
+    background: var(--surface-primary);
+    color: var(--input-text);
     cursor: pointer;
 }
 
 .file-input::-webkit-file-upload-button {
-    background: #002A4C;
+    background: var(--button-bg);
     color: white;
     padding:2px;
     border: none;
@@ -183,22 +239,32 @@
 }
 
 .file-input::-webkit-file-upload-button:hover {
-    background: #003a6b;
+    background: var(--button-hover);
 }
 
 .file-input:hover {
-    border-color: #002A4C;
+    border-color: var(--blue-800);
 }
 
 .file-input:focus {
     outline: none;
-    border-color: #002A4C;
-    box-shadow: 0 0 0 3px rgba(0, 42, 76, 0.1);
+    border-color: var(--blue-800);
+    box-shadow: var(--shadow-focus);
+}
+
+body.dark-theme .file-input {
+    background: var(--surface-secondaryy);
+    border-color: var(--input-border);
+}
+
+body.dark-theme .file-input::-webkit-file-upload-button {
+    background: var(--button-bg);
+    color: white;
 }
 
 /* Estilo para el mensaje de error */
 .error-message {
-    color: #dc2626;
+    color: var(--burgundy-500);
     font-size: 0.875rem;
     margin-top: 0.5rem;
     display: block;
@@ -209,6 +275,13 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 1;
+}
+.login{
+    color: var(--text-primary);
+}
+.login a{
+    color: var(--blue-600);
+    text-decoration: none;
 }
 @media (max-width: 768px) {
     .form-grid {

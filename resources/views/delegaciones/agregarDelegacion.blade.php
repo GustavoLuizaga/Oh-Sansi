@@ -1,12 +1,9 @@
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
     <link rel="stylesheet" href="{{ asset('css/delegacion/crearDelegacion.css') }}">
-    
-    <div class="crear-delegacion-container">
         <div class="crear-delegacion-header">
             <h1><i class="fas fa-school"></i> Agregar Nuevo Colegio</h1>
         </div>
-        
         <div class="crear-delegacion-form">
             @if ($errors->any())
             <div class="alert alert-danger">
@@ -46,15 +43,13 @@
                                 <option value="Privado">Privado</option>
                                 <option value="Comunitaria">Comunitaria</option>
                             </select>
-                        </div>
-                        
+                        </div>                      
                         <div class="form-group">
                             <label for="telefono" class="required-label" >Teléfono</label>
                             <input type="tel" class="form-control" id="telefono" name="telefono" required>
                         </div>
                     </div>
-                </div>
-                
+                </div>               
                 <div class="form-section">
                     <h2 class="form-section-title">Ubicación</h2>
                     
@@ -140,7 +135,6 @@
                 </div>
             </form>
         </div>
-    </div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

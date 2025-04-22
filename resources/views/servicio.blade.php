@@ -23,7 +23,7 @@
                         @forelse($roles as $rol)
                             <li class="rol-item {{ $loop->first ? 'active' : '' }}" 
                                 data-id="{{ $rol->idRol }}" 
-                                onclick="seleccionarRol(this, {{ $rol->idRol }})">
+                                onclick='seleccionarRol(this, "{{ $rol->idRol }}")'>
                                 {{ $rol->nombre }}
                             </li>
                         @empty

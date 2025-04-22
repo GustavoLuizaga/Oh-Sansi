@@ -234,30 +234,49 @@
         // Función para eliminar permiso
         function eliminarPermiso(idRol, idFuncion) {
             if (confirm('¿Está seguro que desea eliminar este permiso del rol?')) {
-                fetch('/servicios/eliminar-permiso', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ idRol, idFuncion, _method: 'DELETE' })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Recargar los permisos del rol
-                        const rolActivo = document.querySelector('.rol-item.active');
-                        if (rolActivo) {
-                            seleccionarRol(rolActivo, idRol);
-                        }
-                    } else {
-                        alert('Error al eliminar el permiso: ' + data.message);
+                try {
+                    // Obtener el token CSRF de manera segura
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                    
+                    if (!csrfToken) {
+                        console.error('No se encontró el token CSRF');
+                        alert('Error: No se pudo encontrar el token CSRF. Por favor, recargue la página.');
+                        return;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al procesar la solicitud');
-                });
+                    
+                    fetch('/servicios/eliminar-permiso', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken.getAttribute('content')
+                        },
+                        body: JSON.stringify({ idRol, idFuncion, _method: 'DELETE' })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('La respuesta del servidor no fue exitosa: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Recargar los permisos del rol
+                            const rolActivo = document.querySelector('.rol-item.active');
+                            if (rolActivo) {
+                                seleccionarRol(rolActivo, idRol);
+                            }
+                        } else {
+                            alert('Error al eliminar el permiso: ' + (data.message || 'Error desconocido'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al procesar la solicitud: ' + error.message);
+                    });
+                } catch (e) {
+                    console.error('Error al iniciar la solicitud:', e);
+                    alert('Error al iniciar la solicitud: ' + e.message);
+                }
             }
         }
         

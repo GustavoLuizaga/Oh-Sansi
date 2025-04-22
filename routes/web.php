@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Incluir rutas de usuarios
+require __DIR__.'/usuarios.php';
+
 Route::get('/', function () {
     return view('welcome');
 });

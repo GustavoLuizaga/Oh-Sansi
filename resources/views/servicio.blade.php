@@ -98,7 +98,7 @@
             <div class="modal-body">
                 <form id="form-editar-rol" method="POST" action="/servicios/editar-rol">
                     @csrf
-                    @method('PUT')
+                    <input type="hidden" name="_method" value="PUT">
                     <input type="hidden" id="editar-rol-id" name="idRol">
                     <div class="form-group">
                         <label for="editar-nombre-rol">Nombre del Rol:</label>
@@ -123,7 +123,7 @@
                 <p>¿Está seguro que desea eliminar este rol? Esta acción no se puede deshacer.</p>
                 <form id="form-eliminar-rol" method="POST" action="/servicios/eliminar-rol">
                     @csrf
-                    @method('DELETE')
+                    <input type="hidden" name="_method" value="DELETE">
                     <input type="hidden" id="eliminar-rol-id" name="idRol">
                     <div class="form-actions">
                         <button type="button" id="cancelar-eliminar-rol" class="btn-cancel">Cancelar</button>
@@ -240,7 +240,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ idRol, idFuncion })
+                    body: JSON.stringify({ idRol, idFuncion, _method: 'DELETE' })
                 })
                 .then(response => response.json())
                 .then(data => {

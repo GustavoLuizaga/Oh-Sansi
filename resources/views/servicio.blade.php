@@ -250,7 +250,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': csrfToken.getAttribute('content')
                         },
-                        body: JSON.stringify({ idRol, idFuncion, _method: 'DELETE' })
+                        body: JSON.stringify({ idRol, idFuncion })
                     })
                     .then(response => {
                         if (!response.ok) {

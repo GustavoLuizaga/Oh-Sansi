@@ -92,7 +92,8 @@
                             @endif
                             
                             @if($convocatoria->estado == 'Borrador')
-                            <!-- Botón de Publicar para convocatorias en borrador -->
+                            @if(\Carbon\Carbon::parse($convocatoria->fechaFin)->gt(\Carbon\Carbon::now()))
+                            <!-- Botón de Publicar para convocatorias en borrador con fecha fin válida -->
                             <a href="#" class="btn-action btn-approve" title="Publicar" 
                                onclick="event.preventDefault(); if(confirm('¿Está seguro de publicar esta convocatoria?')) document.getElementById('publish-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-check"></i>
@@ -101,6 +102,7 @@
                                 @csrf
                                 @method('PUT')
                             </form>
+                            @endif
                             
                             <!-- Botón de Eliminar para convocatorias en borrador -->
                             <a href="#" class="btn-action btn-delete" title="Eliminar" 

@@ -34,9 +34,8 @@ Route::get('/dashboard', function () {
     //return view('dashboard');
 })->middleware(['auth','verified'])->name('dashboard');
 
-Route::get('/servicios', function () {
-    return view('servicio');
-})->middleware(['auth'])->name('servicios');
+Route::get('/servicios', [\App\Http\Controllers\ServiceController::class, 'index'])->middleware(['auth'])->name('servicios');
+Route::get('/servicios/obtener-funciones-rol/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerFuncionesRol'])->middleware(['auth'])->name('servicios.obtenerFuncionesRol');
 
 
 

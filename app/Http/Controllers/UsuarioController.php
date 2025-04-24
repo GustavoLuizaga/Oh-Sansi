@@ -57,6 +57,7 @@ class UsuarioController extends Controller
             'genero' => 'required|in:M,F',
             'roles' => 'required|array|min:1',
             'roles.*' => 'exists:rol,idRol',
+            'email_verified_at' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -66,7 +67,7 @@ class UsuarioController extends Controller
         }
 
         // Crear el usuario
-        $usuario = User::create([
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -75,7 +76,14 @@ class UsuarioController extends Controller
             'ci' => $request->ci,
             'fechaNacimiento' => $request->fechaNacimiento,
             'genero' => $request->genero,
-        ]);
+        ];
+        
+        // Si el checkbox de email verificado está marcado, establecer la fecha actual
+        if ($request->has('email_verified_at')) {
+            $userData['email_verified_at'] = now();
+        }
+        
+        $usuario = User::create($userData);
 
         // Asignar roles al usuario
         foreach ($request->roles as $rolId) {

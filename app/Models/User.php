@@ -28,7 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'ci',
         'fechaNacimiento',
         'genero',
-        
+        'email_verified_at',
     ];
 
     public function roles(){

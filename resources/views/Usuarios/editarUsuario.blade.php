@@ -42,7 +42,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="ci" class="required-label">CI</label>
-                            <input type="number" class="form-control @error('ci') is-invalid @enderror" id="ci" name="ci" value="{{ old('ci', $usuario->ci) }}" required>
+                            <input type="number" class="form-control @error('ci') is-invalid @enderror" id="ci" name="ci" value="{{ old('ci', $usuario->ci) }}" required maxlength="7" oninput="if(this.value.length > 7) this.value = this.value.slice(0, 7)">
+                            <small class="form-text text-muted">Máximo 7 dígitos</small>
                             @error('ci')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -79,11 +80,24 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="form-group">
+                            <label for="email_verified_at">Verificación de Correo</label>
+                            <div class="email-verification-toggle">
+                                <input type="checkbox" id="email_verified_at" name="email_verified_at" value="1" {{ $usuario->email_verified_at ? 'checked' : '' }} {{ $usuario->email_verified_at ? 'disabled' : '' }}>
+                                <label for="email_verified_at" class="toggle-label">Marcar como verificado</label>
+                            </div>
+                            <small class="form-text text-muted">La verificación se habilitará si cambia el correo electrónico</small>
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="password">Nueva Contraseña</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">
+                            <div class="password-input-container">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">
+                                <button type="button" class="toggle-password-btn" data-target="password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                             <small class="form-text text-muted">Dejar en blanco para mantener la contraseña actual</small>
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -91,7 +105,12 @@
                         </div>
                         <div class="form-group">
                             <label for="password_confirmation">Confirmar Nueva Contraseña</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+                            <div class="password-input-container">
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
+                                <button type="button" class="toggle-password-btn" data-target="password_confirmation">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,6 +161,63 @@
             
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Manejo de contraseñas visibles/ocultas
+                    const togglePasswordBtns = document.querySelectorAll('.toggle-password-btn');
+                    togglePasswordBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const targetId = this.getAttribute('data-target');
+                            const passwordInput = document.getElementById(targetId);
+                            const icon = this.querySelector('i');
+                            
+                            if (passwordInput.type === 'password') {
+                                passwordInput.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                passwordInput.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+                    });
+                    
+                    // Habilitar/deshabilitar verificación de correo
+                    const emailInput = document.getElementById('email');
+                    const emailVerifiedCheckbox = document.getElementById('email_verified_at');
+                    const originalEmail = '{{ $usuario->email }}';
+                    const isVerified = "{{ $usuario->email_verified_at ? 'true' : 'false' }}" === "true";
+                    
+                    // Si el correo no está verificado, habilitar el checkbox por defecto
+                    if (!isVerified) {
+                        emailVerifiedCheckbox.disabled = false;
+                    }
+                    
+                    emailInput.addEventListener('input', function() {
+                        if (this.value !== originalEmail) {
+                            emailVerifiedCheckbox.disabled = false;
+                            // Si el correo cambia, desmarcamos la verificación por defecto
+                            // para que se envíe el correo de verificación
+                            emailVerifiedCheckbox.checked = false;
+                        } else {
+                            // Solo deshabilitar si el correo original ya estaba verificado
+                            emailVerifiedCheckbox.disabled = isVerified;
+                            emailVerifiedCheckbox.checked = isVerified;
+                        }
+                    });
+                    
+                    // Asegurarse de que el formulario envíe el estado del checkbox
+                    // incluso cuando está desmarcado
+                    document.getElementById('editUserForm').addEventListener('submit', function() {
+                        if (!emailVerifiedCheckbox.checked && !emailVerifiedCheckbox.disabled) {
+                            // Crear un campo oculto para indicar que el checkbox fue procesado
+                            const hiddenField = document.createElement('input');
+                            hiddenField.type = 'hidden';
+                            hiddenField.name = 'email_verification_processed';
+                            hiddenField.value = '1';
+                            this.appendChild(hiddenField);
+                        }
+                    }); // <-- remove the extra } here
+                    
                     // Manejo de roles
                     const roleSelector = document.getElementById('role-selector');
                     const addRoleBtn = document.getElementById('add-role-btn');

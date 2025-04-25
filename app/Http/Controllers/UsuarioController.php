@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Rol;
+use Illuminate\Auth\Events\Registered;
 
 class UsuarioController extends Controller
 {
@@ -95,9 +96,14 @@ class UsuarioController extends Controller
                 'updated_at' => now(),
             ]);
         }
+        
+        // Si el correo no está verificado, enviar correo de verificación
+        if (!$request->has('email_verified_at')) {
+            event(new Registered($usuario));
+        }
 
         return redirect()->route('usuarios')
-            ->with('success', 'Usuario creado correctamente');
+            ->with('success', 'Usuario creado correctamente' . (!$request->has('email_verified_at') ? '. Se ha enviado un correo de verificación.' : ''));
     }
 
     public function show($id)
@@ -146,6 +152,9 @@ class UsuarioController extends Controller
         }
 
         // Actualizar el usuario
+        // Verificar si el correo ha cambiado
+        $emailCambiado = $usuario->email !== $request->email;
+        
         $usuario->name = $request->name;
         $usuario->email = $request->email;
         $usuario->apellidoPaterno = $request->apellidoPaterno;
@@ -153,6 +162,15 @@ class UsuarioController extends Controller
         $usuario->ci = $request->ci;
         $usuario->fechaNacimiento = $request->fechaNacimiento;
         $usuario->genero = $request->genero;
+        
+        // Si el correo cambió y se marcó como verificado, actualizar la fecha de verificación
+        if ($emailCambiado && $request->has('email_verified_at')) {
+            $usuario->email_verified_at = now();
+        }
+        // Si el correo cambió y no se marcó como verificado, establecer como no verificado
+        elseif ($emailCambiado && !$request->has('email_verified_at')) {
+            $usuario->email_verified_at = null;
+        }
         
         if ($request->filled('password')) {
             $usuario->password = Hash::make($request->password);
@@ -172,9 +190,14 @@ class UsuarioController extends Controller
                 'updated_at' => now(),
             ]);
         }
+        
+        // Si el correo cambió y no está verificado, enviar correo de verificación
+        if ($emailCambiado && !$request->has('email_verified_at')) {
+            event(new Registered($usuario));
+        }
 
         return redirect()->route('usuarios')
-            ->with('success', 'Usuario actualizado correctamente');
+            ->with('success', 'Usuario actualizado correctamente' . ($emailCambiado && !$request->has('email_verified_at') ? '. Se ha enviado un correo de verificación.' : ''));
     }
 
     public function destroy($id)

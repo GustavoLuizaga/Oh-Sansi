@@ -41,7 +41,8 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="ci" class="required-label">CI</label>
-                            <input type="number" class="form-control @error('ci') is-invalid @enderror" id="ci" name="ci" value="{{ old('ci') }}" required>
+                            <input type="number" class="form-control @error('ci') is-invalid @enderror" id="ci" name="ci" value="{{ old('ci') }}" required maxlength="7" oninput="if(this.value.length > 7) this.value = this.value.slice(0, 7)">
+                            <small class="form-text text-muted">Máximo 7 dígitos</small>
                             @error('ci')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -84,20 +85,30 @@
                                 <input type="checkbox" id="email_verified_at" name="email_verified_at" value="1" {{ old('email_verified_at') ? 'checked' : '' }}>
                                 <label for="email_verified_at" class="toggle-label">Marcar como verificado</label>
                             </div>
-                            <small class="form-text text-muted">Si se marca, el usuario no necesitará verificar su correo electrónico.</small>
+                            <small class="form-text text-muted">Si no se marca, se enviará un correo de verificación automáticamente</small>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="password" class="required-label">Contraseña</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
+                            <div class="password-input-container">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
+                                <button type="button" class="toggle-password-btn" data-target="password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="password_confirmation" class="required-label">Confirmar Contraseña</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                            <div class="password-input-container">
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                                <button type="button" class="toggle-password-btn" data-target="password_confirmation">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -155,6 +166,26 @@
             
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Manejo de contraseñas visibles/ocultas
+                    const togglePasswordBtns = document.querySelectorAll('.toggle-password-btn');
+                    togglePasswordBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const targetId = this.getAttribute('data-target');
+                            const passwordInput = document.getElementById(targetId);
+                            const icon = this.querySelector('i');
+                            
+                            if (passwordInput.type === 'password') {
+                                passwordInput.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                passwordInput.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+                    });
+                    
                     // Manejo de roles
                     const roleSelector = document.getElementById('role-selector');
                     const addRoleBtn = document.getElementById('add-role-btn');

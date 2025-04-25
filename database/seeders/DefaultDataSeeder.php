@@ -15,7 +15,7 @@ class DefaultDataSeeder extends Seeder
      * @return void
      */
     public function run()
-    {
+    {/*
         // Crear roles si no existen
         $roles = ['Administrador', 'Tutor', 'Estudiante'];
 
@@ -112,14 +112,6 @@ class DefaultDataSeeder extends Seeder
         $rolTutorId = DB::table('rol')->where('nombre', 'Tutor')->value('idRol');
         // Obtener funciones
         $funcionesAll = DB::table('funcion')->get();
-/*
-        // Relacionar Administrador con todas las funciones
-        foreach ($funcionesAll as $funcion) {
-            DB::table('rolFuncion')->updateOrInsert([
-                'idFuncion' => $funcion->idFuncion,
-                'idRol' => $rolAdminId
-            ]);
-        }*/
 
         // Relacionar Administrador con funciones específicas
         $funcionesAdmin = DB::table('funcion')
@@ -251,5 +243,6 @@ class DefaultDataSeeder extends Seeder
         foreach ($areas as $area) {
             DB::table('area')->updateOrInsert(['nombre' => $area]);
         }
+        */
     }
 }

@@ -10,6 +10,14 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use App\Notifications\WelcomeEmailNotification;
+use App\Models\Area;
+use App\Models\Delegacion;
+use App\Models\Estudiante;
+use App\Models\Inscripcion;
+use App\Models\Categoria;
+use App\Models\Grado;
+use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
+use Illuminate\Support\Facades\Auth;
 
 class ResgistrarListaEstController extends Controller
 {
@@ -50,7 +58,37 @@ class ResgistrarListaEstController extends Controller
                     $user->estudiante()->create();
                 }
 
+                $area = $row[7];
+                $idArea = Area::where('nombre', $area)->value('idArea');
+
+                $categoria = $row[8];
+                $idCategoria = Categoria::where('nombre', $categoria)->value('idCategoria');
                 
+                $grado = $row[9];
+                $idGrado = Grado::where('grado', $grado)->value('idGrado');
+
+                $delegacion = $row[11];
+                $idDelegacion = Delegacion::where('nombre', $delegacion)->value('idDelegacion');
+
+                $convocatoria = new VerificarExistenciaConvocatoria();
+                $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
+
+
+
+                $inscripcion = Inscripcion::create([
+                    'fechaInscripcion' => now(),
+                    'numeroContacto' => $row[10],
+                    'idConvocatoria' => $idConvocatoriaResult,
+                    'idArea' => $idArea,
+                    'idDelegacion' => $idDelegacion,
+                    'idCategoria' => $idCategoria, 
+                    'idGrado' => $idGrado
+                ]);
+
+                $inscripcion->tutores()->attach(Auth::user()->id, [
+                    'idEstudiante' => $user->id
+                ]);
+
                 $user->notify(new WelcomeEmailNotification($plainPassword));
                 
                 event(new Registered($user));

@@ -2,6 +2,19 @@
     <link rel="stylesheet" href="{{ asset('css/servicio.css') }}">
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Mensajes de alerta -->
+            @if(session('success'))
+            <div class="alert alert-success mb-4">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+            @endif
+            
+            @if(session('error'))
+            <div class="alert alert-danger mb-4">
+                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+            </div>
+            @endif
+            
             <!-- Header Section -->
             <div class="servicios-header py-2">
                 <h1><i class="fas fa-user-shield"></i> {{ __('Administrar Roles y Permisos') }}</h1>

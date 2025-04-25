@@ -33,6 +33,6 @@ class WelcomeEmailNotification extends Notification
             ->line('Contraseña: ' . $this->password)
             ->action('Iniciar Sesión', url('/login'))
             ->line('Te recomendamos cambiar tu contraseña después de iniciar sesión.')
-            ->line('¡Gracias por ser parte de nuestra conpetición!');
+            ->line('¡Gracias por ser parte de nuestra competición!');
     }
 }

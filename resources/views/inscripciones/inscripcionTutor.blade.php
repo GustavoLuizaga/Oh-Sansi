@@ -63,7 +63,7 @@
                     <button type="submit" class="upload-button">
                         <i class="fas fa-upload"></i> Subir
                     </button>
-                    <a href="#" class="template-link">
+                    <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" download class="template-link">
                         <i class="fas fa-download"></i> Descargar plantilla
                     </a>
                 </form>

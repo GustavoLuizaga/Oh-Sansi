@@ -43,7 +43,6 @@ class ResgistrarListaEstController extends Controller
 
         // si contiene encabezados omitimos la primera fila
         $rows = array_slice($array[0], 1);
-        
         foreach ($rows as $key => $row) {
             if (empty($row[0]) || empty($row[1]) || empty($row[2]) || empty($row[3]) || empty($row[4]) || empty($row[5]) || empty($row[6])) {
                 return back()->with('error_messages', [
@@ -51,7 +50,6 @@ class ResgistrarListaEstController extends Controller
                 ]);
             }
         }
-
         foreach ($rows as $key => $row) {
             DB::beginTransaction();
             try {

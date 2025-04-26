@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Inscripcion\InscripcionController;
 use App\Http\Controllers\Inscripcion\InscripcionEstController;
+use App\Http\Controllers\Inscripcion\VerificacionConvocatoriaController;
 
 Route::middleware('auth')->group(function () {
     // Main inscripciones view
@@ -32,4 +33,7 @@ Route::middleware('auth')->group(function () {
     // Ruta para procesar el archivo Excel
     Route::post('/register-lista', [App\Http\Controllers\Auth\ResgistrarListaEstController::class, 'store'])
         ->name('register.lista.store');
+
+    Route::get('/verDatosCovocatoria', [VerificacionConvocatoriaController::class, 'mostrarAreasCategoriasGrados']);
+
 });

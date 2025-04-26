@@ -1,5 +1,5 @@
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionTutor.css') }}">
+<link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionTutor.css') }}">
 @endpush
 
 <x-app-layout>
@@ -11,10 +11,10 @@
             <div class="card token-card">
                 <h2><i class="fas fa-key"></i> Token de Inscripción</h2>
                 <div class="token-display">
-                    <input type="text" 
-                           id="tokenInput" 
-                           value="{{ $token ?? 'No hay token disponible' }}" 
-                           readonly>
+                    <input type="text"
+                        id="tokenInput"
+                        value="{{ $token ?? 'No hay token disponible' }}"
+                        readonly>
                     <button onclick="copyToken()" class="copy-button" {{ !$token ? 'disabled' : '' }}>
                         <i class="fas fa-copy"></i>
                     </button>
@@ -24,19 +24,62 @@
             <!-- Excel Upload Card -->
             <div class="card excel-card">
                 <h2><i class="fas fa-file-excel"></i> Inscripción Masiva</h2>
-                <div class="excel-actions">
-                    <input type="file" id="excelFile" accept=".xlsx, .xls" class="file-input">
+
+                @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
+
+                @if(session('error_messages'))
+                <div class="alert alert-danger">
+                    <p>{{ session('message') }}</p>
+                    <ul>
+                        @foreach(session('error_messages') as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                <form method="POST" action="{{ route('register.lista.store') }}" enctype="multipart/form-data" class="excel-actions">
+                    @csrf
+                    <input type="file"
+                        id="excelFile"
+                        name="file"
+                        accept=".xlsx, .xls"
+                        class="file-input"
+                        required>
                     <label for="excelFile" class="upload-label">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Seleccionar archivo</span>
+                        <span id="fileName">Seleccionar archivo</span>
                     </label>
-                    <button class="upload-button">
+                    <div id="fileInfo" class="file-info" style="display: none;">
+                        <i class="fas fa-file-excel"></i>
+                        <span id="selectedFileName"></span>
+                        <button type="button" class="remove-file" onclick="removeFile()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button type="submit" class="upload-button">
                         <i class="fas fa-upload"></i> Subir
                     </button>
-                    <a href="#" class="template-link">
+                    <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" download class="template-link">
                         <i class="fas fa-download"></i> Descargar plantilla
                     </a>
+                    <button onclick="cargarDatosConvocatoria()">
+                        Ver información sobre la convocatoria
+                    </button>
+
+                </form>
+                @if ($errors->any())
+                <div class="alert alert-danger mt-3">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
+                @endif
             </div>
         </div>
 
@@ -113,21 +156,73 @@
                 </div>
             </form>
         </div>
+        <!-- Modal -->
+        <div id="modalDatos" class="modal">
+            <div class="modal-contenido">
+                <button onclick="cerrarModal()" class="modal-cerrar">✖</button>
+                <div id="contenidoModal" class="modal-cuerpo">
+                    Cargando datos...
+                </div>
+            </div>
+        </div>
     </div>
 </x-app-layout>
 
 <script>
-function copyToken() {
-    var tokenInput = document.getElementById('tokenInput');
-    tokenInput.select();
-    document.execCommand('copy');
-    
-    var copyButton = document.querySelector('.copy-button');
-    var originalContent = copyButton.innerHTML;
-    copyButton.innerHTML = '<i class="fas fa-check"></i>';
-    
-    setTimeout(function() {
-        copyButton.innerHTML = originalContent;
-    }, 2000);
-}
+    function copyToken() {
+        var tokenInput = document.getElementById('tokenInput');
+        tokenInput.select();
+        document.execCommand('copy');
+
+        var copyButton = document.querySelector('.copy-button');
+        var originalContent = copyButton.innerHTML;
+        copyButton.innerHTML = '<i class="fas fa-check"></i>';
+
+        setTimeout(function() {
+            copyButton.innerHTML = originalContent;
+        }, 2000);
+    }
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const fileInfo = document.getElementById('fileInfo');
+        const selectedFileName = document.getElementById('selectedFileName');
+        const uploadLabel = document.getElementById('fileName');
+
+        if (file) {
+            fileInfo.style.display = 'flex';
+            selectedFileName.textContent = file.name;
+            uploadLabel.textContent = 'Cambiar archivo';
+        } else {
+            fileInfo.style.display = 'none';
+            uploadLabel.textContent = 'Seleccionar archivo';
+        }
+    });
+
+    function removeFile() {
+        const input = document.getElementById('excelFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadLabel = document.getElementById('fileName');
+
+        input.value = '';
+        fileInfo.style.display = 'none';
+        uploadLabel.textContent = 'Seleccionar archivo';
+    }
+
+    function cargarDatosConvocatoria() {
+        fetch('/verDatosCovocatoria')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('contenidoModal').innerHTML = html;
+                document.getElementById('modalDatos').style.display = 'flex';
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById('contenidoModal').innerHTML = '<p>Error al cargar los datos.</p>';
+                document.getElementById('modalDatos').style.display = 'flex';
+            });
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalDatos').style.display = 'none';
+    }
 </script>

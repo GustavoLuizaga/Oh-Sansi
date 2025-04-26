@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Delegado\DelegadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,8 @@ require __DIR__.'/usuarios.php';
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Las rutas de delegado se han movido a delegado.php
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
@@ -58,6 +61,7 @@ require __DIR__.'/areas.php';
 require __DIR__.'/categorias.php';
 require __DIR__.'/convocatoria.php';
 require __DIR__.'/delegaciones.php';
+require __DIR__.'/delegado.php';
 require __DIR__.'/grados.php';
 require __DIR__.'/inscripciones.php';
 

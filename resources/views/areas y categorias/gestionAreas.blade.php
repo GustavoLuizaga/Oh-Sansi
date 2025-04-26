@@ -12,17 +12,9 @@
     <div class="area-container">
         <!-- Action Bar -->
         <div class="action-bar">
-            <button class="btn-new-area" data-bs-toggle="modal" data-bs-target="#nuevaAreaModal">
+            <button class="btn-new-area" data-bs-toggle="modal" data-bs-target="#nuevaAreaModal" title="Añadir nueva area de competencia">
                 <i class="fas fa-plus-circle"></i> Nueva Área
             </button>
-            {{-- <div class="export-buttons">
-                <button class="btn-export">
-                    <i class="fas fa-file-pdf"></i> Descargar PDF
-                </button>
-                <button class="btn-export">
-                    <i class="fas fa-file-excel"></i> Descargar Excel
-                </button>
-            </div> --}}
         </div>
 
         <!-- Search and Filter -->
@@ -60,6 +52,7 @@
                         <td>{{ $area->nombre }}</td>
                         <td class="action-cell">
                             <button class="btn-action btn-edit" 
+                                title="Editar nombre del área"
                                     data-id="{{ $area->idArea }}"
                                     data-nombre="{{ $area->nombre }}" 
                                     data-bs-toggle="modal" 
@@ -67,6 +60,7 @@
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn-action btn-delete" 
+                                title="Eliminar el área"
                                     data-id="{{ $area->idArea }}" 
                                     data-nombre="{{ $area->nombre }}"  
                                     data-bs-toggle="modal" 

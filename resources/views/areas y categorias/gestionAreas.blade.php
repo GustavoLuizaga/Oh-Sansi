@@ -88,11 +88,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formNuevaArea" action="{{ route('areas.store') }}" method="POST">
+                    <form class="needs-validation" novalidate id="formNuevaArea" action="{{ route('areas.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="nombreArea" class="required-label">Nombre del Área</label>
-                            <input type="text" class="form-control" id="nombreArea" name="nombre" required minlength="5" >
+                            <input type="text" class="form-control" id="nombreArea" name="nombre" 
+                                    required minlength="5" maxlength="20"
+                                    pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                                    title="Solo letras y espacios sin numeros (mínimo 5 caracteres)">
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
 
@@ -137,11 +140,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formEditarArea" method="POST">
+                    <form class="needs-validation" novalidate id="formEditarArea" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="nombreAreaEdit" class="required-label">Nombre del Área</label>
-                            <input type="text" class="form-control" id="nombreAreaEdit" name="nombre" required minlength="5">
+                            <input type="text" class="form-control" id="nombreAreaEdit" name="nombre" 
+                                    required minlength="5" maxlength="20"
+                                    pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                                    title="Solo letras y espacios sin numeros (mínimo 5 caracteres)">
                             <div class="form-text">Mínimo 5 caracteres, maximo 20, sin números ni simbolos especiales</div>
                         </div>
 

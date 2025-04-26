@@ -66,6 +66,10 @@
                     <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" download class="template-link">
                         <i class="fas fa-download"></i> Descargar plantilla
                     </a>
+                    <button onclick="cargarDatosConvocatoria()">
+                        Ver información sobre la convocatoria
+                    </button>
+
                 </form>
                 @if ($errors->any())
                 <div class="alert alert-danger mt-3">
@@ -152,6 +156,15 @@
                 </div>
             </form>
         </div>
+        <!-- Modal -->
+        <div id="modalDatos" class="modal">
+            <div class="modal-contenido">
+                <button onclick="cerrarModal()" class="modal-cerrar">✖</button>
+                <div id="contenidoModal" class="modal-cuerpo">
+                    Cargando datos...
+                </div>
+            </div>
+        </div>
     </div>
 </x-app-layout>
 
@@ -193,5 +206,23 @@
         input.value = '';
         fileInfo.style.display = 'none';
         uploadLabel.textContent = 'Seleccionar archivo';
+    }
+
+    function cargarDatosConvocatoria() {
+        fetch('/verDatosCovocatoria')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('contenidoModal').innerHTML = html;
+                document.getElementById('modalDatos').style.display = 'flex';
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById('contenidoModal').innerHTML = '<p>Error al cargar los datos.</p>';
+                document.getElementById('modalDatos').style.display = 'flex';
+            });
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalDatos').style.display = 'none';
     }
 </script>

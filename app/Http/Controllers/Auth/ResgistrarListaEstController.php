@@ -22,6 +22,7 @@ use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 use Illuminate\Support\Facades\DB;
+use App\Models\TutorEstudianteInscripcion;
 
 class ResgistrarListaEstController extends Controller
 {
@@ -98,6 +99,20 @@ class ResgistrarListaEstController extends Controller
 
                 $idArea = Area::where('nombre', $area)->value('idArea');
 
+                // Verificar si el estudiante ya está inscrito en este área
+                $areasInscritas = TutorEstudianteInscripcion::where('idEstudiante', $user->id)
+                    ->with('inscripcion.area')
+                    ->get()
+                    ->pluck('inscripcion.area.nombre')
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                if ($areasInscritas->contains($area)) {
+                    throw new \Exception("El estudiante ya está inscrito en el área '{$area}'. No puede inscribirse dos veces en la misma área.");
+                }
+
+
                 $areaModel = Area::find($idArea);
 
                 $categoriasArea = new ObtenerCategoriasArea();
@@ -129,6 +144,7 @@ class ResgistrarListaEstController extends Controller
                     throw new \Exception("La delegación '{$delegacion}' no existe. Por favor, póngase en contacto con el administrador del sistema.");
                 }
                 $idDelegacion = Delegacion::where('nombre', $delegacion)->value('idDelegacion');
+
                 // Crear inscripción
                 $inscripcion = Inscripcion::create([
                     'fechaInscripcion' => now(),

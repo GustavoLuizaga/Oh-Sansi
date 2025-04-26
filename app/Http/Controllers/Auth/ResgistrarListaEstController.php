@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
+use Illuminate\Support\Facades\DB;
 
 class ResgistrarListaEstController extends Controller
 {
@@ -44,6 +45,7 @@ class ResgistrarListaEstController extends Controller
         $rows = array_slice($array[0], 1);
 
         foreach ($rows as $key => $row) {
+            DB::beginTransaction();
             try {
                 // Verificar si el usuario ya existe por email
                 $user = User::where('email', $row[4])->first();
@@ -144,7 +146,9 @@ class ResgistrarListaEstController extends Controller
                 } else {
                     $usersUpdated++;
                 }
+                DB::commit();
             } catch (\Exception $e) {
+                DB::rollBack();
                 $errors[] = "Error en fila " . ($key + 2) . ": " . $e->getMessage();
             }
         }

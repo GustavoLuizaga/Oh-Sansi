@@ -117,6 +117,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
+/**
+ * Gestiona la funcionalidad del modal de ELIMINACION de categoría
+ * - Permite eliminar la categoria y los grados
+ */
 document.addEventListener('DOMContentLoaded', function() {
     const confirmDeleteModal = document.getElementById('ConfirmarBorradoModal');
     let categoriaIdEliminar = null;

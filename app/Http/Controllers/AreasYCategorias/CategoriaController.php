@@ -24,28 +24,41 @@ class CategoriaController extends Controller
      * Almacena una nueva categoría con sus grados relacionados
      */
     public function store(Request $request)
-    {
-        // Validación
-        $request->validate([
-            'nombreCategoria' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-            'grados' => 'required|array|min:1',
-            'grados.*' => 'required|exists:grado,idGrado',
-        ]);
-        
-        // Crear la categoría
-        $categoria = Categoria::create([
-            'nombre' => $request->nombreCategoria
-        ]);
-        
-        // Asociar los grados seleccionados
-        $categoria->grados()->attach($request->grados);
-        
+{
+    // Validación de entrada
+    $request->validate([
+        'nombreCategoria' => 'required|string|min:5|max:20|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+        'grados' => 'required|array|min:1',
+        'grados.*' => 'required|exists:grado,idGrado',
+    ]);
+
+    // Normalización del nombre para evitar duplicados con variaciones de mayúsculas/minúsculas
+    $nombreNormalizado = strtolower(trim($request->nombreCategoria));
+
+    // Verificación de existencia previa en la base de datos
+    $categoriaExistente = Categoria::whereRaw('LOWER(nombre) = ?', [$nombreNormalizado])->exists();
+
+    if ($categoriaExistente) {
         return response()->json([
-            'success' => true,
-            'message' => 'Categoría creada exitosamente',
-            'categoria' => $categoria->load('grados')
-        ]);
+            'success' => false,
+            'message' => 'Ya existe una categoría con este nombre o uno muy similar.',
+        ], 422);
     }
+
+    // Crear la nueva categoría
+    $categoria = Categoria::create([
+        'nombre' => $request->nombreCategoria
+    ]);
+
+    // Asociar los grados seleccionados
+    $categoria->grados()->attach($request->grados);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Categoría creada exitosamente',
+        'categoria' => $categoria->load('grados')
+    ]);
+}
     
     /**
      * Obtiene datos para edición

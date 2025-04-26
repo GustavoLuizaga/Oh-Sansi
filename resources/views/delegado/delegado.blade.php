@@ -21,6 +21,14 @@
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" name="search" placeholder="Buscar por nombre o CI" value="{{ request('search') }}" class="py-1">
+                    <select name="colegio" class="filter-select">
+                        <option value="">Todos los colegios</option>
+                        @foreach($colegios as $colegio)
+                            <option value="{{ $colegio->id }}" {{ request('colegio') == $colegio->id ? 'selected' : '' }}>
+                                {{ $colegio->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
                     <button type="submit" class="search-button py-1 px-2">
                         <i class="fas fa-search"></i> Buscar
                     </button>
@@ -79,9 +87,15 @@
                 </td>
                 <td class="actions">
                     <div class="flex space-x-1">
-                        <a href="#" class="action-button view w-5 h-5">
-                            <i class="fas fa-eye text-xs"></i>
+                        <a href="{{ route('delegado.ver', ['id' => $tutor->user->id]) }}" class="action-button view" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
                         </a>
+                        <button type="button" 
+                                data-tutor-id="{{ $tutor->user->id }}" 
+                                class="action-button delete btn-eliminar" 
+                                title="Eliminar tutor">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -102,3 +116,52 @@
 
 
 </x-app-layout>
+
+<!-- Add this at the bottom of the file -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h3>Confirmar Eliminación</h3>
+        <p>¿Está seguro que desea eliminar este tutor?</p>
+        <div class="modal-actions">
+            <form id="deleteForm" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="button" class="cancel-button" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="delete-button">Eliminar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Update the JavaScript at the bottom of the file -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-eliminar');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tutorId = this.getAttribute('data-tutor-id');
+            confirmarEliminacion(tutorId);
+        });
+    });
+});
+
+function confirmarEliminacion(tutorId) {
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    form.action = `/delegado/eliminar/${tutorId}`;
+    modal.style.display = 'flex';
+}
+
+function cerrarModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+        cerrarModal();
+    }
+}
+</script>

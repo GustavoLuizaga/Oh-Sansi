@@ -20,7 +20,7 @@ use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
-use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
+use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 use Illuminate\Support\Facades\DB;
 
 class ResgistrarListaEstController extends Controller
@@ -43,6 +43,14 @@ class ResgistrarListaEstController extends Controller
 
         // si contiene encabezados omitimos la primera fila
         $rows = array_slice($array[0], 1);
+        
+        foreach ($rows as $key => $row) {
+            if (empty($row[0]) || empty($row[1]) || empty($row[2]) || empty($row[3]) || empty($row[4]) || empty($row[5]) || empty($row[6])) {
+                return back()->with('error_messages', [
+                    "Error en fila " . ($key + 2) . ": Datos obligatorios faltantes. El proceso ha sido cancelado."
+                ]);
+            }
+        }
 
         foreach ($rows as $key => $row) {
             DB::beginTransaction();
@@ -89,7 +97,7 @@ class ResgistrarListaEstController extends Controller
                     throw new \Exception("El área '{$area}' no está habilitada para esta convocatoria. Por favor, póngase en contacto con el administrador del sistema.");
                 }
 
-                
+
                 $idArea = Area::where('nombre', $area)->value('idArea');
 
                 $areaModel = Area::find($idArea);
@@ -108,11 +116,11 @@ class ResgistrarListaEstController extends Controller
 
 
                 $grado = $row[9];
-                $gradosArea = new ObtenerGradosArea();
+                $gradosArea = new ObtenerGradosdeUnaCategoria();
                 $gradosHabilitados = $gradosArea->obtenerGradosPorArea($categoriaModel);
                 $gradoExiste = $gradosHabilitados->contains('grado', $grado);
                 if (!$gradoExiste) {
-                    throw new \Exception("El grado '{$row[9]}' no está habilitado para esta categoría de '{$categoriaModel->nombre }' en esta convocatoria. Por favor, póngase en contacto con el administrador del sistema.");
+                    throw new \Exception("El grado '{$row[9]}' no está habilitado para esta categoría de '{$categoriaModel->nombre}' en esta convocatoria. Por favor, póngase en contacto con el administrador del sistema.");
                 }
 
                 $idGrado = Grado::where('grado', $grado)->value('idGrado');
@@ -123,7 +131,7 @@ class ResgistrarListaEstController extends Controller
                     throw new \Exception("La delegación '{$delegacion}' no existe. Por favor, póngase en contacto con el administrador del sistema.");
                 }
                 $idDelegacion = Delegacion::where('nombre', $delegacion)->value('idDelegacion');
-               // Crear inscripción
+                // Crear inscripción
                 $inscripcion = Inscripcion::create([
                     'fechaInscripcion' => now(),
                     'numeroContacto' => $row[10],
@@ -153,9 +161,13 @@ class ResgistrarListaEstController extends Controller
             }
         }
 
-        return response()->json([
-            'message' => "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes",
-            'errors' => $errors
-        ]);
+        if (!empty($errors)) {
+            return back()
+                ->with('error_messages', $errors)
+                ->with('message', "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes");
+        }
+
+        return back()
+            ->with('success', "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes");
     }
 }

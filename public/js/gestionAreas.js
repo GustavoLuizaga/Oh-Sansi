@@ -15,7 +15,19 @@
     })
 })()
 
+//Modal de creacion
 document.addEventListener('DOMContentLoaded', function() {
+    // Store all existing area names in an array when the page loads
+    const existingAreaNames = [];
+    
+    // Populate the existingAreaNames array from the table data
+    document.querySelectorAll('.areas-table tbody tr').forEach(row => {
+        const areaNameCell = row.querySelector('td:first-child');
+        if (areaNameCell) {
+            existingAreaNames.push(areaNameCell.textContent.trim().toLowerCase());
+        }
+    });
+
     // Helper function to show alerts
     function showAlert(message, type = 'success') {
         const alerta = document.createElement('div');
@@ -36,12 +48,194 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetForm(form, submitButton = null) {
         form.reset();
         form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.is-invalid, .is-valid').forEach(el => el.classList.remove('is-invalid', 'is-valid'));
         
         if (submitButton) {
             submitButton.disabled = false;
             submitButton.innerHTML = submitButton.dataset.originalText || 'Submit';
         }
+    }
+
+    // VALIDATION METHODS
+    
+    /**
+     * Validates if area name exists in database
+     * @param {string} name - The area name to check
+     * @returns {boolean} True if name doesn't exist (valid), false if exists (invalid)
+     */
+    function isAreaNameUnique(name) {
+        // Convert to lowercase for case-insensitive comparison
+        const normalizedName = name.trim().toLowerCase();
+        
+        // Check if the name exists in our array of current area names
+        return !existingAreaNames.includes(normalizedName);
+    }
+    
+    /**
+     * Checks if area name is similar to any existing name
+     * @param {string} name - The area name to check
+     * @param {number} threshold - Similarity threshold (lower is more strict)
+     * @returns {boolean} True if no similar names found, false otherwise
+     */
+    function isAreaNameNotSimilar(name, threshold = 0.8) {
+        const normalizedName = name.trim().toLowerCase();
+        
+        // Check for similarity with each existing name
+        for (const existingName of existingAreaNames) {
+            // Skip exact check as it's handled by isAreaNameUnique
+            if (existingName === normalizedName) continue;
+            
+            // Calculate similarity
+            const similarityScore = calculateSimilarity(normalizedName, existingName);
+            
+            // If similarity is above threshold, it's too similar
+            if (similarityScore > threshold) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Calculates similarity between two strings
+     * @param {string} str1 - First string to compare
+     * @param {string} str2 - Second string to compare
+     * @returns {number} Similarity score between 0 (no similarity) and 1 (identical)
+     */
+    function calculateSimilarity(str1, str2) {
+        // Simple implementation of Levenshtein distance algorithm
+        const levenshteinDistance = (a, b) => {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+            
+            const matrix = [];
+            
+            // Initialize matrix
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            // Fill matrix
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j] + 1,      // deletion
+                        matrix[i][j - 1] + 1,      // insertion
+                        matrix[i - 1][j - 1] + cost // substitution
+                    );
+                }
+            }
+            
+            return matrix[b.length][a.length];
+        };
+        
+        // Calculate distance
+        const distance = levenshteinDistance(str1, str2);
+        
+        // Calculate max possible distance
+        const maxLength = Math.max(str1.length, str2.length);
+        
+        // Calculate similarity as 1 - normalized distance
+        return maxLength === 0 ? 1 : 1 - distance / maxLength;
+    }
+    
+    /**
+     * Validates if an area name meets all requirements
+     * @param {string} name - The area name to validate
+     * @returns {boolean} True if name is valid, false otherwise
+     */
+    function isValidAreaName(name) {
+        // Check pattern (letters and spaces only)
+        const pattern = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+        const hasValidChars = pattern.test(name);
+        
+        // Check length (5-20 characters)
+        const hasValidLength = name.length >= 5 && name.length <= 20;
+        
+        // Check uniqueness
+        const isUnique = isAreaNameUnique(name);
+        
+        // Check similarity
+        const isNotSimilar = isAreaNameNotSimilar(name);
+        
+        // All checks must pass
+        return hasValidChars && hasValidLength && isUnique && isNotSimilar;
+    }
+    
+    /**
+     * Validates area name and updates UI accordingly
+     * @param {HTMLInputElement} inputElement - The input element to validate
+     */
+    function validateAreaName(inputElement) {
+        const name = inputElement.value.trim();
+        const submitButton = inputElement.form.querySelector('button[type="submit"]');
+        
+        // Remove existing feedback elements
+        const existingFeedback = inputElement.parentNode.querySelector('.invalid-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+        
+        // Reset classes
+        inputElement.classList.remove('is-valid', 'is-invalid');
+        
+        // Skip validation if name is empty
+        if (!name) return;
+        
+        // Check pattern
+        const pattern = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+        if (!pattern.test(name)) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'Solo se permiten letras y espacios');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // Check length
+        if (name.length < 5 || name.length > 20) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'El nombre debe tener entre 5 y 20 caracteres');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // Check uniqueness
+        if (!isAreaNameUnique(name)) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'Este nombre de área ya existe');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // Check similarity
+        if (!isAreaNameNotSimilar(name)) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'Este nombre es muy similar a un área existente');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // All checks passed
+        inputElement.classList.add('is-valid');
+        if (submitButton) submitButton.disabled = false;
+    }
+    
+    /**
+     * Adds error feedback message after an input
+     * @param {HTMLElement} inputElement - The input element to add feedback to
+     * @param {string} message - The error message to display
+     */
+    function addErrorFeedback(inputElement, message) {
+        const divError = document.createElement('div');
+        divError.classList.add('invalid-feedback');
+        divError.textContent = message;
+        inputElement.parentNode.appendChild(divError);
     }
 
     // Formulario/Modal para crear nueva área
@@ -51,9 +245,24 @@ document.addEventListener('DOMContentLoaded', function() {
         if (submitButton) {
             submitButton.dataset.originalText = submitButton.innerHTML;
         }
+        
+        // Add input event listener for real-time validation
+        const nombreInput = formNuevaArea.querySelector('input[name="nombre"]');
+        if (nombreInput) {
+            nombreInput.addEventListener('input', function() {
+                validateAreaName(this);
+            });
+        }
 
         formNuevaArea.addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Get area name and validate before submission
+            const nombre = formNuevaArea.querySelector('input[name="nombre"]').value.trim();
+            if (!isValidAreaName(nombre)) {
+                // Validation already displays errors via validateAreaName
+                return false;
+            }
             
             if (submitButton) {
                 submitButton.disabled = true;
@@ -78,9 +287,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     showAlert('Área creada correctamente');
                     
+                    // Add the new area name to our existingAreaNames array
+                    existingAreaNames.push(nombre.toLowerCase());
+                    
                     // Agregar la nueva fila a la tabla
                     const tablaAreas = document.querySelector('table tbody');
                     if (tablaAreas) {
+                        // Check if the "no areas" message exists and remove it
+                        const noAreasRow = tablaAreas.querySelector('tr td[colspan="2"]');
+                        if (noAreasRow && noAreasRow.textContent.includes('No hay áreas registradas')) {
+                            noAreasRow.closest('tr').remove();
+                        }
+                        
                         const nuevaFila = document.createElement('tr');
                         nuevaFila.innerHTML = `
                         <td>${formData.get('nombre')}</td>
@@ -99,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     data-bs-target="#ConfirmarBorradoModal">
                                 <i class="fas fa-trash"></i>
                             </button>
-                        </td> `;
+                        </td>`;
                         tablaAreas.appendChild(nuevaFila);
                     }
                     
@@ -144,7 +362,37 @@ document.addEventListener('DOMContentLoaded', function() {
             resetForm(formNuevaArea, submitButton);
         });
     }
-    
+});
+
+//Modal de eliminación
+document.addEventListener('DOMContentLoaded', function() {
+    // Helper function to show alerts
+    function showAlert(message, type = 'success') {
+        const alerta = document.createElement('div');
+        alerta.className = `alert alert-${type} alert-dismissible fade show`;
+        alerta.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        const container = document.querySelector('.area-container');
+        if (container) {
+            container.prepend(alerta);
+            setTimeout(() => alerta.remove(), 5000);
+        }
+    }
+
+    // Helper function to resetForm
+    function resetForm(form, submitButton = null) {
+        form.reset();
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = submitButton.dataset.originalText || 'Submit';
+        }
+    }
     // Modal de eliminación
     const deleteModal = document.getElementById('ConfirmarBorradoModal');
     if (deleteModal) {
@@ -252,10 +500,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+});
+
+//modal de edicion
+document.addEventListener('DOMContentLoaded', function() {
+    // Store all existing area names in an array when the page loads
+    const existingAreaNames = [];
     
-    // Edit Area Modal
+    // Populate the existingAreaNames array from the table data
+    document.querySelectorAll('.areas-table tbody tr').forEach(row => {
+        const areaNameCell = row.querySelector('td:first-child');
+        if (areaNameCell) {
+            existingAreaNames.push(areaNameCell.textContent.trim().toLowerCase());
+        }
+    });
+    
+    // Edit Area Modal enhanced with validation
     const editModal = document.getElementById('EditarAreaModal');
     if (editModal) {
+        let originalAreaName = ''; // Store the original name before editing
+        
         // Populate the edit modal with area data when it's shown
         editModal.addEventListener('show.bs.modal', function(event) {
             try {
@@ -264,6 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const idArea = button.getAttribute('data-id');
                 const nombreArea = button.getAttribute('data-nombre');
+                originalAreaName = nombreArea.trim().toLowerCase(); // Store the original name
                 
                 if (!idArea || !nombreArea) return;
                 
@@ -271,6 +537,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const nombreInput = editModal.querySelector('input[name="nombre"]');
                 if (nombreInput) {
                     nombreInput.value = nombreArea;
+                    
+                    // Add input event listener to validate as user types
+                    nombreInput.addEventListener('input', function() {
+                        validateAreaName(this, originalAreaName);
+                    });
                 }
                 
                 // Update the form action URL to point to the update endpoint
@@ -293,11 +564,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Handle edit form submission with AJAX
+        // Handle edit form submission with validation
         const formEditarArea = document.getElementById('formEditarArea');
         if (formEditarArea) {
             formEditarArea.addEventListener('submit', function(e) {
-                e.preventDefault();
+                const nombreInput = this.querySelector('input[name="nombre"]');
+                const newAreaName = nombreInput.value.trim();
+                
+                // Validate before submission
+                if (!isValidAreaName(newAreaName, originalAreaName)) {
+                    e.preventDefault(); // Stop form submission
+                    return false;
+                }
+                
+                e.preventDefault(); // Still prevent default for AJAX handling
                 
                 // Desactivar el botón para evitar múltiples envíos
                 const submitButton = this.querySelector('button[type="submit"]');
@@ -334,6 +614,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             const nameCell = tableRow.querySelector('td:first-child');
                             if (nameCell) {
                                 nameCell.textContent = formData.get('nombre');
+                                
+                                // Update existingAreaNames array with the new name
+                                const index = existingAreaNames.indexOf(originalAreaName);
+                                if (index !== -1) {
+                                    existingAreaNames[index] = formData.get('nombre').trim().toLowerCase();
+                                }
                             }
                             
                             // Update the data-nombre attribute in the buttons
@@ -369,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Restaurar el botón si hay errores
                         if (submitButton) {
                             submitButton.disabled = false;
-                            submitButton.innerHTML = 'Actualizar';
+                            submitButton.innerHTML = 'Guardar Cambios';
                         }
                         
                         // Clear previous errors
@@ -401,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Restaurar el botón en caso de error
                     if (submitButton) {
                         submitButton.disabled = false;
-                        submitButton.innerHTML = 'Actualizar';
+                        submitButton.innerHTML = 'Guardar Cambios';
                     }
                 });
             });
@@ -416,13 +702,217 @@ document.addEventListener('DOMContentLoaded', function() {
                 const submitButton = formEditarArea.querySelector('button[type="submit"]');
                 if (submitButton) {
                     submitButton.disabled = false;
-                    submitButton.innerHTML = 'Actualizar';
+                    submitButton.innerHTML = 'Guardar Cambios';
+                }
+                
+                // Remove validation classes
+                const nombreInput = formEditarArea.querySelector('input[name="nombre"]');
+                if (nombreInput) {
+                    nombreInput.classList.remove('is-valid', 'is-invalid');
                 }
             });
         }
     }
+    
+    // VALIDATION METHODS
+    
+    /**
+     * Validates if area name exists in database
+     * @param {string} name - The area name to check
+     * @param {string} originalName - The original name (to ignore when checking duplicates)
+     * @returns {boolean} True if name doesn't exist (valid), false if exists (invalid)
+     */
+    function isAreaNameUnique(name, originalName) {
+        // Convert to lowercase for case-insensitive comparison
+        const normalizedName = name.trim().toLowerCase();
+        
+        // If name hasn't changed, it's valid
+        if (normalizedName === originalName) {
+            return true;
+        }
+        
+        // Check if the name exists in our array of current area names
+        return !existingAreaNames.includes(normalizedName);
+    }
+    
+    /**
+     * Checks if area name is similar to any existing name
+     * @param {string} name - The area name to check
+     * @param {string} originalName - The original name (to ignore when checking similarities)
+     * @param {number} threshold - Similarity threshold (lower is more strict)
+     * @returns {boolean} True if no similar names found, false otherwise
+     */
+    function isAreaNameNotSimilar(name, originalName, threshold = 0.8) {
+        const normalizedName = name.trim().toLowerCase();
+        
+        // If name hasn't changed, it's valid
+        if (normalizedName === originalName) {
+            return true;
+        }
+        
+        // Check for similarity with each existing name
+        for (const existingName of existingAreaNames) {
+            // Skip comparing with original name
+            if (existingName === originalName) continue;
+            
+            // Skip exact check as it's handled by isAreaNameUnique
+            if (existingName === normalizedName) continue;
+            
+            // Calculate similarity
+            const similarityScore = calculateSimilarity(normalizedName, existingName);
+            
+            // If similarity is above threshold, it's too similar
+            if (similarityScore > threshold) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Calculates similarity between two strings
+     * @param {string} str1 - First string to compare
+     * @param {string} str2 - Second string to compare
+     * @returns {number} Similarity score between 0 (no similarity) and 1 (identical)
+     */
+    function calculateSimilarity(str1, str2) {
+        // Simple implementation of Levenshtein distance algorithm
+        const levenshteinDistance = (a, b) => {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+            
+            const matrix = [];
+            
+            // Initialize matrix
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            // Fill matrix
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    const cost = a[j - 1] === b[i - 1] ? 0 : 1;
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j] + 1,      // deletion
+                        matrix[i][j - 1] + 1,      // insertion
+                        matrix[i - 1][j - 1] + cost // substitution
+                    );
+                }
+            }
+            
+            return matrix[b.length][a.length];
+        };
+        
+        // Calculate distance
+        const distance = levenshteinDistance(str1, str2);
+        
+        // Calculate max possible distance
+        const maxLength = Math.max(str1.length, str2.length);
+        
+        // Calculate similarity as 1 - normalized distance
+        return maxLength === 0 ? 1 : 1 - distance / maxLength;
+    }
+    
+    /**
+     * Validates if an area name meets all requirements
+     * @param {string} name - The area name to validate
+     * @param {string} originalName - The original name before editing
+     * @returns {boolean} True if name is valid, false otherwise
+     */
+    function isValidAreaName(name, originalName) {
+        // Check pattern (letters and spaces only)
+        const pattern = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+        const hasValidChars = pattern.test(name);
+        
+        // Check length (5-20 characters)
+        const hasValidLength = name.length >= 5 && name.length <= 20;
+        
+        // Check uniqueness
+        const isUnique = isAreaNameUnique(name, originalName);
+        
+        // Check similarity
+        const isNotSimilar = isAreaNameNotSimilar(name, originalName);
+        
+        // All checks must pass
+        return hasValidChars && hasValidLength && isUnique && isNotSimilar;
+    }
+    
+    /**
+     * Validates area name and updates UI accordingly
+     * @param {HTMLInputElement} inputElement - The input element to validate
+     * @param {string} originalName - Original area name before editing
+     */
+    function validateAreaName(inputElement, originalName) {
+        const name = inputElement.value.trim();
+        const submitButton = document.querySelector('#formEditarArea button[type="submit"]');
+        
+        // Remove existing feedback elements
+        const existingFeedback = inputElement.parentNode.querySelector('.invalid-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+        
+        // Reset classes
+        inputElement.classList.remove('is-valid', 'is-invalid');
+        
+        // Skip validation if name is empty
+        if (!name) return;
+        
+        // Check pattern
+        const pattern = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+        if (!pattern.test(name)) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'Solo se permiten letras y espacios');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // Check length
+        if (name.length < 5 || name.length > 20) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'El nombre debe tener entre 5 y 20 caracteres');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // Check uniqueness
+        if (!isAreaNameUnique(name, originalName)) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'Este nombre de área ya existe');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // Check similarity
+        if (!isAreaNameNotSimilar(name, originalName)) {
+            inputElement.classList.add('is-invalid');
+            addErrorFeedback(inputElement, 'Este nombre es muy similar a un área existente');
+            if (submitButton) submitButton.disabled = true;
+            return;
+        }
+        
+        // All checks passed
+        inputElement.classList.add('is-valid');
+        if (submitButton) submitButton.disabled = false;
+    }
+    
+    /**
+     * Adds error feedback message after an input
+     * @param {HTMLElement} inputElement - The input element to add feedback to
+     * @param {string} message - The error message to display
+     */
+    function addErrorFeedback(inputElement, message) {
+        const divError = document.createElement('div');
+        divError.classList.add('invalid-feedback');
+        divError.textContent = message;
+        inputElement.parentNode.appendChild(divError);
+    }
 });
-
 
 //Buscar área por nombre
 document.addEventListener('DOMContentLoaded', function() {

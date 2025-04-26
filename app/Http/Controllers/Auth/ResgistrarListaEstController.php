@@ -15,7 +15,7 @@ class ResgistrarListaEstController extends Controller
 {
     public function index()
     {
-        return view('RegistrarListaEst');
+        return view('inscripcion estudiante.RegistrarListaEst');
     }
     public function store(Request $request)
     {

@@ -14,11 +14,7 @@
                                     required />
                         </div>
 
-                        <div class="mt-4">
-                            <x-button>
-                                {{ __('Registrar Estudiantes') }}
-                            </x-button>
-                        </div>
+                        
                     </form>
                 </div>
             </div>

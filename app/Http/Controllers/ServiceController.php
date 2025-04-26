@@ -109,6 +109,13 @@ class ServiceController extends Controller
             return redirect()->back()->withErrors($validator);
         }
         
+        // Verificar si hay usuarios con este rol
+        $usuariosConRol = DB::table('userRol')->where('idRol', $request->idRol)->exists();
+        
+        if ($usuariosConRol) {
+            return redirect()->route('servicios')->with('error', 'No se puede eliminar el rol porque hay usuarios asignados a él. Debe reasignar o eliminar estos usuarios primero.');
+        }
+        
         // Eliminar las relaciones en la tabla rolFuncion
         DB::table('rolFuncion')->where('idRol', $request->idRol)->delete();
         

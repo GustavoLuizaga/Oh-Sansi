@@ -23,6 +23,7 @@
         <script src="{{ asset('js/app.js') }}" defer></script>
         <script src="{{ asset('js/themeToggle.js') }}" defer></script>
         <script src="{{ asset('js/mobileMenu.js') }}"></script>
+        <script src="{{ asset('js/togglePassword.js') }}" defer></script>
 
 
     </head>

@@ -197,6 +197,113 @@
     transition: all 0.2s;
 }
 
+/* Estilos para la nueva selección de roles */
+.roles-container {
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    background-color: var(--hover-color);
+}
+
+.roles-selection {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.roles-selection select {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.selected-roles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    min-height: 40px;
+    padding: 8px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px dashed var(--border-color);
+}
+
+.selected-role-item {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.selected-role-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.remove-role-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.remove-role-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Estilos para el contenedor de contraseña y botón de visualización */
+.password-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-container input {
+    padding-right: 30px;
+    width: 100%;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.toggle-password-btn:hover {
+    opacity: 1;
+}
+
 .role-checkbox:hover {
     background-color: #e9ecef;
 }

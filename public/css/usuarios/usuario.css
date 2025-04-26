@@ -250,14 +250,7 @@
 }
 
 /* Botones de acción */
-.actions {
-    display: flex;
-    gap: 3px;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    min-width: 80px;
-}
+
 
 .action-button {
     width: 24px;

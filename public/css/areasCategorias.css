@@ -39,6 +39,8 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .action-buttons > div:first-child {

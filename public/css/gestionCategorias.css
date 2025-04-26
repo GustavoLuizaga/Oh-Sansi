@@ -201,7 +201,7 @@
   }
   
   .areas-table td {
-    padding: 1rem;
+    padding: 0.3rem 1rem;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
   }

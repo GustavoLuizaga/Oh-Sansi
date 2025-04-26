@@ -190,7 +190,7 @@ td.action-cell {
   }
   
   .areas-table td {
-    padding: 1rem;
+    padding: 0.3rem 1rem;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
   }
@@ -238,23 +238,52 @@ td.action-cell {
     background-color: #dc2626;
   }
   
-  /* Responsive Adjustments */
+  .published-area-message {
+    position: relative; /* Para posicionar el more-info correctamente */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .more-info {
+    text-align: justify; /* Justifica el texto */
+  text-justify: inter-word; /* Mejora la justificación para palabras en español */
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background: white;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+    display: none;
+  }
+  
+  /* Estilo para mostrar el more-info */
+  .toggle-checked ~ .more-info,
+  .info-icon:hover ~ .more-info {
+    display: block !important;
+  }
+  
+  /* Asegurar que la tabla siempre ocupe el ancho completo */
+  .areas-table {
+    width: 100% !important;
+    table-layout: fixed; /* Para mantener consistencia en el ancho de las columnas */
+  }
+  
   @media (max-width: 768px) {
-    .action-bar, .search-filter {
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .export-buttons {
-      margin-top: 0.5rem;
-    }
-    
-    .search-box {
-      max-width: 100%;
-    }
-    
     .areas-table {
-      display: block;
+      display: table; /* Cambia de block a table para mantener el layout */
       overflow-x: auto;
+      width: 100% !important;
+    }
+    
+    .published-area-message {
+      flex-wrap: wrap;
+    }
+    
+    /* Opcional: ajustar el ancho de las celdas si es necesario */
+    .areas-table td, .areas-table th {
+      min-width: 100px; /* Ajusta según tus necesidades */
     }
   }

@@ -1,0 +1,44 @@
+/* Estilos para la página de delegado - Lista de tutores */
+
+/* Estilos para los iconos de ordenamiento */
+.sort-link {
+    display: inline-block;
+    margin-left: 2px;
+    color: #718096;
+    text-decoration: none;
+}
+
+.sort-link i {
+    font-size: 0.7rem;
+    transition: color 0.2s ease;
+}
+
+.sort-link:hover i {
+    color: var(--primary-color);
+}
+
+.text-primary-color {
+    color: var(--primary-color) !important;
+}
+
+.text-gray-400 {
+    color: #a0aec0 !important;
+}
+
+/* Estilos específicos para la tabla de tutores */
+.delegaciones-table th {
+    position: relative;
+    padding-right: 20px; /* Espacio para los iconos de ordenamiento */
+}
+
+/* Ajustes para el botón de solicitudes */
+.add-button i.fa-clipboard-list {
+    margin-right: 0.3rem;
+}
+
+/* Estilos para el mensaje de no hay tutores */
+.delegaciones-table td.text-center {
+    padding: 1rem;
+    color: #718096;
+    font-style: italic;
+}

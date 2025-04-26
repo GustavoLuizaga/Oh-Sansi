@@ -62,11 +62,12 @@ class RegisteredUserController extends Controller
             $user->estudiante()->create();
         }
 
-        event(new Registered($user));
-
+        // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
+        // Solo lo haremos cuando el tutor sea aprobado
+        
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
     }
 
     //Para el registro de tutores//
@@ -128,24 +129,29 @@ class RegisteredUserController extends Controller
                 $path = $request->file('cv')->store('public/cvs');
                 $fileUrl = asset('storage/' . str_replace('public/', '', $path));
             }
+            // Generar un token único para el tutor
+            $tokenTutor = Str::random(40);
+            
             $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
-
+                'tokenTutor' => $tokenTutor,
+                'estado' => 'pendiente'
             ]);
             $tutor->areas()->attach($request->area_tutoria, [
                 'idDelegacion' => $request->delegacion_tutoria,
-                'tokenTutor' => Str::random(20) // o genera como prefieras
+                'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
             ]);
         }
 
-        event(new Registered($user));
-
+        // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
+        // Solo lo haremos cuando el tutor sea aprobado
+        
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
     }
 
 
@@ -188,23 +194,28 @@ class RegisteredUserController extends Controller
                 $path = $request->file('cv')->store('public/cvs');
                 $fileUrl = asset('storage/' . str_replace('public/', '', $path));
             }
+            // Generar un token único para el tutor
+            $tokenTutor = Str::random(40);
+            
             $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
-
+                'tokenTutor' => $tokenTutor,
+                'estado' => 'pendiente'
             ]);
             $tutor->areas()->attach($request->area_tutoria, [
                 'idDelegacion' => $request->delegacion_tutoria,
-                'tokenTutor' => Str::random(20) // o genera como prefieras
+                'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
             ]);
         }
 
-        event(new Registered($user));
-
+        // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
+        // Solo lo haremos cuando el tutor sea aprobado
+        
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
     }
 }

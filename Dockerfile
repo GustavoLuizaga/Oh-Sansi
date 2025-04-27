@@ -15,15 +15,15 @@ COPY . .
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Exponer el puerto 9000 para PHP-FPM
-EXPOSE 9000
-
 # Instalar Nginx y configuraciones necesarias
 RUN apt-get update && apt-get install -y nginx \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar la configuración de Nginx al contenedor
 COPY ./nginx/default.conf /etc/nginx/sites-available/default
+
+# Exponer el puerto 80 para Nginx
+EXPOSE 80
 
 # Iniciar PHP-FPM y Nginx juntos
 CMD service nginx start && php-fpm -F

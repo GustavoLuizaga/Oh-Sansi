@@ -73,6 +73,7 @@ class InscripcionEstController extends Controller
                 'tutor_areas' => 'required|array|min:1',
                 'tutor_delegaciones' => 'required|array|min:1',
                 'idConvocatoria' => 'required|integer'
+                
             ]);
 
             // Verificar los tokens de tutor
@@ -87,21 +88,34 @@ class InscripcionEstController extends Controller
                 $validTokens[] = $tutorAreaDelegacion;
             }
 
-            // Crear la inscripción
-            $inscripcion = Inscripcion::create([
-                'fechaInscripcion' => now(),
-                'numeroContacto' => $request->numeroContacto,
-                'idConvocatoria' => $request->idConvocatoria,
-                'idArea' => $request->tutor_areas[0],
-                'idDelegacion' => $request->tutor_delegaciones[0],
-                'idGrado' => $request->idGrado ?? 1 // valor por defecto si no se proporciona
-            ]);
-
-            // Relacionar con tutores
-            foreach ($validTokens as $tutorAreaDelegacion) {
-                $inscripcion->tutores()->attach($tutorAreaDelegacion->id, [
-                    'idEstudiante' => Auth::id()
+            // Crear inscripciones para cada área seleccionada
+            $inscripciones = [];
+            
+            foreach ($request->tutor_areas as $index => $idArea) {
+                // Verificar que el índice existe en los arrays
+                if (!isset($request->tutor_delegaciones[$index])) {
+                    continue;
+                }
+                
+                // Crear la inscripción para esta área
+                $inscripcion = Inscripcion::create([
+                    'fechaInscripcion' => now(),
+                    'numeroContacto' => $request->numeroContacto,
+                    'idConvocatoria' => $request->idConvocatoria,
+                    'idArea' => $idArea,
+                    'idDelegacion' => $request->tutor_delegaciones[$index],
+                    'idCategoria' => $request->idCategoria, 
+                    'idGrado' => $request->idGrado ?? 1 // valor por defecto si no se proporciona
                 ]);
+                
+                $inscripciones[] = $inscripcion;
+                
+                // Relacionar con tutores
+                foreach ($validTokens as $tutorAreaDelegacion) {
+                    $inscripcion->tutores()->attach($tutorAreaDelegacion->id, [
+                        'idEstudiante' => Auth::id()
+                    ]);
+                }
             }
 
             return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
@@ -175,6 +189,33 @@ class InscripcionEstController extends Controller
             return response()->json($grados);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener los grados'], 500);
+        }
+    }
+
+    public function getCategoriasByAreaConvocatoria($idConvocatoria, $idArea)
+    {
+        try {
+            // Obtener las categorías asociadas a esta área en esta convocatoria
+            $categorias = \App\Models\ConvocatoriaAreaCategoria::with('categoria')
+                ->where('idConvocatoria', $idConvocatoria)
+                ->where('idArea', $idArea)
+                ->get()
+                ->pluck('categoria')
+                ->unique('idCategoria')
+                ->values();
+
+            // Transformar los datos para que sean compatibles con el formato esperado por el frontend
+            $categoriasFormateadas = $categorias->map(function($categoria) {
+                return [
+                    'idCategoria' => $categoria->idCategoria,
+                    'nombre' => $categoria->nombre
+                ];
+            });
+
+            return response()->json($categoriasFormateadas);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener categorías: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al obtener categorías'], 500);
         }
     }
 

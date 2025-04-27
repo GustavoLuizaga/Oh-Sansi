@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Delegado\DelegadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,9 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Incluir rutas de usuarios
+require __DIR__.'/usuarios.php';
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Las rutas de delegado se han movido a delegado.php
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
@@ -34,9 +40,18 @@ Route::get('/dashboard', function () {
     //return view('dashboard');
 })->middleware(['auth','verified'])->name('dashboard');
 
-Route::get('/servicios', function () {
-    return view('servicio');
-})->middleware(['auth'])->name('servicios');
+Route::get('/servicios', [\App\Http\Controllers\ServiceController::class, 'index'])->middleware(['auth'])->name('servicios');
+Route::get('/servicios/obtener-funciones-rol/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerFuncionesRol'])->middleware(['auth'])->name('servicios.obtenerFuncionesRol');
+Route::get('/servicios/obtener-permisos-disponibles/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerPermisosDisponibles'])->middleware(['auth'])->name('servicios.obtenerPermisosDisponibles');
+
+// Rutas para gestión de roles
+Route::post('/servicios/agregar-rol', [\App\Http\Controllers\ServiceController::class, 'agregarRol'])->middleware(['auth'])->name('servicios.agregarRol');
+Route::put('/servicios/editar-rol', [\App\Http\Controllers\ServiceController::class, 'editarRol'])->middleware(['auth'])->name('servicios.editarRol');
+Route::delete('/servicios/eliminar-rol', [\App\Http\Controllers\ServiceController::class, 'eliminarRol'])->middleware(['auth'])->name('servicios.eliminarRol');
+
+// Rutas para gestión de permisos
+Route::post('/servicios/agregar-permiso', [\App\Http\Controllers\ServiceController::class, 'agregarPermiso'])->middleware(['auth'])->name('servicios.agregarPermiso');
+Route::post('/servicios/eliminar-permiso', [\App\Http\Controllers\ServiceController::class, 'eliminarPermiso'])->middleware(['auth'])->name('servicios.eliminarPermiso');
 
 
 
@@ -46,6 +61,7 @@ require __DIR__.'/areas.php';
 require __DIR__.'/categorias.php';
 require __DIR__.'/convocatoria.php';
 require __DIR__.'/delegaciones.php';
+require __DIR__.'/delegado.php';
 require __DIR__.'/grados.php';
 require __DIR__.'/inscripciones.php';
 

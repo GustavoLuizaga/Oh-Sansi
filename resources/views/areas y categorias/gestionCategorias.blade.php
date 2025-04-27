@@ -12,35 +12,27 @@
     <div class="area-container">
         <!-- Action Bar -->
         <div class="action-bar">
-            <button class="btn-new-area" data-bs-toggle="modal" data-bs-target="#nuevaCategoriaModal">
+            <button class="btn-new-area" data-bs-toggle="modal" data-bs-target="#nuevaCategoriaModal" title="Añadir nueva Categoria y Grados">
                 <i class="fas fa-plus-circle"></i> Nueva Categoría
             </button>
-            {{-- <div class="export-buttons">
-                <button class="btn-export">
-                    <i class="fas fa-file-pdf"></i> Descargar PDF
-                </button>
-                <button class="btn-export">
-                    <i class="fas fa-file-excel"></i> Descargar Excel
-                </button>
-            </div> --}}
+
+            <!-- Search and Filter -->
+            <div class="search-filter">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar categoría...">
+                </div>
+                <div class="filter-dropdown">
+                    <select>
+                        <option>Ordenar por</option>
+                        <option>Nivel (A-Z)</option>
+                        <option>Categoria (Z-A)</option>
+                        <option>Fecha de creación</option>
+                    </select>
+                </div>
+            </div>
         </div>
         
-        <!-- Search and Filter -->
-        <div class="search-filter">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar categoría...">
-            </div>
-            <div class="filter-dropdown">
-                <select>
-                    <option>Ordenar por</option>
-                    <option>Nivel (A-Z)</option>
-                    <option>Categoria (Z-A)</option>
-                    <option>Fecha de creación</option>
-                </select>
-            </div>
-        </div>
-
         <!-- Table -->
         <table class="areas-table">
             <thead>
@@ -64,6 +56,7 @@
                         </td>
                         <td class="action-cell">
                             <button class="btn-action btn-edit" 
+                                    title="Editar nombre del área"
                                     data-categoria-id="{{ $categoria->idCategoria }}"
                                     data-categoria-nombre="{{ $categoria->nombre }}"
                                     data-grados="{{ json_encode($categoria->grados->map(function($grado) { 
@@ -75,6 +68,7 @@
                             </button>
                             
                             <button class="btn-action btn-delete" 
+                                    title="Eliminar el área"
                                     data-categoria-id="{{ $categoria->idCategoria }}"
                                     data-categoria-nombre="{{ $categoria->nombre }}"
                                     data-bs-toggle="modal" 

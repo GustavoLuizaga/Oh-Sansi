@@ -18,6 +18,10 @@ class Tutor extends Migration
             $table->string('profesion');
             $table->integer('telefono');
             $table->string('linkRecurso');
+            $table->string('tokenTutor');
+            $table->boolean('es_director')->default(false);
+            $table->enum('estado', ['pendiente', 'aprobado', 'rechazado'])->default('pendiente');
+            
             $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
             $table->primary('id');
 

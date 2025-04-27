@@ -12,6 +12,7 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
+        "maatwebsite/excel": "^3.1",
         "phpoffice/phpspreadsheet": "^1.0@beta",
         "phpunit/phpunit": "^9.5.10",
         "psr/log": "^1.1"

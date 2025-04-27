@@ -18,8 +18,13 @@ class Tutor extends Model
         'profesion',
         'telefono',
         'linkRecurso',
+        'tokenTutor',
+        'es_director',
+        'estado', 
     ];
-
+    protected $casts = [
+        'es_director' => 'boolean',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class, 'id');

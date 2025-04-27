@@ -22,9 +22,9 @@ class Delegacion extends Migration
                 'Chuquisaca', 'La Paz', 'Cochabamba', 'Oruro', 'Potosí', 
                 'Tarija', 'Santa Cruz', 'Beni', 'Pando'
             ]);
-            $table->string('provincia', 20);
-            $table->string('municipio', 20);
-            $table->string('zona', 30);
+            $table->string('provincia', 40);
+            $table->string('municipio', 40);
+            $table->string('zona', 40);
             $table->string('direccion', 40);
             $table->integer('telefono');
             $table->string('responsable_nombre', 40);

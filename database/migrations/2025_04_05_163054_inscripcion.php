@@ -16,10 +16,12 @@ class Inscripcion extends Migration
             $table->unsignedBigInteger('idConvocatoria');
             $table->unsignedBigInteger('idArea');
             $table->unsignedBigInteger('idDelegacion');
+            $table->unsignedBigInteger('idCategoria');
             $table->foreign('idGrado')->references('idGrado')->on('grado');
             $table->foreign('idConvocatoria')->references('idConvocatoria')->on('convocatoria');
             $table->foreign('idArea')->references('idArea')->on('area');
             $table->foreign('idDelegacion')->references('idDelegacion')->on('delegacion');
+            $table->foreign('idCategoria')->references('idCategoria')->on('categoria');
         });
     }
 

@@ -133,29 +133,37 @@
                                     <div class="tutor-info" style="display: none;">
                                         <div class="info-row">
                                             <div class="info-group">
-                                                <label>Área</label>
-                                                <div class="info-value tutor-area"></div>
-                                                <input type="hidden" class="idArea-input" name="tutor_areas[]">
-                                            </div>
-                                            <div class="info-group">
                                                 <label>Delegación</label>
                                                 <div class="info-value tutor-delegacion"></div>
                                                 <input type="hidden" class="idDelegacion-input" name="tutor_delegaciones[]">
                                             </div>
                                         </div>
-                                        <div class="input-row">
-                                            <div class="input-grupo">
-                                                <label>Categoría</label>
-                                                <select class="categoria-select" name="idCategoria" required disabled>
-                                                    <option value="">Seleccione una categoría</option>
-                                                </select>
+                                        
+                                        <!-- Áreas y Categorías -->
+                                        <div class="areas-container">
+                                            <div class="area-block">
+                                                <div class="info-row">
+                                                    <div class="info-group">
+                                                        <label>Área</label>
+                                                        <select class="area-select" name="tutor_areas[]" required>
+                                                            <option value="">Seleccione un área</option>
+                                                            @foreach($areas as $area)
+                                                                <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <input type="hidden" class="tutor-area-hidden" value="">
+                                                    </div>
+                                                    <div class="input-grupo">
+                                                        <label>Categoría</label>
+                                                        <select class="categoria-select" name="tutor_categorias[]" required>
+                                                            <option value="">Seleccione una categoría</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="input-grupo">
-                                                <label>Grado</label>
-                                                <select class="grado-select" name="idGrado" required disabled>
-                                                    <option value="">Seleccione un grado</option>
-                                                </select>
-                                            </div>
+                                            <button type="button" class="btn-add-area">
+                                                <i class="fas fa-plus-circle"></i> Agregar otra área
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -164,6 +172,24 @@
                             <button type="button" id="addTutorBtn" class="btn-add-tutor">
                                 <i class="fas fa-plus"></i> Agregar otro tutor
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Grado Común -->
+            <div class="formulario-seccion" id="grado-info">
+                <div class="seccion-card">
+                    <div class="seccion-header">
+                        <h2><i class="fas fa-graduation-cap"></i> Selección de Grado</h2>
+                        <p class="section-subtitle">El grado se cargará automáticamente según las categorías seleccionadas</p>
+                    </div>
+                    <div class="seccion-body">
+                        <div class="input-grupo">
+                            <label for="idGrado">Grado</label>
+                            <select id="idGrado" name="idGrado" class="grado-select-common" required disabled>
+                                <option value="">Seleccione un grado</option>
+                            </select>
                         </div>
                     </div>
                 </div>

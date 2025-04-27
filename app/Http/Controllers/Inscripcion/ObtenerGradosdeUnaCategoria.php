@@ -21,4 +21,19 @@ public function obtenerGradosPorArea($categoria)
     
         return $grados;
     }
+
+    public function obtenerGradosPorArea2($categoria)
+{
+    $idsCategoria = [$categoria];
+
+    $grados = GradoCategoria::with('grado')
+        ->whereIn('idCategoria', $idsCategoria)
+        ->get()
+        ->pluck('grado')
+        ->unique('idGrado')
+        ->values();
+    
+    return $grados;
+}
+
 }

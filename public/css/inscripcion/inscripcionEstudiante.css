@@ -156,12 +156,13 @@
     margin-bottom: 0.375rem;
 }
 
-.info-value {
+.info-value, .area-select {
     padding: 0.5rem;
     background: #f9fafb;
     border: 1px solid var(--border-color);
     border-radius: 0.375rem;
     font-size: 0.875rem;
+    width: 100%;
 }
 
 .info-row {
@@ -207,6 +208,9 @@
 
 .tutor-header {
     margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .tutor-header h3 {
@@ -244,6 +248,58 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+}
+
+/* Área Section */
+.areas-container {
+    margin-top: 1rem;
+}
+
+.area-block {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f9fafb;
+}
+
+.btn-add-area {
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.btn-eliminar-area {
+    padding: 0.25rem 0.5rem;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-eliminar-tutor {
+    padding: 0.25rem 0.5rem;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Submit Button */

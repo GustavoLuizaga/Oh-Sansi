@@ -36,30 +36,95 @@ class ResgistrarListaEstController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
         ]);
-
+    
         $array = Excel::toArray([], $request->file('file'));
+        $rows = array_slice($array[0], 1);
+    
+        $errors = [];
         $usersCreated = 0;
         $usersUpdated = 0;
-        $errors = [];
-
-        // si contiene encabezados omitimos la primera fila
-        $rows = array_slice($array[0], 1);
+    
+        $filaDatos = []; // Aquí vamos a guardar las filas validadas y procesables
+    
+        // PRIMERA PASADA: Validar datos sin tocar la base de datos
         foreach ($rows as $key => $row) {
-            if (empty($row[0]) || empty($row[1]) || empty($row[2]) || empty($row[3]) || empty($row[4]) || empty($row[5]) || empty($row[6])) {
-                return back()->with('error_messages', [
-                    "Error en fila " . ($key + 2) . ": Datos obligatorios faltantes. El proceso ha sido cancelado."
-                ]);
+            $currentRow = $key + 2;
+    
+            if (empty($row[4])) { // Validar si falta email
+                $errors[] = "Fila {$currentRow}: El correo electrónico es obligatorio.";
+                continue;
             }
+    
+            $area = $row[7] ?? null;
+            $categoria = $row[8] ?? null;
+            $grado = $row[9] ?? null;
+            $delegacion = $row[11] ?? null;
+    
+            // Validar existencia de área
+            $idConvocatoriaResult = (new VerificarExistenciaConvocatoria())->verificarConvocatoriaActiva();
+            $areasHabilitadas = (new ObtenerAreasConvocatoria())->obtenerAreasPorConvocatoria($idConvocatoriaResult);
+    
+            if (!$areasHabilitadas->contains('nombre', $area)) {
+                $errors[] = "Fila {$currentRow}: El área '{$area}' no está habilitada para esta convocatoria.Porfavor revise la información de la convocatoria vigente";
+                continue;
+            }
+    
+            $idArea = Area::where('nombre', $area)->value('idArea');
+    
+            // Validar existencia de categoría en el área
+            $categoriasHabilitadas = (new ObtenerCategoriasArea())->categoriasAreas2($idConvocatoriaResult, $idArea);
+            if (!$categoriasHabilitadas->contains('nombre', $categoria)) {
+                $errors[] = "Fila {$currentRow}: La categoría '{$categoria}' no está habilitada para el área '{$area}'.Porfavor revise la información de la convocatoria vigente";
+                continue;
+            }
+    
+            $categoriaModel = Categoria::where('nombre', $categoria)->first();
+    
+            // Validar existencia de grado en la categoría
+            $gradosHabilitados = (new ObtenerGradosdeUnaCategoria())->obtenerGradosPorArea($categoriaModel);
+            if (!$gradosHabilitados->contains('grado', $grado)) {
+                $errors[] = "Fila {$currentRow}: El grado '{$grado}' no está habilitado para la categoría '{$categoriaModel->nombre}'.Porfavor revise la información de la convocatoria vigente";
+                continue;
+            }
+    
+            // Validar existencia de delegación
+            if (!Delegacion::where('nombre', $delegacion)->exists()) {
+                $errors[] = "Fila {$currentRow}: La delegación '{$delegacion}' no existe.";
+                continue;
+            }
+    
+            // Guardamos la fila que sí pasó todas las validaciones
+            $filaDatos[] = [
+                'row' => $row,
+                'currentRow' => $currentRow,
+                'idArea' => $idArea,
+                'idCategoria' => $categoriaModel->idCategoria,
+                'idGrado' => Grado::where('grado', $grado)->value('idGrado'),
+                'idDelegacion' => Delegacion::where('nombre', $delegacion)->value('idDelegacion'),
+                'idConvocatoriaResult' => $idConvocatoriaResult,
+            ];
         }
-        foreach ($rows as $key => $row) {
-            DB::beginTransaction();
-            try {
-                // Verificar si el usuario ya existe por email
+    
+        // SI HUBO ERRORES DE VALIDACIÓN, no hacemos nada
+        if (!empty($errors)) {
+            return back()->with('error_messages', $errors);
+        }
+    
+        // SEGUNDA PASADA: Guardar datos ahora sí en base de datos
+        DB::beginTransaction();
+    
+        try {
+            foreach ($filaDatos as $data) {
+                $row = $data['row'];
+                $currentRow = $data['currentRow'];
+    
+                // Buscar usuario
                 $user = User::where('email', $row[4])->first();
                 $isNewUser = false;
+    
                 if (!$user) {
-                    // Crear nuevo usuario si no existe
                     $plainPassword = $row[3];
+    
                     $user = User::create([
                         'name' => $row[0],
                         'apellidoPaterno' => $row[1],
@@ -69,40 +134,23 @@ class ResgistrarListaEstController extends Controller
                         'fechaNacimiento' => is_numeric($row[5])
                             ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5])->format('Y-m-d')
                             : \Carbon\Carbon::parse($row[5])->format('Y-m-d'),
-
                         'genero' => $row[6],
                         'password' => Hash::make($row[3]),
                     ]);
-
+    
                     $rol = Rol::find(3);
                     if ($rol) {
                         $user->roles()->attach($rol->idRol, ['habilitado' => true]);
                         $user->estudiante()->create();
                     }
-
+    
                     $isNewUser = true;
                     $usersCreated++;
+                } else {
+                    $usersUpdated++;
                 }
-
-                // Obtener IDs necesarios
-                $convocatoria = new VerificarExistenciaConvocatoria();
-                $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
-
-                // Verificar si el área está habilitada para la convocatoria
-                $obtenerAreas = new ObtenerAreasConvocatoria();
-                $areasHabilitadas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoriaResult);
-
-                $area = $row[7];
-                $areaExiste = $areasHabilitadas->contains('nombre', $area);
-
-                if (!$areaExiste) {
-                    throw new \Exception("El área '{$area}' no está habilitada para esta convocatoria. Por favor, póngase en contacto con el administrador del sistema.");
-                }
-
-
-                $idArea = Area::where('nombre', $area)->value('idArea');
-
-                // Verificar si el estudiante ya está inscrito en este área
+    
+                // Validar que no esté ya inscrito en el área
                 $areasInscritas = TutorEstudianteInscripcion::where('idEstudiante', $user->id)
                     ->with('inscripcion.area')
                     ->get()
@@ -110,81 +158,50 @@ class ResgistrarListaEstController extends Controller
                     ->filter()
                     ->unique()
                     ->values();
-
-                if ($areasInscritas->contains($area)) {
-                    throw new \Exception("El estudiante ya está inscrito en el área '{$area}'. No puede inscribirse dos veces en la misma área.");
+    
+                if ($areasInscritas->contains($row[7])) {
+                    $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en el área '{$row[7]}'.";
+                    continue;
                 }
-
-
-                $areaModel = Area::find($idArea);
-
-                $categoriasArea = new ObtenerCategoriasArea();
-                $categoriasHabilitadas = $categoriasArea->categoriasAreas2($idConvocatoriaResult, $idArea);
-
-                $categoria = $row[8];
-                $categoriaExiste = $categoriasHabilitadas->contains('nombre', $categoria);
-                if (!$categoriaExiste) {
-                    throw new \Exception("La categoría '{$categoria}' no está habilitada para esta  Area '{$areaModel->nombre}' en esta convocatoria. Por favor, póngase en contacto con el administrador del sistema.");
-                }
-                $categoriaModel = Categoria::where('nombre', $categoria)->first();
-                $idCategoria = $categoriaModel->idCategoria;
-
-
-
-                $grado = $row[9];
-                $gradosArea = new ObtenerGradosdeUnaCategoria();
-                $gradosHabilitados = $gradosArea->obtenerGradosPorArea($categoriaModel);
-                $gradoExiste = $gradosHabilitados->contains('grado', $grado);
-                if (!$gradoExiste) {
-                    throw new \Exception("El grado '{$row[9]}' no está habilitado para esta categoría de '{$categoriaModel->nombre}' en esta convocatoria. Por favor, póngase en contacto con el administrador del sistema.");
-                }
-
-                $idGrado = Grado::where('grado', $grado)->value('idGrado');
-
-                $delegacion = $row[11];
-                $delegacionExiste = Delegacion::where('nombre', $delegacion)->exists();
-                if (!$delegacionExiste) {
-                    throw new \Exception("La delegación '{$delegacion}' no existe. Por favor, póngase en contacto con el administrador del sistema.");
-                }
-                $idDelegacion = Delegacion::where('nombre', $delegacion)->value('idDelegacion');
-
+    
                 // Crear inscripción
                 $inscripcion = Inscripcion::create([
                     'fechaInscripcion' => now(),
                     'numeroContacto' => $row[10],
-                    'idConvocatoria' => $idConvocatoriaResult,
-                    'idArea' => $idArea,
-                    'idDelegacion' => $idDelegacion,
-                    'idCategoria' => $idCategoria,
-                    'idGrado' => $idGrado
+                    'idConvocatoria' => $data['idConvocatoriaResult'],
+                    'idArea' => $data['idArea'],
+                    'idDelegacion' => $data['idDelegacion'],
+                    'idCategoria' => $data['idCategoria'],
+                    'idGrado' => $data['idGrado'],
+                    'nombreApellidosTutor' => $row[12],
+                    'correoTutor' => $row[13],
                 ]);
-
-                // Asociar tutor y estudiante
+    
                 $inscripcion->tutores()->attach(Auth::user()->id, [
-                    'idEstudiante' => $user->id
+                    'idEstudiante' => $user->id,
                 ]);
-
-                // Enviar notificación solo si es usuario nuevo
+    
+                // Notificar si es nuevo usuario
                 if ($isNewUser) {
                     $user->notify(new WelcomeEmailNotification($plainPassword));
                     event(new Registered($user));
-                } else {
-                    $usersUpdated++;
                 }
-                DB::commit();
-            } catch (\Exception $e) {
-                DB::rollBack();
-                $errors[] = "Error en fila " . ($key + 2) . ": " . $e->getMessage();
             }
+    
+            // Si hubo errores de inscripción (como áreas ya inscritas), también rollback
+            if (!empty($errors)) {
+                DB::rollBack();
+                return back()->with('error_messages', $errors);
+            }
+    
+            DB::commit();
+            return back()->with('success', "Se crearon {$usersCreated} usuarios nuevos y se inscribieron a {$usersUpdated} usuarios existentes.");
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error_messages', [$e->getMessage()]);
         }
-
-        if (!empty($errors)) {
-            return back()
-                ->with('error_messages', $errors)
-                ->with('message', "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes");
-        }
-
-        return back()
-            ->with('success', "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes");
     }
+    
+
 }

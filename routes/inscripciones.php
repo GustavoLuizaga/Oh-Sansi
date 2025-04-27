@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Inscripcion\InscripcionController;
 use App\Http\Controllers\Inscripcion\InscripcionEstController;
 use App\Http\Controllers\Inscripcion\VerificacionConvocatoriaController;
+use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 
 Route::middleware('auth')->group(function () {
     // Main inscripciones view
@@ -14,6 +15,9 @@ Route::middleware('auth')->group(function () {
     // Student registration routes
     Route::get('/inscripcion/estudiante', [InscripcionController::class, 'index'])
         ->name('inscripcion.estudiante');
+    
+    Route::post('/inscripcion/estudiante/manual/store', [InscripcionController::class, 'storeManual'])
+        ->name('inscripcion.estudiante.manual.store');    
 
     Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
         ->name('inscripcion.store');
@@ -35,5 +39,13 @@ Route::middleware('auth')->group(function () {
         ->name('register.lista.store');
 
     Route::get('/verDatosCovocatoria', [VerificacionConvocatoriaController::class, 'mostrarAreasCategoriasGrados']);
+    
+    Route::get('/obtener-categorias/{idConvocatoria}/{idArea}', 
+    [App\Http\Controllers\Inscripcion\ObtenerCategoriasArea::class, 'categoriasAreas2'])
+    ->name('obtener.categorias');
 
+
+
+    Route::get('/obtener-grados/{idCategoria}', [ObtenerGradosdeUnaCategoria::class, 'obtenerGradosPorArea2']);
+    
 });

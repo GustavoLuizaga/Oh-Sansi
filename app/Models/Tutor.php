@@ -20,7 +20,7 @@ class Tutor extends Model
         'linkRecurso',
         'tokenTutor',
         'es_director',
-        'estado', 
+        'estado',
     ];
     protected $casts = [
         'es_director' => 'boolean',
@@ -38,13 +38,19 @@ class Tutor extends Model
     public function areas()
     {
         return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')
-                    ->withPivot('idDelegacion', 'tokenTutor')
-                    ->withTimestamps();
+            ->withPivot('idDelegacion', 'tokenTutor')
+            ->withTimestamps();
     }
-    
+
+    public function areasSimple()
+    {
+        return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')
+            ->select('area.idArea', 'area.nombre');
+    }
+
     public function delegaciones()
     {
-        return $this->belongsToMany(Delegacion::class,  'tutorAreaDelegacion','id','idDelegacion')->withTimestamps();
+        return $this->belongsToMany(Delegacion::class,  'tutorAreaDelegacion', 'id', 'idDelegacion')->withTimestamps();
     }
 
     public function estudiantes()
@@ -54,4 +60,11 @@ class Tutor extends Model
             ->withTimestamps();
     }
 
+    public function primerIdDelegacion()
+{
+    return $this->belongsToMany(Delegacion::class, 'tutorAreaDelegacion', 'id', 'idDelegacion')
+        ->select('delegacion.idDelegacion')
+        ->first()
+        ->idDelegacion ?? null;
+}
 }

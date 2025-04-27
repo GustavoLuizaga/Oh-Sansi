@@ -28,4 +28,11 @@ class Estudiante extends Model
             ->withPivot('idInscripcion') // para tener acceso a ese dato
             ->withTimestamps();
     }
+    
+    public function inscripciones()
+    {
+        return $this->belongsToMany(Inscripcion::class, 'tutorEstudianteInscripcion', 'idEstudiante', 'idInscripcion')
+            ->withPivot('idTutor')
+            ->withTimestamps();
+    }
 }

@@ -283,6 +283,115 @@ body.dark-theme .file-input::-webkit-file-upload-button {
     color: var(--blue-600);
     text-decoration: none;
 }
+/* Estilos para la sección de áreas de tutoría */
+.areas-container {
+    border: 1px solid var(--input-border);
+    border-radius: 5px;
+    padding: 1rem;
+    background: var(--surface-primary);
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+}
+
+.area-option {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.area-option:hover {
+    background-color: rgba(0, 42, 76, 0.05);
+}
+
+.area-option.selected {
+    background-color: rgba(0, 42, 76, 0.1);
+}
+
+.area-option input[type="checkbox"] {
+    margin-right: 0.75rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+.area-option label {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--input-text);
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.areas-search {
+    position: relative;
+    margin-bottom: 0.75rem;
+}
+
+.areas-search input {
+    width: 100%;
+    padding: 0.6rem 2.5rem 0.6rem 2.5rem;
+    border: 1px solid var(--input-border);
+    border-radius: 5px;
+    font-size: 0.95rem;
+    color: var(--input-text);
+    background: var(--surface-primary);
+}
+
+.areas-search i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--input-icon);
+}
+
+.areas-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+}
+
+.select-all-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.select-all-option input[type="checkbox"] {
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+}
+
+.select-all-option label {
+    font-size: 0.9rem;
+    color: var(--label-text);
+    cursor: pointer;
+}
+
+.selected-count {
+    font-size: 0.85rem;
+    color: var(--input-text);
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(0, 42, 76, 0.1);
+    border-radius: 20px;
+    display: inline-block;
+}
+
+/* Modo oscuro para áreas */
+body.dark-theme .area-option:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+body.dark-theme .area-option.selected {
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;

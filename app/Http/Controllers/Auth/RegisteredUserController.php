@@ -104,7 +104,8 @@ class RegisteredUserController extends Controller
             'profesion' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],  // Validación del email y su unicidad
             'delegacion_tutoria' => ['required', 'exists:delegacion,idDelegacion'],  // Validación de que la delegación existe
-            'area_tutoria' => ['required', 'exists:area,idArea'],  // Validación de que el área existe
+            'area_tutoria' => ['required', 'array'],  // Validación de que se seleccionó al menos un área
+            'area_tutoria.*' => ['exists:area,idArea'],  // Validación de que cada área seleccionada existe
             'password' => ['required', 'confirmed', Rules\Password::defaults()],  // Validación de la contraseña
             'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
             'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones
@@ -140,10 +141,14 @@ class RegisteredUserController extends Controller
                 'tokenTutor' => $tokenTutor,
                 'estado' => 'pendiente'
             ]);
-            $tutor->areas()->attach($request->area_tutoria, [
-                'idDelegacion' => $request->delegacion_tutoria,
-                'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
-            ]);
+            
+            // Adjuntar cada área seleccionada a la delegación
+            foreach ($request->area_tutoria as $areaId) {
+                $tutor->areas()->attach($areaId, [
+                    'idDelegacion' => $request->delegacion_tutoria,
+                    'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
+                ]);
+            }
         }
 
         // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
@@ -205,10 +210,14 @@ class RegisteredUserController extends Controller
                 'tokenTutor' => $tokenTutor,
                 'estado' => 'pendiente'
             ]);
-            $tutor->areas()->attach($request->area_tutoria, [
-                'idDelegacion' => $request->delegacion_tutoria,
-                'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
-            ]);
+            
+            // Adjuntar cada área seleccionada a la delegación
+            foreach ($request->area_tutoria as $areaId) {
+                $tutor->areas()->attach($areaId, [
+                    'idDelegacion' => $request->delegacion_tutoria,
+                    'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
+                ]);
+            }
         }
 
         // No disparamos el evento Registered aquí para que no se envíe el correo de verificación

@@ -66,8 +66,11 @@ class DelegadoController extends Controller
 
         // Obtener resultados paginados
         $tutores = $query->distinct()->paginate(10);
+        
+        // Obtener la lista de colegios para el filtro
+        $colegios = Delegacion::select('idDelegacion as id', 'nombre')->orderBy('nombre')->get();
 
-        return view('delegado.delegado', compact('tutores'));
+        return view('delegado.delegado', compact('tutores', 'colegios'));
     }
     
     /**
@@ -194,6 +197,47 @@ class DelegadoController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('delegado.ver-solicitud', $id)
                 ->with('error', 'Error al actualizar el estado de director: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Eliminar un tutor (solo el registro de tutor, no el usuario)
+     */
+    public function eliminarTutor($id)
+    {
+        try {
+            // Buscar el tutor
+            $tutor = Tutor::findOrFail($id);
+            
+            // Eliminar las relaciones en tutorAreaDelegacion
+            TutorAreaDelegacion::where('id', $id)->delete();
+            
+            // Eliminar el registro de tutor
+            $tutor->delete();
+            
+            return redirect()->route('delegado')
+                ->with('success', 'Tutor eliminado correctamente');
+        } catch (\Exception $e) {
+            return redirect()->route('delegado')
+                ->with('error', 'Error al eliminar el tutor: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Ver detalles de un tutor aprobado
+     */
+    public function verDelegado($id)
+    {
+        try {
+            // Obtener el tutor con sus relaciones
+            $tutor = Tutor::with(['user', 'delegaciones', 'areas', 'tutorAreaDelegacion'])
+                ->where('estado', 'aprobado')
+                ->findOrFail($id);
+                
+            return view('delegado.verDelegado', compact('tutor'));
+        } catch (\Exception $e) {
+            return redirect()->route('delegado')
+                ->with('error', 'Error al ver los detalles del tutor: ' . $e->getMessage());
         }
     }
 }

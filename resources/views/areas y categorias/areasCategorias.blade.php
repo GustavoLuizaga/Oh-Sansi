@@ -10,7 +10,7 @@
     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 bg-white border-b border-gray-200">
             <!-- Botones -->
-            <div class="action-buttons mb-4">
+            <div class="action-buttons">
                 <div>
                     <a href="{{ route('areas.index') }}" class="action-btn">
                         <i class="fas fa-th-large"></i> Gestionar Áreas
@@ -31,7 +31,7 @@
             </div>
 
             <!-- Filtros -->
-            <div class="search-filter mb-4">
+            <div class="search-filter">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchInput" placeholder="Buscar...">
@@ -46,18 +46,24 @@
             </div>
 
             @if(isset($message))
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
                     <p>{{ $message }}</p>
                 </div>
             @else
-
+                <!-- Información de la convocatoria -->
+                <div class="convocatoria-header">
+                    <h5>
+                        <span class="convocatoria-label">Convocatoria Publicada:</span> 
+                        <span class="convocatoria-nombre">{{ $convocatoriaActiva->nombre }}</span>
+                    </h5>
+                </div>
                 <!-- Tabla -->
                 <table class="area-table w-full text-left border">
                     <thead>
                         <tr class="bg-gray-200">
                             <th class="w-1/4">Área</th>
                             <th class="w-1/4">Categoría</th>
-                            <th>Grados</th>
+                            <th class="w-1/4">Grados</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,7 +92,6 @@
         </div>
     </div>
 </x-app-layout>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');

@@ -268,10 +268,46 @@
   .btn-delete:hover {
     background-color: #dc2626;
   }
-  
+
+  .published-area-message {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 1.5rem;
+    padding-left: 40px; /* Añade espacio a la izquierda */
+    justify-content: flex-end; /* Alinea el contenido hacia la derecha */
+    width: 100%; /* Ocupa todo el ancho disponible */
+  }
+
+  .message-text {
+      margin-right: auto; /* Empuja el texto hacia la derecha */
+      color: #1a365d; /* Color que combina con tu esquema */
+      font-weight: 500; /* Hace el texto un poco más prominente */
+      white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  }
+
+  .more-info {
+      text-align: left; /* Justifica el texto */
+      text-justify: inter-word; /* Mejora la justificación para palabras en español */
+      position: absolute;
+      left: 0;
+      top: 100%;
+      width: 100%;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+      display: none;
+  }
+
+  /* Estilo para mostrar el more-info */
+  .toggle-checked ~ .more-info,
+  .info-icon:hover ~ .more-info {
+      display: block !important;
+  }
   /* Responsive Adjustments */
   @media (max-width: 768px) {
-
     .areas-table th:first-child {
       font-size: 0; /* Oculta el texto original */
     }

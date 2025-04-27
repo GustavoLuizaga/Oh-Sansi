@@ -45,6 +45,16 @@
             <tbody>
                 @if(isset($categorias) && count($categorias) > 0)
                     @foreach($categorias as $categoria)
+                    @php
+                        // Verificar si la categoría actual está publicada
+                        $isPublished = false;
+                        foreach ($categoriasPublicadas as $publishedCategoria) {
+                            if ($publishedCategoria['idCategoria'] == $categoria->idCategoria) {
+                                $isPublished = true;
+                                break;
+                            }
+                        }
+                    @endphp
                     <tr data-categoria-id="{{ $categoria->idCategoria }}">
                         <td>{{ $categoria->nombre }}</td>
                         <td>
@@ -55,27 +65,40 @@
                             </div>
                         </td>
                         <td class="action-cell">
-                            <button class="btn-action btn-edit" 
-                                    title="Editar nombre del área"
-                                    data-categoria-id="{{ $categoria->idCategoria }}"
-                                    data-categoria-nombre="{{ $categoria->nombre }}"
-                                    data-grados="{{ json_encode($categoria->grados->map(function($grado) { 
-                                        return ['id' => $grado->idGrado, 'nombre' => $grado->grado]; 
-                                    })) }}"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#EditarCategoriaModal">
-                                    <i class="fas fa-edit"></i>
-                            </button>
-                            
-                            <button class="btn-action btn-delete" 
-                                    title="Eliminar el área"
-                                    data-categoria-id="{{ $categoria->idCategoria }}"
-                                    data-categoria-nombre="{{ $categoria->nombre }}"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#ConfirmarBorradoModal">
-                                <i class="fas fa-trash"></i>
-                            </button>
-
+                            @if($isPublished)
+                                <div class="published-area-message">
+                                    <input type="checkbox" id="toggle-cat-{{ $categoria->idCategoria }}" class="info-checkbox" style="display: none;">
+                                    <label for="toggle-cat-{{ $categoria->idCategoria }}" class="info-icon" style="cursor: pointer;">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                    </label>
+                                    <span class="message-text">CATEGORIA/GRADO PUBLICADAS</span>
+                                    <div class="more-info" style="display: none;">
+                                        Para modificar, primero elimínala de la convocatoria publicada actualmente.
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Botones normales de editar/eliminar -->
+                                <button class="btn-action btn-edit" 
+                                        title="Editar nombre del área"
+                                        data-categoria-id="{{ $categoria->idCategoria }}"
+                                        data-categoria-nombre="{{ $categoria->nombre }}"
+                                        data-grados="{{ json_encode($categoria->grados->map(function($grado) { 
+                                            return ['id' => $grado->idGrado, 'nombre' => $grado->grado]; 
+                                        })) }}"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#EditarCategoriaModal">
+                                        <i class="fas fa-edit"></i>
+                                </button>
+                                
+                                <button class="btn-action btn-delete" 
+                                        title="Eliminar el área"
+                                        data-categoria-id="{{ $categoria->idCategoria }}"
+                                        data-categoria-nombre="{{ $categoria->nombre }}"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#ConfirmarBorradoModal">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

@@ -49,7 +49,10 @@
                 <div class="info-grid">
                     <div class="info-label">Colegio(s):</div>
                     <div class="info-value">
-                        @foreach($tutor->delegaciones as $delegacion)
+                        @php
+                            $colegiosUnicos = $tutor->delegaciones->unique('nombre');
+                        @endphp
+                        @foreach($colegiosUnicos as $delegacion)
                             <span class="badge-item">{{ $delegacion->nombre }}</span>
                             @if(!$loop->last) @endif
                         @endforeach

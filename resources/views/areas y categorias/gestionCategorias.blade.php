@@ -111,7 +111,7 @@
         </table>
     </div>
 
-    <!-- Modal para crear categoría -->
+    <!-- Modal para crear categoría y relacionarlo con Grados-->
     <div class="modal fade" id="nuevaCategoriaModal" tabindex="-1" aria-labelledby="nuevaCategoriaModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         
@@ -121,7 +121,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formNuevaCategoria" action="{{ route('categorias.store') }}" method="POST">
+                    <form class="needs-validation" novalidate id="formNuevaCategoria" action="{{ route('categorias.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="nombreCategoria" class="required-label">Nombre del Nivel/Categoria</label>
@@ -201,7 +201,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formEditarCategoria" action="{{ route('categorias.update', 0) }}" method="POST">
+                    <form class="needs-validation" novalidate id="formEditarCategoria" action="{{ route('categorias.update', 0) }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label for="nombreCategoria" class="required-label">Nombre del Nivel/Categoria</label>

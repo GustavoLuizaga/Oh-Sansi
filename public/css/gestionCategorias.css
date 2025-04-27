@@ -48,16 +48,19 @@
   .action-bar {
     display: flex;
     justify-content: space-between;
+    align-items: center; /* Esto alineará verticalmente los elementos */
     padding: 1rem;
     border-bottom: 1px solid var(--border-color);
   }
   
+  /* Botón Nueva Área - modificado */
   .btn-new-area {
     background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 0.25rem;
     padding: 0.5rem 1rem;
+    height: fit-content; /* Esto hará que el botón solo sea tan alto como su contenido */
     font-weight: 500;
     cursor: pointer;
     display: flex;
@@ -94,9 +97,9 @@
   /* Search and Filter */
   .search-filter {
     display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
+    align-items: center;
+    /* Quitamos el padding y border-bottom que estaba causando altura adicional */
   }
   
   .search-box {
@@ -268,6 +271,18 @@
   
   /* Responsive Adjustments */
   @media (max-width: 768px) {
+
+    .areas-table th:first-child {
+      font-size: 0; /* Oculta el texto original */
+    }
+    
+    .areas-table th:first-child::after {
+      content: "NIVEL\A/CATEGORIA";
+      white-space: pre-line;
+      font-size: 0.75rem; /* Restaura el tamaño de fuente */
+      display: inline-block;
+    }
+
     .action-bar, .search-filter {
       flex-direction: column;
       gap: 1rem;

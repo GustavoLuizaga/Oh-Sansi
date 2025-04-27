@@ -131,8 +131,6 @@ class ResgistrarListaEstController extends Controller
 
 
 
-
-
                 $grado = $row[9];
                 $gradosArea = new ObtenerGradosdeUnaCategoria();
                 $gradosHabilitados = $gradosArea->obtenerGradosPorArea($categoriaModel);

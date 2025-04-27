@@ -71,6 +71,7 @@
                     </button>
 
                 </form>
+                
                 @if ($errors->any())
                 <div class="alert alert-danger mt-3">
                     <ul>
@@ -86,7 +87,8 @@
         <!-- Bottom Section: Registration Form -->
         <div class="card form-card">
             <h2><i class="fas fa-user-plus"></i> Registro Manual de Estudiante</h2>
-            <form class="registration-form">
+            <form class="registration-form" method="POST" action="{{ route('inscripcion.estudiante.manual.store') }}">
+                @csrf
                 <div class="form-grid">
                     <!-- Personal Information -->
                     <div class="form-section">
@@ -104,6 +106,7 @@
                                 <label>Apellido Materno</label>
                                 <input type="text" name="apellidoMaterno" required>
                             </div>
+
                         </div>
                         <div class="input-row">
                             <div class="input-group">
@@ -113,6 +116,22 @@
                             <div class="input-group">
                                 <label>Fecha de Nacimiento</label>
                                 <input type="date" name="fechaNacimiento" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Género</label>
+                                <select name="genero" required>
+                                    <option value="">Seleccione un Género</option>
+                                    <option value="">F</option>
+                                    <option value="">M</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Nombre Completo Tutor</label>
+                                <input type="text" name="nombreCompletoTutor" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Correo Tutor</label>
+                                <input type="text" name="correoTutor" required>
                             </div>
                         </div>
                     </div>
@@ -135,14 +154,23 @@
                         <div class="input-row">
                             <div class="input-group">
                                 <label>Área</label>
-                                <select name="area" required>
+                                <select name="area" id="areaSelect" required>
                                     <option value="">Seleccione un área</option>
+                                    @foreach($areas as $area)
+                                    <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="input-group">
                                 <label>Categoría</label>
-                                <select name="categoria" required>
+                                <select name="categoria" id="categoriaSelect" required>
                                     <option value="">Seleccione una categoría</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Grado</label>
+                                <select name="grado" id="gradoSelect" required>
+                                    <option value="">Seleccione un grado</option>
                                 </select>
                             </div>
                         </div>
@@ -225,4 +253,60 @@
     function cerrarModal() {
         document.getElementById('modalDatos').style.display = 'none';
     }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const areaSelect = document.getElementById('areaSelect');
+        const categoriaSelect = document.getElementById('categoriaSelect');
+        const gradoSelect = document.getElementById('gradoSelect');
+
+        const idConvocatoria = "{{ $idConvocatoriaResult ?? '' }}";
+
+        areaSelect.addEventListener('change', function() {
+            const idArea = this.value;
+
+            categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+            gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
+
+            if (idArea) {
+                fetch(`/obtener-categorias/${idConvocatoria}/${idArea}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(categoria => {
+                            const option = document.createElement('option');
+                            option.value = categoria.idCategoria;
+                            option.textContent = categoria.nombre;
+                            categoriaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar categorías:', error);
+                    });
+            }
+        });
+
+        // NUEVO: Cuando el usuario cambie una CATEGORÍA
+        categoriaSelect.addEventListener('change', function() {
+            const idCategoria = this.value;
+            gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
+
+            if (idCategoria) {
+                fetch(`/obtener-grados/${idCategoria}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(grado => {
+                            const option = document.createElement('option');
+                            option.value = grado.idGrado;
+                            option.textContent = grado.grado;
+                            gradoSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar grados:', error);
+                    });
+            }
+        });
+
+    });
 </script>

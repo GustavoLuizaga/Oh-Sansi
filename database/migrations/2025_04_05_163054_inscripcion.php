@@ -17,6 +17,8 @@ class Inscripcion extends Migration
             $table->unsignedBigInteger('idArea');
             $table->unsignedBigInteger('idDelegacion');
             $table->unsignedBigInteger('idCategoria');
+            $table->string('nombreApellidosTutor', 100)->nullable();
+            $table->string('correoTutor', 100)->nullable();
             $table->foreign('idGrado')->references('idGrado')->on('grado');
             $table->foreign('idConvocatoria')->references('idConvocatoria')->on('convocatoria');
             $table->foreign('idArea')->references('idArea')->on('area');

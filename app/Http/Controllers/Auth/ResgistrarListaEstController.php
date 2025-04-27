@@ -66,7 +66,10 @@ class ResgistrarListaEstController extends Controller
                         'apellidoMaterno' => $row[2],
                         'ci' => $row[3],
                         'email' => $row[4],
-                        'fechaNacimiento' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5])->format('Y-m-d'),
+                        'fechaNacimiento' => is_numeric($row[5])
+                            ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5])->format('Y-m-d')
+                            : \Carbon\Carbon::parse($row[5])->format('Y-m-d'),
+
                         'genero' => $row[6],
                         'password' => Hash::make($row[3]),
                     ]);
@@ -116,7 +119,7 @@ class ResgistrarListaEstController extends Controller
                 $areaModel = Area::find($idArea);
 
                 $categoriasArea = new ObtenerCategoriasArea();
-                $categoriasHabilitadas = $categoriasArea->categoriasAreas($idArea);
+                $categoriasHabilitadas = $categoriasArea->categoriasAreas2($idConvocatoriaResult, $idArea);
 
                 $categoria = $row[8];
                 $categoriaExiste = $categoriasHabilitadas->contains('nombre', $categoria);
@@ -125,6 +128,8 @@ class ResgistrarListaEstController extends Controller
                 }
                 $categoriaModel = Categoria::where('nombre', $categoria)->first();
                 $idCategoria = $categoriaModel->idCategoria;
+
+
 
 
 

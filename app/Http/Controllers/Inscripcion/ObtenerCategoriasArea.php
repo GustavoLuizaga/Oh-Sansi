@@ -20,4 +20,17 @@ class ObtenerCategoriasArea extends Controller
    
         return $categorias;        
     }
+    public function categoriasAreas2($idConvocatoria, $idArea) {
+        $categorias = ConvocatoriaAreaCategoria::with('categoria')
+                ->where('idConvocatoria', $idConvocatoria)
+                ->whereHas('categoria', function($query) use ($idArea) {
+                    $query->where('idArea', $idArea);
+                })
+                ->get()
+                ->pluck('categoria')
+                ->unique('idCategoria')
+                ->values();
+   
+        return $categorias;        
+    }
 }

@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
+    git \
     && docker-php-ext-install zip pdo_mysql
 
 # Copia el código de tu proyecto al contenedor

@@ -53,10 +53,26 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('change', function(e) {
         if (e.target.classList.contains('categoria-select')) {
             loadGrados(e.target);
+            // Actualizar el estado del botón de agregar tutor según el número de áreas
+            updateAddTutorButtonState();
         } else if (e.target.classList.contains('area-select')) {
             loadCategorias(e.target);
         }
     });
+    
+    // Función para actualizar el estado del botón de agregar tutor
+    function updateAddTutorButtonState() {
+        const totalAreas = document.querySelectorAll('.area-block').length;
+        const validAreas = Array.from(document.querySelectorAll('.area-select')).filter(select => select.value).length;
+        
+        // Si ya hay 2 áreas válidas, ocultar el botón de agregar tutor
+        if (validAreas >= 2) {
+            addTutorBtn.style.display = 'none';
+        } else if (tutorCount < 2) {
+            // Mostrar el botón solo si hay menos de 2 tutores
+            addTutorBtn.style.display = 'block';
+        }
+    }
 
     // Add new tutor block
     addTutorBtn.addEventListener('click', function() {
@@ -221,6 +237,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Verificar si ya hay áreas seleccionadas y obtener sus valores
+        const selectedAreas = [];
+        document.querySelectorAll('.area-select').forEach(select => {
+            if (select.value) {
+                selectedAreas.push(select.value);
+            }
+        });
+        
         // Obtener el índice del tutor
         const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Tutor ', ''));
         
@@ -246,6 +270,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        // Filtrar las opciones de área para eliminar las ya seleccionadas
+        const areaSelect = newAreaBlock.querySelector('.area-select');
+        const optionsToRemove = [];
+        
+        // Identificar las opciones que deben ser eliminadas (áreas ya seleccionadas)
+        for (let i = 0; i < areaSelect.options.length; i++) {
+            const option = areaSelect.options[i];
+            if (option.value && selectedAreas.includes(option.value)) {
+                optionsToRemove.push(i);
+            }
+        }
+        
+        // Eliminar las opciones de atrás hacia adelante para no afectar los índices
+        for (let i = optionsToRemove.length - 1; i >= 0; i--) {
+            areaSelect.remove(optionsToRemove[i]);
+        }
+        
         // Agregar botón de eliminar si no existe
         if (!newAreaBlock.querySelector('.btn-eliminar-area')) {
             const areaRow = newAreaBlock.querySelector('.info-row');
@@ -258,7 +299,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Actualizar los nombres de los campos para que sean únicos
-        const areaSelect = newAreaBlock.querySelector('.area-select');
         const categoriaSelect = newAreaBlock.querySelector('.categoria-select');
         
         areaSelect.name = `tutor_areas_${tutorIndex}_${areaCount[tutorIndex]}`;
@@ -266,6 +306,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Insertar el nuevo bloque antes del botón de agregar área
         areasContainer.insertBefore(newAreaBlock, areasContainer.querySelector('.btn-add-area'));
+        
+        // Si ya hay 2 áreas en total, ocultar todos los botones de agregar área
+        if (document.querySelectorAll('.area-block').length >= 2) {
+            document.querySelectorAll('.btn-add-area').forEach(btn => {
+                btn.style.display = 'none';
+            });
+        }
     }
     
     // Función para eliminar un bloque de área
@@ -279,8 +326,62 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Guardar el valor del área que se va a eliminar para actualizar los otros selectores
+        const areaSelect = areaBlock.querySelector('.area-select');
+        const areaValue = areaSelect.value;
+        
         // Eliminar el bloque
         areaBlock.remove();
+        
+        // Mostrar todos los botones de agregar área si hay menos de 2 áreas en total
+        if (document.querySelectorAll('.area-block').length < 2) {
+            document.querySelectorAll('.btn-add-area').forEach(btn => {
+                btn.style.display = 'block';
+            });
+        }
+        
+        // Actualizar el selector de grado común
+        const categoriaSelects = document.querySelectorAll('.categoria-select');
+        if (categoriaSelects.length > 0 && categoriaSelects[0].value) {
+            loadGrados(categoriaSelects[0]);
+        } else {
+            // Si no hay categorías seleccionadas, deshabilitar el selector de grado
+            const gradoSelectCommon = document.querySelector('.grado-select-common');
+            gradoSelectCommon.innerHTML = '<option value="">Seleccione una categoría primero</option>';
+            gradoSelectCommon.disabled = true;
+        }
+        
+        // Si se eliminó un área con valor, actualizar los otros selectores para que muestren esa área
+        if (areaValue) {
+            document.querySelectorAll('.area-select').forEach(select => {
+                // Verificar si ya existe la opción
+                let optionExists = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === areaValue) {
+                        optionExists = true;
+                        break;
+                    }
+                }
+                
+                // Si no existe, agregar la opción
+                if (!optionExists) {
+                    // Buscar el nombre del área en otro selector que tenga todas las opciones
+                    const allAreasSelect = document.querySelector('.area-select');
+                    let areaName = '';
+                    for (let i = 0; i < allAreasSelect.options.length; i++) {
+                        if (allAreasSelect.options[i].value === areaValue) {
+                            areaName = allAreasSelect.options[i].text;
+                            break;
+                        }
+                    }
+                    
+                    if (areaName) {
+                        const newOption = new Option(areaName, areaValue);
+                        select.add(newOption);
+                    }
+                }
+            });
+        }
     }
 
     async function validateTutorToken(input) {
@@ -356,6 +457,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const categoriaSelect = areaBlock.querySelector('.categoria-select');
         const idConvocatoria = document.querySelector('input[name="idConvocatoria"]').value;
         
+        // Verificar si el área ya está seleccionada en otro bloque
+        if (areaId) {
+            const otherAreaSelects = document.querySelectorAll('.area-select');
+            for (const otherSelect of otherAreaSelects) {
+                // No comparar con el mismo select que estamos modificando
+                if (otherSelect !== areaSelect && otherSelect.value === areaId) {
+                    alert('Esta área ya ha sido seleccionada. Por favor, elija otra área.');
+                    areaSelect.value = '';
+                    categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+                    categoriaSelect.disabled = true;
+                    return;
+                }
+            }
+        }
+        
         // Resetear y deshabilitar el selector de categorías si no hay área seleccionada
         if (!areaId) {
             categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
@@ -404,35 +520,78 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadGrados(categoriaSelect) {
         const categoriaId = categoriaSelect.value;
         const tutorBlock = categoriaSelect.closest('.tutor-block');
-        const gradoSelect = tutorBlock.querySelector('.grado-select');
+        const areaBlock = categoriaSelect.closest('.area-block');
+        const areaSelect = areaBlock.querySelector('.area-select');
         
-        // Resetear y deshabilitar el selector de grados si no hay categoría seleccionada
-        if (!categoriaId) {
-            gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
-            gradoSelect.disabled = true;
+        // Obtener el selector de grado común (el que está fuera de los bloques de tutor)
+        const gradoSelectCommon = document.querySelector('.grado-select-common');
+        
+        // Actualizar el estado del botón de agregar tutor
+        updateAddTutorButtonState();
+        
+        // Recopilar todas las categorías seleccionadas
+        const selectedCategorias = [];
+        document.querySelectorAll('.categoria-select').forEach(select => {
+            if (select.value) {
+                selectedCategorias.push(select.value);
+            }
+        });
+        
+        // Si no hay categorías seleccionadas, deshabilitar el selector de grados
+        if (selectedCategorias.length === 0) {
+            gradoSelectCommon.innerHTML = '<option value="">Seleccione una categoría primero</option>';
+            gradoSelectCommon.disabled = true;
             return;
         }
         
         try {
             // Mostrar estado de carga
-            gradoSelect.innerHTML = '<option value="">Cargando grados...</option>';
+            gradoSelectCommon.innerHTML = '<option value="">Cargando grados...</option>';
+            gradoSelectCommon.disabled = true;
             
-            const response = await fetch(`/api/categoria/${categoriaId}/grados`);
-            const grados = await response.json();
+            // Usar un Map para almacenar grados únicos
+            const uniqueGrados = new Map();
             
-            gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
-            
-            if (grados && Array.isArray(grados)) {
-                grados.forEach(grado => {
-                    gradoSelect.innerHTML += `<option value="${grado.id}">${grado.nombre}</option>`;
-                });
+            // Cargar los grados para cada categoría seleccionada
+            for (const catId of selectedCategorias) {
+                try {
+                    const response = await fetch(`/api/categoria/${catId}/grados`);
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    
+                    const grados = await response.json();
+                    
+                    if (grados && Array.isArray(grados)) {
+                        grados.forEach(grado => {
+                            // Solo agregar si no existe ya (evitar duplicados)
+                            uniqueGrados.set(grado.id, grado);
+                        });
+                    }
+                } catch (err) {
+                    console.error(`Error cargando grados para categoría ${catId}:`, err);
+                }
             }
             
-            // Habilitar el selector de grados
-            gradoSelect.disabled = false;
+            // Cargar los grados únicos en el selector
+            gradoSelectCommon.innerHTML = '<option value="">Seleccione un grado</option>';
+            
+            if (uniqueGrados.size > 0) {
+                // Convertir el Map a un array y agregar las opciones
+                Array.from(uniqueGrados.values()).forEach(grado => {
+                    gradoSelectCommon.innerHTML += `<option value="${grado.id}">${grado.nombre}</option>`;
+                });
+                
+                // Habilitar el selector de grados común
+                gradoSelectCommon.disabled = false;
+            } else {
+                gradoSelectCommon.innerHTML = '<option value="">No hay grados disponibles</option>';
+                gradoSelectCommon.disabled = true;
+            }
         } catch (error) {
             console.error('Error loading grados:', error);
-            gradoSelect.innerHTML = '<option value="">Error al cargar grados</option>';
+            gradoSelectCommon.innerHTML = '<option value="">Error al cargar grados</option>';
+            gradoSelectCommon.disabled = true;
         }
     }
 

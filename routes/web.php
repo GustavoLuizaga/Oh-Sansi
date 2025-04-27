@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Delegado\DelegadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,4 +63,5 @@ require __DIR__.'/delegaciones.php';
 require __DIR__.'/delegado.php';
 require __DIR__.'/grados.php';
 require __DIR__.'/inscripciones.php';
+require __DIR__.'/estudiantes.php';
 

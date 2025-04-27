@@ -1,26 +1,29 @@
-# Usa la imagen oficial de PHP 7.4 con FPM
-FROM php:7.4-fpm
+# Usa la imagen oficial de PHP 8.2 con FPM
+FROM php:8.2-fpm
 
-# Instala las extensiones y herramientas necesarias
+# Instalar extensiones necesarias
 RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    && docker-php-ext-install zip pdo_mysql
+    libzip-dev zip unzip \
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install zip pdo_mysql \
+    && rm -rf /var/lib/apt/lists/*  # Limpia la caché de APT
 
-# Copia el código de tu proyecto al contenedor
-COPY . /var/www
-
-# Define el directorio de trabajo
+# Copiar el proyecto
 WORKDIR /var/www
+COPY . .
 
-# Instala dependencias de Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Expone el puerto 9000 para PHP-FPM
+# Exponer el puerto 9000 para PHP-FPM
 EXPOSE 9000
 
-# Comando por defecto para correr PHP-FPM
-CMD ["php-fpm"]
+# Instalar Nginx y configuraciones necesarias
+RUN apt-get update && apt-get install -y nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar la configuración de Nginx al contenedor
+COPY ./nginx/default.conf /etc/nginx/sites-available/default
+
+# Iniciar PHP-FPM y Nginx juntos
+CMD service nginx start && php-fpm -F

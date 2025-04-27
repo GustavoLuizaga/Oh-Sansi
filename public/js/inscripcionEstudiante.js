@@ -384,35 +384,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Add this at the top of your file with other variables
+    let usedTokens = new Set();
+    
     async function validateTutorToken(input) {
         const token = input.value.trim();
         const tutorBlock = input.closest('.tutor-block');
         const statusElement = tutorBlock.querySelector('.token-status');
         const verifyButton = tutorBlock.querySelector('.btn-verificar-token');
         
+        // Check if token is already in use
+        if (usedTokens.has(token)) {
+            statusElement.textContent = 'Este token ya está en uso por otro tutor';
+            statusElement.classList.remove('valid');
+            statusElement.classList.add('invalid');
+            tutorBlock.querySelector('.tutor-info').style.display = 'none';
+            return;
+        }
+        
         try {
             verifyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
             verifyButton.disabled = true;
             
-            console.log('Validating token:', token); // Add debugging
-            
             const response = await fetch(`/api/validate-tutor-token/${token}`);
             const data = await response.json();
             
-            console.log('Response:', data); // Add debugging
-            
             if (data.valid) {
+                // Add token to used tokens set
+                usedTokens.add(token);
+                
                 statusElement.textContent = 'Token válido';
+                statusElement.classList.remove('invalid');
                 statusElement.classList.add('valid');
                 displayTutorInfo(tutorBlock, data);
+                
+                // Store the token in a data attribute for later reference
+                tutorBlock.dataset.usedToken = token;
             } else {
                 statusElement.textContent = data.message || 'Token no válido';
+                statusElement.classList.remove('valid');
                 statusElement.classList.add('invalid');
                 tutorBlock.querySelector('.tutor-info').style.display = 'none';
             }
         } catch (error) {
             console.error('Error:', error);
             statusElement.textContent = 'Error al validar el token';
+            statusElement.classList.remove('valid');
             statusElement.classList.add('invalid');
         } finally {
             verifyButton.innerHTML = '<i class="fas fa-check-circle"></i> Verificar';

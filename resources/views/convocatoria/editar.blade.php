@@ -137,15 +137,25 @@
                                     </div>
                                     
                                     <div class="precio-container">
-                                        <label for="precio-{{ $index }}-{{ $catIndex }}">Precio (Bs.):</label>
                                         @php
-                                            $precio = DB::table('convocatoriaAreaCategoria')
+                                            $precios = DB::table('convocatoriaAreaCategoria')
                                                 ->where('idConvocatoria', $convocatoria->idConvocatoria)
                                                 ->where('idArea', $area->idArea)
                                                 ->where('idCategoria', $categoria->idCategoria)
-                                                ->value('precio');
+                                                ->first(['precioIndividual', 'precioDuo', 'precioEquipo']);
                                         @endphp
-                                        <input type="number" id="precio-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precio]" class="form-control precio-input" min="0" step="0.01" required value="{{ $precio ?? '0.00' }}" placeholder="0.00">
+                                        <div class="precio-item">
+                                            <label for="precioIndividual-{{ $index }}-{{ $catIndex }}">Precio Individual (Bs.):</label>
+                                            <input type="number" id="precioIndividual-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioIndividual]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioIndividual ?? '0.00' }}" placeholder="0.00">
+                                        </div>
+                                        <div class="precio-item">
+                                            <label for="precioDuo-{{ $index }}-{{ $catIndex }}">Precio Dúo (Bs.):</label>
+                                            <input type="number" id="precioDuo-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioDuo ?? '0.00' }}" placeholder="0.00">
+                                        </div>
+                                        <div class="precio-item">
+                                            <label for="precioEquipo-{{ $index }}-{{ $catIndex }}">Precio Equipo (Bs.):</label>
+                                            <input type="number" id="precioEquipo-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioEquipo ?? '0.00' }}" placeholder="0.00">
+                                        </div>
                                     </div>
 
                                     <div class="grade-options">
@@ -297,6 +307,21 @@
                 <i class="fas fa-times"></i>
                 </button>
                 </div>
+                </div>
+                
+                <div class="precio-container">
+                    <div class="precio-item">
+                        <label for="precioIndividual-${areaId}-${categoriaId}">Precio Individual (Bs.):</label>
+                        <input type="number" id="precioIndividual-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioIndividual]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00">
+                    </div>
+                    <div class="precio-item">
+                        <label for="precioDuo-${areaId}-${categoriaId}">Precio Dúo (Bs.):</label>
+                        <input type="number" id="precioDuo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00">
+                    </div>
+                    <div class="precio-item">
+                        <label for="precioEquipo-${areaId}-${categoriaId}">Precio Equipo (Bs.):</label>
+                        <input type="number" id="precioEquipo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00">
+                    </div>
                 </div>
 
                 <div class="grade-options">

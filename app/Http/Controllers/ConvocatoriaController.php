@@ -87,7 +87,9 @@ class ConvocatoriaController extends Controller
                 'areas.*.idArea' => 'required|exists:area,idArea',
                 'areas.*.categorias' => 'required|array',
                 'areas.*.categorias.*.idCategoria' => 'required|exists:categoria,idCategoria',
-                'areas.*.categorias.*.precio' => 'required|numeric|min:0',
+                'areas.*.categorias.*.precioIndividual' => 'nullable|numeric|min:0',
+                'areas.*.categorias.*.precioDuo' => 'nullable|numeric|min:0',
+                'areas.*.categorias.*.precioEquipo' => 'nullable|numeric|min:0',
             ]);
             
             // Verificar que la fecha fin no haya pasado
@@ -125,12 +127,19 @@ class ConvocatoriaController extends Controller
                 foreach ($area['categorias'] as $categoria) {
                     $idCategoria = $categoria['idCategoria'];
                     
+                    // Verificar que al menos un tipo de precio esté establecido
+                    if (empty($categoria['precioIndividual']) && empty($categoria['precioDuo']) && empty($categoria['precioEquipo'])) {
+                        throw new \Exception('Debe establecer al menos un tipo de precio (Individual, Dúo o Equipo) para cada categoría.');
+                    }
+                    
                     // Guardar la relación convocatoria-área-categoría
                     DB::table('convocatoriaAreaCategoria')->insert([
                         'idConvocatoria' => $idConvocatoria,
                         'idArea' => $idArea,
                         'idCategoria' => $idCategoria,
-                        'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
+                        'precioIndividual' => $categoria['precioIndividual'] ?? null,
+                        'precioDuo' => $categoria['precioDuo'] ?? null,
+                        'precioEquipo' => $categoria['precioEquipo'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -383,7 +392,9 @@ class ConvocatoriaController extends Controller
                 'metodoPago' => 'required|string|max:100',
                 'contacto' => 'required|string|min:10|max:255',
                 'requisitos' => 'required|string|min:10|max:300',
-                'areas.*.categorias.*.precio' => 'nullable|numeric|min:0',
+                'areas.*.categorias.*.precioIndividual' => 'nullable|numeric|min:0',
+                'areas.*.categorias.*.precioDuo' => 'nullable|numeric|min:0',
+                'areas.*.categorias.*.precioEquipo' => 'nullable|numeric|min:0',
             ]);
             
             // Verificar que la fecha fin no haya pasado si está en estado borrador
@@ -442,12 +453,19 @@ class ConvocatoriaController extends Controller
                         foreach ($area['categorias'] as $categoria) {
                             $idCategoria = $categoria['idCategoria'];
                             
+                            // Verificar que al menos un tipo de precio esté establecido
+                            if (empty($categoria['precioIndividual']) && empty($categoria['precioDuo']) && empty($categoria['precioEquipo'])) {
+                                throw new \Exception('Debe establecer al menos un tipo de precio (Individual, Dúo o Equipo) para cada categoría.');
+                            }
+                            
                             // Guardar la relación convocatoria-área-categoría
                             DB::table('convocatoriaAreaCategoria')->insert([
                                 'idConvocatoria' => $id,
                                 'idArea' => $idArea,
                                 'idCategoria' => $idCategoria,
-                                'precio' => $categoria['precio'] ?? 0, // Usar el precio proporcionado o 0 como valor predeterminado
+                                'precioIndividual' => $categoria['precioIndividual'] ?? null,
+                                'precioDuo' => $categoria['precioDuo'] ?? null,
+                                'precioEquipo' => $categoria['precioEquipo'] ?? null,
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
@@ -779,7 +797,9 @@ public function exportExcel()
                     'idConvocatoria' => $nuevaConvocatoriaId,
                     'idArea' => $relacion->idArea,
                     'idCategoria' => $relacion->idCategoria,
-                    'precio' => $relacion->precio,
+                    'precioIndividual' => $relacion->precioIndividual,
+                    'precioDuo' => $relacion->precioDuo,
+                    'precioEquipo' => $relacion->precioEquipo,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

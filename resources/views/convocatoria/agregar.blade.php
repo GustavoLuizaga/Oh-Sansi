@@ -1,5 +1,6 @@
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/convocatoria/agregar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/convocatoria/precios.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <div class="p-6">
@@ -152,8 +153,27 @@
                 }
             });
             
+            // Manejar los checkboxes de precios
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('precio-checkbox')) {
+                    const targetId = e.target.getAttribute('data-target');
+                    const inputField = document.getElementById(targetId);
+                    if (inputField) {
+                        inputField.disabled = !e.target.checked;
+                        if (e.target.checked) {
+                            inputField.focus();
+                            if (inputField.value === '') {
+                                inputField.value = '0.00';
+                            }
+                        } else {
+                            inputField.value = '';
+                        }
+                    }
+                }
+            });
+            
             // Validar el formulario antes de enviar - FIXED: removed duplicate event listener
-            document.querySelector('form').addEventListener('submit', function(e) {
+            document.getElementById('convocatoriaForm').addEventListener('submit', function(e) {
                 // Debug form submission
                 console.log('Form submission triggered');
                 
@@ -216,6 +236,17 @@
                         const areaName = areaSelect.options[areaSelect.selectedIndex].text;
                         alert(`El área "${areaName}" debe tener al menos una categoría.`);
                     }
+                    
+                    // Verificar que cada categoría tenga al menos un tipo de precio seleccionado
+                    document.querySelectorAll(`#categorias-${areaId} .category-container`).forEach(function(categoriaContainer) {
+                        const checkboxes = categoriaContainer.querySelectorAll('.precio-checkbox:checked');
+                        if (checkboxes.length === 0) {
+                            areasValidas = false;
+                            const categoriaSelect = categoriaContainer.querySelector('.categoria-select');
+                            const categoriaName = categoriaSelect.options[categoriaSelect.selectedIndex].text;
+                            alert(`La categoría "${categoriaName}" debe tener al menos un tipo de precio seleccionado.`);
+                        }
+                    });
                 });
                 
                 if (!areasValidas) {
@@ -239,9 +270,11 @@
                     const submitBtn = document.querySelector('.btn-save');
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+                    return true;
                 }
                 
-                return true;
+                e.preventDefault();
+                return false;
             });
             
             // FIXED: Moved the function definitions outside the submit event handler
@@ -345,9 +378,28 @@
                         </button>
                     </div>
                     
-                    <div class="precio-container">
-                        <label for="precio-${areaId}-${categoriaId}">Precio (Bs.):</label>
-                        <input type="number" id="precio-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precio]" class="form-control precio-input" min="0" step="0.01" required value="0.00" placeholder="0.00">
+                    <div class="precios-container">
+                        <div class="precio-item">
+                            <label>
+                                <input type="checkbox" class="precio-checkbox" data-target="individual-${areaId}-${categoriaId}" checked>
+                                Precio Individual:
+                            </label>
+                            <input type="number" id="individual-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioIndividual]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00" required>
+                        </div>
+                        <div class="precio-item">
+                            <label>
+                                <input type="checkbox" class="precio-checkbox" data-target="duo-${areaId}-${categoriaId}">
+                                Precio Dúo:
+                            </label>
+                            <input type="number" id="duo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="" placeholder="0.00" disabled>
+                        </div>
+                        <div class="precio-item">
+                            <label>
+                                <input type="checkbox" class="precio-checkbox" data-target="equipo-${areaId}-${categoriaId}">
+                                Precio Equipo:
+                            </label>
+                            <input type="number" id="equipo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="" placeholder="0.00" disabled>
+                        </div>
                     </div>
                     
                     <div class="grados-container" id="grados-${areaId}-${categoriaId}">

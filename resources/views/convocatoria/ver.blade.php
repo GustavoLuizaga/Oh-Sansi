@@ -118,15 +118,33 @@
                             <h4 class="categoria-title">{{ $categoria->nombre }}</h4>
                             
                             @php
-                                $precio = DB::table('convocatoriaAreaCategoria')
+                                $precios = DB::table('convocatoriaAreaCategoria')
                                     ->where('idConvocatoria', $convocatoria->idConvocatoria)
                                     ->where('idArea', $area->idArea)
                                     ->where('idCategoria', $categoria->idCategoria)
-                                    ->value('precio');
+                                    ->first(['precioIndividual', 'precioDuo', 'precioEquipo']);
                             @endphp
                             <div class="precio-info">
-                                <span class="precio-label">Precio:</span>
-                                <span class="precio-value">{{ number_format($precio ?? 0, 2) }} Bs.</span>
+                                @if($precios->precioIndividual)
+                                <div class="precio-item">
+                                    <span class="precio-label">Precio Individual:</span>
+                                    <span class="precio-value">{{ number_format($precios->precioIndividual, 2) }} Bs.</span>
+                                </div>
+                                @endif
+                                
+                                @if($precios->precioDuo)
+                                <div class="precio-item">
+                                    <span class="precio-label">Precio Dúo:</span>
+                                    <span class="precio-value">{{ number_format($precios->precioDuo, 2) }} Bs.</span>
+                                </div>
+                                @endif
+                                
+                                @if($precios->precioEquipo)
+                                <div class="precio-item">
+                                    <span class="precio-label">Precio Equipo:</span>
+                                    <span class="precio-value">{{ number_format($precios->precioEquipo, 2) }} Bs.</span>
+                                </div>
+                                @endif
                             </div>
                             
                             <div class="grados-list">

@@ -16,7 +16,9 @@ class ConvocatoriaAreaCategoria extends Model
         'idConvocatoria',
         'idArea',
         'idCategoria',
-        'precio',
+        'precioIndividual',
+        'precioDuo',
+        'precioEquipo',
     ];
 
     public function area()

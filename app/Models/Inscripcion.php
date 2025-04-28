@@ -17,6 +17,7 @@ class Inscripcion extends Model
     protected $fillable = [
         'fechaInscripcion',
         'numeroContacto',
+        'status',
         'idGrado',
         'idConvocatoria',
         'idArea',

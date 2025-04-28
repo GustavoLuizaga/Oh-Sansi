@@ -12,6 +12,7 @@ class Inscripcion extends Migration
             $table->id('idInscripcion');
             $table->date('fechaInscripcion');
             $table->integer('numeroContacto');
+            $table->enum('status', ['pendiente', 'aprobado', 'rechazado'])->default('pendiente');
             $table->unsignedBigInteger('idGrado');
             $table->unsignedBigInteger('idConvocatoria');
             $table->unsignedBigInteger('idArea');

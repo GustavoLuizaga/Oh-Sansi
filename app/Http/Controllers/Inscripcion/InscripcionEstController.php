@@ -218,5 +218,53 @@ class InscripcionEstController extends Controller
             return response()->json(['error' => 'Error al obtener categorías'], 500);
         }
     }
+    
+    /**
+     * Obtiene las áreas asociadas a un tutor específico según su token
+     *
+     * @param string $token Token del tutor
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAreasByTutorToken($token)
+    {
+        try {
+            Log::info('Obteniendo áreas para el token: ' . $token);
+            
+            // Buscar todas las entradas del tutor con ese token
+            $tutorAreas = \App\Models\TutorAreaDelegacion::where('tokenTutor', $token)
+                ->with('area')
+                ->get();
+            
+            if ($tutorAreas->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron áreas asociadas a este token'
+                ]);
+            }
+            
+            // Extraer las áreas y formatearlas para la respuesta
+            $areas = $tutorAreas->map(function($tutorArea) {
+                return [
+                    'idArea' => $tutorArea->idArea,
+                    'nombre' => $tutorArea->area->nombre,
+                    'idDelegacion' => $tutorArea->idDelegacion,
+                    'delegacion' => $tutorArea->delegacion->nombre
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'areas' => $areas
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error al obtener áreas del tutor: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener áreas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 }

@@ -27,8 +27,8 @@ class ConvocatoriaSeeder extends Seeder
                     'estado' => 'Borrador',
                 ],
                 'relaciones' => [
-                    'Matemáticas' => ['3p', '4p', '5P'],
-                    'Física' => ['1S', '2S'],
+                    'Matematicas' => ['3p', '4p', '5P'],
+                    'Fisica' => ['1S', '2S'],
                 ]
             ],
             [
@@ -43,8 +43,8 @@ class ConvocatoriaSeeder extends Seeder
                     'estado' => 'Borrador',
                 ],
                 'relaciones' => [
-                    'Biología' => ['4S', '5S'],
-                    'Química' => ['3S', '4S', '5S'],
+                    'Biologia' => ['4S', '5S'],
+                    'Quimica' => ['3S', '4S', '5S'],
                 ]
             ],
             [
@@ -59,8 +59,13 @@ class ConvocatoriaSeeder extends Seeder
                     'estado' => 'Publicada',
                 ],
                 'relaciones' => [
-                    'Informática' => ['Londra', 'Bufeo'],
-                    'Robótica' => ['Builders S'],
+                    'Informatica' => ['Londra', 'Bufeo'],
+                    'Robotica' => ['Guacamayo'],
+                    'Fisica' => ['3p','4p','5P','6P','Lego S'],
+                    'Biologia' => ['Builders S','Puma'],
+                    'Quimica' => ['Builders S','Jucumari'],
+                    'Astronomia' => ['Builders S'],
+                    'Matematicas' => ['Lego S', 'Lego P' , 'Jucumari'],
                 ]
             ],
             [
@@ -75,7 +80,7 @@ class ConvocatoriaSeeder extends Seeder
                     'estado' => 'Borrador',
                 ],
                 'relaciones' => [
-                    'Matemáticas' => ['5S', '6S', 'Puma'],
+                    'Matematicas' => ['5S', '6S', 'Puma'],
                 ]
             ],
             [

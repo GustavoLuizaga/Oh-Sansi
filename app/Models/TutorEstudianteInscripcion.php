@@ -21,4 +21,11 @@ class TutorEstudianteInscripcion extends Model
         return $this->belongsTo(Inscripcion::class, 'idInscripcion', 'idInscripcion');
     }
 
+    public function obtenerInscripcionesPorTutor($idTutor)
+{
+    return $this->where('idTutor', $idTutor)
+        ->with('inscripcion')  // Carga eager loading de la relación inscripcion
+        ->get();
+}
+
 }

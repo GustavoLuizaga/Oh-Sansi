@@ -7,9 +7,9 @@ services:
       dockerfile: Dockerfile
     container_name: laravel-app
     ports:
-      - "80:80"  # Exponer el puerto 80
+      - "80:80"  # Exponer el puerto 80 en el contenedor
     volumes:
-      - .:/var/www  # Montar el directorio actual en el contenedor
+      - .:/var/www  # Montar el código fuente del proyecto en el contenedor
     networks:
       - app-network
     depends_on:

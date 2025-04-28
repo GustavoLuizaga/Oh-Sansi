@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             PermisoIUSeeder::class,
             AreaCategoriaGradoSeeder::class,
             DelegacionSeeder::class,
-            //ConvocatoriaSeeder::class,
+            ConvocatoriaSeeder::class,
         ]);
     }
 }

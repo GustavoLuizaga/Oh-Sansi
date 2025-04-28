@@ -14,4 +14,9 @@ class Area extends Model
     protected $fillable = [
         'nombre',
     ];
+
+    public function tutores()
+    {
+        return $this->belongsToMany(Tutor::class, 'tutorAreaDelegacion', 'idArea', 'id');
+    }
 }

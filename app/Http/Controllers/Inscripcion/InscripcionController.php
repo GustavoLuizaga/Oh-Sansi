@@ -15,6 +15,7 @@ use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
 use App\Http\Controllers\Inscripcion\ObtenerIdTutorToken;
 use App\Models\User;
 use App\Models\Rol;
+use App\Models\Area; // Add this at the top of your file
 use App\Notifications\WelcomeEmailNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
@@ -116,40 +117,26 @@ class InscripcionController extends Controller
         }
     }
 
-    public function showTutorProfile()
-    {
-        try {
-            $user = Auth::user();
-            $token = null;
-
-            if ($user && $user->tutor) {
-                Log::info('User and tutor found:', ['user_id' => $user->id, 'tutor_id' => $user->tutor->id]);
-
-                $tutorAreaDelegacion = TutorAreaDelegacion::where('id', $user->tutor->id)
-                    ->select('tokenTutor')
-                    ->first();
-
-                if ($tutorAreaDelegacion) {
-                    Log::info('Token found:', ['token' => $tutorAreaDelegacion->tokenTutor]);
-                    $token = $tutorAreaDelegacion->tokenTutor;
-                    //Logica para obtener las areas del delegado
-                    $areasDelegado = new AreasDeUnDeleado();
-                    $areas = $areasDelegado->obtenerAreasDelegado();
-
-                    $conv = new VerificarExistenciaConvocatoria();
-                    $idConvocatoriaResult = $conv->verificarConvocatoriaActiva();
-                } else {
-                    Log::warning('No token found for tutor:', ['tutor_id' => $user->tutor->id]);
-                }
-            } else {
-                Log::warning('No tutor found for user:', ['user_id' => $user->id ?? 'null']);
-            }
-
-            return view('inscripciones.inscripcionTutor', compact('token', 'areas', 'idConvocatoriaResult'));
-        } catch (\Exception $e) {
-            Log::error('Error in showTutorProfile:', ['error' => $e->getMessage()]);
-            return view('inscripciones.inscripcionTutor', ['token' => null]);
-        }
+    public function showTutorProfile()//no toques este metodo gustavo
+    {// es para obtener el token, area, categorias, de la convocatoria que esta publicada
+        $user = Auth::user();
+        
+        // obtenemos las areas del tutor para mostrarlas en el for
+        $areas = Area::join('tutorAreaDelegacion', 'area.idArea', '=', 'tutorAreaDelegacion.idArea')
+                     ->where('tutorAreaDelegacion.id', $user->tutor->id)
+                     ->select('area.*')
+                     ->get();
+        
+        //obtenemos el token del tutor
+        $token = $user->tutor->tutorAreaDelegacion->tokenTutor;
+        
+        // obtenemos el id de la convocatoria activa para mostrarl
+        $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')
+                        ->first();
+        
+        $idConvocatoriaResult = $convocatoria ? $convocatoria->idConvocatoria : null;
+        
+        return view('inscripciones.inscripcionTutor', compact('areas', 'token', 'idConvocatoriaResult'));
     }
 
 

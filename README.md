@@ -58,12 +58,6 @@ Este sistema permite gestionar el proceso de inscripción de estudiantes a las O
 ```bash
 php artisan migrate:fresh --seed 
 ```
-
-- Ejecuta el seeder que tenemos (llena la base de datos con datos escenciales como roles , funciones ,ui).
-```bash
-php artisan db:seed --class=DefaultDataSeeder 
-```
-
 - Para los que tienen php superior a 7.4.22 
 ```bash
 composer remove phpoffice/phpspreadsheet
@@ -73,7 +67,30 @@ composer remove phpoffice/phpspreadsheet
 ```bash
 composer update
 ```
-
+- Ejecuta nuevas migraciones
+```bash
+php artisan migrate
+```
+- Borra todo y vuelve a migrar (sin seeders)
+```bash
+php artisan migrate:refresh
+```
+- Borra todo y vuelve a migrar (sin seeders)
+```bash
+php artisan migrate:fresh
+```
+- Borra todo , migra y tambien ejecuta seeders
+```bash
+php artisan migrate:fresh --seed
+```
+- Ejecuta seeders sin migrar
+```bash
+php artisan db:seed
+```
+- Ejecutar un seeder en especifico
+```bash
+php artisan db:seed --class=TutorSeeder
+```
 ---
 
 ## 🧙‍♂️ Datos de acceso

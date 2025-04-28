@@ -69,7 +69,7 @@ class AreaCategoriaGradoSeeder extends Seeder
             }
         }
         // Insertar áreas
-        $areas = ['Física', 'Química', 'Matemáticas', 'Informática', 'Robótica', 'Biología', 'Astronomía'];
+        $areas = ['Fisica', 'Quimica', 'Matematicas', 'Informatica', 'Robotica', 'Biologia', 'Astronomia'];
         foreach ($areas as $area) {
             DB::table('area')->updateOrInsert(['nombre' => $area]);
         }

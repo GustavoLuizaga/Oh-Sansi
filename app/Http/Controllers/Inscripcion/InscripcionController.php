@@ -117,20 +117,33 @@ class InscripcionController extends Controller
         }
     }
 
-    public function showTutorProfile()//no toques este metodo gustavo
-    {// es para obtener el token, area, categorias, de la convocatoria que esta publicada
+    public function showTutorProfile()
+    {
         $user = Auth::user();
-        
-        // obtenemos las areas del tutor para mostrarlas en el for
-        $areas = Area::join('tutorAreaDelegacion', 'area.idArea', '=', 'tutorAreaDelegacion.idArea')
-                     ->where('tutorAreaDelegacion.id', $user->tutor->id)
-                     ->select('area.*')
-                     ->get();
-        
-        //obtenemos el token del tutor
-        $token = $user->tutor->tutorAreaDelegacion->tokenTutor;
-        
-        // obtenemos el id de la convocatoria activa para mostrarl
+        $token = null;
+        $areas = collect();
+
+        // revisamos si el usuario es un tutor
+        if ($user->tutor && $user->tutor->tutorAreaDelegacion) {
+            // obtenemos las areas y el token del tutor
+            $areas = Area::join('tutorAreaDelegacion', 'area.idArea', '=', 'tutorAreaDelegacion.idArea')
+                        ->where('tutorAreaDelegacion.id', $user->tutor->id)
+                        ->select('area.*')
+                        ->get();
+            $token = $user->tutor->tutorAreaDelegacion->tokenTutor;
+        } else {
+            // mostramos las area en la convocatoria activa
+            $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')->first();
+            if ($convocatoria) {
+                $areas = Area::join('convocatoriaAreaCategoria', 'area.idArea', '=', 'convocatoriaAreaCategoria.idArea')
+                            ->where('convocatoriaAreaCategoria.idConvocatoria', $convocatoria->idConvocatoria)
+                            ->select('area.*')
+                            ->distinct()
+                            ->get();
+            }
+        }
+
+        // obtenemos el id de la convocatoria activa para mostrar en el select de la inscripcio
         $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')
                         ->first();
         

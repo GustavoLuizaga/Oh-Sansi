@@ -48,16 +48,19 @@
   .action-bar {
     display: flex;
     justify-content: space-between;
+    align-items: center; /* Esto alineará verticalmente los elementos */
     padding: 1rem;
     border-bottom: 1px solid var(--border-color);
   }
   
+  /* Botón Nueva Área - modificado */
   .btn-new-area {
     background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 0.25rem;
     padding: 0.5rem 1rem;
+    height: fit-content; /* Esto hará que el botón solo sea tan alto como su contenido */
     font-weight: 500;
     cursor: pointer;
     display: flex;
@@ -94,9 +97,9 @@
   /* Search and Filter */
   .search-filter {
     display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
+    align-items: center;
+    /* Quitamos el padding y border-bottom que estaba causando altura adicional */
   }
   
   .search-box {
@@ -265,9 +268,57 @@
   .btn-delete:hover {
     background-color: #dc2626;
   }
-  
+
+  .published-area-message {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 1.5rem;
+    padding-left: 40px; /* Añade espacio a la izquierda */
+    justify-content: flex-end; /* Alinea el contenido hacia la derecha */
+    width: 100%; /* Ocupa todo el ancho disponible */
+  }
+
+  .message-text {
+      margin-right: auto; /* Empuja el texto hacia la derecha */
+      color: #1a365d; /* Color que combina con tu esquema */
+      font-weight: 500; /* Hace el texto un poco más prominente */
+      white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  }
+
+  .more-info {
+      text-align: left; /* Justifica el texto */
+      text-justify: inter-word; /* Mejora la justificación para palabras en español */
+      position: absolute;
+      left: 0;
+      top: 100%;
+      width: 100%;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 10;
+      display: none;
+  }
+
+  /* Estilo para mostrar el more-info */
+  .toggle-checked ~ .more-info,
+  .info-icon:hover ~ .more-info {
+      display: block !important;
+  }
   /* Responsive Adjustments */
   @media (max-width: 768px) {
+    .areas-table th:first-child {
+      font-size: 0; /* Oculta el texto original */
+    }
+    
+    .areas-table th:first-child::after {
+      content: "NIVEL\A/CATEGORIA";
+      white-space: pre-line;
+      font-size: 0.75rem; /* Restaura el tamaño de fuente */
+      display: inline-block;
+    }
+
     .action-bar, .search-filter {
       flex-direction: column;
       gap: 1rem;

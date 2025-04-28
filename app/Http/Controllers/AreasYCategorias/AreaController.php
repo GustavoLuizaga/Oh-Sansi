@@ -56,15 +56,15 @@ class AreaController extends Controller
      * @return array
      */
     protected function getAreasPublicadas(): array
-{
-    return Area::join('convocatoriaareacategoria', 'area.idArea', '=', 'convocatoriaareacategoria.idArea')
-        ->join('convocatoria', 'convocatoriaareacategoria.idConvocatoria', '=', 'convocatoria.idConvocatoria')
-        ->where('convocatoria.estado', 'Publicada')
-        ->select('area.idArea', 'area.nombre')
-        ->distinct()
-        ->get()
-        ->toArray();
-}
+    {
+        return Area::join('convocatoriaareacategoria', 'area.idArea', '=', 'convocatoriaareacategoria.idArea')
+            ->join('convocatoria', 'convocatoriaareacategoria.idConvocatoria', '=', 'convocatoria.idConvocatoria')
+            ->where('convocatoria.estado', 'Publicada')
+            ->select('area.idArea', 'area.nombre')
+            ->distinct()
+            ->get()
+            ->toArray();
+    }
 
     /**
      * Redirige a la vista principal ya que no se usa directamente.

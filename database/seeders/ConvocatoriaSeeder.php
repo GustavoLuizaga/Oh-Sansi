@@ -115,7 +115,9 @@ class ConvocatoriaSeeder extends Seeder
                         'idConvocatoria' => $idConvocatoria,
                         'idArea' => $idArea,
                         'idCategoria' => $idCategoria,
-                        'precio' => mt_rand(80, 300), // Precio aleatorio realista
+                        'precioIndividual' => mt_rand(80, 300),
+                        'precioDuo' => mt_rand(80, 300),// Precio aleatorio realista
+                        'precioEquipo' => mt_rand(80, 300),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);

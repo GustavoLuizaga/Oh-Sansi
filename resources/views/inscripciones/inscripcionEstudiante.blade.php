@@ -18,7 +18,7 @@
     <div class="inscription-container">
         <!-- Header -->
         <div class="inscription-header">
-            <h1><i class="fas fa-user-plus"></i> Inscripción de Postulante</h1>
+            <h1><i class="fas fa-user-plus"></i> Inscripción de Postulante kleber</h1>
             @if($convocatoriaActiva)
             <p class="convocatoria-info">Convocatoria: <span>{{ $convocatoria->nombre }}</span></p>
             @endif

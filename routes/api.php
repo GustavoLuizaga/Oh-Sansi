@@ -22,5 +22,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Remove from the auth:sanctum group for testing
 Route::get('/validate-tutor-token/{token}', [InscripcionEstController::class, 'validateTutorToken']);
+Route::get('/tutor-token/{token}/areas', [InscripcionEstController::class, 'getAreasByTutorToken']);
 Route::get('/categoria/{id}/grados', [InscripcionEstController::class, 'getGradosByCategoria']);
 Route::get('/convocatoria/{idConvocatoria}/area/{idArea}/categorias', [InscripcionEstController::class, 'getCategoriasByAreaConvocatoria']);

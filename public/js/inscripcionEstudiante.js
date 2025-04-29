@@ -387,11 +387,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add this at the top of your file with other variables
     let usedTokens = new Set();
     
+    // Función para mostrar el estado del token
+    function showTokenStatus(tokenInput, isValid, message) {
+        const tutorBlock = tokenInput.closest('.tutor-block');
+        const statusElement = tutorBlock.querySelector('.token-status');
+        
+        statusElement.textContent = message;
+        statusElement.className = 'token-status ' + (isValid ? 'valid' : 'invalid');
+        
+        if (!isValid) {
+            tutorBlock.querySelector('.tutor-info').style.display = 'none';
+        }
+    }
+    
     async function validateTutorToken(input) {
         const token = input.value.trim();
         const tutorBlock = input.closest('.tutor-block');
         const statusElement = tutorBlock.querySelector('.token-status');
         const verifyButton = tutorBlock.querySelector('.btn-verificar-token');
+        
+        if (!token) {
+            showTokenStatus(input, false, 'Por favor, ingrese un token');
+            return;
+        }
         
         // Check if token is already in use
         if (usedTokens.has(token)) {
@@ -420,6 +438,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Store the token in a data attribute for later reference
                 tutorBlock.dataset.usedToken = token;
+                
+                // Obtener las áreas asociadas al tutor
+                try {
+                    const areasResponse = await fetch(`/api/tutor-token/${token}/areas`);
+                    const areasData = await areasResponse.json();
+                    
+                    if (areasData.success) {
+                        // Habilitar el selector de área
+                        const areaSelect = tutorBlock.querySelector('.area-select');
+                        if (areaSelect) {
+                            // Limpiar las opciones actuales excepto la primera (placeholder)
+                            while (areaSelect.options.length > 1) {
+                                areaSelect.remove(1);
+                            }
+                            
+                            // Agregar solo las áreas asociadas al tutor
+                            areasData.areas.forEach(area => {
+                                const option = document.createElement('option');
+                                option.value = area.idArea;
+                                option.textContent = area.nombre;
+                                areaSelect.appendChild(option);
+                            });
+                            
+                            areaSelect.disabled = false;
+                            
+                            // Si solo hay una área, seleccionarla automáticamente
+                            if (areasData.areas.length === 1) {
+                                areaSelect.value = areasData.areas[0].idArea;
+                                // Cargar las categorías para esta área
+                                loadCategorias(areaSelect);
+                            }
+                        }
+                    } else {
+                        console.error('Error al obtener áreas:', areasData.message);
+                    }
+                } catch (areaError) {
+                    console.error('Error al obtener áreas:', areaError);
+                }
             } else {
                 statusElement.textContent = data.message || 'Token no válido';
                 statusElement.classList.remove('valid');

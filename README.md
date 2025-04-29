@@ -4,7 +4,7 @@
 
 ## 🚀 Descripción del Proyecto
 
-Este sistema permite gestionar el proceso de inscripción de estudiantes a las Olimpiadas Oh! SanSi. Incluye funcionalidades para que los administradores, tutores y estudiantes realicen sus tareas de manera eficiente y organizada.
+Sistema permite gestionar el proceso de inscripción de estudiantes a las Olimpiadas Oh! SanSi.
 
 ---
 
@@ -25,45 +25,48 @@ Este sistema permite gestionar el proceso de inscripción de estudiantes a las O
 
 1. **Clonar el repositorio:**
 ```bash
-    git clone https://github.com/KleberVM/sansi-system.git
+git clone https://github.com/KleberVM/sansi-system.git
 ```
 
 2. **Instalar dependencias (Recomendable estar dentro de la carpeta del proyecto):**
 ```bash
-    composer install
-    npm install
+composer install
+```
+```bash
+npm install
 ```
 
 3. **Configurar el archivo .env:**
 ```bash
-    cp .env.example .env
-    php artisan key:generate
+cp .env.example .env
+php artisan key:generate
 ```
 
 4. **Configurar la base de datos (Puedes saltarte al paso 5):**
 ```bash
-    php artisan migrate --seed
+php artisan migrate --seed
 ```
 
 5. **Levantar el servidor local:**
 ```bash
-    php artisan serve
+php artisan serve
+```
+
+6. **Repositorio del deploy** (Colaboradores)
+```bash
+git remote add deploy https://github.com/KleberVM/sansi-system.git
 ```
 
 ---
 
 ## Comandos útiles para el proyecto
 
-- Refresca la base de datos (Ten en cuenta que se perderan los datos que estan guardados en la base de datos.)
-```bash
-php artisan migrate:fresh --seed 
-```
 - Para los que tienen php superior a 7.4.22 
 ```bash
 composer remove phpoffice/phpspreadsheet
 ```
 
-- para actualizar composer
+- Actualizar composer
 ```bash
 composer update
 ```
@@ -89,7 +92,7 @@ php artisan db:seed
 ```
 - Ejecutar un seeder en especifico
 ```bash
-php artisan db:seed --class=TutorSeeder
+php artisan db:seed --class=NombreDelSeeder
 ```
 ---
 

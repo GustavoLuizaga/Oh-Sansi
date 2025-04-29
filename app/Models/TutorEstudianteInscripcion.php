@@ -22,10 +22,10 @@ class TutorEstudianteInscripcion extends Model
     }
 
     public function obtenerInscripcionesPorTutor($idTutor)
-{
-    return $this->where('idTutor', $idTutor)
-        ->with('inscripcion')  // Carga eager loading de la relación inscripcion
-        ->get();
-}
+    {
+        return $this->where('idTutor', $idTutor)
+            ->with('inscripcion')
+            ->get();
+    }
 
 }

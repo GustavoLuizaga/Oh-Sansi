@@ -45,7 +45,6 @@ class Inscripcion extends Model
     public function delegacion()
     {
         return $this->belongsTo(Delegacion::class, 'idDelegacion', 'idDelegacion');
-        
     }
 
     public function tutores()
@@ -60,5 +59,17 @@ class Inscripcion extends Model
         return $this->belongsToMany(Estudiante::class, 'tutorEstudianteInscripcion', 'idInscripcion', 'idEstudiante')
             ->withPivot('idTutor')
             ->withTimestamps();
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'idCategoria', 'idCategoria');
+    }
+
+    public function obtenerEstudiantePorInscripcion($idInscripcion)
+    {
+        return $this->estudiantes()
+            ->where('inscripcion.idInscripcion', $idInscripcion)
+            ->first();
     }
 }

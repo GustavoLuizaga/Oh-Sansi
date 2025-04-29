@@ -52,7 +52,7 @@ Route::delete('/servicios/eliminar-rol', [\App\Http\Controllers\ServiceControlle
 Route::post('/servicios/agregar-permiso', [\App\Http\Controllers\ServiceController::class, 'agregarPermiso'])->middleware(['auth'])->name('servicios.agregarPermiso');
 Route::post('/servicios/eliminar-permiso', [\App\Http\Controllers\ServiceController::class, 'eliminarPermiso'])->middleware(['auth'])->name('servicios.eliminarPermiso');
 
-
+Route::get('/boletapago', [\App\Http\Controllers\BoletaPago\BoletaDePago::class, 'obtenerEstudiantesInscritos'])->middleware(['auth'])->name('boletapago.ObtenerInscripcionesPorDelegadoArea'); 
 
 require __DIR__.'/auth.php';
 require __DIR__.'/areasCategorias.php';

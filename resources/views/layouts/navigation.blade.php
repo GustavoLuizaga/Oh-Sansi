@@ -5,6 +5,9 @@
             Oh! <span>Sansi</span>
         </a>
     </div>
+    <button id="theme-toggle" class="theme-toggle desktop-only">
+                <i class="fas fa-moon"></i>
+    </button>
 
     <!-- User Dropdown -->
     <div class="user-dropdown">

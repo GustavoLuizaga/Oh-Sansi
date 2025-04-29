@@ -6,50 +6,50 @@
 /* ======= VARIABLES ======= */
 :root {
     /* Colores principales - Paleta corporativa */
-    --primary-color: #1a365d; /* Azul oscuro principal */
-    --secondary-color: #2c5282; /* Azul medio */
-    --text-color: #333; /* Color de texto principal */
-    --border-color: #e2e8f0; /* Color de bordes */
-    --hover-color: #f7fafc; /* Color de hover */
-    --button-text: #fff; /* Color de texto en botones */
-    --danger-color: #ef4444; /* Color de peligro/error */
+    --primary-color: var(--azul-oscuro-estatico);
+    --secondary-color: var(--azul-medio-estatico);
+    --text-color: var(--texto-principal);
+    --border-color: var(--input-borde);
+    --hover-color: var(--div-claro);
+    --button-text: var(--fondo-claro);
+    --danger-color: var(--color-peligro);
     
     /* Colores complementarios */
-    --complementary-light: #f8fafc; /* Fondo claro */
-    --complementary-dark: #1a2530; /* Fondo oscuro */
-    --complementary-warm: #fff5f5; /* Tono cálido */
+    --complementary-light: var(--fondo-secundario-claro);
+    --complementary-dark: var(--fondo-claro);
+    --complementary-warm: var(--div-claro);
     
     /* Colores neutros */
-    --dark-color: #1a2a36;
-    --light-color: #f5f9fc;
-    --gray-color: #718096;
-    --gray-light: #e2e8f0;
-    --gray-dark: #4a5568;
+    --dark-color: var(--texto-principal);
+    --light-color: var(--fondo-secundario-claro);
+    --gray-color: var(--texto-suave);
+    --gray-light: var(--texto-deshabilitado);
+    --gray-dark: var(--texto-secundario);
     
     /* Colores de estado */
-    --success-color: #00A389; /* Verde */
-    --warning-color: #ed8936; /* Naranja */
-    --info-color: #4299e1; /* Azul información */
+    --success-color: var(--color-exito);
+    --warning-color: var(--color-advertencia);
+    --info-color: var(--color-informacion);
 
-    /* Tipografía - Reducidos aún más para mejor visualización al 100% */
+    /* Tipografía */
     --font-primary: 'Nunito', sans-serif;
-    --font-size-base: 0.65rem;
-    --font-size-small: 0.6rem;
-    --font-size-large: 0.75rem;
-    --font-size-xlarge: 0.9rem;
-    --font-size-xxlarge: 1.1rem;
+    --font-size-base: 16px;
+    --font-size-small: 14px;
+    --font-size-large: 18px;
+    --font-size-xlarge: 24px;
+    --font-size-xxlarge: 32px;
     
-    /* Espaciado - Ajustado para mejor visualización */
-    --spacing-xs: 0.15rem;
-    --spacing-sm: 0.3rem;
-    --spacing-md: 0.6rem;
-    --spacing-lg: 0.9rem;
-    --spacing-xl: 1.2rem;
+    /* Espaciado */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
     
     /* Bordes y sombras */
-    --border-radius: 0.2rem;
-    --border-radius-lg: 0.4rem;
-    --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    --border-radius: 4px;
+    --border-radius-lg: 8px;
+    --box-shadow: 0 2px 5px var(--color-sombra);
     --box-shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.1);
     
     /* Transiciones */
@@ -57,12 +57,108 @@
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
     
-    /* Dimensiones - Reducidas para mejor visualización */
-    --sidebar-width: 12rem;
-    --sidebar-collapsed-width: 2.5rem;
-    --right-sidebar-width: 13rem;
-    --header-height: 2.5rem;
+    /* Dimensiones */
+    --sidebar-width: 210px;
+    --sidebar-collapsed-width: 60px;
+    --right-sidebar-width: 300px;
+    --header-height: 60px;
+    /*Colores estaticos*/
+    --color-azul-estatico:#0a2a4d;
 }
+:root {
+    /* 🎯 Colores base */
+    --azul-oscuro-estatico: #0a2a4d;
+    --azul-medio-estatico: #1e5aa5;
+  
+    /* 🌞 Modo claro */
+    --fondo-claro: #ffffff;
+    --fondo-secundario-claro: #f5f7fa;
+    --fondo-terciario-claro: #e4eaf1;
+    --fondo-contraste-claro: #dde6f0;
+  
+    --div-claro: #f7faff;
+    --div-medio: #dce6f2;
+    --div-oscuro: #c3d2e8;
+  
+    --input-fondo: #ffffff;
+    --input-borde: #c0c0c0;
+    --input-borde-enfocado: #1e5aa5;
+    --input-placeholder: #999999;
+    --etiqueta-texto: #2a2a2a;
+  
+    --texto-principal: #1a1a1a;
+    --texto-secundario: #4a4a4a;
+    --texto-suave: #777777;
+    --texto-deshabilitado: #aaaaaa;
+    --texto-enlace: #1e5aa5;
+    --texto-enlace-hover: #15427c;
+  
+    --color-acento: #1e5aa5;
+    --color-acento-hover: #15427c;
+    --color-exito: #28a745;
+    --color-advertencia: #ffc107;
+    --color-peligro: #dc3545;
+    --color-informacion: #17a2b8;
+  
+    --color-sombra: rgba(0, 0, 0, 0.2);
+
+    /*Color estatico*/
+    --color-azul-estatico:#17283a;
+    --texto-estatico:#eaf3ff;
+  }
+  body.dark-theme {
+      --fondo-claro: #0b0f14;             /* casi negro, con tinte azul */
+      --fondo-secundario-claro: #121a26;  /* gris azulado muy oscuro */
+      --fondo-terciario-claro: #1c2738;   /* más visible pero aún oscuro */
+      --fondo-contraste-claro: #233349;   /* contraste suave */
+  
+      --div-claro: #162030;
+      --div-medio: #213148;
+      --div-oscuro: #2d4060;
+  
+      --input-fondo: #0e141d;
+      --input-borde: #3a5b88;
+      --input-borde-enfocado: #5faaff;
+      --input-placeholder: #8ea5c5;
+      --etiqueta-texto: #d9e3f0;
+  
+      --texto-principal: #eaf3ff;
+      --texto-secundario: #afc1d8;
+      --texto-suave: #edf0f3;
+      --texto-deshabilitado: #6d7e94;
+      --texto-enlace: #69b7ff;
+      --texto-enlace-hover: #a3d0ff;
+  
+      --color-acento: #428ee6;
+      --color-acento-hover: #63a2f0;
+      --color-exito: #48c774;
+      --color-advertencia: #ffd666;
+      --color-peligro: #ff6b6b;
+      --color-informacion: #4bc0c0;
+  
+      --color-sombra: rgba(0, 0, 0, 0.6);
+
+      --primary-color: var(--azul-medio-estatico);
+      --secondary-color: var(--color-acento);
+      --text-color: var(--texto-principal);
+      --border-color: var(--input-borde);
+      --hover-color: var(--div-medio);
+      --button-text: var(--fondo-claro);
+      
+      /* Actualizar colores complementarios */
+      --complementary-light: var(--fondo-secundario-claro);
+      --complementary-dark: var(--fondo-terciario-claro);
+      --complementary-warm: var(--div-claro);
+      
+      /* Actualizar colores neutros */
+      --dark-color: var(--texto-principal);
+      --light-color: var(--fondo-secundario-claro);
+      --gray-color: var(--texto-suave);
+      --gray-light: var(--texto-deshabilitado);
+      --gray-dark: var(--texto-secundario);
+    }
+
+  
 
 /* ======= RESET Y ESTILOS BASE ======= */
 * {
@@ -75,7 +171,7 @@ body {
     font-family: var(--font-primary);
     font-size: var(--font-size-base);
     color: var(--dark-color);
-    background-color: #f5f7fa;
+    background-color: var(--fondo-secundario-claro);
     line-height: 1.5;
     display: flex;
     flex-direction: column;
@@ -88,7 +184,11 @@ ul {
 
 a {
     text-decoration: none;
-    color: inherit;
+    color: var(--texto-enlace);
+}
+
+a:hover {
+    color: var(--texto-enlace-hover);
 }
 
 button {
@@ -107,7 +207,7 @@ input, select, button {
 .main-content {
     display: flex;
     margin-top: var(--header-height);
-    min-height: calc(100vh - var(--header-height) - 3.125rem);
+    min-height: calc(100vh - var(--header-height) - 50px);
     position: relative;
     background-color: var(--light-color);
 }
@@ -119,14 +219,13 @@ nav {
     left: 0;
     width: 100%;
     height: var(--header-height);
-    background-color: white;
+    background-color: var(--fondo-claro);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 var(--spacing-lg);
     z-index: 1000;
     box-shadow: var(--box-shadow);
-    font-size: var(--font-size-base);
 }
 
 .logo {
@@ -136,7 +235,7 @@ nav {
 }
 
 .logo a {
-    font-size: 20px;
+    font-size: var(--font-size-xlarge);
     font-weight: 700;
     color: var(--primary-color);
     text-decoration: none;
@@ -144,9 +243,7 @@ nav {
 .logo span {
     color: #D50000;
 }
-.user-menu-button, .dropdown-item{
-    font-size: 13px;
-}
+
 .nav-links {
     display: flex;
     list-style: none;
@@ -183,20 +280,34 @@ nav {
     color: var(--danger-color);
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background-color: transparent;
+    transform: none;
+}
 /* ======= SIDEBAR ======= */
 .sidebar {
     width: var(--sidebar-width);
-    background: linear-gradient(to bottom, var(--dark-color), #1a2530);
+    background:var(--color-azul-estatico);
     color: white;
     position: fixed;
     top: var(--header-height);
     left: 0;
-    height: calc(100vh - var(--header-height) - 2.5rem);
+    height: calc(100vh - var(--header-height) - 50px);
     overflow-y: auto;
     z-index: 900;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: var(--font-size-base);
 }
 
 .menu {
@@ -206,7 +317,7 @@ nav {
     padding: var(--spacing-md) 0;
 }
 .main-content {
-    margin-left: var(--sidebar-width); /* Debe ser igual al ancho del sidebar */
+    margin-left: 250px; /* Debe ser igual al ancho del sidebar */
     padding: var(--spacing-md);
 }
 .menu-seccion {
@@ -269,7 +380,7 @@ nav {
 }
 
 .menu ul li.active, .menu ul li a.active {
-    background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+    background: linear-gradient(to right, var(--color-acento), var(--color-acento-hover));
     font-weight: bold;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
@@ -315,18 +426,17 @@ main {
     flex: 1;
     padding: var(--spacing-lg);
     margin-top: var(--header-height);
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
     margin-left: var(--sidebar-width);
     margin-right: var(--right-sidebar-width);
     width: calc(100% - var(--sidebar-width) - var(--right-sidebar-width));
-    font-size: var(--font-size-base);
 }
 
 /* ======= RIGHT SIDEBAR ======= */
 .sidebar-derecho {
     width: var(--right-sidebar-width);
-    background-color: white;
-    border-left: 1px solid var(--gray-light);
+    background-color: var(--fondo-claro);
+    border-left: 1px solid var(--input-borde);
     padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
@@ -334,10 +444,9 @@ main {
     position: fixed;
     top: var(--header-height);
     right: 0;
-    height: calc(100vh - var(--header-height) - 2.5rem);
+    height: calc(100vh - var(--header-height) - 50px);
     overflow-y: auto;
     z-index: 800;
-    font-size: var(--font-size-base);
 }
 
 .sidebar-derecho-calendario,
@@ -364,7 +473,7 @@ main {
 
 /* Calendar Styles */
 .calendario {
-    background-color: white;
+    background-color: var(--fondo-secundario-claro);
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: var(--box-shadow);
@@ -375,7 +484,7 @@ main {
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-sm);
-    background-color: var(--primary-color);
+    background-color: var(--color-acento);
     color: white;
 }
 
@@ -499,7 +608,7 @@ main {
     display: flex;
     gap: var(--spacing-sm);
     padding: var(--spacing-sm);
-    background-color: white;
+    background-color: var(--div-claro);
     border-radius: var(--border-radius);
     transition: var(--transition-fast);
 }
@@ -536,16 +645,16 @@ main {
 
 /* ======= FOOTER ======= */
 footer {
-    background-color: var(--dark-color);
+    background-color: var(--color-azul-estatico);
     padding: var(--spacing-md);
     text-align: center;
-    color: white;
+    color: var(--texto-estatico);
     font-size: var(--font-size-small);
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 2.5rem;
+    height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -553,83 +662,26 @@ footer {
 }
 
 .copyright {
-    font-size: 0.875rem;
+    font-size: 14px;
 }
 
 /* ======= RESPONSIVE STYLES ======= */
-@media (min-width: 1401px) {
+@media (max-width: 1200px) {
     :root {
-        /* Para pantallas grandes, mantener los valores base pero ligeramente más grandes */
-        --font-size-base: 0.7rem;
-        --font-size-small: 0.65rem;
-        --font-size-large: 0.8rem;
-        --font-size-xlarge: 0.95rem;
-        --font-size-xxlarge: 1.15rem;
-        --sidebar-width: 13rem;
-        --right-sidebar-width: 14rem;
-        --header-height: 2.7rem;
+        --right-sidebar-width: 250px;
     }
 }
 
-@media (max-width: 1400px) and (min-width: 1201px) {
-    :root {
-        /* Mantener los valores base pero reducidos */
-        --sidebar-width: 12rem;
-        --right-sidebar-width: 13rem;
-        --font-size-base: 0.65rem;
-        --font-size-small: 0.6rem;
-        --font-size-large: 0.75rem;
-        --font-size-xlarge: 0.9rem;
-        --font-size-xxlarge: 1.1rem;
-    }
-}
-
-@media (max-width: 1200px) and (min-width: 993px) {
-    :root {
-        --font-size-base: 0.63rem;
-        --font-size-small: 0.58rem;
-        --font-size-large: 0.73rem;
-        --font-size-xlarge: 0.85rem;
-        --font-size-xxlarge: 1rem;
-        --sidebar-width: 11rem;
-        --right-sidebar-width: 12rem;
-        --spacing-md: 0.55rem;
-        --spacing-lg: 0.85rem;
-        --header-height: 2.4rem;
-    }
-}
-
-@media (max-width: 992px) and (min-width: 769px) {
-    :root {
-        --font-size-base: 0.6rem;
-        --font-size-small: 0.55rem;
-        --font-size-large: 0.7rem;
-        --font-size-xlarge: 0.8rem;
-        --font-size-xxlarge: 0.95rem;
-        --sidebar-width: 10rem;
-        --right-sidebar-width: 11rem;
-        --spacing-md: 0.5rem;
-        --spacing-lg: 0.8rem;
-        --header-height: 2.3rem;
-    }
-    
+@media (max-width: 992px) {
     main {
         margin-right: var(--right-sidebar-width);
         width: calc(100% - var(--sidebar-width) - var(--right-sidebar-width));
-        padding: var(--spacing-md);
     }
 }
 
 @media (max-width: 768px) {
     :root {
-        --font-size-base: 0.58rem;
-        --font-size-small: 0.53rem;
-        --font-size-large: 0.68rem;
-        --font-size-xlarge: 0.78rem;
-        --font-size-xxlarge: 0.9rem;
         --right-sidebar-width: 100%;
-        --sidebar-width: 9rem;
-        --header-height: 2.2rem;
     }
     
     .main-content {
@@ -662,13 +714,10 @@ footer {
 
 @media (max-width: 576px) {
     :root {
-        --font-size-base: 0.68rem;
-        --font-size-small: 0.63rem;
-        --font-size-large: 0.83rem;
-        --font-size-xlarge: 0.95rem;
-        --font-size-xxlarge: 1.2rem;
-        --spacing-lg: 0.9rem;
-        --spacing-md: 0.65rem;
+        --spacing-lg: 16px;
+        --spacing-md: 12px;
+        --font-size-xxlarge: 24px;
+        --font-size-xlarge: 20px;
     }
     
     .logo a {

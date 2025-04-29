@@ -10,7 +10,7 @@
 }
 
 .crear-delegacion-container {
-    background-color: #fff;
+    background-color: var(--fondo-claro);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin: 20px;
@@ -19,15 +19,15 @@
 }
 
 .crear-delegacion-header {
-    background-color: #f8f9fa;
+    background-color: var(--fondo-secundario-claro);
     padding: 10px 15px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--input-borde);
 }
 
 .crear-delegacion-header h1 {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #1a2942;
+    color: var(--texto-principal);
     margin: 0;
     display: flex;
     align-items: center;
@@ -35,7 +35,7 @@
 }
 
 .crear-delegacion-header h1 i {
-    color: var(--primary-color);
+    color: var(--color-acento);
 }
 
 .crear-delegacion-form {
@@ -49,10 +49,10 @@
 .form-section-title {
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--color-acento);
     margin-bottom: 8px;
     padding-bottom: 4px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--input-borde);
 }
 
 .form-row {
@@ -71,38 +71,37 @@
     display: block;
     margin-bottom: 2px;
     font-weight: 500;
-    color: #495057;
+    color: var(--etiqueta-texto);
     font-size: 0.65rem;
 }
 
 .form-control {
     width: 100%;
     padding: 4px 6px;
-    border: 1px solid #ced4da;
+    border: 1px solid var(--input-borde);
     border-radius: 4px;
     font-size: 0.65rem;
     transition: border-color 0.3s;
+    background-color: var(--input-fondo);
+    color: var(--texto-principal);
 }
 
 .form-control:focus {
-    border-color: var(--primary-color);
+    border-color: var(--input-borde-enfocado);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.1);
+    box-shadow: 0 0 0 3px var(--color-sombra);
 }
 
 .form-control.is-invalid {
-    border-color: var(--secondary-color);
+    border-color: var(--color-peligro);
 }
 
 .invalid-feedback {
-    color: var(--secondary-color);
-    font-size: 12px;
-    margin-top: 4px;
+    color: var(--color-peligro);
 }
 
 .required-label::after {
-    content: " *";
-    color: var(--secondary-color);
+    color: var(--color-peligro);
 }
 
 .form-actions {
@@ -111,7 +110,7 @@
     gap: 10px;
     margin-top: 15px;
     padding-top: 10px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--input-borde);
 }
 
 .btn {
@@ -128,39 +127,41 @@
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--color-acento);
+    color: var(--texto-estatico);
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--color-acento-hover);
 }
 
 .btn-success {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--color-azul-estatico);
+    color: var(--texto-estatico);
 }
 
 .btn-success:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary-color);
+    filter: brightness(90%);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
-    color: white;
+    background-color: var(--texto-secundario);
+    color: var(--texto-estatico);
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background-color: var(--texto-suave);
 }
 
 .btn-danger {
-    background-color: var(--secondary-color);
-    color: white;
+    background-color: var(--color-peligro);
+    color: var(--texto-principal);
 }
 
 .btn-danger:hover {
-    background-color: var(--secondary-dark);
+    background-color: var(--color-peligro);
+    filter: brightness(90%);
 }
 
 /* Responsive styles */

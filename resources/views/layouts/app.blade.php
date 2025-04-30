@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="stylesheet" href="css/custom.css">
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -29,7 +29,7 @@
 
 <body class="font-sans antialiased">
     <!-- Navigation -->
-    @include('layouts.navigation')
+    @include('layouts/navigation')
     
     <!-- Contenedor principal flex -->
     <div class="min-h-screen bg-gray-100 flex flex-col">
@@ -50,11 +50,11 @@
             </main>
             
             <!-- Right Sidebar -->
-            @include('layouts.rigthbar')
+            @include('layouts/rigthbar')
         </div>
         
         <!-- Footer -->
-        @include('layouts.footer')
+        @include('layouts/footer')
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

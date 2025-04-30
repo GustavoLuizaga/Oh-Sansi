@@ -36,7 +36,7 @@
         <!-- Contenido principal + sidebars -->
         <div class="flex flex-1">
             <!-- Sidebar izquierdo -->
-            @include('layouts.sidebar')
+            @include('layouts/sidebar')
             
             <!-- Contenido principal que se expande -->
             <main class="flex-1 p-4 overflow-auto">

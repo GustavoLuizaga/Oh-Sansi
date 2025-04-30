@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Oh! Sansi</title>
-    <link rel="stylesheet" href="/css/welcome.css">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
     <link rel="stylesheet" href="{{ asset('css/barraNavegacionPrincipal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/contentFooter.css') }}">
     <link rel="stylesheet" href="{{ asset('css/registerModal.css') }}">
@@ -156,7 +156,7 @@
 
     @include('layouts/contentFooter')
 
-    <script src="/js/home.js"></script>
+    <script src="{{ asset('js/home.js') }}"></script>
     <script src="{{ asset('js/themeToggle.js') }}"></script>
     <script src="{{ asset('js/registerModal.js') }}"></script>
     <script src="{{ asset('js/mobileMenu.js') }}"></script>

@@ -126,6 +126,10 @@
 
     <!-- Botones de Acción -->
     <div class="action-buttons">
+        <a href="{{ route('delegado.editar', ['id' => $tutor->id]) }}" class="btn btn-primary">
+            <i class="fas fa-edit mr-2"></i> Editar Tutor
+        </a>
+
         <button type="button" data-tutor-id="{{ $tutor->id }}" class="btn btn-danger btn-eliminar">
             <i class="fas fa-trash-alt mr-2"></i> Eliminar Tutor
         </button>

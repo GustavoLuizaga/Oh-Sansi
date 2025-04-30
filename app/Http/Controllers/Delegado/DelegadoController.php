@@ -97,6 +97,14 @@ class DelegadoController extends Controller
                 });
             });
         }
+        
+        // Filtrar por colegio si se proporciona
+        if ($request->has('colegio') && !empty($request->colegio)) {
+            $idColegio = $request->colegio;
+            $query->whereHas('tutorAreaDelegacion', function($q) use ($idColegio) {
+                $q->where('idDelegacion', $idColegio);
+            });
+        }
 
         // Aplicar ordenamiento
         $sort = $request->sort ?? 'name';
@@ -238,6 +246,101 @@ class DelegadoController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('delegado')
                 ->with('error', 'Error al ver los detalles del tutor: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Mostrar formulario para editar un tutor
+     */
+    public function editarDelegador($id)
+    {
+        try {
+            // Obtener el tutor con sus relaciones
+            $tutor = Tutor::with(['user', 'delegaciones', 'areas', 'tutorAreaDelegacion'])
+                ->where('estado', 'aprobado')
+                ->findOrFail($id);
+            
+            // Obtener todos los colegios y áreas para el formulario
+            $colegios = Delegacion::all();
+            $areas = Area::all();
+                
+            return view('delegado.editarDelegador', compact('tutor', 'colegios', 'areas'));
+        } catch (\Exception $e) {
+            return redirect()->route('delegado')
+                ->with('error', 'Error al cargar el formulario de edición: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Actualizar los datos de un tutor
+     */
+    public function actualizarDelegador(Request $request, $id)
+    {
+        try {
+            // Validar los datos del formulario
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'apellidoPaterno' => 'required|string|max:255',
+                'apellidoMaterno' => 'nullable|string|max:255',
+                'email' => 'required|email|max:255',
+                'telefono' => 'required|string|max:20',
+                'profesion' => 'required|string|max:255',
+                'genero' => 'required|in:M,F',
+                'fechaNacimiento' => 'required|date',
+                'colegios' => 'nullable|array',
+                'areas' => 'nullable|array',
+            ]);
+            
+            // Iniciar transacción
+            DB::beginTransaction();
+            
+            // Actualizar datos del usuario
+            $tutor = Tutor::findOrFail($id);
+            $user = User::findOrFail($id);
+            
+            $user->name = $request->name;
+            $user->apellidoPaterno = $request->apellidoPaterno;
+            $user->apellidoMaterno = $request->apellidoMaterno;
+            $user->email = $request->email;
+            $user->genero = $request->genero;
+            $user->fechaNacimiento = $request->fechaNacimiento;
+            $user->save();
+            
+            // Actualizar datos del tutor
+            $tutor->telefono = $request->telefono;
+            $tutor->profesion = $request->profesion;
+            $tutor->es_director = $request->has('es_director');
+            $tutor->save();
+            
+            // Actualizar relaciones con colegios y áreas
+            if ($request->has('colegios') && $request->has('areas')) {
+                // Eliminar relaciones existentes
+                TutorAreaDelegacion::where('id', $id)->delete();
+                
+                // Crear nuevas relaciones
+                foreach ($request->colegios as $idDelegacion) {
+                    foreach ($request->areas as $idArea) {
+                        TutorAreaDelegacion::create([
+                            'id' => $id,
+                            'idArea' => $idArea,
+                            'idDelegacion' => $idDelegacion
+                        ]);
+                    }
+                }
+            }
+            
+            // Confirmar transacción
+            DB::commit();
+            
+            return redirect()->route('delegado.ver', ['id' => $id])
+                ->with('success', 'Tutor actualizado correctamente');
+        } catch (\Exception $e) {
+            // Revertir transacción en caso de error
+            DB::rollBack();
+            
+            return redirect()->route('delegado.editar', ['id' => $id])
+                ->with('error', 'Error al actualizar el tutor: ' . $e->getMessage())
+                ->withInput();
         }
     }
 }

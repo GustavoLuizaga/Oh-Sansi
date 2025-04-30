@@ -18,14 +18,34 @@ class ConvocatoriaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // Verificar y actualizar el estado de las convocatorias vencidas
         $this->verificarEstadoConvocatorias();
         
-        // Fetch convocatorias from the database
-        $convocatorias = Convocatoria::all(); // sin orderBy
-
+        // Iniciar la consulta
+        $query = Convocatoria::query();
+        
+        // Aplicar filtro de búsqueda si existe
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('nombre', 'LIKE', "%{$search}%")
+                  ->orWhere('descripcion', 'LIKE', "%{$search}%");
+        }
+        
+        // Aplicar filtro de estado si existe
+        if ($request->has('estado') && !empty($request->estado)) {
+            $query->where('estado', $request->estado);
+        }
+        
+        // Ordenar por fecha de creación descendente
+        $query->orderBy('created_at', 'desc');
+        
+        // Paginar los resultados (10 por página)
+        $convocatorias = $query->paginate(10);
+        
+        // Mantener los parámetros de búsqueda en la paginación
+        $convocatorias->appends($request->all());
         
         return view('convocatoria.convocatoria', compact('convocatorias'));
     }

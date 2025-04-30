@@ -156,9 +156,9 @@
 
     @include('layouts/contentFooter')
 
-    <script src="{{ asset('JS/home.js') }}"></script>
-    <script src="{{ asset('JS/themeToggle.js') }}"></script>
-    <script src="{{ asset('JS/registerModal.js') }}"></script>
+    <script src="/js/home.js"></script>
+    <script src="{{ asset('js/themeToggle.js') }}"></script>
+    <script src="{{ asset('js/registerModal.js') }}"></script>
     <script src="{{ asset('js/mobileMenu.js') }}"></script>
     <script src="{{ asset('js/areasCarousel.js') }}"></script>
     <script src="{{ asset('js/contentFooter.js') }}"></script>

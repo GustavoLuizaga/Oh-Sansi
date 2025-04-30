@@ -142,8 +142,53 @@
     </table>
 
     <!-- Pagination -->
-    <div class="pagination">
-        {{ $delegaciones->appends(request()->query())->links() }}
+    <div class="paginacion">
+        <div class="pagination-container">
+            @if($delegaciones->lastPage() > 1)
+                <ul class="pagination-list">
+                    <!-- Previous Page Link -->
+                    @if($delegaciones->currentPage() > 1)
+                        <li>
+                            <a href="{{ $delegaciones->url(1) }}" class="pagination-link">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ $delegaciones->url($delegaciones->currentPage() - 1) }}" class="pagination-link">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                    @endif
+
+                    <!-- Numbered Page Links -->
+                    @for($i = max(1, $delegaciones->currentPage() - 2); $i <= min($delegaciones->lastPage(), $delegaciones->currentPage() + 2); $i++)
+                        <li>
+                            <a href="{{ $delegaciones->url($i) }}" 
+                               class="pagination-link {{ $i == $delegaciones->currentPage() ? 'active' : '' }}">
+                                {{ $i }}
+                            </a>
+                        </li>
+                    @endfor
+
+                    <!-- Next Page Link -->
+                    @if($delegaciones->hasMorePages())
+                        <li>
+                            <a href="{{ $delegaciones->url($delegaciones->currentPage() + 1) }}" class="pagination-link">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ $delegaciones->url($delegaciones->lastPage()) }}" class="pagination-link">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+                <div class="pagination-info">
+                    Mostrando {{ $delegaciones->firstItem() ?? 0 }} - {{ $delegaciones->lastItem() ?? 0 }} de {{ $delegaciones->total() }} registros
+                </div>
+            @endif
+        </div>
     </div>
 
     <script>

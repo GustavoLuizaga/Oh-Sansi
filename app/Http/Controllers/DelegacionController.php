@@ -15,37 +15,37 @@ class DelegacionController extends Controller
     {
         $query = DB::table('delegacion');
         
-        // Search by name or SIE code
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('codigo_sie', 'like', '%' . $search . '%');
+        // Search functionality
+        if ($request->has('search')) {
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('nombre', 'like', $searchTerm)
+                  ->orWhere('codigo_sie', 'like', $searchTerm);
             });
         }
         
-        // Filter by department
-        if ($request->has('departamento') && !empty($request->departamento)) {
-            $query->where('departamento', $request->departamento);
-        }
-        
-        // Filter by province
-        if ($request->has('provincia') && !empty($request->provincia)) {
-            $query->where('provincia', $request->provincia);
-        }
-        
-        // Filter by municipality
-        if ($request->has('municipio') && !empty($request->municipio)) {
-            $query->where('municipio', $request->municipio);
-        }
-        
-        // Filter by dependencia
-        if ($request->has('dependencia') && !empty($request->dependencia)) {
+        // Apply filters
+        if ($request->filled('dependencia')) {
             $query->where('dependencia', $request->dependencia);
         }
-        
-        $delegaciones = $query->paginate(10);
-        
+
+        if ($request->filled('departamento')) {
+            $query->where('departamento', $request->departamento);
+        }
+
+        if ($request->filled('provincia')) {
+            $query->where('provincia', $request->provincia);
+        }
+
+        if ($request->filled('municipio')) {
+            $query->where('municipio', $request->municipio);
+        }
+
+        // Get paginated results with all current query parameters
+        $delegaciones = $query->orderBy('nombre')
+                            ->paginate(10)
+                            ->appends($request->all());
+
         return view('delegaciones.delegaciones', compact('delegaciones'));
     }
 

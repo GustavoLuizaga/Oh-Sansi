@@ -20,34 +20,32 @@
         <h1><i class="fas fa-school"></i> {{ __('Administrar Colegios') }}</h1>
     </div>
 
-    <!-- Actions Container (Add and Export buttons in the same row) -->
-    <div class="actions-container mb-1">
-        <a href="{{ route('delegaciones.agregar') }}" class="add-button py-1 px-2">
-            <i class="fas fa-plus"></i> Agregar Colegio
-        </a>
-        <div class="search-filter-container mb-1">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Nombre o código SIE" value="{{ request('search') }}" class="py-1">
-                <button type="submit" class="search-button py-1 px-2">
-                    <i class="fas fa-search"></i> Buscar
+    <!-- Search and Filter -->
+    <form action="{{ route('delegaciones') }}" method="GET" id="filterForm">
+        <!-- Actions Container (Add and Export buttons in the same row) -->
+        <div class="actions-container mb-1">
+            <a href="{{ route('delegaciones.agregar') }}" class="add-button py-1 px-2">
+                <i class="fas fa-plus"></i> Agregar Colegio
+            </a>
+            <div class="search-filter-container mb-1">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Nombre o código SIE" value="{{ request('search') }}" class="py-1">
+                    <button type="submit" class="search-button py-1 px-2">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+            <div class="export-buttons">
+                <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+
+                <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
+                    <i class="fas fa-file-excel"></i> Excel
                 </button>
             </div>
         </div>
-        <div class="export-buttons">
-            <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
-                <i class="fas fa-file-pdf"></i> PDF
-            </button>
-
-            <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
-                <i class="fas fa-file-excel"></i> Excel
-            </button>
-        </div>
-    </div>
-
-    <!-- Search and Filter -->
-    <form action="{{ route('delegaciones') }}" method="GET" id="filterForm">
-
 
         <div class="filter-container mb-2 py-1 px-2">
             <div class="filter-group">
@@ -65,15 +63,9 @@
                 <label for="departamento" class="text-xs mb-1">Departamento:</label>
                 <select class="filter-select py-1" name="departamento" id="departamento">
                     <option value="">Todos</option>
-                    <option value="La Paz" {{ request('departamento') == 'La Paz' ? 'selected' : '' }}>La Paz</option>
-                    <option value="Santa Cruz" {{ request('departamento') == 'Santa Cruz' ? 'selected' : '' }}>Santa Cruz</option>
-                    <option value="Cochabamba" {{ request('departamento') == 'Cochabamba' ? 'selected' : '' }}>Cochabamba</option>
-                    <option value="Oruro" {{ request('departamento') == 'Oruro' ? 'selected' : '' }}>Oruro</option>
-                    <option value="Potosí" {{ request('departamento') == 'Potosí' ? 'selected' : '' }}>Potosí</option>
-                    <option value="Tarija" {{ request('departamento') == 'Tarija' ? 'selected' : '' }}>Tarija</option>
-                    <option value="Chuquisaca" {{ request('departamento') == 'Chuquisaca' ? 'selected' : '' }}>Chuquisaca</option>
-                    <option value="Beni" {{ request('departamento') == 'Beni' ? 'selected' : '' }}>Beni</option>
-                    <option value="Pando" {{ request('departamento') == 'Pando' ? 'selected' : '' }}>Pando</option>
+                    @foreach(['La Paz', 'Santa Cruz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Chuquisaca', 'Beni', 'Pando'] as $depto)
+                        <option value="{{ $depto }}" {{ request('departamento') == $depto ? 'selected' : '' }}>{{ $depto }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -380,10 +372,24 @@
             // Event listeners
             departamentoSelect.addEventListener('change', function() {
                 cargarProvincias();
+                filterForm.submit();
             });
 
             provinciaSelect.addEventListener('change', function() {
                 cargarMunicipios();
+                filterForm.submit();
+            });
+            
+            municipioSelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+
+            dependenciaSelect.addEventListener('change', function() {
+                filterForm.submit();
+            });
+
+            municipioSelect.addEventListener('change', function() {
+                filterForm.submit();
             });
 
             dependenciaSelect.addEventListener('change', function() {
@@ -431,27 +437,25 @@
             function closeModal() {
                 modal.style.display = 'none';
             }
-
-            // Event listeners para los botones de eliminar
+            
+            // Event listeners para los botones
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const id = this.getAttribute('data-id');
-                    const nombre = this.getAttribute('data-nombre');
+                    const id = this.dataset.id;
+                    const nombre = this.dataset.nombre;
                     openModal(id, nombre);
                 });
             });
-
-            // Event listeners para cerrar el modal
-            closeBtn.addEventListener('click', closeModal);
-            cancelBtn.addEventListener('click', closeModal);
-
-            // Cerrar el modal si se hace clic fuera de él
-            window.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
+            
+            // Cerrar modal con botón de cerrar y cancelar
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeModal);
+            }
         });
     </script>
 </x-app-layout>

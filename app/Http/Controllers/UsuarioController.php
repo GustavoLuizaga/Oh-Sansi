@@ -178,14 +178,16 @@ class UsuarioController extends Controller
         $usuario->fechaNacimiento = $request->fechaNacimiento;
         $usuario->genero = $request->genero;
         
-        // Si el correo cambió y se marcó como verificado, actualizar la fecha de verificación
-        if ($emailCambiado && $request->has('email_verified_at')) {
+        // Manejar la verificación de correo electrónico
+        if ($request->has('email_verified_at')) {
+            // Si el checkbox está marcado, verificar el correo
             $usuario->email_verified_at = now();
-        }
-        // Si el correo cambió y no se marcó como verificado, establecer como no verificado
-        elseif ($emailCambiado && !$request->has('email_verified_at')) {
+        } elseif ($request->has('email_verification_processed') || $emailCambiado) {
+            // Si el checkbox está desmarcado explícitamente o el correo cambió
+            // y no se marcó como verificado, establecer como no verificado
             $usuario->email_verified_at = null;
         }
+        // En cualquier otro caso, mantener el valor actual
         
         if ($request->filled('password')) {
             $usuario->password = Hash::make($request->password);

@@ -101,7 +101,7 @@ class DelegadoController extends Controller
         // Filtrar por colegio si se proporciona
         if ($request->has('colegio') && !empty($request->colegio)) {
             $idColegio = $request->colegio;
-            $query->whereHas('tutorAreaDelegacion', function($q) use ($idColegio) {
+            $query->whereHas('delegaciones', function($q) use ($idColegio) {
                 $q->where('idDelegacion', $idColegio);
             });
         }

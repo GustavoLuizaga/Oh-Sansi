@@ -28,6 +28,9 @@
                     <div class="search-input-group">
                         <i class="fas fa-search"></i>
                         <input type="text" name="search" placeholder="Buscar por nombre, CI o email" value="{{ request('search') }}" class="py-1">
+                        <button type="submit" class="search-button py-1 px-2">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
                     </div>
                     <div class="filter-group">
                         <select name="colegio" class="filter-select">
@@ -37,9 +40,6 @@
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="search-button py-1 px-2">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
                 </div>
             </form>
         </div>
@@ -98,7 +98,10 @@
                 <td>{{ $solicitud->user->name }} {{ $solicitud->user->apellidoPaterno }} {{ $solicitud->user->apellidoMaterno }}</td>
                 <td>{{ $solicitud->user->email }}</td>
                 <td>
-                    @foreach($solicitud->delegaciones as $delegacion)
+                    @php
+                        $colegiosUnicos = $solicitud->delegaciones->unique('nombre');
+                    @endphp
+                    @foreach($colegiosUnicos as $delegacion)
                         {{ $delegacion->nombre }}
                         @if(!$loop->last), @endif
                     @endforeach

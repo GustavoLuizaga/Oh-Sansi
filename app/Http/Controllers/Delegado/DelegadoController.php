@@ -9,8 +9,10 @@ use App\Models\User;
 use App\Models\Delegacion;
 use App\Models\TutorAreaDelegacion;
 use App\Models\Area;
+use App\Models\Rol;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DelegadoController extends Controller
 {
@@ -268,6 +270,106 @@ class DelegadoController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('delegado')
                 ->with('error', 'Error al cargar el formulario de edición: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Muestra el formulario para agregar un nuevo tutor
+     */
+    public function agregarTutor()
+    {
+        // Obtener usuarios con rol de tutor que aún no están en la tabla tutor
+        $rolTutor = Rol::where('nombre', 'Tutor')->first();
+        
+        if (!$rolTutor) {
+            return redirect()->route('delegado')
+                ->with('error', 'No se encontró el rol de tutor en el sistema');
+        }
+        
+        // Obtener usuarios con rol de tutor que no están en la tabla tutor
+        $usuariosTutor = User::whereHas('roles', function($query) use ($rolTutor) {
+                $query->where('rol.idRol', $rolTutor->idRol);
+            })
+            ->whereDoesntHave('tutor')
+            ->select('id', 'name', 'apellidoPaterno', 'apellidoMaterno', 'ci', 'email')
+            ->orderBy('name')
+            ->get();
+        
+        // Obtener colegios y áreas para el formulario
+        $colegios = Delegacion::orderBy('nombre')->get();
+        $areas = Area::orderBy('nombre')->get();
+        
+        return view('delegado.agregar', compact('usuariosTutor', 'colegios', 'areas'));
+    }
+    
+    /**
+     * Guarda un nuevo tutor en la base de datos
+     */
+    public function guardarTutor(Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'usuario_id' => 'required|exists:users,id',
+            'profesion' => 'required|string|max:255',
+            'telefono' => 'required|numeric',
+            'es_director' => 'nullable',
+            'colegios' => 'required|array|min:1',
+            'colegios.*' => 'exists:delegacion,idDelegacion',
+            'areas' => 'required|array|min:1',
+            'areas.*' => 'exists:area,idArea',
+        ]);
+        
+        try {
+            // Iniciar transacción
+            DB::beginTransaction();
+            
+            // Verificar que el usuario no tenga ya un registro de tutor
+            $tutorExistente = Tutor::find($request->usuario_id);
+            if ($tutorExistente) {
+                return redirect()->route('delegado.agregar')
+                    ->with('error', 'Este usuario ya está registrado como tutor')
+                    ->withInput();
+            }
+            
+            // Generar token único para el tutor
+            $tokenTutor = Str::random(20);
+            
+            // Crear el registro de tutor
+            $tutor = Tutor::create([
+                'id' => $request->usuario_id,
+                'profesion' => $request->profesion,
+                'telefono' => $request->telefono,
+                'linkRecurso' => '',  // Campo vacío por defecto
+                'tokenTutor' => $tokenTutor,
+                'es_director' => $request->has('es_director'),
+                'estado' => 'aprobado',  // Aprobado directamente
+            ]);
+            
+            // Crear relaciones con colegios y áreas
+            foreach ($request->colegios as $idDelegacion) {
+                foreach ($request->areas as $idArea) {
+                    TutorAreaDelegacion::create([
+                        'id' => $request->usuario_id,
+                        'idArea' => $idArea,
+                        'idDelegacion' => $idDelegacion,
+                        'tokenTutor' => $tokenTutor
+                    ]);
+                }
+            }
+            
+            // Confirmar transacción
+            DB::commit();
+            
+            return redirect()->route('delegado')
+                ->with('success', 'Tutor agregado correctamente');
+                
+        } catch (\Exception $e) {
+            // Revertir transacción en caso de error
+            DB::rollBack();
+            
+            return redirect()->route('delegado.agregar')
+                ->with('error', 'Error al agregar el tutor: ' . $e->getMessage())
+                ->withInput();
         }
     }
     

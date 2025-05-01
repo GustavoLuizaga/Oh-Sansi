@@ -15,7 +15,11 @@
     </div>
 
     <!-- Actions Container (Search and Buttons) -->
+    <!-- Actions Container (Add and Search in the same row) -->
     <div class="actions-container mb-1">
+        <a href="{{ route('delegado.agregar') }}" class="btn-nuevo-tutor">
+            <i class="fas fa-plus-circle"></i> Agregar Tutor
+        </a>
         <div class="search-filter-container">
             <form action="{{ route('delegado') }}" method="GET" id="searchForm" class="search-form">
                 <div class="search-box">

@@ -34,6 +34,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/delegado/editar/{id}', [DelegadoController::class, 'editarDelegador'])->name('delegado.editar');
     Route::put('/delegado/actualizar/{id}', [DelegadoController::class, 'actualizarDelegador'])->name('delegado.actualizar');
     
+    // Rutas para agregar tutores
+    Route::get('/delegado/agregar', [DelegadoController::class, 'agregarTutor'])->name('delegado.agregar');
+    Route::post('/delegado/guardar', [DelegadoController::class, 'guardarTutor'])->name('delegado.guardar');
+    
     // Ruta para actualizar áreas por colegio
     Route::put('/delegado/actualizar-areas/{id}/{idDelegacion}', [DelegadoController::class, 'actualizarAreas'])->name('delegado.actualizar-areas');
 });

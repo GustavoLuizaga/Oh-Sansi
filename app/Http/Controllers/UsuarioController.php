@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Rol;
+use App\Models\Estudiante;
 use Illuminate\Auth\Events\Registered;
 
 class UsuarioController extends Controller
@@ -87,6 +88,7 @@ class UsuarioController extends Controller
         $usuario = User::create($userData);
 
         // Asignar roles al usuario
+        $esEstudiante = false;
         foreach ($request->roles as $rolId) {
             DB::table('userRol')->insert([
                 'id' => $usuario->id,
@@ -94,6 +96,19 @@ class UsuarioController extends Controller
                 'habilitado' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ]);
+            
+            // Verificar si el rol es de estudiante
+            $rol = Rol::find($rolId);
+            if ($rol && strtolower($rol->nombre) === 'estudiante') {
+                $esEstudiante = true;
+            }
+        }
+        
+        // Si el usuario tiene rol de estudiante, crear registro en la tabla estudiante
+        if ($esEstudiante) {
+            Estudiante::create([
+                'id' => $usuario->id
             ]);
         }
         
@@ -181,6 +196,7 @@ class UsuarioController extends Controller
         // Actualizar roles
         DB::table('userRol')->where('id', $usuario->id)->delete();
         
+        $esEstudiante = false;
         foreach ($request->roles as $rolId) {
             DB::table('userRol')->insert([
                 'id' => $usuario->id,
@@ -189,6 +205,25 @@ class UsuarioController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            
+            // Verificar si el rol es de estudiante
+            $rol = Rol::find($rolId);
+            if ($rol && strtolower($rol->nombre) === 'estudiante') {
+                $esEstudiante = true;
+            }
+        }
+        
+        // Verificar si el usuario debe tener registro en la tabla estudiante
+        $estudianteExistente = Estudiante::find($usuario->id);
+        
+        if ($esEstudiante && !$estudianteExistente) {
+            // Si es estudiante y no existe registro, crearlo
+            Estudiante::create([
+                'id' => $usuario->id
+            ]);
+        } elseif (!$esEstudiante && $estudianteExistente) {
+            // Si no es estudiante pero existe registro, eliminarlo
+            $estudianteExistente->delete();
         }
         
         // Si el correo cambió y no está verificado, enviar correo de verificación
@@ -206,6 +241,12 @@ class UsuarioController extends Controller
         
         // Eliminar relaciones de roles
         DB::table('userRol')->where('id', $id)->delete();
+        
+        // Eliminar registro de estudiante si existe
+        $estudiante = Estudiante::find($id);
+        if ($estudiante) {
+            $estudiante->delete();
+        }
         
         // Eliminar usuario
         $usuario->delete();

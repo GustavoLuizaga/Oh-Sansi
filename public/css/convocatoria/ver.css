@@ -157,6 +157,15 @@
   background-color: #e03131;
 }
 
+.btn-pdf {
+  background-color: var(--info-color);
+  color: white;
+}
+
+.btn-pdf:hover {
+  background-color: #3182ce;
+}
+
 /* Detail Sections */
 .detail-section {
   padding: 1.5rem 2rem;

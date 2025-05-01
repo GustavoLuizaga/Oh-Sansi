@@ -19,6 +19,11 @@
             
             <!-- Action Buttons -->
             <div class="action-buttons">
+                <!-- Botón de Descargar PDF siempre visible -->
+                <a href="{{ route('convocatorias.exportarPdf', $convocatoria->idConvocatoria) }}" class="btn-action btn-pdf">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </a>
+                
                 @if($convocatoria->estado != 'Cancelada')
                     <a href="{{ route('convocatorias.editar', $convocatoria->idConvocatoria) }}" class="btn-action">
                         <i class="fas fa-edit"></i> Editar

@@ -9,7 +9,7 @@ class ConvocatoriaAreaCategoria extends Model
 {
     use HasFactory;
 
-    protected $table = 'convocatoriaareacategoria';
+    protected $table = 'convocatoriaAreaCategoria';
     public $timestamps = false;
 
     protected $fillable = [

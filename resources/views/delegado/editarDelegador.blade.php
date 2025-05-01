@@ -105,27 +105,49 @@
                                        id="colegio_{{ $colegio->idDelegacion }}" 
                                        name="colegios[]" 
                                        value="{{ $colegio->idDelegacion }}" 
+                                       class="colegio-checkbox"
+                                       data-colegio-id="{{ $colegio->idDelegacion }}"
                                        {{ $tutor->delegaciones->contains('idDelegacion', $colegio->idDelegacion) ? 'checked' : '' }}>
                                 <label for="colegio_{{ $colegio->idDelegacion }}">{{ $colegio->nombre }}</label>
                             </div>
                         @endforeach
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Área(s) de Tutoría:</label>
-                    <div class="multi-select-container">
-                        @foreach($areas as $area)
-                            <div class="multi-select-item">
-                                <input type="checkbox" 
-                                       id="area_{{ $area->idArea }}" 
-                                       name="areas[]" 
-                                       value="{{ $area->idArea }}" 
-                                       {{ $tutor->areas->contains('idArea', $area->idArea) ? 'checked' : '' }}>
-                                <label for="area_{{ $area->idArea }}">{{ $area->nombre }}</label>
+            </div>
+
+            <div class="form-row mt-4">
+                <div class="form-group w-full">
+                    <label class="form-label">Áreas de Tutoría por Colegio:</label>
+                    
+                    @foreach($colegios as $colegio)
+                        @php
+                            $isColegioSelected = $tutor->delegaciones()->where('delegacion.idDelegacion', $colegio->idDelegacion)->exists();
+                        @endphp
+                        <div id="areas_colegio_{{ $colegio->idDelegacion }}" 
+                             class="areas-por-colegio mt-2 {{ $isColegioSelected ? 'show-area' : 'hide-area' }}">
+                            <div class="colegio-title mb-2">
+                                <i class="fas fa-school mr-1"></i> <strong>{{ $colegio->nombre }}</strong>
                             </div>
-                        @endforeach
-                    </div>
+                            <div class="multi-select-container ml-4">
+                                @foreach($areas as $area)
+                                    @php
+                                        $areaAsignadaEnColegio = $tutor->areas()
+                                            ->wherePivot('idDelegacion', $colegio->idDelegacion)
+                                            ->wherePivot('idArea', $area->idArea)
+                                            ->exists();
+                                    @endphp
+                                    <div class="multi-select-item">
+                                        <input type="checkbox" 
+                                               id="area_{{ $colegio->idDelegacion }}_{{ $area->idArea }}" 
+                                               name="areas_colegio[{{ $colegio->idDelegacion }}][]" 
+                                               value="{{ $area->idArea }}" 
+                                               {{ $areaAsignadaEnColegio ? 'checked' : '' }}>
+                                        <label for="area_{{ $colegio->idDelegacion }}_{{ $area->idArea }}">{{ $area->nombre }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -153,4 +175,48 @@
             </a>
         </div>
     </form>
+    <!-- Add styles for showing/hiding areas -->
+    <style>
+        .show-area {
+            display: block;
+        }
+        .hide-area {
+            display: none;
+        }
+    </style>
+
+    <!-- JavaScript to handle area visibility -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const colegioCheckboxes = document.querySelectorAll('.colegio-checkbox');
+            
+            colegioCheckboxes.forEach(checkbox => {
+                const colegioId = checkbox.getAttribute('data-colegio-id');
+                const areasContainer = document.getElementById(`areas_colegio_${colegioId}`);
+                
+                if (checkbox.checked) {
+                    areasContainer.classList.add('show-area');
+                    areasContainer.classList.remove('hide-area');
+                } else {
+                    areasContainer.classList.add('hide-area');
+                    areasContainer.classList.remove('show-area');
+                }
+                
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        areasContainer.classList.add('show-area');
+                        areasContainer.classList.remove('hide-area');
+                    } else {
+                        areasContainer.classList.add('hide-area');
+                        areasContainer.classList.remove('show-area');
+                        
+                        const areaCheckboxes = areasContainer.querySelectorAll('input[type="checkbox"]');
+                        areaCheckboxes.forEach(areaCheckbox => {
+                            areaCheckbox.checked = false;
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </x-app-layout>

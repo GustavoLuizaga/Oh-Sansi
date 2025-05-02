@@ -139,6 +139,7 @@ class RegisteredUserController extends Controller
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
                 'tokenTutor' => $tokenTutor,
+                'es_director' => false, // Este tutor no será director por defecto
                 'estado' => 'pendiente'
             ]);
             
@@ -174,7 +175,8 @@ class RegisteredUserController extends Controller
             'profesion' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],  // Validación del email y su unicidad
             'delegacion_tutoria' => ['required', 'exists:delegacion,idDelegacion'],  // Validación de que la delegación existe
-            'area_tutoria' => ['required', 'exists:area,idArea'],  // Validación de que el área existe
+            'area_tutoria' => ['required', 'array'],  // Validación de que se seleccionó al menos un área
+            'area_tutoria.*' => ['exists:area,idArea'],  // Validación de que cada área seleccionada existe
             'password' => ['required', 'confirmed', Rules\Password::defaults()],  // Validación de la contraseña
             'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
             'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones
@@ -208,6 +210,7 @@ class RegisteredUserController extends Controller
                 //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
                 'tokenTutor' => $tokenTutor,
+                'es_director' => true, // Este tutor será director de la delegación
                 'estado' => 'pendiente'
             ]);
             

@@ -107,14 +107,14 @@
 
     <!-- Botones de Acción -->
     <div class="action-buttons">
-        <form action="{{ route('delegado.aprobar-solicitud', $tutor->id) }}" method="POST">
+        <form action="{{ route('delegado.aprobar', $tutor->id) }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-success">
                 <i class="fas fa-check mr-2"></i> Aprobar Solicitud
             </button>
         </form>
         
-        <form action="{{ route('delegado.rechazar-solicitud', $tutor->id) }}" method="POST">
+        <form action="{{ route('delegado.rechazar', $tutor->id) }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-danger">
                 <i class="fas fa-times mr-2"></i> Rechazar Solicitud

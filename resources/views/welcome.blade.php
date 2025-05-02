@@ -5,18 +5,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Oh! Sansi</title>
-    <link rel="stylesheet" href="{{ asset('CSS/welcome.css') }}">
-    <link rel="stylesheet" href="{{ asset('CSS/barraNavegacionPrincipal.css') }}">
-    <link rel="stylesheet" href="{{ asset('CSS/contentFooter.css') }}">
-    <link rel="stylesheet" href="{{ asset('CSS/registerModal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/barraNavegacionPrincipal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/contentFooter.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/registerModal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="antialiased">
-    @include('layouts.BarraNavegacionPrincipal')
-    @include('layouts.registerModal')
+    @include('layouts/BarraNavegacionPrincipal')
+    @include('layouts/registerModal')
     <div class="relative">
         <main class="contenedor">
             <section class="hero">
@@ -154,11 +154,11 @@
         </main>
     </div>
 
-    @include('layouts.contentFooter')
+    @include('layouts/contentFooter')
 
-    <script src="{{ asset('JS/home.js') }}"></script>
-    <script src="{{ asset('JS/themeToggle.js') }}"></script>
-    <script src="{{ asset('JS/registerModal.js') }}"></script>
+    <script src="{{ asset('js/home.js') }}"></script>
+    <script src="{{ asset('js/themeToggle.js') }}"></script>
+    <script src="{{ asset('js/registerModal.js') }}"></script>
     <script src="{{ asset('js/mobileMenu.js') }}"></script>
     <script src="{{ asset('js/areasCarousel.js') }}"></script>
     <script src="{{ asset('js/contentFooter.js') }}"></script>

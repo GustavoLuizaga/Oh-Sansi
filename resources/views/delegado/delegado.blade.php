@@ -15,23 +15,31 @@
     </div>
 
     <!-- Actions Container (Search and Buttons) -->
+    <!-- Actions Container (Add and Search in the same row) -->
     <div class="actions-container mb-1">
-        <div class="search-filter-container mb-1">
-            <form action="{{ route('delegado') }}" method="GET" id="searchForm">
+        <a href="{{ route('delegado.agregar') }}" class="btn-nuevo-tutor">
+            <i class="fas fa-plus-circle"></i> Agregar Tutor
+        </a>
+        <div class="search-filter-container">
+            <form action="{{ route('delegado') }}" method="GET" id="searchForm" class="search-form">
                 <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="search" placeholder="Buscar por nombre o CI" value="{{ request('search') }}" class="py-1">
-                    <select name="colegio" class="filter-select">
-                        <option value="">Todos los colegios</option>
-                        @foreach($colegios as $colegio)
-                            <option value="{{ $colegio->id }}" {{ request('colegio') == $colegio->id ? 'selected' : '' }}>
-                                {{ $colegio->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="search-button py-1 px-2">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
+                    <div class="search-input-group">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" placeholder="Buscar por nombre o CI" value="{{ request('search') }}" class="py-1">
+                        <button type="submit" class="search-button py-1 px-2">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div class="filter-group">
+                        <select name="colegio" class="filter-select" onchange="this.form.submit()">
+                            <option value="">Todos los colegios</option>
+                            @foreach($colegios as $colegio)
+                                <option value="{{ $colegio->id }}" {{ request('colegio') == $colegio->id ? 'selected' : '' }}>
+                                    {{ $colegio->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </form>
         </div>
@@ -80,7 +88,10 @@
                 <td>{{ $tutor->user->ci }}</td>
                 <td>{{ $tutor->user->name }} {{ $tutor->user->apellidoPaterno }} {{ $tutor->user->apellidoMaterno }}</td>
                 <td>
-                    @foreach($tutor->delegaciones as $delegacion)
+                    @php
+                        $colegiosUnicos = $tutor->delegaciones->unique('nombre');
+                    @endphp
+                    @foreach($colegiosUnicos as $delegacion)
                         {{ $delegacion->nombre }}
                         @if(!$loop->last), @endif
                     @endforeach
@@ -89,6 +100,9 @@
                     <div class="flex space-x-1">
                         <a href="{{ route('delegado.ver', ['id' => $tutor->user->id]) }}" class="action-button view" title="Ver detalles">
                             <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ route('delegado.editar', ['id' => $tutor->user->id]) }}" class="action-button edit" title="Editar tutor">
+                            <i class="fas fa-edit"></i>
                         </a>
                         <button type="button" 
                                 data-tutor-id="{{ $tutor->user->id }}" 

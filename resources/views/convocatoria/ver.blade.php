@@ -1,5 +1,6 @@
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/convocatoria/ver.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <div class="p-6">
@@ -18,6 +19,11 @@
             
             <!-- Action Buttons -->
             <div class="action-buttons">
+                <!-- Botón de Descargar PDF siempre visible -->
+                <a href="{{ route('convocatorias.exportarPdf', $convocatoria->idConvocatoria) }}" class="btn-action btn-pdf">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </a>
+                
                 @if($convocatoria->estado != 'Cancelada')
                     <a href="{{ route('convocatorias.editar', $convocatoria->idConvocatoria) }}" class="btn-action">
                         <i class="fas fa-edit"></i> Editar

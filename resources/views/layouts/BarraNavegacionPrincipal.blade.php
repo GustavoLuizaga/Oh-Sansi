@@ -8,7 +8,7 @@
         <div class="nav-links" id="nav-links">
             <div class="menu-items">
                 <a href="{{ url('/') }}">Inicio</a>
-                <a href="#">Convocatoria</a>
+                <a href="{{ route('convocatoria.publica') }}">Convocatoria</a>
                 <a href="#">Reglamento</a>
             </div>
             <div class="menu-footer">

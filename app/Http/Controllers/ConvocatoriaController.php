@@ -18,14 +18,34 @@ class ConvocatoriaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // Verificar y actualizar el estado de las convocatorias vencidas
         $this->verificarEstadoConvocatorias();
         
-        // Fetch convocatorias from the database
-        $convocatorias = Convocatoria::all(); // sin orderBy
-
+        // Iniciar la consulta
+        $query = Convocatoria::query();
+        
+        // Aplicar filtro de búsqueda si existe
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where('nombre', 'LIKE', "%{$search}%")
+                  ->orWhere('descripcion', 'LIKE', "%{$search}%");
+        }
+        
+        // Aplicar filtro de estado si existe
+        if ($request->has('estado') && !empty($request->estado)) {
+            $query->where('estado', $request->estado);
+        }
+        
+        // Ordenar por fecha de creación descendente
+        $query->orderBy('created_at', 'desc');
+        
+        // Paginar los resultados (10 por página)
+        $convocatorias = $query->paginate(10);
+        
+        // Mantener los parámetros de búsqueda en la paginación
+        $convocatorias->appends($request->all());
         
         return view('convocatoria.convocatoria', compact('convocatorias'));
     }
@@ -163,6 +183,136 @@ class ConvocatoriaController extends Controller
             ]);
             return back()->withInput()->with('error', 'Error al crear la convocatoria: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Display a listing of published convocatorias for public view.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function publicadas(Request $request)
+    {
+        // Verificar y actualizar el estado de las convocatorias vencidas
+        $this->verificarEstadoConvocatorias();
+        
+        // Iniciar la consulta
+        $query = Convocatoria::query();
+        
+        // Mostrar solo convocatorias publicadas
+        $query->where('estado', 'Publicada');
+        
+        // Aplicar filtro de búsqueda si existe
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'LIKE', "%{$search}%")
+                  ->orWhere('descripcion', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Ordenar por fecha de creación descendente
+        $query->orderBy('created_at', 'desc');
+        
+        // Paginar los resultados (10 por página)
+        $convocatorias = $query->paginate(10);
+        
+        // Mantener los parámetros de búsqueda en la paginación
+        $convocatorias->appends($request->all());
+        
+        return view('convocatoria.publica', compact('convocatorias'));
+    }
+
+    /**
+     * Display the specified convocatoria for public view.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function verPublica($id)
+    {
+        try {
+            // Obtener la convocatoria de la base de datos
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->where('estado', 'Publicada')
+                ->first();
+            
+            if (!$convocatoria) {
+                return redirect()->route('convocatoria.publica')
+                    ->with('error', 'Convocatoria no encontrada o no está publicada.');
+            }
+            
+            // Obtener las áreas, categorías y grados asociados a la convocatoria
+            $areasConCategorias = [];
+            
+            // Obtener las relaciones de convocatoria-área-categoría
+            $convocatoriaAreasCategorias = DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->get();
+            
+            // Agrupar por área
+            $areaIds = $convocatoriaAreasCategorias->pluck('idArea')->unique();
+            
+            foreach ($areaIds as $areaId) {
+                // Obtener información del área
+                $areaInfo = DB::table('area')
+                    ->where('idArea', $areaId)
+                    ->first();
+                
+                if ($areaInfo) {
+                    $area = (object) [
+                        'idArea' => $areaInfo->idArea,
+                        'nombre' => $areaInfo->nombre,
+                        'categorias' => []
+                    ];
+                    
+                    // Obtener categorías para esta área en esta convocatoria
+                    $categoriaIds = $convocatoriaAreasCategorias
+                        ->where('idArea', $areaId)
+                        ->pluck('idCategoria')
+                        ->unique();
+                    
+                    foreach ($categoriaIds as $categoriaId) {
+                        // Obtener información de la categoría
+                        $categoriaInfo = DB::table('categoria')
+                            ->where('idCategoria', $categoriaId)
+                            ->first();
+                        
+                        if ($categoriaInfo) {
+                            $categoria = (object) [
+                                'idCategoria' => $categoriaInfo->idCategoria,
+                                'nombre' => $categoriaInfo->nombre,
+                                'grados' => []
+                            ];
+                            
+                            // Obtener grados para esta categoría
+                            $grados = DB::table('gradoCategoria')
+                                ->join('grado', 'gradoCategoria.idGrado', '=', 'grado.idGrado')
+                                ->where('gradoCategoria.idCategoria', $categoriaId)
+                                ->select('grado.idGrado', 'grado.grado as nombre')
+                                ->get();
+                            
+                            $categoria->grados = $grados;
+                            $area->categorias[] = $categoria;
+                        }
+                    }
+                    
+                    $areasConCategorias[] = $area;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al obtener detalles de la convocatoria pública: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatoria.publica')
+                ->with('error', 'Error al cargar los detalles de la convocatoria.');
+        }
+
+        return view('convocatoria.publica-detalle', compact('convocatoria', 'areasConCategorias'));
     }
 
     /**
@@ -901,6 +1051,103 @@ public function exportExcel()
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
+        }
+    }
+    
+    /**
+     * Export a specific convocatoria to PDF.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function exportarPdf($id)
+    {
+        try {
+            // Obtener la convocatoria de la base de datos
+            $convocatoria = DB::table('convocatoria')
+                ->where('idConvocatoria', $id)
+                ->first();
+            
+            if (!$convocatoria) {
+                return redirect()->route('convocatorias.ver', $id)
+                    ->with('error', 'Convocatoria no encontrada.');
+            }
+            
+            // Obtener las áreas, categorías y grados asociados a la convocatoria
+            $areasConCategorias = [];
+            
+            // Obtener las relaciones de convocatoria-área-categoría
+            $convocatoriaAreasCategorias = DB::table('convocatoriaAreaCategoria')
+                ->where('idConvocatoria', $id)
+                ->get();
+            
+            // Agrupar por área
+            $areaIds = $convocatoriaAreasCategorias->pluck('idArea')->unique();
+            
+            foreach ($areaIds as $areaId) {
+                // Obtener información del área
+                $areaInfo = DB::table('area')
+                    ->where('idArea', $areaId)
+                    ->first();
+                
+                if ($areaInfo) {
+                    $area = (object) [
+                        'idArea' => $areaInfo->idArea,
+                        'nombre' => $areaInfo->nombre,
+                        'categorias' => []
+                    ];
+                    
+                    // Obtener categorías para esta área en esta convocatoria
+                    $categoriaIds = $convocatoriaAreasCategorias
+                        ->where('idArea', $areaId)
+                        ->pluck('idCategoria')
+                        ->unique();
+                    
+                    foreach ($categoriaIds as $categoriaId) {
+                        // Obtener información de la categoría
+                        $categoriaInfo = DB::table('categoria')
+                            ->where('idCategoria', $categoriaId)
+                            ->first();
+                        
+                        if ($categoriaInfo) {
+                            $categoria = (object) [
+                                'idCategoria' => $categoriaInfo->idCategoria,
+                                'nombre' => $categoriaInfo->nombre,
+                                'grados' => []
+                            ];
+                            
+                            // Obtener grados para esta categoría
+                            $grados = DB::table('gradoCategoria')
+                                ->join('grado', 'gradoCategoria.idGrado', '=', 'grado.idGrado')
+                                ->where('gradoCategoria.idCategoria', $categoriaId)
+                                ->select('grado.idGrado', 'grado.grado as nombre')
+                                ->get();
+                            
+                            $categoria->grados = $grados;
+                            $area->categorias[] = $categoria;
+                        }
+                    }
+                    
+                    $areasConCategorias[] = $area;
+                }
+            }
+            
+            $tituloPDF = 'Detalles de Convocatoria: ' . $convocatoria->nombre;
+            $pdf = \PDF::loadView('convocatoria.pdf-detalle', compact('convocatoria', 'areasConCategorias', 'tituloPDF'))
+                      ->setPaper('a4', 'portrait');
+                      
+            return $pdf->download('Convocatoria_' . $convocatoria->idConvocatoria . '_' . now()->format('Ymd_His') . '.pdf');
+            
+        } catch (\Exception $e) {
+            Log::error('Error al exportar convocatoria a PDF: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('convocatorias.ver', $id)
+                ->with('error', 'Error al exportar la convocatoria a PDF: ' . $e->getMessage());
         }
     }
 }

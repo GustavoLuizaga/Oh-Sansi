@@ -47,23 +47,71 @@
             <div class="info-section pt-4 md:pt-0 md:pl-6">
                 <h2 class="section-title"><i class="fas fa-graduation-cap mr-2"></i>Información Académica</h2>
                 <div class="info-grid">
-                    <div class="info-label">Colegio(s):</div>
+                    <div class="info-label">Colegios:</div>
                     <div class="info-value">
-                        @php
-                            $colegiosUnicos = $tutor->delegaciones->unique('nombre');
-                        @endphp
-                        @foreach($colegiosUnicos as $delegacion)
-                            <span class="badge-item">{{ $delegacion->nombre }}</span>
-                            @if(!$loop->last) @endif
-                        @endforeach
+                        <div class="colegio-selector mb-3">
+                            <select id="colegio-selector" class="form-control">
+                                <option value="">Seleccione un colegio</option>
+                                @php
+                                    $colegiosUnicos = $tutor->delegaciones->unique('idDelegacion');
+                                @endphp
+                                @foreach($colegiosUnicos as $delegacion)
+                                    <option value="{{ $delegacion->idDelegacion }}">{{ $delegacion->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     
-                    <div class="info-label">Área(s) de Tutoría:</div>
+                    <div class="info-label">Áreas de Tutoría:</div>
                     <div class="info-value">
-                        @foreach($tutor->areas as $area)
-                            <span class="badge-item">{{ $area->nombre }}</span>
-                            @if(!$loop->last) @endif
-                        @endforeach
+                        <div class="areas-container">
+                            @foreach($colegiosUnicos as $delegacion)
+                                <div id="areas-colegio-{{ $delegacion->idDelegacion }}" class="areas-por-colegio" style="display: none;">
+                                    <div class="colegio-title mb-2">
+                                        <i class="fas fa-school mr-1"></i> <strong>{{ $delegacion->nombre }}</strong>
+                                    </div>
+                                    <div class="areas-list ml-4 mt-1">
+                                        <div class="flex flex-wrap mt-1">
+                                            @php
+                                                $areasDelColegio = $tutor->areas()
+                                                    ->wherePivot('idDelegacion', $delegacion->idDelegacion)
+                                                    ->get();
+                                            @endphp
+                                            
+                                            @if($areasDelColegio->count() > 0)
+                                                @foreach($areasDelColegio as $area)
+                                                    <div class="area-badge mr-3 mb-2">
+                                                        <i class="fas fa-check-circle text-success mr-1"></i>
+                                                        <span class="text-sm">{{ $area->nombre }}</span>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <div class="text-gray-500 text-sm">
+                                                    <i class="fas fa-info-circle mr-1"></i> No hay áreas asignadas para este colegio
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                            <div id="no-colegio-selected" class="text-gray-500 text-center py-3">
+                                <i class="fas fa-info-circle mr-1"></i> Seleccione un colegio para ver sus áreas
+                            </div>
+                            <style>
+                                .area-badge {
+                                    display: inline-flex;
+                                    align-items: center;
+                                    background-color: #f0f9ff;
+                                    border: 1px solid #bae6fd;
+                                    border-radius: 0.375rem;
+                                    padding: 0.25rem 0.5rem;
+                                    color: #0369a1;
+                                }
+                                .text-success {
+                                    color: #059669;
+                                }
+                            </style>
+                        </div>
                     </div>
                     
                     <div class="info-label">Documento CV:</div>
@@ -126,6 +174,10 @@
 
     <!-- Botones de Acción -->
     <div class="action-buttons">
+        <a href="{{ route('delegado.editar', ['id' => $tutor->id]) }}" class="btn btn-primary">
+            <i class="fas fa-edit mr-2"></i> Editar Tutor
+        </a>
+
         <button type="button" data-tutor-id="{{ $tutor->id }}" class="btn btn-danger btn-eliminar">
             <i class="fas fa-trash-alt mr-2"></i> Eliminar Tutor
         </button>
@@ -154,12 +206,39 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Manejo de botones de eliminación
     const deleteButtons = document.querySelectorAll('.btn-eliminar');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
             const tutorId = this.getAttribute('data-tutor-id');
             confirmarEliminacion(tutorId);
         });
+    });
+    
+    // Manejo del selector de colegios
+    const colegioSelector = document.getElementById('colegio-selector');
+    const noColegioSelected = document.getElementById('no-colegio-selected');
+    const areasContainers = document.querySelectorAll('.areas-por-colegio');
+    
+    colegioSelector.addEventListener('change', function() {
+        const selectedColegioId = this.value;
+        
+        // Ocultar todos los contenedores de áreas
+        areasContainers.forEach(container => {
+            container.style.display = 'none';
+        });
+        
+        if (selectedColegioId) {
+            // Mostrar el contenedor de áreas del colegio seleccionado
+            const selectedAreasContainer = document.getElementById(`areas-colegio-${selectedColegioId}`);
+            if (selectedAreasContainer) {
+                selectedAreasContainer.style.display = 'block';
+                noColegioSelected.style.display = 'none';
+            }
+        } else {
+            // Mostrar mensaje de selección
+            noColegioSelected.style.display = 'block';
+        }
     });
 });
 

@@ -3,6 +3,7 @@
 namespace App\Providers;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
     
     public function boot()
     {
+        // Forzar HTTPS en todos los entornos
+        //URL::forceScheme('https');
+        /*if ($this->app->environment('local')) {
+            URL::forceScheme('https');
+        }*/
         View::composer('layouts.sidebar', function ($view) {
             $iusIds = collect();
     

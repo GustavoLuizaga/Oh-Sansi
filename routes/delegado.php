@@ -22,11 +22,22 @@ Route::middleware(['auth'])->group(function () {
     
     // Rutas para gestionar solicitudes de tutores
     Route::get('/delegado/solicitudes', [DelegadoController::class, 'solicitudes'])->name('delegado.solicitudes');
-    Route::get('/delegado/solicitudes/{id}', [DelegadoController::class, 'verSolicitud'])->name('delegado.ver-solicitud');
-    Route::post('/delegado/solicitudes/{id}/aprobar', [DelegadoController::class, 'aprobarSolicitud'])->name('delegado.aprobar-solicitud');
-    Route::post('/delegado/solicitudes/{id}/rechazar', [DelegadoController::class, 'rechazarSolicitud'])->name('delegado.rechazar-solicitud');
-    Route::post('/delegado/solicitudes/{id}/toggle-director', [DelegadoController::class, 'toggleDirector'])->name('delegado.toggle-director');
+    Route::get('/delegado/ver-solicitud/{id}', [DelegadoController::class, 'verSolicitud'])->name('delegado.ver-solicitud');
+    Route::post('/delegado/aprobar/{id}', [DelegadoController::class, 'aprobarSolicitud'])->name('delegado.aprobar');
+    Route::post('/delegado/rechazar/{id}', [DelegadoController::class, 'rechazarSolicitud'])->name('delegado.rechazar');
+    Route::post('/delegado/toggle-director/{id}', [DelegadoController::class, 'toggleDirector'])->name('delegado.toggle-director');
     
     // Ruta para eliminar tutores (solo el registro de tutor, no el usuario)
     Route::delete('/delegado/eliminar/{id}', [DelegadoController::class, 'eliminarTutor'])->name('delegado.eliminar');
+    
+    // Rutas para editar y actualizar delegadores
+    Route::get('/delegado/editar/{id}', [DelegadoController::class, 'editarDelegador'])->name('delegado.editar');
+    Route::put('/delegado/actualizar/{id}', [DelegadoController::class, 'actualizarDelegador'])->name('delegado.actualizar');
+    
+    // Rutas para agregar tutores
+    Route::get('/delegado/agregar', [DelegadoController::class, 'agregarTutor'])->name('delegado.agregar');
+    Route::post('/delegado/guardar', [DelegadoController::class, 'guardarTutor'])->name('delegado.guardar');
+    
+    // Ruta para actualizar áreas por colegio
+    Route::put('/delegado/actualizar-areas/{id}/{idDelegacion}', [DelegadoController::class, 'actualizarAreas'])->name('delegado.actualizar-areas');
 });

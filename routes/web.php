@@ -64,4 +64,5 @@ require __DIR__.'/delegado.php';
 require __DIR__.'/grados.php';
 require __DIR__.'/inscripciones.php';
 require __DIR__.'/estudiantes.php';
+require __DIR__.'/perfil.php';
 

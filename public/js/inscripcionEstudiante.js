@@ -384,9 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add this at the top of your file with other variables
-    let usedTokens = new Set();
-    
     // Función para mostrar el estado del token
     function showTokenStatus(tokenInput, isValid, message) {
         const tutorBlock = tokenInput.closest('.tutor-block');
@@ -411,13 +408,20 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Check if token is already in use
-        if (usedTokens.has(token)) {
-            statusElement.textContent = 'Este token ya está en uso por otro tutor';
-            statusElement.classList.remove('valid');
-            statusElement.classList.add('invalid');
-            tutorBlock.querySelector('.tutor-info').style.display = 'none';
-            return;
+        // Verificar si el mismo token ya está siendo usado en este mismo formulario
+        // pero solo para evitar duplicados en el mismo formulario
+        const allTokenInputs = document.querySelectorAll('.tutor-token');
+        for (let i = 0; i < allTokenInputs.length; i++) {
+            const otherInput = allTokenInputs[i];
+            // No comparar con el mismo input
+            if (otherInput !== input && otherInput.value.trim() === token) {
+                // Si es el mismo token en otro campo del mismo formulario, verificar si es el mismo tutor
+                const otherTutorBlock = otherInput.closest('.tutor-block');
+                if (otherTutorBlock !== tutorBlock) {
+                    // Permitir usar el mismo token, ya que un tutor puede tener varios estudiantes
+                    break;
+                }
+            }
         }
         
         try {
@@ -428,9 +432,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.valid) {
-                // Add token to used tokens set
-                usedTokens.add(token);
-                
                 statusElement.textContent = 'Token válido';
                 statusElement.classList.remove('invalid');
                 statusElement.classList.add('valid');

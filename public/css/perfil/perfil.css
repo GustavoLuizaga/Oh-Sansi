@@ -1,0 +1,76 @@
+/* Estilos para la página de perfil */
+
+/* Estilos para inputs deshabilitados */
+.profile-input:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    opacity: 0.8;
+    color: #495057;
+    border: 1px solid #ced4da;
+}
+
+/* Estilos para botones */
+.edit-btn {
+    transition: all 0.3s ease;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cancel-btn {
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.save-btn {
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para la sección de contraseña */
+.password-section {
+    transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+/* Estilos para la tabla de roles */
+.roles-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.roles-table th,
+.roles-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+.roles-table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+
+.roles-table tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.roles-table tr:hover {
+    background-color: #f1f5f9;
+}

@@ -18,6 +18,10 @@
         </button>
         
         <div class="dropdown-menu" id="userDropdown">
+            <a href="{{ route('perfil.index') }}" class="dropdown-item">
+                <i class="fas fa-user-circle"></i>
+                Ver Perfil
+            </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="dropdown-item">

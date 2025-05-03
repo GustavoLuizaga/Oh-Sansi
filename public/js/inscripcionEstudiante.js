@@ -301,8 +301,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // Actualizar los nombres de los campos para que sean únicos
         const categoriaSelect = newAreaBlock.querySelector('.categoria-select');
         
+        // Asegurarse de que los nombres de los campos sigan un formato consistente
         areaSelect.name = `tutor_areas_${tutorIndex}_${areaCount[tutorIndex]}`;
         categoriaSelect.name = `tutor_categorias_${tutorIndex}_${areaCount[tutorIndex]}`;
+        
+        // Actualizar el campo oculto de delegación para esta área
+        const delegacionInput = tutorBlock.querySelector('.idDelegacion-input');
+        if (delegacionInput && delegacionInput.value) {
+            // Crear o actualizar un campo oculto para la delegación de esta área específica
+            let areaDelegacionInput = newAreaBlock.querySelector('.area-delegacion-input');
+            if (!areaDelegacionInput) {
+                areaDelegacionInput = document.createElement('input');
+                areaDelegacionInput.type = 'hidden';
+                areaDelegacionInput.className = 'area-delegacion-input';
+                newAreaBlock.appendChild(areaDelegacionInput);
+            }
+            areaDelegacionInput.name = `tutor_delegaciones_${tutorIndex}_${areaCount[tutorIndex]}`;
+            areaDelegacionInput.value = delegacionInput.value;
+        }
         
         // Insertar el nuevo bloque antes del botón de agregar área
         areasContainer.insertBefore(newAreaBlock, areasContainer.querySelector('.btn-add-area'));
@@ -459,6 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const option = document.createElement('option');
                                 option.value = area.idArea;
                                 option.textContent = area.nombre;
+                                option.dataset.delegacionId = area.idDelegacion;
                                 areaSelect.appendChild(option);
                             });
                             
@@ -514,9 +531,27 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < options.length; i++) {
                 if (options[i].value == data.idArea) {
                     options[i].selected = true;
+                    options[i].dataset.delegacionId = data.idDelegacion;
                     break;
                 }
             }
+            
+            // Crear o actualizar el campo oculto para la delegación de esta área específica
+            const areaBlock = areaSelect.closest('.area-block');
+            let areaDelegacionInput = areaBlock.querySelector('.area-delegacion-input');
+            if (!areaDelegacionInput) {
+                areaDelegacionInput = document.createElement('input');
+                areaDelegacionInput.type = 'hidden';
+                areaDelegacionInput.className = 'area-delegacion-input';
+                areaBlock.appendChild(areaDelegacionInput);
+            }
+            
+            // Obtener el índice del tutor
+            const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Tutor ', ''));
+            
+            // Asignar nombre y valor al campo de delegación
+            areaDelegacionInput.name = `tutor_delegaciones_${tutorIndex}_1`; // 1 porque es la primera área
+            areaDelegacionInput.value = data.idDelegacion;
             
             // Cargar las categorías para el área seleccionada
             loadCategorias(areaSelect);
@@ -543,6 +578,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     categoriaSelect.disabled = true;
                     return;
                 }
+            }
+            
+            // Actualizar el campo oculto de delegación para esta área específica
+            const selectedOption = areaSelect.options[areaSelect.selectedIndex];
+            if (selectedOption && selectedOption.dataset.delegacionId) {
+                // Buscar o crear un campo oculto para la delegación de esta área
+                let areaDelegacionInput = areaBlock.querySelector('.area-delegacion-input');
+                if (!areaDelegacionInput) {
+                    areaDelegacionInput = document.createElement('input');
+                    areaDelegacionInput.type = 'hidden';
+                    areaDelegacionInput.className = 'area-delegacion-input';
+                    areaBlock.appendChild(areaDelegacionInput);
+                }
+                
+                // Obtener el índice del tutor y el área
+                const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Tutor ', ''));
+                const areaIndex = Array.from(tutorBlock.querySelectorAll('.area-block')).indexOf(areaBlock) + 1;
+                
+                areaDelegacionInput.name = `tutor_delegaciones_${tutorIndex}_${areaIndex}`;
+                areaDelegacionInput.value = selectedOption.dataset.delegacionId;
             }
         }
         
@@ -670,12 +725,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validateForm(event) {
-        event.preventDefault();
+        // No prevenir el envío del formulario aquí para evitar conflictos con la validación HTML
+        // event.preventDefault();
 
         // Validar número de contacto
         const numeroContacto = document.querySelector('input[name="numeroContacto"]');
         if (!numeroContacto || !numeroContacto.value || numeroContacto.value.length !== 8) {
             alert('Debe ingresar un número de contacto válido de 8 dígitos');
+            event.preventDefault();
             return false;
         }
 
@@ -683,6 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tutorBlocks = document.querySelectorAll('.tutor-block');
         let validTutorFound = false;
         let totalValidAreas = 0;
+        let selectedCategoriaId = null;
         
         for (const tutorBlock of tutorBlocks) {
             const tokenInput = tutorBlock.querySelector('.tutor-token');
@@ -701,11 +759,50 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (areaSelect.value && categoriaSelect.value) {
                         validAreaFound = true;
                         totalValidAreas++;
+                        
+                        // Guardar el ID de la categoría seleccionada para usarlo en el campo idCategoria
+                        if (!selectedCategoriaId) {
+                            selectedCategoriaId = categoriaSelect.value;
+                        }
+                        
+                        // Asegurarse de que cada área tenga su delegación correspondiente
+                        const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Tutor ', ''));
+                        const areaIndex = Array.from(tutorBlock.querySelectorAll('.area-block')).indexOf(areaBlock) + 1;
+                        
+                        // Verificar si existe el campo de delegación para esta área
+                        let areaDelegacionInput = areaBlock.querySelector('.area-delegacion-input');
+                        if (!areaDelegacionInput) {
+                            // Si no existe, crear uno nuevo
+                            areaDelegacionInput = document.createElement('input');
+                            areaDelegacionInput.type = 'hidden';
+                            areaDelegacionInput.className = 'area-delegacion-input';
+                            areaBlock.appendChild(areaDelegacionInput);
+                        }
+                        
+                        // Asignar nombre y valor al campo de delegación
+                        areaDelegacionInput.name = `tutor_delegaciones_${tutorIndex}_${areaIndex}`;
+                        
+                        // Obtener la delegación del tutor
+                        const delegacionInput = tutorBlock.querySelector('.idDelegacion-input');
+                        if (delegacionInput && delegacionInput.value) {
+                            areaDelegacionInput.value = delegacionInput.value;
+                        } else {
+                            // Si no hay delegación específica, usar la del área seleccionada
+                            const selectedOption = areaSelect.options[areaSelect.selectedIndex];
+                            if (selectedOption && selectedOption.dataset.delegacionId) {
+                                areaDelegacionInput.value = selectedOption.dataset.delegacionId;
+                            } else {
+                                alert('Error: No se pudo determinar la delegación para el área seleccionada');
+                                event.preventDefault();
+                                return false;
+                            }
+                        }
                     }
                 }
                 
                 if (!validAreaFound) {
                     alert('Cada tutor debe tener al menos un área y categoría seleccionada');
+                    event.preventDefault();
                     return false;
                 }
                 
@@ -715,15 +812,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!validTutorFound) {
             alert('Debe tener al menos un tutor válido para continuar');
+            event.preventDefault();
             return false;
         }
         
         // Validar el número total de áreas (máximo 2)
         if (totalValidAreas > 2) {
             alert('El máximo de áreas por inscripción es 2');
+            event.preventDefault();
             return false;
         } else if (totalValidAreas === 0) {
             alert('Debe seleccionar al menos un área para la inscripción');
+            event.preventDefault();
             return false;
         }
 
@@ -731,11 +831,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const gradoComun = document.querySelector('select[name="idGrado"]');
         if (!gradoComun || !gradoComun.value) {
             alert('Debe seleccionar un grado');
+            event.preventDefault();
             return false;
         }
 
-        // Si todo está validado, enviar el formulario
-        document.getElementById('inscriptionForm').submit();
+        // Validar categoría
+        const categoriaSelects = document.querySelectorAll('.categoria-select');
+        let categoriaValida = false;
+        for (const select of categoriaSelects) {
+            if (select.value) {
+                categoriaValida = true;
+                break;
+            }
+        }
+        
+        if (!categoriaValida) {
+            alert('Debe seleccionar al menos una categoría');
+            event.preventDefault();
+            return false;
+        }
+
+        // Crear un campo oculto para idCategoria si no existe
+        if (selectedCategoriaId) {
+            let idCategoriaInput = document.querySelector('input[name="idCategoria"]');
+            if (!idCategoriaInput) {
+                idCategoriaInput = document.createElement('input');
+                idCategoriaInput.type = 'hidden';
+                idCategoriaInput.name = 'idCategoria';
+                document.getElementById('inscriptionForm').appendChild(idCategoriaInput);
+            }
+            idCategoriaInput.value = selectedCategoriaId;
+        }
+
+        // Si todo está validado, permitir que el formulario se envíe normalmente
         return true;
     }
     

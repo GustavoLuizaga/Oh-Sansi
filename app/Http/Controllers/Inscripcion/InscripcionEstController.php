@@ -66,14 +66,14 @@ class InscripcionEstController extends Controller
     public function store(Request $request)
     {
         try {
+            dd(request()->all);
             // Validar solo los campos necesarios
             $validatedData = $request->validate([
                 'numeroContacto' => 'required|string|size:8',
                 'tutor_tokens' => 'required|array|min:1',
-                'tutor_areas' => 'required|array|min:1',
-                'tutor_delegaciones' => 'required|array|min:1',
-                'idConvocatoria' => 'required|integer'
-                
+                'idConvocatoria' => 'required|integer',
+                'idGrado' => 'required|integer',
+                'idCategoria' => 'required|integer'
             ]);
 
             // Verificar los tokens de tutor
@@ -88,24 +88,84 @@ class InscripcionEstController extends Controller
                 $validTokens[] = $tutorAreaDelegacion;
             }
 
+            // Recopilar todas las áreas seleccionadas de todos los tutores
+            $areasSeleccionadas = [];
+            
+            // Recorrer todos los inputs que comienzan con 'tutor_areas'
+            foreach ($request->all() as $key => $value) {
+                // Verificar si es un campo de área y tiene un valor
+                if (strpos($key, 'tutor_areas') === 0 && !empty($value)) {
+                    // Obtener el índice del tutor y el área
+                    $parts = explode('_', $key);
+                    if (count($parts) >= 3) {
+                        $tutorIndex = $parts[2];
+                        $areaIndex = isset($parts[3]) ? $parts[3] : 1;
+                        
+                        // Buscar la delegación correspondiente
+                        $delegacionKey = "tutor_delegaciones_{$tutorIndex}";
+                        $delegacionValue = $request->input($delegacionKey, null);
+                        
+                        // Si no hay delegación específica, usar la primera
+                        if (!$delegacionValue && isset($request->tutor_delegaciones[0])) {
+                            $delegacionValue = $request->tutor_delegaciones[0];
+                        }
+                        
+                        if ($delegacionValue) {
+                            $areasSeleccionadas[] = [
+                                'idArea' => $value,
+                                'idDelegacion' => $delegacionValue,
+                                'tutorIndex' => $tutorIndex
+                            ];
+                        }
+                    }
+                } else if (strpos($key, 'tutor_areas') === false && strpos($key, 'areas') === 0 && !empty($value)) {
+                    // Para compatibilidad con el formato antiguo (si existe)
+                    $delegacionValue = isset($request->tutor_delegaciones[0]) ? $request->tutor_delegaciones[0] : null;
+                    
+                    if ($delegacionValue) {
+                        $areasSeleccionadas[] = [
+                            'idArea' => $value,
+                            'idDelegacion' => $delegacionValue,
+                            'tutorIndex' => 1 // Asumimos que es del primer tutor
+                        ];
+                    }
+                }
+            }
+            
+            // Si no se encontraron áreas en el formato nuevo, buscar en el formato antiguo
+            if (empty($areasSeleccionadas) && isset($request->tutor_areas) && is_array($request->tutor_areas)) {
+                foreach ($request->tutor_areas as $index => $idArea) {
+                    // Verificar que el índice existe en los arrays de delegaciones
+                    if (!isset($request->tutor_delegaciones[$index])) {
+                        continue;
+                    }
+                    
+                    $areasSeleccionadas[] = [
+                        'idArea' => $idArea,
+                        'idDelegacion' => $request->tutor_delegaciones[$index],
+                        'tutorIndex' => 1 // Asumimos que es del primer tutor
+                    ];
+                }
+            }
+            
+            // Verificar que hay al menos un área seleccionada
+            if (empty($areasSeleccionadas)) {
+                return back()->withErrors(['error' => 'Debe seleccionar al menos un área para la inscripción'])->withInput();
+            }
+
             // Crear inscripciones para cada área seleccionada
             $inscripciones = [];
             
-            foreach ($request->tutor_areas as $index => $idArea) {
-                // Verificar que el índice existe en los arrays
-                if (!isset($request->tutor_delegaciones[$index])) {
-                    continue;
-                }
-                
+            foreach ($areasSeleccionadas as $areaData) {
                 // Crear la inscripción para esta área
                 $inscripcion = Inscripcion::create([
                     'fechaInscripcion' => now(),
                     'numeroContacto' => $request->numeroContacto,
                     'idConvocatoria' => $request->idConvocatoria,
-                    'idArea' => $idArea,
-                    'idDelegacion' => $request->tutor_delegaciones[$index],
+                    'idArea' => $areaData['idArea'],
+                    'idDelegacion' => $areaData['idDelegacion'],
                     'idCategoria' => $request->idCategoria, 
-                    'idGrado' => $request->idGrado ?? 1 // valor por defecto si no se proporciona
+                    'idGrado' => $request->idGrado
                 ]);
                 
                 $inscripciones[] = $inscripcion;
@@ -122,6 +182,7 @@ class InscripcionEstController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error en inscripción:', ['error' => $e->getMessage()]);
+            Log::error('Stack trace:', ['trace' => $e->getTraceAsString()]);
             return back()
                 ->withErrors(['error' => 'Hubo un error al procesar la inscripción. Por favor, intente nuevamente.'])
                 ->withInput();

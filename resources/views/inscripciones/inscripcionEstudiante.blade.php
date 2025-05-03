@@ -220,6 +220,34 @@ function validateForm(event) {
         event.preventDefault();
         return false;
     }
+    
+    // Verificar que se haya seleccionado una categoría y agregarla como campo oculto
+    const categoriaSelects = document.querySelectorAll('.categoria-select');
+    let selectedCategoriaId = null;
+    
+    for (const select of categoriaSelects) {
+        if (select.value) {
+            selectedCategoriaId = select.value;
+            break;
+        }
+    }
+    
+    if (!selectedCategoriaId) {
+        alert('Debe seleccionar al menos una categoría');
+        event.preventDefault();
+        return false;
+    }
+    
+    // Crear o actualizar el campo oculto para idCategoria
+    let idCategoriaInput = document.querySelector('input[name="idCategoria"]');
+    if (!idCategoriaInput) {
+        idCategoriaInput = document.createElement('input');
+        idCategoriaInput.type = 'hidden';
+        idCategoriaInput.name = 'idCategoria';
+        document.getElementById('inscriptionForm').appendChild(idCategoriaInput);
+    }
+    idCategoriaInput.value = selectedCategoriaId;
+    
     return true;
 }
 </script>

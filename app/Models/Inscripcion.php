@@ -9,10 +9,9 @@ class Inscripcion extends Model
 {
     use HasFactory;
 
-    protected $table = 'inscripcion'; // nombre de la tabla
-    protected $primaryKey = 'idInscripcion'; // clave primaria
-
-    public $timestamps = false; // no hay columnas created_at ni updated_at
+    protected $table = 'inscripcion';
+    protected $primaryKey = 'idInscripcion';
+    public $timestamps = false;
 
     protected $fillable = [
         'fechaInscripcion',
@@ -20,14 +19,11 @@ class Inscripcion extends Model
         'status',
         'idGrado',
         'idConvocatoria',
-        'idArea',
         'idDelegacion',
-        'idCategoria',
         'nombreApellidosTutor',
         'correoTutor',
     ];
 
-    // Relaciones opcionales
     public function grado()
     {
         return $this->belongsTo(Grado::class, 'idGrado', 'idGrado');
@@ -38,15 +34,9 @@ class Inscripcion extends Model
         return $this->belongsTo(Convocatoria::class, 'idConvocatoria', 'idConvocatoria');
     }
 
-    public function area()
-    {
-        return $this->belongsTo(Area::class, 'idArea', 'idArea');
-    }
-
     public function delegacion()
     {
         return $this->belongsTo(Delegacion::class, 'idDelegacion', 'idDelegacion');
-        
     }
 
     public function tutores()
@@ -62,4 +52,10 @@ class Inscripcion extends Model
             ->withPivot('idTutor')
             ->withTimestamps();
     }
+
+    public function detalles()
+    {
+        return $this->hasMany(DetalleInscripcion::class, 'idInscripcion', 'idInscripcion');
+    }
 }
+

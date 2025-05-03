@@ -145,7 +145,7 @@
                                                 <div class="info-row">
                                                     <div class="info-group">
                                                         <label>Área</label>
-                                                        <select class="area-select" name="tutor_areas[]" required>
+                                                        <select class="area-select" name="tutor_areas_1_1" required>
                                                             <option value="">Seleccione un área</option>
                                                             @foreach($areas as $area)
                                                                 <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
@@ -155,7 +155,7 @@
                                                     </div>
                                                     <div class="input-grupo">
                                                         <label>Categoría</label>
-                                                        <select class="categoria-select" name="tutor_categorias[]" required>
+                                                        <select class="categoria-select" name="tutor_categorias_1_1" required>
                                                             <option value="">Seleccione una categoría</option>
                                                         </select>
                                                     </div>

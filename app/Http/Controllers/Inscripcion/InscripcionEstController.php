@@ -66,64 +66,160 @@ class InscripcionEstController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validar solo los campos necesarios
+            // Validar campos básicos
             $validatedData = $request->validate([
                 'numeroContacto' => 'required|string|size:8',
-                'tutor_tokens' => 'required|array|min:1',
-                'tutor_areas' => 'required|array|min:1',
-                'tutor_delegaciones' => 'required|array|min:1',
-                'idConvocatoria' => 'required|integer'
-                
+                'idConvocatoria' => 'required|integer',
+                'idGrado' => 'required|integer',
             ]);
 
-            // Verificar los tokens de tutor
-            $validTokens = [];
-            foreach ($request->tutor_tokens as $index => $token) {
-                $tutorAreaDelegacion = TutorAreaDelegacion::where('tokenTutor', $token)->first();
-                
-                if (!$tutorAreaDelegacion) {
-                    return back()->withErrors(['error' => 'Token de tutor inválido'])->withInput();
+            Log::info('Datos recibidos:', $request->all());
+            
+            // Obtener tokens de tutores
+            $tutorTokens = $request->input('tutor_tokens', []);
+            if (empty($tutorTokens)) {
+                return back()->withErrors(['error' => 'No se proporcionaron tokens de tutores'])->withInput();
+            }
+            
+            // Obtener delegaciones de tutores
+            $tutorDelegaciones = $request->input('tutor_delegaciones', []);
+            
+            // Recopilar todas las áreas y categorías del formulario
+            $tutorAreas = [];
+            $tutorCategorias = [];
+            
+            // Recorrer todos los inputs para encontrar áreas y categorías
+            foreach ($request->all() as $key => $value) {
+                // Capturar todos los campos de áreas (tutor_areas, tutor_areas_1_1, tutor_areas_1_2, etc.)
+                if ((strpos($key, 'tutor_areas') === 0 || preg_match('/^tutor_areas_\d+_\d+$/', $key)) && !empty($value)) {
+                    $tutorAreas[] = $value;
                 }
                 
-                $validTokens[] = $tutorAreaDelegacion;
+                // Capturar todos los campos de categorías (tutor_categorias, tutor_categorias_1_1, etc.)
+                if ((strpos($key, 'tutor_categorias') === 0 || preg_match('/^tutor_categorias_\d+_\d+$/', $key)) && !empty($value)) {
+                    $tutorCategorias[] = $value;
+                }
             }
-
-            // Crear inscripciones para cada área seleccionada
-            $inscripciones = [];
             
-            foreach ($request->tutor_areas as $index => $idArea) {
-                // Verificar que el índice existe en los arrays
-                if (!isset($request->tutor_delegaciones[$index])) {
+            // Registrar en el log los campos encontrados para depuración
+            Log::info('Campos de áreas encontrados:', array_filter(array_keys($request->all()), function($key) {
+                return strpos($key, 'tutor_areas') === 0 || preg_match('/^tutor_areas_\d+_\d+$/', $key);
+            }));
+            Log::info('Campos de categorías encontrados:', array_filter(array_keys($request->all()), function($key) {
+                return strpos($key, 'tutor_categorias') === 0 || preg_match('/^tutor_categorias_\d+_\d+$/', $key);
+            }));
+            
+            // Verificar que tenemos la misma cantidad de áreas y categorías
+            if (count($tutorAreas) != count($tutorCategorias) || empty($tutorAreas)) {
+                Log::error('Error en la estructura de datos:', [
+                    'tokens' => count($tutorTokens),
+                    'delegaciones' => count($tutorDelegaciones),
+                    'areas' => count($tutorAreas),
+                    'categorias' => count($tutorCategorias)
+                ]);
+                return back()->withErrors(['error' => 'Estructura de datos inválida: debe proporcionar al menos un área y una categoría por cada área'])->withInput();
+            }
+            
+            Log::info('Áreas y categorías procesadas:', [
+                'areas' => $tutorAreas,
+                'categorias' => $tutorCategorias
+            ]);
+            
+            // Verificar los tokens de tutor y obtener sus IDs
+            $tutoresValidos = [];
+            $idDelegacionPrincipal = null;
+            
+            for ($i = 0; $i < count($tutorTokens); $i++) {
+                if (empty($tutorTokens[$i])) continue;
+                
+                $token = $tutorTokens[$i];
+                $idDelegacion = $tutorDelegaciones[$i] ?? null;
+                
+                if (!$idDelegacion) {
+                    Log::error('Delegación no proporcionada para el token: ' . $token);
                     continue;
                 }
                 
-                // Crear la inscripción para esta área
-                $inscripcion = Inscripcion::create([
-                    'fechaInscripcion' => now(),
-                    'numeroContacto' => $request->numeroContacto,
-                    'idConvocatoria' => $request->idConvocatoria,
+                $tutorAreaDelegacion = TutorAreaDelegacion::where('tokenTutor', $token)->first();
+                
+                if (!$tutorAreaDelegacion) {
+                    return back()->withErrors(['error' => 'Token de tutor inválido: ' . $token])->withInput();
+                }
+                
+                // Guardar el ID del tutor
+                $tutoresValidos[] = [
+                    'token' => $token,
+                    'idTutor' => $tutorAreaDelegacion->id,
+                    'idDelegacion' => $idDelegacion
+                ];
+                
+                // Usar la primera delegación para la inscripción principal
+                if ($idDelegacionPrincipal === null) {
+                    $idDelegacionPrincipal = $idDelegacion;
+                }
+            }
+            
+            if (empty($tutoresValidos)) {
+                return back()->withErrors(['error' => 'No se encontraron tutores válidos'])->withInput();
+            }
+
+            // Crear una única inscripción principal
+            $inscripcion = Inscripcion::create([
+                'fechaInscripcion' => now(),
+                'numeroContacto' => $request->numeroContacto,
+                'idConvocatoria' => $request->idConvocatoria,
+                'idDelegacion' => $idDelegacionPrincipal,
+                'idGrado' => $request->idGrado
+            ]);
+            
+            Log::info('Inscripción creada:', ['id' => $inscripcion->idInscripcion]);
+            
+            // Crear detalles para cada combinación de área y categoría
+            for ($i = 0; $i < count($tutorAreas); $i++) {
+                if (empty($tutorAreas[$i]) || empty($tutorCategorias[$i])) continue;
+                
+                $idArea = $tutorAreas[$i];
+                $idCategoria = $tutorCategorias[$i];
+                
+                // Verificar si ya existe un detalle con esta combinación para evitar duplicados
+                $detalleExistente = \App\Models\DetalleInscripcion::where([
+                    'idInscripcion' => $inscripcion->idInscripcion,
                     'idArea' => $idArea,
-                    'idDelegacion' => $request->tutor_delegaciones[$index],
-                    'idCategoria' => $request->idCategoria, 
-                    'idGrado' => $request->idGrado ?? 1 // valor por defecto si no se proporciona
+                    'idCategoria' => $idCategoria
+                ])->first();
+                
+                // Solo crear si no existe
+                if (!$detalleExistente) {
+                    // Crear el detalle de inscripción para esta área y categoría
+                    \App\Models\DetalleInscripcion::create([
+                        'idInscripcion' => $inscripcion->idInscripcion,
+                        'idArea' => $idArea,
+                        'idCategoria' => $idCategoria
+                    ]);
+                    
+                    Log::info('Detalle creado:', ['area' => $idArea, 'categoria' => $idCategoria]);
+                } else {
+                    Log::info('Detalle ya existente, no se duplica:', ['area' => $idArea, 'categoria' => $idCategoria]);
+                }
+            }
+            
+            // Vincular a cada tutor con el estudiante y la inscripción
+            foreach ($tutoresValidos as $tutor) {
+                \App\Models\TutorEstudianteInscripcion::create([
+                    'idTutor' => $tutor['idTutor'],
+                    'idEstudiante' => Auth::id(),
+                    'idInscripcion' => $inscripcion->idInscripcion
                 ]);
                 
-                $inscripciones[] = $inscripcion;
-                
-                // Relacionar con tutores
-                foreach ($validTokens as $tutorAreaDelegacion) {
-                    $inscripcion->tutores()->attach($tutorAreaDelegacion->id, [
-                        'idEstudiante' => Auth::id()
-                    ]);
-                }
+                Log::info('Relación tutor-estudiante creada:', ['tutor' => $tutor['idTutor']]);
             }
 
             return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
 
         } catch (\Exception $e) {
-            Log::error('Error en inscripción:', ['error' => $e->getMessage()]);
+            Log::error('Error en inscripción:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return back()
-                ->withErrors(['error' => 'Hubo un error al procesar la inscripción. Por favor, intente nuevamente.'])
+                ->withErrors(['error' => 'Hubo un error al procesar la inscripción: ' . $e->getMessage()])
                 ->withInput();
         }
     }

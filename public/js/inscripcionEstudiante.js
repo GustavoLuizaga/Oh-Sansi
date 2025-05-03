@@ -38,7 +38,18 @@ document.addEventListener('DOMContentLoaded', function() {
         removeButton.innerHTML = '<i class="fas fa-trash"></i>';
         removeButton.title = 'Eliminar área';
         areaRow.appendChild(removeButton);
+        
+        // Actualizar los nombres de los campos del primer bloque de área para que sigan el mismo patrón
+        const areaSelect = firstAreaBlock.querySelector('.area-select');
+        const categoriaSelect = firstAreaBlock.querySelector('.categoria-select');
+        if (areaSelect && categoriaSelect) {
+            areaSelect.name = 'tutor_areas_1_1';
+            categoriaSelect.name = 'tutor_categorias_1_1';
+        }
     }
+    
+    // Inicializar el contador de áreas para el primer tutor
+    areaCount[1] = 1;
     
     // Opcional: También validar al perder el foco
     document.addEventListener('blur', function(e) {
@@ -187,6 +198,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (gradoSelect) {
             gradoSelect.name = `idGrado_${tutorCount}`;
         }
+        
+        // Actualizar los nombres de los campos de área y categoría para el nuevo tutor
+        const tutorAreaBlocks = tutorBlock.querySelectorAll('.area-block');
+        tutorAreaBlocks.forEach((areaBlock, areaIndex) => {
+            const areaSelect = areaBlock.querySelector('.area-select');
+            const categoriaSelect = areaBlock.querySelector('.categoria-select');
+            if (areaSelect && categoriaSelect) {
+                areaSelect.name = `tutor_areas_${tutorCount}_${areaIndex + 1}`;
+                categoriaSelect.name = `tutor_categorias_${tutorCount}_${areaIndex + 1}`;
+            }
+        });
         
         // Resetear el botón de verificación
         const verifyButton = tutorBlock.querySelector('.btn-verificar-token');
@@ -408,6 +430,20 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Obtener el índice del tutor para actualizar los nombres de los campos
+        const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Tutor ', ''));
+        
+        // Actualizar los nombres de los campos de área y categoría para seguir el patrón consistente
+        const areaBlocks = tutorBlock.querySelectorAll('.area-block');
+        areaBlocks.forEach((areaBlock, areaIndex) => {
+            const areaSelect = areaBlock.querySelector('.area-select');
+            const categoriaSelect = areaBlock.querySelector('.categoria-select');
+            if (areaSelect && categoriaSelect) {
+                areaSelect.name = `tutor_areas_${tutorIndex}_${areaIndex + 1}`;
+                categoriaSelect.name = `tutor_categorias_${tutorIndex}_${areaIndex + 1}`;
+            }
+        });
+        
         // Verificar si el mismo token ya está siendo usado en este mismo formulario
         // pero solo para evitar duplicados en el mismo formulario
         const allTokenInputs = document.querySelectorAll('.tutor-token');
@@ -437,6 +473,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusElement.classList.add('valid');
                 displayTutorInfo(tutorBlock, data);
                 
+                // Obtener el índice del tutor para actualizar los nombres de los campos
+                const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Tutor ', ''));
+                
                 // Store the token in a data attribute for later reference
                 tutorBlock.dataset.usedToken = token;
                 
@@ -463,6 +502,17 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                             
                             areaSelect.disabled = false;
+                            
+                            // Actualizar el nombre del campo para seguir el patrón consistente
+                            const areaBlocks = tutorBlock.querySelectorAll('.area-block');
+                            areaBlocks.forEach((areaBlock, areaIndex) => {
+                                const areaSelect = areaBlock.querySelector('.area-select');
+                                const categoriaSelect = areaBlock.querySelector('.categoria-select');
+                                if (areaSelect && categoriaSelect) {
+                                    areaSelect.name = `tutor_areas_${tutorIndex}_${areaIndex + 1}`;
+                                    categoriaSelect.name = `tutor_categorias_${tutorIndex}_${areaIndex + 1}`;
+                                }
+                            });
                             
                             // Si solo hay una área, seleccionarla automáticamente
                             if (areasData.areas.length === 1) {

@@ -66,7 +66,6 @@ class InscripcionEstController extends Controller
     public function store(Request $request)
     {
         try {
-            dd(request()->all);
             // Validar solo los campos necesarios
             $validatedData = $request->validate([
                 'numeroContacto' => 'required|string|size:8',

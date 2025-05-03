@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('boletapago', function (Blueprint $table) {
             $table->id('idBoleta');
             $table->string('CodigoBoleta');
-            $table->integer('MontoBoleta');
-            $table->date('fechainicio');
-            $table->date('fechafin');
+            $table->integer('MontoBoleta')->nullable();
+            $table->date('fechainicio')->nullable();
+            $table->date('fechafin')->nullable();
 
             $table->timestamps();
         });

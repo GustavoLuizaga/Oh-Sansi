@@ -28,4 +28,29 @@ class TutorEstudianteInscripcion extends Model
             ->get();
     }
 
+    public function puedeInscribirseEnMasAreas($idEstudiante, $idConvocatoria)
+    {
+        $cantidadInscripciones = $this->where('idEstudiante', $idEstudiante)
+            ->whereHas('inscripcion', function($query) use ($idConvocatoria) {
+                $query->where('idConvocatoria', $idConvocatoria);
+            })
+            ->count();
+
+        return $cantidadInscripciones < 2;
+    }
+
+    /**
+     * Obtiene la cantidad de áreas inscritas en una convocatoria
+     * @param int $idEstudiante
+     * @param int $idConvocatoria
+     * @return int
+     */
+    public function cantidadAreasInscritas($idEstudiante, $idConvocatoria)
+    {
+        return $this->where('idEstudiante', $idEstudiante)
+            ->whereHas('inscripcion', function($query) use ($idConvocatoria) {
+                $query->where('idConvocatoria', $idConvocatoria);
+            })
+            ->count();
+    }
 }

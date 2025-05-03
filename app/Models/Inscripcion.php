@@ -73,4 +73,26 @@ class Inscripcion extends Model
             ->where('inscripcion.idInscripcion', $idInscripcion)
             ->first();
     }
+
+    public function puedeInscribirse($idEstudiante)
+    {
+        $tutorEstudianteInscripcion = new TutorEstudianteInscripcion();
+        return $tutorEstudianteInscripcion->puedeInscribirseEnMasAreas($idEstudiante, $this->idConvocatoria);
+    }
+
+    /**
+     * Obtiene las áreas en las que está inscrito un estudiante en esta convocatoria
+     * @param int $idEstudiante
+     * @return Collection
+     */
+    public function obtenerAreasInscritas($idEstudiante)
+    {
+        return $this->where('idConvocatoria', $this->idConvocatoria)
+            ->whereHas('estudiantes', function($query) use ($idEstudiante) {
+                $query->where('estudiante.id', $idEstudiante);
+            })
+            ->with('area')
+            ->get()
+            ->pluck('area');
+    }
 }

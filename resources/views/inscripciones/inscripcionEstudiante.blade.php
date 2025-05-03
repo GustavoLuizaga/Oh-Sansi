@@ -23,7 +23,17 @@
             <p class="convocatoria-info">Convocatoria: <span>{{ $convocatoria->nombre }}</span></p>
             @endif
         </div>
-
+        <!-- Mensajes de Error -->
+        @if($errors->any())
+        <div class="alert alert-error">
+            @foreach($errors->all() as $error)
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ $error }}
+            </div>
+            @endforeach
+        </div>
+        @endif
         <!-- Main Form -->
         <form id="inscriptionForm" method="POST" action="{{ route('inscripcion.store') }}" class="inscription-form" onsubmit="return validateForm(event)">
             @csrf
@@ -107,18 +117,15 @@
                 </div>
 
                 <!-- Información de Tutores -->
+                <!-- Información de Tutores -->
                 <div class="formulario-seccion" id="tutor-info">
                     <div class="seccion-card">
                         <div class="seccion-header">
-                            <h2><i class="fas fa-chalkboard-teacher"></i> Información de Tutores</h2>
-                            <p class="section-subtitle">Puede agregar hasta 2 tutores</p>
+                            <h2><i class="fas fa-chalkboard-teacher"></i> Información del Tutor</h2>
                         </div>
                         <div class="seccion-body">
                             <div id="tutorContainer">
                                 <div class="tutor-block">
-                                    <div class="tutor-header">
-                                        <h3>Tutor 1</h3>
-                                    </div>
                                     <div class="input-grupo">
                                         <label>Token del Tutor</label>
                                         <div class="input-with-icon token-verification-container">
@@ -138,7 +145,7 @@
                                                 <input type="hidden" class="idDelegacion-input" name="tutor_delegaciones[]">
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Áreas y Categorías -->
                                         <div class="areas-container">
                                             <div class="area-block">
@@ -148,10 +155,9 @@
                                                         <select class="area-select" name="tutor_areas[]" required>
                                                             <option value="">Seleccione un área</option>
                                                             @foreach($areas as $area)
-                                                                <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
+                                                            <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
                                                             @endforeach
                                                         </select>
-                                                        <input type="hidden" class="tutor-area-hidden" value="">
                                                     </div>
                                                     <div class="input-grupo">
                                                         <label>Categoría</label>
@@ -161,17 +167,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn-add-area">
-                                                <i class="fas fa-plus-circle"></i> Agregar otra área
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <button type="button" id="addTutorBtn" class="btn-add-tutor">
-                                <i class="fas fa-plus"></i> Agregar otro tutor
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -207,19 +206,19 @@
 </x-app-layout>
 
 <script>
-function validateForm(event) {
-    const tutorBlocks = document.querySelectorAll('.tutor-block');
-    const validTutors = Array.from(tutorBlocks).filter(block => {
-        const tokenInput = block.querySelector('.tutor-token');
-        const tutorInfo = block.querySelector('.tutor-info');
-        return tokenInput.value.trim() !== '' && tutorInfo.style.display !== 'none';
-    });
+    function validateForm(event) {
+        const tutorBlocks = document.querySelectorAll('.tutor-block');
+        const validTutors = Array.from(tutorBlocks).filter(block => {
+            const tokenInput = block.querySelector('.tutor-token');
+            const tutorInfo = block.querySelector('.tutor-info');
+            return tokenInput.value.trim() !== '' && tutorInfo.style.display !== 'none';
+        });
 
-    if (validTutors.length === 0) {
-        alert('Debe tener al menos un tutor válido para continuar');
-        event.preventDefault();
-        return false;
+        if (validTutors.length === 0) {
+            alert('Debe tener al menos un tutor válido para continuar');
+            event.preventDefault();
+            return false;
+        }
+        return true;
     }
-    return true;
-}
 </script>

@@ -46,7 +46,6 @@ class Inscripcion extends Model
     public function delegacion()
     {
         return $this->belongsTo(Delegacion::class, 'idDelegacion', 'idDelegacion');
-        
     }
 
     public function tutores()
@@ -61,5 +60,39 @@ class Inscripcion extends Model
         return $this->belongsToMany(Estudiante::class, 'tutorEstudianteInscripcion', 'idInscripcion', 'idEstudiante')
             ->withPivot('idTutor')
             ->withTimestamps();
+    }
+
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'idCategoria', 'idCategoria');
+    }
+
+    public function obtenerEstudiantePorInscripcion($idInscripcion)
+    {
+        return $this->estudiantes()
+            ->where('inscripcion.idInscripcion', $idInscripcion)
+            ->first();
+    }
+
+    public function puedeInscribirse($idEstudiante)
+    {
+        $tutorEstudianteInscripcion = new TutorEstudianteInscripcion();
+        return $tutorEstudianteInscripcion->puedeInscribirseEnMasAreas($idEstudiante, $this->idConvocatoria);
+    }
+
+    /**
+     * Obtiene las áreas en las que está inscrito un estudiante en esta convocatoria
+     * @param int $idEstudiante
+     * @return Collection
+     */
+    public function obtenerAreasInscritas($idEstudiante)
+    {
+        return $this->where('idConvocatoria', $this->idConvocatoria)
+            ->whereHas('estudiantes', function($query) use ($idEstudiante) {
+                $query->where('estudiante.id', $idEstudiante);
+            })
+            ->with('area')
+            ->get()
+            ->pluck('area');
     }
 }

@@ -20,7 +20,7 @@ use App\Notifications\WelcomeEmailNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
 use App\Models\TutorEstudianteInscripcion;
-       
+
 
 class InscripcionController extends Controller
 {
@@ -127,28 +127,28 @@ class InscripcionController extends Controller
         if ($user->tutor && $user->tutor->tutorAreaDelegacion) {
             // obtenemos las areas y el token del tutor
             $areas = Area::join('tutorAreaDelegacion', 'area.idArea', '=', 'tutorAreaDelegacion.idArea')
-                        ->where('tutorAreaDelegacion.id', $user->tutor->id)
-                        ->select('area.*')
-                        ->get();
+                ->where('tutorAreaDelegacion.id', $user->tutor->id)
+                ->select('area.*')
+                ->get();
             $token = $user->tutor->tutorAreaDelegacion->tokenTutor;
         } else {
             // mostramos las area en la convocatoria activa
             $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')->first();
             if ($convocatoria) {
                 $areas = Area::join('convocatoriaAreaCategoria', 'area.idArea', '=', 'convocatoriaAreaCategoria.idArea')
-                            ->where('convocatoriaAreaCategoria.idConvocatoria', $convocatoria->idConvocatoria)
-                            ->select('area.*')
-                            ->distinct()
-                            ->get();
+                    ->where('convocatoriaAreaCategoria.idConvocatoria', $convocatoria->idConvocatoria)
+                    ->select('area.*')
+                    ->distinct()
+                    ->get();
             }
         }
 
         // obtenemos el id de la convocatoria activa para mostrar en el select de la inscripcio
         $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')
-                        ->first();
-        
+            ->first();
+
         $idConvocatoriaResult = $convocatoria ? $convocatoria->idConvocatoria : null;
-        
+
         return view('inscripciones.inscripcionTutor', compact('areas', 'token', 'idConvocatoriaResult'));
     }
 
@@ -205,18 +205,27 @@ class InscripcionController extends Controller
             $areasInscritas = TutorEstudianteInscripcion::where('idEstudiante', $user->id)
                 ->with('inscripcion.area')
                 ->get()
-                ->pluck('inscripcion.area.nombre')
+                ->pluck('inscripcion.area.idArea')
                 ->filter()
                 ->unique()
                 ->values();
 
-                if ($areasInscritas->contains($request->area)) {
-                    return back()->with('error', "El estudiante ya está inscrito en el área '{$request->area}'.");
-                }
-
+            if ($areasInscritas->contains($request->area)) {
+                return back()->with('error', "El estudiante ya está inscrito en el área '{$request->area}'.");
+            }
+  
             $convocatoria = new VerificarExistenciaConvocatoria();
             $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
 
+            $inscripcionModel = new TutorEstudianteInscripcion();
+
+            // Obtener cantidad de inscripciones
+
+            $cantidadAreasInscritas = $inscripcionModel->cantidadAreasInscritas($user->id, $idConvocatoriaResult);
+
+            if ($cantidadAreasInscritas >= 2) {
+               return back()->with('error', 'El estudiante ya está inscrito en 2 áreas.');
+            }
             $delegado = Auth::user();
             $idDelegacion = $delegado->tutor->primerIdDelegacion();
 

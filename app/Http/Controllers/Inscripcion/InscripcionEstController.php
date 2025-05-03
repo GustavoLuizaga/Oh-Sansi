@@ -13,6 +13,8 @@ use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
 use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
 use App\Http\Controllers\Inscripcion\ObtenerIdTutorToken;
+use App\Models\TutorEstudianteInscripcion;
+
 
 class InscripcionEstController extends Controller
 {
@@ -21,7 +23,7 @@ class InscripcionEstController extends Controller
         // Obtener el ID de la convocatoria activa
         $convocatoria = new VerificarExistenciaConvocatoria();
         $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
-        
+
         // Verificar si hay una convocatoria activa
         if ($idConvocatoriaResult instanceof \Illuminate\Http\JsonResponse) {
             // No hay convocatoria activa
@@ -30,16 +32,16 @@ class InscripcionEstController extends Controller
                 'convocatoria' => null
             ]);
         }
-        
+
         $idConvocatoria = $idConvocatoriaResult;
-        
+
         // Obtener la información de la convocatoria
         $convocatoriaInfo = \App\Models\Convocatoria::find($idConvocatoria);
-        
+
         // Obtener las delegaciones (colegios)
         $colegios = \App\Models\Delegacion::select('idDelegacion as id', 'nombre')
-                        ->orderBy('nombre')
-                        ->get();
+            ->orderBy('nombre')
+            ->get();
 
         // Obtener las areas por el id de la convocatoria
         $obtenerAreas = new ObtenerAreasConvocatoria();
@@ -66,100 +68,140 @@ class InscripcionEstController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validar solo los campos necesarios
+            Log::info('Iniciando proceso de inscripción', ['request' => $request->all()]);
+
+            // Validar los campos necesarios
             $validatedData = $request->validate([
                 'numeroContacto' => 'required|string|size:8',
-                'tutor_tokens' => 'required|array|min:1',
-                'tutor_areas' => 'required|array|min:1',
-                'tutor_delegaciones' => 'required|array|min:1',
-                'idConvocatoria' => 'required|integer'
-                
+                'tutor_tokens' => 'required|array|size:1',
+                'tutor_tokens.*' => 'required|string',
+                'tutor_areas' => 'required|array|size:1',
+                'tutor_areas.*' => 'required|integer',
+                'tutor_delegaciones' => 'required|array|size:1',
+                'tutor_delegaciones.*' => 'required|integer',
+                'tutor_categorias' => 'required|array|size:1',
+                'tutor_categorias.*' => 'required|integer',
+                'idConvocatoria' => 'required|integer',
+                'idGrado' => 'required|integer'
             ]);
 
-            // Verificar los tokens de tutor
-            $validTokens = [];
-            foreach ($request->tutor_tokens as $index => $token) {
-                $tutorAreaDelegacion = TutorAreaDelegacion::where('tokenTutor', $token)->first();
-                
-                if (!$tutorAreaDelegacion) {
-                    return back()->withErrors(['error' => 'Token de tutor inválido'])->withInput();
-                }
-                
-                $validTokens[] = $tutorAreaDelegacion;
+            Log::info('Datos validados correctamente', ['validatedData' => $validatedData]);
+
+            // Verificar el token del tutor
+            $token = $request->tutor_tokens[0];
+            Log::info('Verificando token del tutor', ['token' => $token]);
+
+            $tutorAreaDelegacion = TutorAreaDelegacion::where('tokenTutor', $token)->first();
+            Log::info('Resultado búsqueda de tutor', ['tutorAreaDelegacion' => $tutorAreaDelegacion]);
+
+            if (!$tutorAreaDelegacion) {
+                Log::warning('Token de tutor inválido', ['token' => $token]);
+                return back()->withErrors(['error' => 'Token de tutor inválido'])->withInput();
             }
 
-            // Crear inscripciones para cada área seleccionada
-            $inscripciones = [];
-            
-            foreach ($request->tutor_areas as $index => $idArea) {
-                // Verificar que el índice existe en los arrays
-                if (!isset($request->tutor_delegaciones[$index])) {
-                    continue;
-                }
-                
-                // Crear la inscripción para esta área
-                $inscripcion = Inscripcion::create([
-                    'fechaInscripcion' => now(),
-                    'numeroContacto' => $request->numeroContacto,
-                    'idConvocatoria' => $request->idConvocatoria,
-                    'idArea' => $idArea,
-                    'idDelegacion' => $request->tutor_delegaciones[$index],
-                    'idCategoria' => $request->idCategoria, 
-                    'idGrado' => $request->idGrado ?? 1 // valor por defecto si no se proporciona
-                ]);
-                
-                $inscripciones[] = $inscripcion;
-                
-                // Relacionar con tutores
-                foreach ($validTokens as $tutorAreaDelegacion) {
-                    $inscripcion->tutores()->attach($tutorAreaDelegacion->id, [
-                        'idEstudiante' => Auth::id()
-                    ]);
-                }
+            $areasInscritas = TutorEstudianteInscripcion::where('idEstudiante', Auth::user()->id)
+                ->with('inscripcion.area')
+                ->get()
+                ->pluck('inscripcion.area.idArea')
+                ->filter()
+                ->unique()
+                ->values();
+            // Obtener el nombre del área usando el modelo Area
+            $areaNombre = \App\Models\Area::find($request->tutor_areas[0])->nombre;
+
+            if ($areasInscritas->contains($request->tutor_areas[0])) {
+                return back()->withErrors(['error' => 'Ya estás inscrito en el área: ' . $areaNombre])->withInput();
             }
+
+            $inscripcionModel = new TutorEstudianteInscripcion();
+
+            // Obtener cantidad de inscripciones
+
+            $cantidadAreasInscritas = $inscripcionModel->cantidadAreasInscritas(Auth::user()->id, $request->idConvocatoria);
+
+            if ($cantidadAreasInscritas >= 2) {
+                Log::warning('El estudiante ya está inscrito en el máximo de áreas permitidas');
+                return back()->withErrors(['error' => 'Ya estás inscrito en el máximo de 2 áreas permitidas'])->withInput();
+            }
+
+
+
+            $inscripcionData = [
+                'fechaInscripcion' => now(),
+                'numeroContacto' => $request->numeroContacto,
+                'idConvocatoria' => $request->idConvocatoria,
+                'idArea' => $request->tutor_areas[0],
+                'idDelegacion' => $request->tutor_delegaciones[0],
+                'idCategoria' => $request->tutor_categorias[0],
+                'idGrado' => $request->idGrado
+            ];
+
+            Log::info('Intentando crear inscripción con datos:', ['inscripcionData' => $inscripcionData]);
+
+            // Crear la inscripción
+            $inscripcion = Inscripcion::create($inscripcionData);
+            Log::info('Inscripción creada exitosamente', ['inscripcion' => $inscripcion]);
+
+            // Relacionar con el tutor
+            Log::info('Intentando relacionar con tutor', [
+                'inscripcionId' => $inscripcion->id,
+                'tutorId' => $tutorAreaDelegacion->id,
+                'estudianteId' => Auth::id()
+            ]);
+
+            $inscripcion->tutores()->attach($tutorAreaDelegacion->id, [
+                'idEstudiante' => Auth::id()
+            ]);
+
+            Log::info('Relación con tutor creada exitosamente');
 
             return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
-
         } catch (\Exception $e) {
-            Log::error('Error en inscripción:', ['error' => $e->getMessage()]);
+            Log::error('Error en inscripción:', [
+                'mensaje' => $e->getMessage(),
+                'linea' => $e->getLine(),
+                'archivo' => $e->getFile(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return back()
                 ->withErrors(['error' => 'Hubo un error al procesar la inscripción. Por favor, intente nuevamente.'])
                 ->withInput();
         }
     }
-    
+
     public function validateTutorToken($token)
     {
         try {
             Log::info('Validating token: ' . $token); // Add logging
-            
+
             $tutor = \App\Models\TutorAreaDelegacion::where('tokenTutor', $token)->first();
-            
+
             Log::info('Query result:', ['tutor' => $tutor]); // Add logging
-            
+
             if (!$tutor) {
                 return response()->json([
                     'valid' => false,
                     'message' => 'Token no encontrado'
                 ]);
             }
-        
+
             // Get area and delegacion info
             $area = \App\Models\Area::find($tutor->idArea);
             $delegacion = \App\Models\Delegacion::find($tutor->idDelegacion);
-            
+
             if (!$area || !$delegacion) {
                 return response()->json([
                     'valid' => false,
                     'message' => 'Información de área o delegación no encontrada'
                 ]);
             }
-        
+
             // Get available categories for this area
-            $categorias = \App\Models\Categoria::whereHas('convocatoriaAreaCategorias', function($query) use ($tutor) {
+            $categorias = \App\Models\Categoria::whereHas('convocatoriaAreaCategorias', function ($query) use ($tutor) {
                 $query->where('idArea', $tutor->idArea);
             })->get(['idCategoria as id', 'nombre']);
-            
+
             return response()->json([
                 'valid' => true,
                 'area' => $area->nombre,
@@ -177,15 +219,15 @@ class InscripcionEstController extends Controller
             ]);
         }
     }
-    
+
     public function getGradosByCategoria($id)
     {
         try {
             // Obtener los grados asociados a la categoría
-            $grados = \App\Models\Grado::whereHas('categorias', function($query) use ($id) {
+            $grados = \App\Models\Grado::whereHas('categorias', function ($query) use ($id) {
                 $query->where('categoria.idCategoria', $id);
             })->get(['idGrado as id', 'grado as nombre']);
-            
+
             return response()->json($grados);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener los grados'], 500);
@@ -205,7 +247,7 @@ class InscripcionEstController extends Controller
                 ->values();
 
             // Transformar los datos para que sean compatibles con el formato esperado por el frontend
-            $categoriasFormateadas = $categorias->map(function($categoria) {
+            $categoriasFormateadas = $categorias->map(function ($categoria) {
                 return [
                     'idCategoria' => $categoria->idCategoria,
                     'nombre' => $categoria->nombre
@@ -218,7 +260,7 @@ class InscripcionEstController extends Controller
             return response()->json(['error' => 'Error al obtener categorías'], 500);
         }
     }
-    
+
     /**
      * Obtiene las áreas asociadas a un tutor específico según su token
      *
@@ -229,21 +271,21 @@ class InscripcionEstController extends Controller
     {
         try {
             Log::info('Obteniendo áreas para el token: ' . $token);
-            
+
             // Buscar todas las entradas del tutor con ese token
             $tutorAreas = \App\Models\TutorAreaDelegacion::where('tokenTutor', $token)
                 ->with('area')
                 ->get();
-            
+
             if ($tutorAreas->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No se encontraron áreas asociadas a este token'
                 ]);
             }
-            
+
             // Extraer las áreas y formatearlas para la respuesta
-            $areas = $tutorAreas->map(function($tutorArea) {
+            $areas = $tutorAreas->map(function ($tutorArea) {
                 return [
                     'idArea' => $tutorArea->idArea,
                     'nombre' => $tutorArea->area->nombre,
@@ -251,12 +293,11 @@ class InscripcionEstController extends Controller
                     'delegacion' => $tutorArea->delegacion->nombre
                 ];
             });
-            
+
             return response()->json([
                 'success' => true,
                 'areas' => $areas
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error al obtener áreas del tutor: ' . $e->getMessage());
             Log::error($e->getTraceAsString());
@@ -266,5 +307,4 @@ class InscripcionEstController extends Controller
             ], 500);
         }
     }
-
 }

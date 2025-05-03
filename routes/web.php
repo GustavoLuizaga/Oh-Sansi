@@ -54,6 +54,14 @@ Route::post('/servicios/eliminar-permiso', [\App\Http\Controllers\ServiceControl
 
 Route::get('/boletapago', [\App\Http\Controllers\BoletaPago\BoletaDePago::class, 'obtenerEstudiantesInscritos'])->middleware(['auth'])->name('boletapago.ObtenerInscripcionesPorDelegadoArea'); 
 
+Route::get('/test-boleta', [\App\Http\Controllers\BoletaPago\BoletaDePago::class, 'generarOrdenPago']);
+
+//cambiar al archivo de rutas correspondiente
+Route::get('/boleta/preview', [
+    App\Http\Controllers\BoletaPago\BoletaDePago::class, 
+    'generarOrdenPago'
+])->name('boleta.preview');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/areasCategorias.php';
 require __DIR__.'/areas.php';

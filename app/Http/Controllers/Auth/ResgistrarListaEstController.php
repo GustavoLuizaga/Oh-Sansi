@@ -174,16 +174,7 @@ class ResgistrarListaEstController extends Controller
                     continue;
                 }
 
-                $inscripcionModel = new TutorEstudianteInscripcion();
 
-                // Obtener cantidad de inscripciones
-
-                $cantidadAreasInscritas = $inscripcionModel->cantidadAreasInscritas($user->id, $idConvocatoriaResult);
-
-                if ($cantidadAreasInscritas >= 2) {
-                    $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en el máximo de 2 áreas permitidas. Porfavor revise la información de la inscripcion.";
-                    continue;
-                }
 
                 // Crear inscripción
                 $inscripcion = Inscripcion::create([

@@ -57,10 +57,12 @@
             color: #FF0000;
         }
         
+        /* Estilos modificados para las tablas */
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 10px 0;
+            table-layout: fixed; /* Importante: establece ancho fijo de columnas */
         }
         
         th {
@@ -69,11 +71,37 @@
             padding: 5px;
             text-align: left;
             border: 1px solid #000;
+            overflow-wrap: break-word; /* Permite que las palabras se rompan */
+            word-wrap: break-word;
         }
         
         td {
             border: 1px solid #000;
             padding: 5px;
+            overflow-wrap: break-word; /* Permite que las palabras se rompan */
+            word-wrap: break-word;
+            vertical-align: top; /* Alinea el texto a la parte superior de la celda */
+        }
+        
+        /* primer columna más ancha */
+        .tutor-table th:nth-child(1),
+        .tutor-table td:nth-child(1) {
+        width: 22%;
+        }
+        /* segunda columna un poco más estrecha */
+        .tutor-table th:nth-child(2),
+        .tutor-table td:nth-child(2) {
+        width: 33%;
+        }
+        /* tercera columna… */
+        .tutor-table th:nth-child(3),
+        .tutor-table td:nth-child(3) {
+        width: 34%;
+        }
+        /* cuarta columna… */
+        .tutor-table th:nth-child(4),
+        .tutor-table td:nth-child(4) {
+        width: 11%;
         }
         
         tr:nth-child(even) {
@@ -220,9 +248,9 @@
     </div>
     <table>
         <tr>
-            <th>MODALIDAD</th>
-            <th>CONCEPTO</th>
-            <th>MONTO(Bs)</th>
+            <th width="20%">MODALIDAD</th>
+            <th width="60%">CONCEPTO</th>
+            <th width="20%">MONTO(Bs)</th>
         </tr>
 
         @foreach($inscripciones as $inscripcion)

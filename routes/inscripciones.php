@@ -60,4 +60,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/obtener-grados/{idCategoria}', [ObtenerGradosdeUnaCategoria::class, 'obtenerGradosPorArea2']);
     
+    // Rutas para gestión de grupos
+    Route::get('/inscripcion/grupos', [\App\Http\Controllers\GrupoController::class, 'index'])
+        ->name('inscripcion.grupos');
+    Route::post('/inscripcion/grupos', [\App\Http\Controllers\GrupoController::class, 'store'])
+        ->name('inscripcion.grupos.store');
+    Route::put('/inscripcion/grupos/{id}/status', [\App\Http\Controllers\GrupoController::class, 'updateStatus'])
+        ->name('inscripcion.grupos.update-status');
+    Route::delete('/inscripcion/grupos/{id}', [\App\Http\Controllers\GrupoController::class, 'destroy'])
+        ->name('inscripcion.grupos.destroy');
 });

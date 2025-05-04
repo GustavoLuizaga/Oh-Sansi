@@ -23,14 +23,36 @@ use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 use Illuminate\Support\Facades\DB;
 use App\Models\TutorEstudianteInscripcion;
+use Illuminate\Support\Str;
 
 class ResgistrarListaEstController extends Controller
 {
     public function index()
     {
-        return view('inscripcion estudiante.RegistrarListaEst');
+        // Obtener información de áreas, categorías, etc. para mostrar en la vista
+        $idConvocatoriaResult = (new VerificarExistenciaConvocatoria())->verificarConvocatoriaActiva();
+        $areasHabilitadas = [];
+        $delegaciones = Delegacion::all();
+        
+        if ($idConvocatoriaResult) {
+            $areasHabilitadas = (new ObtenerAreasConvocatoria())->obtenerAreasPorConvocatoria($idConvocatoriaResult);
+        }
+        
+        return view('inscripcion estudiante.RegistrarListaEst', [
+            'convocatoriaActiva' => $idConvocatoriaResult ? true : false,
+            'areas' => $areasHabilitadas,
+            'delegaciones' => $delegaciones
+        ]);
     }
-
+    
+    public function descargarPlantilla()
+    {
+        $generador = new GenerarPlantillaExcelController();
+        $filePath = $generador->generarPlantilla();
+        
+        return response()->download($filePath, 'plantilla_inscripcion.xlsx');
+    }
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -38,17 +60,18 @@ class ResgistrarListaEstController extends Controller
         ]);
     
         $array = Excel::toArray([], $request->file('file'));
-        $rows = array_slice($array[0], 1);
+        $rows = array_slice($array[0], 1); // Omitir la fila de encabezados
     
         $errors = [];
         $usersCreated = 0;
         $usersUpdated = 0;
     
         $filaDatos = []; // Aquí vamos a guardar las filas validadas y procesables
+        $gruposInvitacion = []; // Para agrupar estudiantes por código de invitación
     
         // PRIMERA PASADA: Validar datos sin tocar la base de datos
         foreach ($rows as $key => $row) {
-            $currentRow = $key + 2;
+            $currentRow = $key + 2; // +2 porque Excel empieza en 1 y ya omitimos la fila de encabezados
     
             if (empty($row[4])) { // Validar si falta email
                 $errors[] = "Fila {$currentRow}: El correo electrónico es obligatorio.";
@@ -59,13 +82,21 @@ class ResgistrarListaEstController extends Controller
             $categoria = $row[8] ?? null;
             $grado = $row[9] ?? null;
             $delegacion = $row[11] ?? null;
+            $modalidad = $row[14] ?? 'Individual';
+            $codigoInvitacion = $row[15] ?? null;
+    
+            // Validar modalidad y código de invitación
+            if (in_array(strtolower($modalidad), ['duo', 'equipo']) && empty($codigoInvitacion)) {
+                $errors[] = "Fila {$currentRow}: Para modalidad '{$modalidad}' debe proporcionar un código de invitación.";
+                continue;
+            }
     
             // Validar existencia de área
             $idConvocatoriaResult = (new VerificarExistenciaConvocatoria())->verificarConvocatoriaActiva();
             $areasHabilitadas = (new ObtenerAreasConvocatoria())->obtenerAreasPorConvocatoria($idConvocatoriaResult);
     
             if (!$areasHabilitadas->contains('nombre', $area)) {
-                $errors[] = "Fila {$currentRow}: El área '{$area}' no está habilitada para esta convocatoria.Porfavor revise la información de la convocatoria vigente";
+                $errors[] = "Fila {$currentRow}: El área '{$area}' no está habilitada para esta convocatoria. Por favor revise la información de la convocatoria vigente.";
                 continue;
             }
     
@@ -74,7 +105,7 @@ class ResgistrarListaEstController extends Controller
             // Validar existencia de categoría en el área
             $categoriasHabilitadas = (new ObtenerCategoriasArea())->categoriasAreas2($idConvocatoriaResult, $idArea);
             if (!$categoriasHabilitadas->contains('nombre', $categoria)) {
-                $errors[] = "Fila {$currentRow}: La categoría '{$categoria}' no está habilitada para el área '{$area}'.Porfavor revise la información de la convocatoria vigente";
+                $errors[] = "Fila {$currentRow}: La categoría '{$categoria}' no está habilitada para el área '{$area}'. Por favor revise la información de la convocatoria vigente.";
                 continue;
             }
     
@@ -83,7 +114,7 @@ class ResgistrarListaEstController extends Controller
             // Validar existencia de grado en la categoría
             $gradosHabilitados = (new ObtenerGradosdeUnaCategoria())->obtenerGradosPorArea($categoriaModel);
             if (!$gradosHabilitados->contains('grado', $grado)) {
-                $errors[] = "Fila {$currentRow}: El grado '{$grado}' no está habilitado para la categoría '{$categoriaModel->nombre}'.Porfavor revise la información de la convocatoria vigente";
+                $errors[] = "Fila {$currentRow}: El grado '{$grado}' no está habilitado para la categoría '{$categoriaModel->nombre}'. Por favor revise la información de la convocatoria vigente.";
                 continue;
             }
     
@@ -91,6 +122,27 @@ class ResgistrarListaEstController extends Controller
             if (!Delegacion::where('nombre', $delegacion)->exists()) {
                 $errors[] = "Fila {$currentRow}: La delegación '{$delegacion}' no existe.";
                 continue;
+            }
+    
+            // Guardar información para grupos de invitación
+            if (!empty($codigoInvitacion)) {
+                if (!isset($gruposInvitacion[$codigoInvitacion])) {
+                    $gruposInvitacion[$codigoInvitacion] = [
+                        'modalidad' => $modalidad,
+                        'area' => $area,
+                        'categoria' => $categoria,
+                        'miembros' => []
+                    ];
+                }
+                
+                $gruposInvitacion[$codigoInvitacion]['miembros'][] = $currentRow;
+                
+                // Validar que todos los miembros del grupo tengan la misma área y categoría
+                if ($gruposInvitacion[$codigoInvitacion]['area'] != $area || 
+                    $gruposInvitacion[$codigoInvitacion]['categoria'] != $categoria) {
+                    $errors[] = "Fila {$currentRow}: Los estudiantes con el mismo código de invitación deben inscribirse en la misma área y categoría.";
+                    continue;
+                }
             }
     
             // Guardamos la fila que sí pasó todas las validaciones
@@ -102,7 +154,19 @@ class ResgistrarListaEstController extends Controller
                 'idGrado' => Grado::where('grado', $grado)->value('idGrado'),
                 'idDelegacion' => Delegacion::where('nombre', $delegacion)->value('idDelegacion'),
                 'idConvocatoriaResult' => $idConvocatoriaResult,
+                'modalidad' => $modalidad,
+                'codigoInvitacion' => $codigoInvitacion
             ];
+        }
+    
+        // Validar grupos de invitación
+        foreach ($gruposInvitacion as $codigo => $grupo) {
+            // Validar número de miembros según modalidad
+            if (strtolower($grupo['modalidad']) == 'duo' && count($grupo['miembros']) != 2) {
+                $errors[] = "Código de invitación '{$codigo}': La modalidad Dúo requiere exactamente 2 estudiantes.";
+            } elseif (strtolower($grupo['modalidad']) == 'equipo' && (count($grupo['miembros']) < 3 || count($grupo['miembros']) > 5)) {
+                $errors[] = "Código de invitación '{$codigo}': La modalidad Equipo requiere entre 3 y 5 estudiantes.";
+            }
         }
     
         // SI HUBO ERRORES DE VALIDACIÓN, no hacemos nada
@@ -114,6 +178,9 @@ class ResgistrarListaEstController extends Controller
         DB::beginTransaction();
     
         try {
+            // Crear un array para almacenar los grupos creados
+            $gruposCreados = [];
+            
             foreach ($filaDatos as $data) {
                 $row = $data['row'];
                 $currentRow = $data['currentRow'];
@@ -123,7 +190,7 @@ class ResgistrarListaEstController extends Controller
                 $isNewUser = false;
     
                 if (!$user) {
-                    $plainPassword = $row[3];
+                    $plainPassword = $row[3]; // Usar CI como contraseña inicial
     
                     $user = User::create([
                         'name' => $row[0],
@@ -138,7 +205,7 @@ class ResgistrarListaEstController extends Controller
                         'password' => Hash::make($row[3]),
                     ]);
     
-                    $rol = Rol::find(3);
+                    $rol = Rol::find(3); // Rol de estudiante
                     if ($rol) {
                         $user->roles()->attach($rol->idRol, ['habilitado' => true]);
                         $user->estudiante()->create();
@@ -175,11 +242,31 @@ class ResgistrarListaEstController extends Controller
                     'idGrado' => $data['idGrado'],
                     'nombreApellidosTutor' => $row[12],
                     'correoTutor' => $row[13],
+                    'modalidad' => $data['modalidad']
                 ]);
     
+                // Asociar estudiante con tutor e inscripción
                 $inscripcion->tutores()->attach(Auth::user()->id, [
                     'idEstudiante' => $user->id,
                 ]);
+                
+                // Si tiene código de invitación, asociar al grupo
+                if (!empty($data['codigoInvitacion'])) {
+                    $codigoInvitacion = $data['codigoInvitacion'];
+                    
+                    // Crear grupo si no existe
+                    if (!isset($gruposCreados[$codigoInvitacion])) {
+                        // Generar un ID único para el grupo
+                        $grupoId = Str::uuid();
+                        $gruposCreados[$codigoInvitacion] = $grupoId;
+                        
+                        // Aquí podrías crear un registro en una tabla de grupos si es necesario
+                        // GrupoInscripcion::create(['id' => $grupoId, 'codigo' => $codigoInvitacion, 'modalidad' => $data['modalidad']]);
+                    }
+                    
+                    // Asociar inscripción al grupo
+                    // $inscripcion->update(['idGrupo' => $gruposCreados[$codigoInvitacion]]);
+                }
     
                 // Notificar si es nuevo usuario
                 if ($isNewUser) {

@@ -5,6 +5,10 @@ use App\Http\Controllers\Inscripcion\InscripcionController;
 use App\Http\Controllers\Inscripcion\InscripcionEstController;
 use App\Http\Controllers\Inscripcion\VerificacionConvocatoriaController;
 use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
+use App\Http\Controllers\BoletaPago\BoletaDePago;
+
+// Add these routes for exports
+Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePago::class, 'exportPdf'])->name('inscripcionEstudiante.exportar.pdf');
 
 Route::middleware('auth')->group(function () {
     // Main inscripciones view
@@ -26,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/inscripcion/estudiante/informacion', [InscripcionController::class, 'informacionEstudiante'])
         ->name('inscripcion.estudiante.informacion');
 
+    // Add these routes for exports
+    Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePago::class, 'exportPdf'])->name('inscripcionEstudiante.exportar.pdf');
+        
     // Tutor registration routes
     Route::get('/inscripcion/tutor', [InscripcionController::class, 'showTutorProfile'])
         ->name('inscripcion.tutor');

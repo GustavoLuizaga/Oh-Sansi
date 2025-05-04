@@ -15,7 +15,6 @@
     <!-- Header Section -->
     <div class="estudiantes-header py-2">
         <h1><i class="fas fa-user-plus"></i> Datos de Inscripción del Postulante</h1>
-
     </div>
 
     <!-- Actions Container -->
@@ -26,13 +25,12 @@
             </a>
         </div>
         
-        
         <div class="export-buttons">
-            <button type="button" class="export-button pdf py-1 px-2">
+            <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
                 <i class="fas fa-file-pdf"></i> Generar orden de pago
             </button>
-
-            <button type="button" class="export-button excel py-1 px-2">
+            
+            <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
                 <i class="fas fa-file-excel"></i> Subir comprobante de pago
             </button>
         </div>
@@ -58,3 +56,18 @@
 
     
 </x-app-layout>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Export PDF button
+        document.getElementById('exportPdf').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = "{{ route('inscripcionEstudiante.exportar.pdf') }}";
+        });
+        // Export Excel button
+        // document.getElementById('exportExcel').addEventListener('click', function(e) {
+        //     e.preventDefault();
+        //     window.location.href = "{{ route('areasCategorias.exportar.excel') }}";
+        // }); 
+        
+    });
+</script>

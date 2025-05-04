@@ -23,7 +23,7 @@
             <p class="convocatoria-info">Convocatoria: <span>{{ $convocatoria->nombre }}</span></p>
             @endif
             <a href="{{ route('inscripcion.estudiante.informacion') }}" class="info-button">
-                <i class="fas fa-arrow-right"></i> Ver Información de Inscripción
+                <i class="fas fa-arrow-right"></i> <u>Ver Información de Inscripción</u> 
             </a>
         </div>
 

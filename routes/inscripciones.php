@@ -22,6 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
         ->name('inscripcion.store');
 
+    //Ruta para mostrar el formulario de datos de inscripcion del estudiante
+    Route::get('/inscripcion/estudiante/informacion', [InscripcionController::class, 'informacionEstudiante'])
+        ->name('inscripcion.estudiante.informacion');
+
     // Tutor registration routes
     Route::get('/inscripcion/tutor', [InscripcionController::class, 'showTutorProfile'])
         ->name('inscripcion.tutor');

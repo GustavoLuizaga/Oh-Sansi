@@ -213,8 +213,9 @@ class InscripcionEstController extends Controller
                 
                 Log::info('Relación tutor-estudiante creada:', ['tutor' => $tutor['idTutor']]);
             }
-
-            return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
+            // 3. Redirigir a la vista de información
+            return redirect('/inscripcion/estudiante/informacion')->with('success', 'Inscripción realizada correctamente');
+            // return redirect()->route('dashboard')->with('success', 'Inscripción realizada correctamente');
 
         } catch (\Exception $e) {
             Log::error('Error en inscripción:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);

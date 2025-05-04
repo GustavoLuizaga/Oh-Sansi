@@ -18,10 +18,13 @@
     <div class="inscription-container">
         <!-- Header -->
         <div class="inscription-header">
-            <h1><i class="fas fa-user-plus"></i> Inscripción de Postulante kleber</h1>
+            <h1><i class="fas fa-user-plus"></i> Inscripción de Postulante</h1>
             @if($convocatoriaActiva)
             <p class="convocatoria-info">Convocatoria: <span>{{ $convocatoria->nombre }}</span></p>
             @endif
+            <a href="{{ route('inscripcion.estudiante.informacion') }}" class="info-button">
+                <i class="fas fa-arrow-right"></i> Ver Información de Inscripción
+            </a>
         </div>
 
         <!-- Main Form -->

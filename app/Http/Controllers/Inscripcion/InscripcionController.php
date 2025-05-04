@@ -27,6 +27,20 @@ class InscripcionController extends Controller
     public $conv;
     public function index()
     {
+        // // IGNOREN ESTO, NO AFECTA EN NADA SOLO ESTABA PROBANDO UNAS COSITAS
+        // $user = Auth::user();
+        // // Obtener todos los idEstudiante únicos de la tabla tutorEstudianteInscripcion
+        // $estudiantesInscritos = TutorEstudianteInscripcion::select('idEstudiante')
+        //     ->distinct()
+        //     ->pluck('idEstudiante')
+        //     ->toArray();
+        // // Verificar si el usuario actual es un estudiante inscrito
+        // if ($user && $user->estudiante && in_array($user->id, $estudiantesInscritos)) {
+        //     return view('inscripciones.FormularioDatosInscripcionEst', [
+        //         'convocatoriaActiva' => false // O true, según tu lógica
+        //     ]);
+        // }
+
         // Obtener el ID de la convocatoria activa
         $convocatoria = new VerificarExistenciaConvocatoria();
         $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
@@ -72,6 +86,22 @@ class InscripcionController extends Controller
         ]);
     }
 
+    public function informacionEstudiante()
+    {
+        // Obtener el ID de la convocatoria activa
+        $convocatoria = new VerificarExistenciaConvocatoria();
+        $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
+
+        // Verificar si hay una convocatoria activa
+        if ($idConvocatoriaResult instanceof \Illuminate\Http\JsonResponse) {
+            // No hay convocatoria activa
+            return view('inscripciones.FormularioDatosInscripcionEst', [
+                'convocatoriaActiva' => false
+            ]);
+        }
+
+        return view('inscripciones.FormularioDatosInscripcionEst');
+    }
 
     public function store(Request $request)
     {

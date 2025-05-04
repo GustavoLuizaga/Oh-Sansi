@@ -9,12 +9,18 @@ class DetalleInscripcion extends Model
 {
     use HasFactory;
     protected $table = 'detalle_inscripcion';
-    protected $primaryKey = 'idDetalle';
+    protected $primaryKey = 'idDetalleInscripcion';
 
     protected $fillable = [
+        'modalidadInscripcion',
         'idInscripcion',
         'idArea',
         'idCategoria',
+        'idGrupoInscripcion'
+    ];
+
+    protected $attributes = [
+        'modalidadInscripcion' => 'individual'
     ];
 
     public function inscripcion()
@@ -30,5 +36,10 @@ class DetalleInscripcion extends Model
     public function categoria()
     {
         return $this->belongsTo(Categoria::class, 'idCategoria', 'idCategoria');
+    }
+
+    public function grupoInscripcion()
+    {
+        return $this->belongsTo(GrupoInscripcion::class, 'idGrupoInscripcion');
     }
 }

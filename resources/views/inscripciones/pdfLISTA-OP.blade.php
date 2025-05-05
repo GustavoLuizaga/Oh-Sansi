@@ -133,8 +133,28 @@
 
     <div class="header">
         <!-- ... mantener header ... -->
-    </div>
 
+        <div class="logo-container">
+            <!-- El logo ya está como watermark -->
+        </div>
+
+        <div class="institution-info">
+            <p>Universidad Mayor de San Simon</p>
+            <p>Ciencia y Conocimiento Desde 1832</p>
+            <p>Dirección Av. Oquendo final Jordán s/n</p>
+        </div>
+
+        <!-- ...existing code... -->
+
+        <div class="code-container">
+            <p>CODIGO ORDEN DE PAGO:</p>
+            <p>{{ $codigoOrden }}</p>
+        </div>
+
+        <div class="title">ORDEN DE PAGO</div>
+        <div class="date">Fecha generación de Orden de Pago: {{ $fecha }}</div>
+
+    </div>
     <!-- DATOS DE TUTOR/DELEGADO -->
     <table>
         <tr>

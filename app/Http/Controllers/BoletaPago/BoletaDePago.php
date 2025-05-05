@@ -224,7 +224,7 @@ class BoletaDePago extends Controller
                     'ci' => $user->ci,
                     'profesion' => $tutor->profesion,
                     'areas' => $tutor->areasSimple()->pluck('nombre')->implode(', '),
-                    'colegio' => 'Unidad Educativa ' . $tutor->colegio
+                    'colegio' => $tutor->getColegio() ?? 'No especificado'
                 ],
                 'inscripciones' => $inscripcionesAgrupadas,
                 'detalles' => $detalles,

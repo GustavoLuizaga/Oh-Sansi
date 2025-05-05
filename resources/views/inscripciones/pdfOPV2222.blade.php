@@ -167,6 +167,9 @@
     <div class="info-row">
         Fecha generación de la Orden de Pago: {{ $fechaGeneracion }}
     </div>
+    <div class="info-row">
+        Fecha limite valida de la orden de Pago: {{ $fechaVencimiento }}
+    </div>
     
     <div class="info-row">
         Referencia: Inscripciones Oh-Sansi!

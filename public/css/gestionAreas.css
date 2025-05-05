@@ -1,83 +1,128 @@
-/* Area Categories Management Styles */
+/* Variables del tema */
 :root {
+    /* Colores base - Modo claro */
     --primary-color: #1a365d;
     --secondary-color: #2c5282;
     --text-color: #333;
     --border-color: #e2e8f0;
     --hover-color: #f7fafc;
     --button-text: #fff;
-  }
-  
-  .required-label::after {
+    --danger-color: #ef4444;
+    
+    /* Fondos - Modo claro */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-table: #ffffff;
+    --bg-table-header: #f8fafc;
+    --bg-modal: #ffffff;
+    
+    /* Textos - Modo claro */
+    --text-muted: #718096;
+    --text-header: #4a5568;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Variables modo oscuro */
+body.dark-theme {
+    /* Colores base - Modo oscuro */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    --danger-color: #f87171;
+    
+    /* Fondos - Modo oscuro */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-table: #1e293b;
+    --bg-table-header: #2d3748;
+    --bg-modal: #1e293b;
+    
+    /* Textos - Modo oscuro */
+    --text-muted: #a0aec0;
+    --text-header: #e2e8f0;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Area Categories Management Styles */
+.required-label::after {
     content: " *";
     color: #B30D1F;
-  }
-  /* Header Section */
-  .area-header {
-    background-color: var(--primary-color);
+}
+
+/* Header Section */
+.area-header {
+    background-color: var(--azul-oscuro-estatico);
     color: white;
-    padding: 1rem 2rem;
+    padding: 0.5rem 2rem;
     display: flex;
     align-items: center;
     margin-bottom: 1.5rem;
     border-radius: 0.375rem;
-  }
-  
-  .area-header h1 {
-    font-size: 1.5rem;
+}
+
+.area-header h1 {
+    font-size: 1rem;
     font-weight: 600;
     margin: 0;
     display: flex;
     align-items: center;
-  }
-  
-  .area-header h1 i {
+}
+
+.area-header h1 i {
     margin-right: 0.75rem;
     font-size: 1.75rem;
-  }
-  
-  /* Content Container */
-  .area-container {
-    background-color: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-  
-  /* Action Bar */
-  .action-bar {
+}
+
+/* Content Container */
+.area-container {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Action Bar */
+.action-bar {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Esto alineará verticalmente los elementos */
+    align-items: center;
     padding: 1rem;
     border-bottom: 1px solid var(--border-color);
-  }
+}
 
-  /* Botón Nueva Área - modificado */
-  .btn-new-area {
+/* Botón Nueva Área - modificado */
+.btn-new-area {
     background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 0.25rem;
     padding: 0.5rem 1rem;
-    height: fit-content; /* Esto hará que el botón solo sea tan alto como su contenido */
+    height: fit-content;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-  
-  .btn-new-area:hover {
+}
+
+.btn-new-area:hover {
     background-color: var(--secondary-color);
-  }
-  
-  .export-buttons {
+}
+
+.export-buttons {
     display: flex;
     gap: 0.75rem;
-  }
-  
-  .btn-export {
+}
+
+.btn-export {
     background-color: white;
     color: var(--text-color);
     border: 1px solid var(--border-color);
@@ -88,66 +133,69 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-  th:last-child, 
+}
+
+th:last-child, 
 td.action-cell {
     text-align: right;
 }
 
-  .btn-export:hover {
+.btn-export:hover {
     background-color: var(--hover-color);
-  }
-  
-  /* Search and Filter */
-  .search-filter {
+}
+
+/* Search and Filter */
+.search-filter {
     display: flex;
     gap: 1rem;
     align-items: center;
-    /* Quitamos el padding y border-bottom que estaba causando altura adicional */
-  }
-  
-  .search-box {
+}
+
+.search-box {
     position: relative;
     width: 100%;
     max-width: 500px;
-  }
-  
-  .search-box input {
+}
+
+.search-box input {
     width: 100%;
     padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    background-color: var(--bg-main);
+    color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
     font-size: 0.875rem;
-  }
-  
-  .search-box i {
+}
+
+.search-box i {
     position: absolute;
     left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     color: #718096;
-  }
-  
-  .filter-dropdown {
+}
+
+.filter-dropdown {
     display: flex;
     align-items: center;
-  }
-  
-  .filter-dropdown select {
+}
+
+.filter-dropdown select {
     padding: 0.5rem 2rem 0.5rem 0.75rem;
+    background-color: var(--bg-main);
+    color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
-    background-color: white;
     font-size: 0.875rem;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.5rem center;
     background-size: 1rem;
-  }
+}
 
-  /*Estilos botones de Cancelar y Guardar en el formulario de creacion y edicion*/
-  .btn-cancel {
+/*Estilos botones de Cancelar y Guardar en el formulario de creacion y edicion*/
+.btn-cancel {
     padding: 0.625rem 1.25rem;
     background-color: white;
     border: 1px solid var(--border-color);
@@ -155,12 +203,13 @@ td.action-cell {
     color: var(--text-color);
     font-weight: 500;
     cursor: pointer;
-  }
-  .btn-cancel:hover {
+}
+
+.btn-cancel:hover {
     background-color: var(--border-color);
-  }
-  
-  .btn-save {
+}
+
+.btn-save {
     padding: 0.625rem 1.25rem;
     background-color: var(--primary-color);
     border: none;
@@ -168,53 +217,53 @@ td.action-cell {
     color: white;
     font-weight: 500;
     cursor: pointer;
-  }
-  
-  .btn-save:hover {
-    background-color: var(--secondary-color);
-  }
+}
 
-  /* Asegurar que la tabla siempre ocupe el ancho completo */
-  .areas-table {
+.btn-save:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Asegurar que la tabla siempre ocupe el ancho completo */
+.areas-table {
     width: 100% !important;
-    table-layout: fixed; /* Para mantener consistencia en el ancho de las columnas */
-  }
-    
-  
-  .areas-table th {
-    background-color: #f8fafc;
+    table-layout: fixed;
+}
+
+.areas-table th {
+    background-color: var(--bg-table-header);
     text-align: left;
     padding: 0.75rem 1rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--text-header);
     border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
     font-size: 0.75rem;
-  }
-  
-  .areas-table td {
+}
+
+.areas-table td {
+    background-color: var(--bg-table);
     padding: 0.3rem 1rem;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
-  }
-  
-  .areas-table tr:hover {
+}
+
+.areas-table tr:hover {
     background-color: var(--hover-color);
-  }
-  
-  .areas-table tr:last-child td {
+}
+
+.areas-table tr:last-child td {
     border-bottom: none;
-  }
-  
-  .action-cell {
+}
+
+.action-cell {
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
-    align-items: center; /* Centra verticalmente los elementos */
-    min-height: 1.5rem; /* Garantiza altura mínima */
+    align-items: center;
+    min-height: 1.5rem;
 }
-  
-  .btn-action {
+
+.btn-action {
     width: 2rem;
     height: 2rem;
     display: flex;
@@ -224,79 +273,121 @@ td.action-cell {
     border: none;
     cursor: pointer;
     color: white;
-  }
-  
-  .btn-edit {
+}
+
+.btn-edit {
     background-color: #2c5282;
-  }
-  
-  .btn-edit:hover {
+}
+
+.btn-edit:hover {
     background-color: #1a365d;
-  }
-  
-  .btn-delete {
-    background-color: #ef4444;
-  }
-  
-  .btn-delete:hover {
+}
+
+.btn-delete {
+    background-color: var(--danger-color);
+}
+
+.btn-delete:hover {
     background-color: #dc2626;
-  }
-  
-  .published-area-message {
+}
+
+.published-area-message {
     position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
-    min-height: 1.5rem; /* Asegura que tenga la misma altura que los botones */
+    min-height: 1.5rem;
 }
-  
-  .more-info {
-    text-align: left; /* Justifica el texto */
-    text-justify: inter-word; /* Mejora la justificación para palabras en español */
+
+.more-info {
+    text-align: left;
+    text-justify: inter-word;
     position: absolute;
     left: 0;
     top: 100%;
     width: 100%;
-    background: white;
+    background-color: var(--bg-modal);
+    color: var(--text-color);
     padding: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
     z-index: 10;
     display: none;
-  }
-  
-  /* Estilo para mostrar el more-info */
-  .toggle-checked ~ .more-info,
-  .info-icon:hover ~ .more-info {
+}
+
+/* Estilo para mostrar el more-info */
+.toggle-checked ~ .more-info,
+.info-icon:hover ~ .more-info {
     display: block !important;
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
+}
+
+/* Modales en modo oscuro */
+body.dark-theme .modal-content {
+    background-color: var(--bg-modal);
+    border-color: var(--border-color);
+}
+
+body.dark-theme .modal-header {
+    border-color: var(--border-color);
+}
+body.dark-theme .form-text{
+  color: var(--texto-deshabilitado);
+}
+body.dark-theme .modal-footer {
+    border-color: var(--border-color);
+}
+
+body.dark-theme .form-control {
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+/* Botones en modo oscuro */
+body.dark-theme .btn-cancel {
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-theme .btn-cancel:hover {
+    background-color: var(--hover-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
     .areas-table {
-      display: table; /* Cambia de block a table para mantener el layout */
-      overflow-x: auto;
-      width: 100% !important;
+        display: table;
+        overflow-x: auto;
+        width: 100% !important;
     }
     
     .published-area-message {
-      flex-wrap: wrap;
+        flex-wrap: wrap;
     }
     
-    /* Opcional: ajustar el ancho de las celdas si es necesario */
     .areas-table td, .areas-table th {
-      min-width: 100px; /* Ajusta según tus necesidades */
+        min-width: 100px;
     }
     
     .action-bar, .search-filter {
-      flex-direction: column;
-      gap: 1rem;
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .export-buttons {
-      margin-top: 0.5rem;
+        margin-top: 0.5rem;
     }
     
     .search-box {
-      max-width: 100%;
+        max-width: 100%;
     }
-  }
+}
+
+/* Transiciones suaves */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+}

@@ -1,43 +1,11 @@
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/inscripcion/FormularioDatosInscripcionEst.css') }}">
-@endpush
-@push('scripts')
-    <script src="{{ asset('js/FormularioDatosInscripcionEst.js') }}"></script>
-@endpush
+@if(isset($nuevoEstudiante) && $nuevoEstudiante)
+    <div class="alert alert-info">
+        {{ $mensaje ?? 'Bienvenido, completa tu inscripción' }}
+    </div>
+@endif
 <x-app-layout>
-    <!-- Success Message -->
-    @if(session('success'))
-    <div class="alert alert-success py-1 px-2 mb-1">
-        <i class="fas fa-check-circle"></i> {{ session('success') }}
-    </div>
-    @endif
-
-    <!-- Header Section -->
-    <div class="estudiantes-header py-2">
-        <h1><i class="fas fa-user-plus"></i> Datos de Inscripción del Postulante</h1>
-    </div>
-
-    <!-- Actions Container -->
-    <div class="actions-container mb-1">
-        <div class="button-group">
-            <a href="{{ route('inscripcion.estudiante') }}" class="add-button py-1 px-2">
-                <i class="fas fa-arrow-left"></i> Volver Formulario de Inscripción
-            </a>
-        </div>
-        
-        <div class="export-buttons">
-            <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
-                <i class="fas fa-file-pdf"></i> Generar orden de pago
-            </button>
-            
-            <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
-                <i class="fas fa-file-excel"></i> Subir comprobante de pago
-            </button>
-        </div>
-    </div>
-
-        <!-- IDs ocultos para uso en JS -->
-        <div id="data-ids" 
+    <!-- IDs ocultos para uso en JS -->
+    <div id="data-ids" 
         data-estudiante-id="{{ $ids['estudiante_id'] }}"
         data-tutor-id="{{ $ids['tutor_id'] }}"
         data-inscripcion-id="{{ $ids['inscripcion_id'] }}"
@@ -205,6 +173,7 @@
                 </div>
             </div>
         </div>
+        
 
         <!-- TERCERA SECCIÓN: Áreas Inscritas y Resumen de Pago -->
         <div class="card shadow-sm mb-3 border-0">
@@ -280,20 +249,139 @@
         </div>
     </div>
 
-
-</x-app-layout>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Export PDF button
-        document.getElementById('exportPdf').addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = "{{ route('inscripcionEstudiante.exportar.pdf') }}";
-        });
-        // Export Excel button
-        // document.getElementById('exportExcel').addEventListener('click', function(e) {
-        //     e.preventDefault();
-        //     window.location.href = "{{ route('areasCategorias.exportar.excel') }}";
-        // }); 
+    <!-- Estilos personalizados -->
+    <style>
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
         
-    });
-</script>
+        .section-header {
+            font-size: 0.95rem;
+        }
+        
+        .section-content {
+            flex: 1;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .info-item {
+            margin-bottom: 0.3rem;
+        }
+        
+        .full-width {
+            grid-column: span 2;
+        }
+        
+        .info-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .tutor-block {
+            height: 100%;
+        }
+        
+        .detail-item {
+            font-size: 0.85rem;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .detail-value {
+            font-weight: 400;
+        }
+        
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .colegio-nombre {
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        
+        .payment-summary {
+            font-size: 0.9rem;
+        }
+        
+        .summary-label {
+            color: #6c757d;
+        }
+        
+        .summary-value {
+            font-weight: 500;
+        }
+        
+        .total-label {
+            font-size: 0.95rem;
+        }
+        
+        .total-amount {
+            font-size: 1rem;
+        }
+        
+        .border-end-md {
+            border-right: 1px solid #dee2e6;
+        }
+        
+        @media (max-width: 767.98px) {
+            .border-end-md {
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+        
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+        }
+        
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        }
+        
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+        }
+        
+        .bg-gradient-danger {
+            background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+        }
+    </style>
+
+    <!-- Script para acceder a los IDs ocultos -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dataIds = document.getElementById('data-ids');
+            const estudianteId = dataIds.dataset.estudianteId;
+            const tutorId = dataIds.dataset.tutorId;
+            // Puedes acceder a los demás IDs de la misma manera
+            console.log('Estudiante ID:', estudianteId);
+            console.log('Tutor ID:', tutorId);
+            
+            // Aquí puedes usar estos IDs en tus funciones JS
+        });
+    </script>
+</x-app-layout>

@@ -31,6 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/inscripcion/estudiante/informacion', [BoletaDePagoDeEstudiante::class, 'index'])
         ->name('inscripcion.estudiante.informacion');
 
+    //Ruta para mostrar VISTA DEL FORMULARIO IMPRESO de datos de inscripcion del estudiante
+    Route::get('/inscripcion/estudiante/imprimirFormularioInscripcion', [InscripcionController::class, 'ImprimirFormularioInscripcion'])
+    ->name('inscripcion.estudiante.imprimirFormularioInscripcion');
+        
+
     // Add these routes for exports
     Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])
         ->name('inscripcionEstudiante.exportar.pdf');

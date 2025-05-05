@@ -107,13 +107,14 @@ class BoletaDePagoDeEstudiante extends Controller
             return back()->with('error', 'No se encontraron inscripciones para mostrar la boleta');
         }
         
-        // Generar código de orden de pago
-        $codigoOrden = $this->generarCodigoOrdenPagoEstudiante($estudianteId);
+        // Obtener información de la boleta de pago
+        $boletaInfo = $this->obtenerDatosBoleta($estudianteId);
         
         // Procesar los datos para la vista
         $processed = [
-            'codigoOrden' => $codigoOrden,
-            'fechaGeneracion' => now()->format('d/m/Y H:i'),
+            'codigoOrden' => $boletaInfo['codigoBoleta'],
+            'fechaGeneracion' => $boletaInfo['fechaInicio'],
+            'fechaVencimiento' => $boletaInfo['fechaFin'],
             
             'ids' => [
                 'estudiante_id' => $data->first()->estudiante_id,
@@ -202,6 +203,63 @@ class BoletaDePagoDeEstudiante extends Controller
         $processed['totalPagar'] = array_sum(array_column($processed['inscripciones'], 'precio'));
         
         return view('inscripciones.FormularioDatosInscripcionEst', $processed);
+    }
+    
+    /**
+     * Obtiene datos de boleta de pago existente para las inscripciones del estudiante
+     * Si no existe una boleta, devuelve valores por defecto
+     * 
+     * @param int $estudianteId
+     * @return array
+     */
+    private function obtenerDatosBoleta($estudianteId)
+    {
+        try {
+            // Obtener IDs de inscripciones del estudiante
+            $inscripcionesIds = DB::table('tutorestudianteinscripcion')
+                ->where('idEstudiante', $estudianteId)
+                ->pluck('idInscripcion');
+            
+            // Buscar si existe una boleta para alguna de estas inscripciones
+            $boletaInfo = DB::table('boletapagoinscripcion')
+                ->join('boletapago', 'boletapagoinscripcion.idBoleta', '=', 'boletapago.idBoleta')
+                ->whereIn('boletapagoinscripcion.idInscripcion', $inscripcionesIds)
+                ->select(
+                    'boletapago.CodigoBoleta',
+                    'boletapago.fechainicio',
+                    'boletapago.fechafin'
+                )
+                ->first();
+            
+            if ($boletaInfo) {
+                // Si existe boleta, devolver sus datos
+                return [
+                    'codigoBoleta' => $boletaInfo->CodigoBoleta,
+                    'fechaInicio' => $boletaInfo->fechainicio,
+                    'fechaFin' => $boletaInfo->fechafin
+                ];
+            }
+            
+            // Si no existe boleta, devolver valores por defecto
+            return [
+                'codigoBoleta' => null, // Esto se mostrará como "GENERA BOLETA DE PAGO"
+                'fechaInicio' => now()->format('d/m/Y H:i'),
+                'fechaFin' => null
+            ];
+        } 
+        catch (\Exception $e) {
+            Log::error('Error obteniendo datos de boleta para estudiante:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // En caso de error, devolver valores por defecto
+            return [
+                'codigoBoleta' => null,
+                'fechaInicio' => now()->format('d/m/Y H:i'),
+                'fechaFin' => null
+            ];
+        }
     }
 
     //Copiar este div en la vista donde quieras mostrar los datos que te da index

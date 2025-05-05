@@ -207,12 +207,18 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="previewModalLabel">Previsualización de Datos</h5>
+                    <h5 class="modal-title" id="previewModalLabel">
+                        <i class="fas fa-table"></i> Previsualización de Datos
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i> Revise los datos antes de confirmar. Puede hacer clic en las celdas para editar la información.
+                    </div>
+                    <div class="alert alert-warning mb-3" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="errorCountText">Errores encontrados: 0 filas con errores.</span>
                     </div>
                     <div class="table-responsive">
                         <table id="previewTable" class="table table-striped table-bordered">
@@ -235,6 +241,7 @@
                                     <th>Email Tutor</th>
                                     <th>Modalidad</th>
                                     <th>Código Invitación</th>
+                                    <th>Estado</th>
                                 </tr>
                             </thead>
                             <tbody id="previewTableBody">
@@ -244,8 +251,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="submitExcelData" class="btn btn-primary">Confirmar Inscripción</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" id="submitExcelData" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Confirmar Inscripción
+                    </button>
                 </div>
             </div>
         </div>
@@ -255,6 +266,7 @@
 <!-- Scripts necesarios para el modal y la previsualización -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="{{ asset('css/inscripcion/previsualizacion.css') }}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -324,12 +336,10 @@
     $(document).ready(function() {
         let excelData = [];
         let dataTable;
+        let errorCount = 0;
 
-        // Modificar el formulario para prevenir el envío automático
-        $('form.excel-actions').on('submit', function(e) {
-            e.preventDefault();
-            previewExcelData();
-        });
+        // El botón Subir enviará el formulario directamente sin previsualización
+        // No prevenimos el envío automático del formulario para que funcione normalmente
         
         // Agregar botón de previsualización si no existe
         if ($('#previewBtn').length === 0) {
@@ -365,39 +375,81 @@
                 // Limpiar tabla anterior
                 $('#previewTableBody').empty();
 
+                // Agregar contador de errores antes de la tabla
+                if (!$('#errorCounter').length) {
+                    $('.alert.alert-info').after(
+                        '<div id="errorCounter" class="alert alert-warning mb-3" style="display: none;">' +
+                        '<i class="fas fa-exclamation-triangle"></i> ' +
+                        '<span id="errorCountText">Errores encontrados: 0 filas con errores.</span>' +
+                        '</div>'
+                    );
+                }
+
                 // Llenar tabla con datos
                 jsonData.forEach((row, index) => {
                     let rowHtml = `<tr data-row="${index}">`;
                     rowHtml += `<td>${index + 1}</td>`; // Fila
 
-                    // Agregar celdas editables para las primeras 15 columnas
-                    for (let i = 0; i < 15; i++) {
-                        const value = row[i] || '';
+                    // Crear un array con 16 elementos (columnas de datos) inicializados como vacíos
+                    let rowData = Array(16).fill('');
+
+                    // Copiar los datos existentes del Excel
+                    for (let i = 0; i < Math.min(row.length, 16); i++) {
+                        if (row[i] !== undefined) {
+                            rowData[i] = row[i];
+                        }
+                    }
+
+                    // Agregar celdas editables para cada columna de datos
+                    for (let i = 0; i < 16; i++) {
+                        const value = rowData[i] || '';
                         rowHtml += `<td><div class="editable" contenteditable="true" data-col="${i}">${value}</div></td>`;
                     }
 
-                    // Modalidad (columna 15)
-                    const modalidad = row[15] || '';
-                    rowHtml += `<td><div class="editable" contenteditable="true" data-col="15">${modalidad}</div></td>`;
-
-                    // Código de invitación (columna 16)
-                    const codigoInvitacion = row[16] || '';
-                    rowHtml += `<td><div class="editable" contenteditable="true" data-col="16">${codigoInvitacion}</div></td>`;
+                    // Agregar columna de estado de validación
+                    rowHtml += `<td class="validation-status text-muted">Pendiente</td>`;
 
                     rowHtml += `</tr>`;
                     $('#previewTableBody').append(rowHtml);
                 });
 
-                // Inicializar DataTable
-                if (dataTable) {
-                    dataTable.destroy();
+                // Destruir DataTable si ya existe
+                if ($.fn.DataTable.isDataTable('#previewTable')) {
+                    $('#previewTable').DataTable().clear().destroy();
                 }
                 
+                // Inicializar DataTable
                 dataTable = $('#previewTable').DataTable({
                     pageLength: 10,
                     language: {
-                        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-                    }
+                        "sProcessing":     "Procesando...",
+                        "sLengthMenu":     "Mostrar _MENU_ registros",
+                        "sZeroRecords":    "No se encontraron resultados",
+                        "sEmptyTable":     "Ningún dato disponible en esta tabla",
+                        "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                        "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+                        "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+                        "sInfoPostFix":    "",
+                        "sSearch":         "Buscar:",
+                        "sUrl":            "",
+                        "sInfoThousands":  ",",
+                        "sLoadingRecords": "Cargando...",
+                        "oPaginate": {
+                            "sFirst":    "Primero",
+                            "sLast":     "Último",
+                            "sNext":     "Siguiente",
+                            "sPrevious": "Anterior"
+                        },
+                        "oAria": {
+                            "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+                            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                        },
+                        "buttons": {
+                            "copy": "Copiar",
+                            "colvis": "Visibilidad"
+                        }
+                    },
+                    dom: '<"top"lf>rt<"bottom"ip><"clear">'
                 });
 
                 // Mostrar modal
@@ -425,19 +477,38 @@
 
             // Revalidar la fila
             validateRow($(this).closest('tr'));
+
+            // Actualizar contador de errores
+            updateErrorCounter();
         });
 
         // Función para validar todos los datos
         function validateExcelData() {
+            errorCount = 0;
             $('#previewTableBody tr').each(function() {
-                validateRow($(this));
+                if (!validateRow($(this))) {
+                    errorCount++;
+                }
             });
+
+            // Actualizar contador de errores
+            updateErrorCounter();
+        }
+
+        // Función para actualizar el contador de errores
+        function updateErrorCounter() {
+            if (errorCount > 0) {
+                $('#errorCountText').text(`Errores encontrados: ${errorCount} ${errorCount === 1 ? 'fila con error' : 'filas con errores'}.`);
+                $('#errorCounter').show();
+            } else {
+                $('#errorCounter').hide();
+            }
         }
 
         // Función para validar una fila
         function validateRow(row) {
             const rowIndex = row.data('row');
-            const rowData = excelData[rowIndex];
+            const rowData = excelData[rowIndex] || [];
             let isValid = true;
             let errorMessage = '';
 
@@ -463,7 +534,7 @@
             }
 
             // Validar modalidad y código de invitación
-            if (rowData[15] && (rowData[15].toLowerCase() === 'duo' || rowData[15].toLowerCase() === 'equipo')) {
+            if (rowData[15] && (rowData[15].toString().toLowerCase() === 'duo' || rowData[15].toString().toLowerCase() === 'equipo')) {
                 if (!rowData[16]) {
                     isValid = false;
                     errorMessage = 'Falta el código de invitación para modalidad ' + rowData[15];
@@ -473,10 +544,10 @@
             // Actualizar estado visual de la fila
             if (isValid) {
                 row.removeClass('error-row');
-                row.find('.validation-status').text('Válido').removeClass('text-danger').addClass('text-success');
+                row.find('.validation-status').text('Válido').removeClass('text-danger text-muted').addClass('text-success');
             } else {
                 row.addClass('error-row');
-                row.find('.validation-status').text(errorMessage).removeClass('text-success').addClass('text-danger');
+                row.find('.validation-status').text(errorMessage).removeClass('text-success text-muted').addClass('text-danger');
             }
 
             return isValid;
@@ -485,16 +556,8 @@
         // Enviar datos al servidor
         $('#submitExcelData').click(function() {
             // Verificar si hay errores
-            let hasErrors = false;
-            $('#previewTableBody tr').each(function() {
-                if ($(this).hasClass('error-row')) {
-                    hasErrors = true;
-                    return false; // Salir del bucle
-                }
-            });
-
-            if (hasErrors) {
-                alert('Por favor, corrija los errores antes de continuar.');
+            if (errorCount > 0) {
+                alert(`Por favor, corrija los ${errorCount} errores antes de continuar.`);
                 return;
             }
 

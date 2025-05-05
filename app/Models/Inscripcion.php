@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Area;
+use App\Models\Categoria;
 
 class Inscripcion extends Model
 {
@@ -56,6 +58,30 @@ class Inscripcion extends Model
     public function detalles()
     {
         return $this->hasMany(DetalleInscripcion::class, 'idInscripcion', 'idInscripcion');
+    }
+    
+    public function area()
+    {
+        return $this->hasOneThrough(
+            Area::class,
+            DetalleInscripcion::class,
+            'idInscripcion', // Clave foránea en DetalleInscripcion
+            'idArea', // Clave primaria en Area
+            'idInscripcion', // Clave local en Inscripcion
+            'idArea' // Clave foránea en DetalleInscripcion que apunta a Area
+        );
+    }
+    
+    public function categoria()
+    {
+        return $this->hasOneThrough(
+            Categoria::class,
+            DetalleInscripcion::class,
+            'idInscripcion', // Clave foránea en DetalleInscripcion
+            'idCategoria', // Clave primaria en Categoria
+            'idInscripcion', // Clave local en Inscripcion
+            'idCategoria' // Clave foránea en DetalleInscripcion que apunta a Categoria
+        );
     }
 }
 

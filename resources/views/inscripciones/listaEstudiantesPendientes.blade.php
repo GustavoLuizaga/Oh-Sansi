@@ -153,11 +153,66 @@
                 });
             });
 
+<<<<<<< HEAD
             // Exportar a PDF (Generar orden de pago)
+=======
+            // Exportar a PDF
+>>>>>>> 8a448c88e87a3ff9f68e62b972e0cdde2f36b41e
             document.getElementById('generarOrdenPago').addEventListener('click', function() {
                 try {
                     this.disabled = true;
                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+<<<<<<< HEAD
+=======
+
+                    // Realizar la solicitud usando fetch
+                    fetch('{{ route("boleta.preview") }}', {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/pdf'
+                            }
+                        })
+                        .then(response => response.blob())
+                        .then(blob => {
+                            // Crear un objeto URL para el blob
+                            const url = window.URL.createObjectURL(blob);
+                            // Crear un enlace temporal
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = 'orden-de-pago.pdf';
+
+                            // Agregar al documento y hacer clic
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Limpiar
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+
+                            // Restaurar el botón
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            document.getElementById('mensajeError').style.display = 'block';
+                            document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
+
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+                        });
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('mensajeError').style.display = 'block';
+                    document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
+
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+                }
+            });
+>>>>>>> 8a448c88e87a3ff9f68e62b972e0cdde2f36b41e
 
                     // Realizar la solicitud usando fetch
                     fetch('{{ route("boleta.preview") }}', {

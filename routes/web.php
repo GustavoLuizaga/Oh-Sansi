@@ -57,6 +57,11 @@ Route::post('/servicios/eliminar-permiso', [\App\Http\Controllers\ServiceControl
 // Aquí puedes agregar tus rutas personalizadas
 Route::get('/descargar-plantilla-excel', [\App\Http\Controllers\Auth\ResgistrarListaEstController::class, 'descargarPlantilla'])->name('descargar.plantilla.excel');
 
+Route::get('/boleta/preview', [
+    App\Http\Controllers\BoletaPago\BoletaDePago::class, 
+    'generarOrdenPago'
+])->name('boleta.preview');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/areasCategorias.php';
 require __DIR__.'/areas.php';

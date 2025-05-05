@@ -60,11 +60,21 @@ class Tutor extends Model
             ->withTimestamps();
     }
 
-    public function primerIdDelegacion()
+// ...existing code...
+
+public function primerIdDelegacion()
 {
     return $this->belongsToMany(Delegacion::class, 'tutorAreaDelegacion', 'id', 'idDelegacion')
         ->select('delegacion.idDelegacion')
         ->first()
         ->idDelegacion ?? null;
 }
+
+public function getColegio()
+{
+   $delegacion = $this->primerIdDelegacion();
+   $response = $delegacion = Delegacion::find($delegacion);
+   return $response->nombre;
+}
+
 }

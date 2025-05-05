@@ -20,6 +20,39 @@
                         <i class="fas fa-copy"></i>
                     </button>
                 </div>
+                <!-- Moved group button here -->
+                <div class="group-button-container">
+                    <a href="{{ route('inscripcion.grupos') }}" class="group-button">
+                        <i class="fas fa-users"></i> Gestionar Grupos
+                    </a>
+                </div>
+                @if($token)
+                <div class="token-info">
+                    <h3><i class="fas fa-info-circle"></i> Información del Tutor</h3>
+                    <div class="areas-list">
+                        <h4>Áreas habilitadas:</h4>
+                        <ul>
+                            @foreach($areas as $area)
+                            <li>
+                                <strong>{{ $area->nombre }}</strong>
+                                <ul class="categorias-list">
+                                    @php
+                                    $categorias = \App\Models\ConvocatoriaAreaCategoria::where('idArea', $area->idArea)
+                                        ->join('categoria', 'convocatoriaAreaCategoria.idCategoria', '=', 'categoria.idCategoria')
+                                        ->select('categoria.*')
+                                        ->distinct()
+                                        ->get();
+                                    @endphp
+                                    @foreach($categorias as $categoria)
+                                    <li>{{ $categoria->nombre }}</li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                @endif
             </div>
 
             <!-- Excel Upload Card -->
@@ -72,13 +105,6 @@
                     </button>
 
                 </form>
-                
-                <!-- Botón para gestionar grupos -->
-                <div class="group-button-container" style="margin-top: 15px;">
-                    <a href="{{ route('inscripcion.grupos') }}" class="group-button">
-                        <i class="fas fa-users"></i> Gestionar Grupos
-                    </a>
-                </div>
                 
                 @if ($errors->any())
                 <div class="alert alert-danger mt-3">
@@ -343,12 +369,27 @@
         
         // Agregar botón de previsualización si no existe
         if ($('#previewBtn').length === 0) {
-            $('.upload-button').before('<button type="button" id="previewBtn" class="preview-button" style="margin-right: 10px; background-color: #4f46e5; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer;"><i class="fas fa-eye"></i> Previsualizar</button>');
+            $('.upload-button').before('<button type="button" id="previewBtn" class="preview-button"><i class="fas fa-eye"></i> Previsualizar</button>');
         }
         
-        // Evento para el botón de previsualización (usando off/on para evitar duplicación de eventos)
-        $(document).off('click', '#previewBtn').on('click', '#previewBtn', function() {
+        // Eliminar cualquier evento previo y agregar el nuevo
+        $(document).off('click', '#previewBtn');
+        $(document).on('click', '#previewBtn', function() {
             previewExcelData();
+        });
+        
+        // Asegurarse de que el modal se reinicie completamente al cerrarse
+        $('#previewModal').on('hidden.bs.modal', function () {
+            // Limpiar la tabla
+            $('#previewTableBody').empty();
+            
+            // Destruir DataTable si existe
+            if ($.fn.DataTable.isDataTable('#previewTable')) {
+                $('#previewTable').DataTable().destroy();
+            }
+            
+            // Ocultar contador de errores
+            $('#errorCounter').hide();
         });
 
 
@@ -363,6 +404,18 @@
             const reader = new FileReader();
 
             reader.onload = function(e) {
+                // Reiniciar variables
+                excelData = [];
+                errorCount = 0;
+                
+                // Limpiar tabla anterior
+                $('#previewTableBody').empty();
+                
+                // Destruir DataTable si ya existe
+                if ($.fn.DataTable.isDataTable('#previewTable')) {
+                    $('#previewTable').DataTable().destroy();
+                }
+                
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {type: 'array'});
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -371,9 +424,6 @@
                 // Eliminar la fila de encabezados
                 const headers = jsonData.shift();
                 excelData = jsonData;
-
-                // Limpiar tabla anterior
-                $('#previewTableBody').empty();
 
                 // Agregar contador de errores antes de la tabla
                 if (!$('#errorCounter').length) {

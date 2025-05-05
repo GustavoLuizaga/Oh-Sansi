@@ -162,7 +162,7 @@
         </div>
     </div>
     
-    <div class="title">ORDEN DE PAGO</div>
+    <div class="title">ORDEN DE PAGO DE UN ESTUDIANTE</div>
     
     <div class="info-row">
         Fecha generación de la Orden de Pago: {{ $fechaGeneracion }}

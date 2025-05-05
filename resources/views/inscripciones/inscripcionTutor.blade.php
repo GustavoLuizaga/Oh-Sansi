@@ -299,70 +299,21 @@
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<!-- Estilos para la animación de carga y mensajes -->
-<style>
-    .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        color: white;
-        display: none;
-    }
-    
-    .spinner {
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 2s linear infinite;
-        margin-bottom: 20px;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .success-message {
-        background-color: #d4edda;
-        color: #155724;
-        border-color: #c3e6cb;
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-        display: none;
-    }
-    
-    .error-row {
-        background-color: rgba(255, 0, 0, 0.1) !important;
-    }
-    
-    .modal-body {
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-</style>
+<!-- Los estilos para la animación de carga y mensajes ahora están en inscripcionTutor.css -->
 
 <!-- Overlay de carga -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <h3>Procesando inscripciones...</h3>
-    <p>Este proceso puede tardar unos momentos. Por favor, espere.</p>
+    <p>Este proceso puede tardar unos momentos. Por favor, espere mientras guardamos la información.</p>
+    <p><small>No cierre esta ventana hasta que el proceso termine</small></p>
 </div>
 
 <!-- Mensaje de éxito -->
 <div class="success-message" id="successMessage">
-    <i class="fas fa-check-circle"></i> <span id="successText"></span>
+    <i class="fas fa-check-circle"></i>
+    <h4>¡Operación Exitosa!</h4>
+    <span id="successText"></span>
 </div>
 
 <script>
@@ -807,8 +758,8 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    // Ocultar overlay de carga
-                    $('#loadingOverlay').fadeOut();
+                    // Ocultar overlay de carga con una transición suave
+                    $('#loadingOverlay').fadeOut(300);
                     
                     // Cerrar modal
                     bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
@@ -820,16 +771,18 @@
                     }
                     
                     $('#successText').text(successMessage);
-                    $('#successMessage').fadeIn();
+                    $('#successMessage').fadeIn(500);
                     
-                    // Recargar página después de mostrar el mensaje
+                    // Recargar página después de mostrar el mensaje (tiempo aumentado para mejor visibilidad)
                     setTimeout(function() {
-                        location.reload();
-                    }, 3000);
+                        $('#successMessage').fadeOut(500, function() {
+                            location.reload();
+                        });
+                    }, 4000);
                 },
                 error: function(xhr) {
-                    // Ocultar overlay de carga
-                    $('#loadingOverlay').fadeOut();
+                    // Ocultar overlay de carga con una transición suave
+                    $('#loadingOverlay').fadeOut(300);
                     
                     let errorMsg = 'Ocurrió un error al procesar la inscripción.';
                     
@@ -849,7 +802,7 @@
                     // Mostrar errores en un modal más amigable
                     const errorModal = `
                     <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header bg-danger text-white">
                                     <h5 class="modal-title"><i class="fas fa-exclamation-circle"></i> Error en la inscripción</h5>

@@ -276,11 +276,12 @@ class ResgistrarListaEstController extends Controller
                 }
     
                 // Validar que no esté ya inscrito en el área y que no exceda el límite de 2 áreas
-                $areasInscritas = TutorEstudianteInscripcion::where('idEstudiante', $user->id)
-                    ->with('inscripcion.area')
-                    ->get()
-                    ->pluck('inscripcion.area.nombre')
-                    ->filter()
+                $areasInscritas = DetalleInscripcion::join('inscripcion', 'detalle_inscripcion.idInscripcion', '=', 'inscripcion.idInscripcion')
+                    ->join('tutorEstudianteInscripcion', 'inscripcion.idInscripcion', '=', 'tutorEstudianteInscripcion.idInscripcion')
+                    ->join('area', 'detalle_inscripcion.idArea', '=', 'area.idArea')
+                    ->where('tutorEstudianteInscripcion.idEstudiante', $user->id)
+                    ->where('inscripcion.idConvocatoria', $data['idConvocatoriaResult'])
+                    ->pluck('area.nombre')
                     ->unique()
                     ->values();
     
@@ -296,23 +297,34 @@ class ResgistrarListaEstController extends Controller
                     $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en 2 áreas ({$areasInscritasStr}) y no puede inscribirse en más áreas.";
                     continue;
                 }
-    
-                // Crear inscripción
-                $inscripcion = Inscripcion::create([
-                    'fechaInscripcion' => now(),
-                    'numeroContacto' => $row[10],
-                    'idConvocatoria' => $data['idConvocatoriaResult'],
-                    'idDelegacion' => $data['idDelegacion'],
-                    'idGrado' => $data['idGrado'],
-                    'nombreApellidosTutor' => $row[12],
-                    'correoTutor' => $row[13],
-                    'status' => 'pendiente'
-                ]);
-    
-                // Asociar estudiante con tutor e inscripción
-                $inscripcion->tutores()->attach(Auth::user()->id, [
-                    'idEstudiante' => $user->id,
-                ]);
+                
+                // Buscar si el estudiante ya tiene una inscripción en la convocatoria actual
+                $inscripcionExistente = Inscripcion::join('tutorEstudianteInscripcion', 'inscripcion.idInscripcion', '=', 'tutorEstudianteInscripcion.idInscripcion')
+                    ->where('tutorEstudianteInscripcion.idEstudiante', $user->id)
+                    ->where('inscripcion.idConvocatoria', $data['idConvocatoriaResult'])
+                    ->first();
+                
+                if ($inscripcionExistente) {
+                    // Si ya tiene una inscripción, usamos esa
+                    $inscripcion = Inscripcion::find($inscripcionExistente->idInscripcion);
+                } else {
+                    // Si no tiene inscripción, creamos una nueva
+                    $inscripcion = Inscripcion::create([
+                        'fechaInscripcion' => now(),
+                        'numeroContacto' => $row[10],
+                        'idConvocatoria' => $data['idConvocatoriaResult'],
+                        'idDelegacion' => $data['idDelegacion'],
+                        'idGrado' => $data['idGrado'],
+                        'nombreApellidosTutor' => $row[12],
+                        'correoTutor' => $row[13],
+                        'status' => 'pendiente'
+                    ]);
+                    
+                    // Asociar estudiante con tutor e inscripción
+                    $inscripcion->tutores()->attach(Auth::user()->id, [
+                        'idEstudiante' => $user->id,
+                    ]);
+                }
                 
                 // Crear detalle de inscripción
                 $modalidadInscripcion = strtolower($data['modalidad']);

@@ -482,3 +482,132 @@
 .template-link:hover {
     background-color: var(--primary-dark);
 }
+
+/* Loading Overlay Styles */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+    display: none;
+    text-align: center;
+    backdrop-filter: blur(3px);
+}
+
+.spinner {
+    border: 6px solid rgba(255, 255, 255, 0.2);
+    border-top: 6px solid var(--primary-light);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1.5s linear infinite;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px rgba(32, 187, 255, 0.5);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-overlay h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.loading-overlay p {
+    font-size: 1rem;
+    max-width: 80%;
+    opacity: 0.9;
+}
+
+/* Success Message Styles */
+.success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-left: 5px solid var(--success-color);
+    padding: 20px 30px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    display: none;
+    z-index: 9999;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    max-width: 90%;
+    width: 500px;
+    text-align: center;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.success-message i {
+    font-size: 2rem;
+    color: var(--success-color);
+    margin-bottom: 10px;
+    display: block;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Error Row Styling */
+.error-row {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* Error Modal Styling */
+.modal-header.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+#errorModal .modal-content {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#errorModal .modal-header {
+    padding: 15px 20px;
+}
+
+#errorModal .modal-header .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+#errorModal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+#errorModal .modal-body p {
+    white-space: pre-line;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+#errorModal .modal-footer {
+    padding: 10px 20px;
+    border-top: 1px solid var(--border-color);
+}

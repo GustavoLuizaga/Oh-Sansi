@@ -11,6 +11,9 @@ use App\Http\Controllers\BoletaPago\BoletaDePagoDeEstudiante;
 // Add these routes for exports
 Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])->name('inscripcionEstudiante.exportar.pdf');
 
+// Ruta para previsualizar la boleta de pago
+Route::get('/boleta/preview', [BoletaDePagoDeEstudiante::class, 'exportPdf'])->name('boleta.preview');
+
 Route::middleware('auth')->group(function () {
     // Main inscripciones view
     Route::get('/inscripciones', function () {

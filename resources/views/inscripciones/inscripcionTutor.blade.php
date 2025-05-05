@@ -299,6 +299,72 @@
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+<!-- Estilos para la animación de carga y mensajes -->
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        display: none;
+    }
+    
+    .spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        display: none;
+    }
+    
+    .error-row {
+        background-color: rgba(255, 0, 0, 0.1) !important;
+    }
+    
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+</style>
+
+<!-- Overlay de carga -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3>Procesando inscripciones...</h3>
+    <p>Este proceso puede tardar unos momentos. Por favor, espere.</p>
+</div>
+
+<!-- Mensaje de éxito -->
+<div class="success-message" id="successMessage">
+    <i class="fas fa-check-circle"></i> <span id="successText"></span>
+</div>
+
 <script>
     function copyToken() {
         var tokenInput = document.getElementById('tokenInput');
@@ -584,10 +650,26 @@
             }
 
             // Validar modalidad y código de invitación
-            if (rowData[15] && (rowData[15].toString().toLowerCase() === 'duo' || rowData[15].toString().toLowerCase() === 'equipo')) {
-                if (!rowData[16]) {
+            if (rowData[15]) {
+                const modalidad = rowData[15].toString().toLowerCase();
+                if ((modalidad === 'duo' || modalidad === 'equipo') && !rowData[16]) {
                     isValid = false;
                     errorMessage = 'Falta el código de invitación para modalidad ' + rowData[15];
+                }
+            }
+            
+            // Validar que el área pertenezca al tutor actual
+            if (isValid && rowData[7]) {
+                const areaName = rowData[7].toString();
+                // Verificar si el área está en la lista de áreas habilitadas para el tutor
+                const areasHabilitadas = [];
+                $('.areas-list li strong').each(function() {
+                    areasHabilitadas.push($(this).text());
+                });
+                
+                if (!areasHabilitadas.includes(areaName)) {
+                    isValid = false;
+                    errorMessage = `El área "${areaName}" no está habilitada para el tutor actual`;
                 }
             }
 
@@ -603,13 +685,96 @@
             return isValid;
         }
 
+        // Validar grupos de invitación
+        function validateGroups() {
+            const groups = {};
+            let groupErrors = [];
+            
+            // Agrupar por código de invitación
+            $('#previewTableBody tr').each(function() {
+                const rowIndex = $(this).data('row');
+                const rowData = excelData[rowIndex] || [];
+                
+                if (rowData[15] && rowData[16]) { // Si tiene modalidad y código
+                    const modalidad = rowData[15].toString().toLowerCase();
+                    const codigo = rowData[16].toString();
+                    
+                    if (!groups[codigo]) {
+                        groups[codigo] = {
+                            modalidad: modalidad,
+                            area: rowData[7],
+                            categoria: rowData[8],
+                            miembros: []
+                        };
+                    }
+                    
+                    groups[codigo].miembros.push(rowIndex + 1); // +1 para mostrar número de fila real
+                }
+            });
+            
+            // Validar cada grupo
+            for (const codigo in groups) {
+                const grupo = groups[codigo];
+                
+                // Validar número de miembros según modalidad
+                if (grupo.modalidad === 'duo' && grupo.miembros.length !== 2) {
+                    groupErrors.push(`Código de invitación '${codigo}': La modalidad Dúo requiere exactamente 2 estudiantes (actualmente tiene ${grupo.miembros.length}).`);
+                } else if (grupo.modalidad === 'equipo') {
+                    if (grupo.miembros.length < 3) {
+                        groupErrors.push(`Código de invitación '${codigo}': La modalidad Equipo requiere al menos 3 estudiantes (actualmente tiene ${grupo.miembros.length}).`);
+                    } else if (grupo.miembros.length > 10) {
+                        groupErrors.push(`Código de invitación '${codigo}': La modalidad Equipo permite máximo 10 estudiantes (actualmente tiene ${grupo.miembros.length}).`);
+                    }
+                }
+            }
+            
+            return groupErrors;
+        }
+        
+        // Mostrar errores de grupo en el modal
+        function showGroupErrors(errors) {
+            // Crear o actualizar el contenedor de errores de grupo
+            if ($('#groupErrorContainer').length === 0) {
+                $('.alert.alert-info').after(
+                    '<div id="groupErrorContainer" class="alert alert-danger mb-3">' +
+                    '<i class="fas fa-exclamation-triangle"></i> ' +
+                    '<strong>Errores en grupos:</strong>' +
+                    '<ul id="groupErrorList"></ul>' +
+                    '</div>'
+                );
+            } else {
+                $('#groupErrorList').empty();
+            }
+            
+            // Mostrar u ocultar según corresponda
+            if (errors.length > 0) {
+                errors.forEach(error => {
+                    $('#groupErrorList').append(`<li>${error}</li>`);
+                });
+                $('#groupErrorContainer').show();
+                return true; // Hay errores
+            } else {
+                $('#groupErrorContainer').hide();
+                return false; // No hay errores
+            }
+        }
+
         // Enviar datos al servidor
         $('#submitExcelData').click(function() {
-            // Verificar si hay errores
+            // Verificar si hay errores en filas individuales
             if (errorCount > 0) {
                 alert(`Por favor, corrija los ${errorCount} errores antes de continuar.`);
                 return;
             }
+            
+            // Validar grupos
+            const groupErrors = validateGroups();
+            if (showGroupErrors(groupErrors)) {
+                return; // Si hay errores de grupo, no continuar
+            }
+
+            // Mostrar overlay de carga
+            $('#loadingOverlay').fadeIn();
 
             // Crear un nuevo archivo Excel con los datos editados
             const wb = XLSX.utils.book_new();
@@ -642,22 +807,75 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    // Ocultar overlay de carga
+                    $('#loadingOverlay').fadeOut();
+                    
                     // Cerrar modal
                     bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
                     
-                    // Recargar página con mensaje de éxito
-                    location.reload();
+                    // Mostrar mensaje de éxito
+                    let successMessage = "La inscripción se ha completado con éxito.";
+                    if (response && response.success) {
+                        successMessage = response.success;
+                    }
+                    
+                    $('#successText').text(successMessage);
+                    $('#successMessage').fadeIn();
+                    
+                    // Recargar página después de mostrar el mensaje
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
                 },
                 error: function(xhr) {
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        let errorMsg = 'Se encontraron errores:\n';
-                        for (const error in xhr.responseJSON.errors) {
-                            errorMsg += xhr.responseJSON.errors[error].join('\n') + '\n';
+                    // Ocultar overlay de carga
+                    $('#loadingOverlay').fadeOut();
+                    
+                    let errorMsg = 'Ocurrió un error al procesar la inscripción.';
+                    
+                    if (xhr.responseJSON) {
+                        if (xhr.responseJSON.error_messages) {
+                            errorMsg = xhr.responseJSON.error_messages.join('\n');
+                        } else if (xhr.responseJSON.errors) {
+                            errorMsg = 'Se encontraron los siguientes errores:\n';
+                            for (const error in xhr.responseJSON.errors) {
+                                errorMsg += xhr.responseJSON.errors[error].join('\n') + '\n';
+                            }
+                        } else if (xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
                         }
-                        alert(errorMsg);
-                    } else {
-                        alert('Ocurrió un error al procesar la inscripción.');
                     }
+                    
+                    // Mostrar errores en un modal más amigable
+                    const errorModal = `
+                    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title"><i class="fas fa-exclamation-circle"></i> Error en la inscripción</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>${errorMsg.replace(/\n/g, '<br>')}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                    
+                    // Agregar modal al DOM si no existe
+                    if ($('#errorModal').length === 0) {
+                        $('body').append(errorModal);
+                    } else {
+                        $('#errorModal .modal-body p').html(errorMsg.replace(/\n/g, '<br>'));
+                    }
+                    
+                    // Mostrar modal de error
+                    const errorModalInstance = new bootstrap.Modal(document.getElementById('errorModal'));
+                    errorModalInstance.show();
                 }
             });
         });

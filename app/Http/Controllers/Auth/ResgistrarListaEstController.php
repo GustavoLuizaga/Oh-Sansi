@@ -101,6 +101,19 @@ class ResgistrarListaEstController extends Controller
                 $errors[] = "Fila {$currentRow}: El área '{$area}' no está habilitada para esta convocatoria. Por favor revise la información de la convocatoria vigente.";
                 continue;
             }
+            
+            // Validar que el área pertenezca al tutor actual
+            $tutorId = Auth::user()->id;
+            $tutorAreas = DB::table('tutorAreaDelegacion')
+                ->join('area', 'tutorAreaDelegacion.idArea', '=', 'area.idArea')
+                ->where('tutorAreaDelegacion.id', $tutorId)
+                ->pluck('area.nombre')
+                ->toArray();
+                
+            if (!in_array($area, $tutorAreas)) {
+                $errors[] = "Fila {$currentRow}: El área '{$area}' no está asignada al tutor actual. Solo puede inscribir estudiantes en sus áreas asignadas.";
+                continue;
+            }
     
             $idArea = Area::where('nombre', $area)->value('idArea');
     
@@ -163,11 +176,20 @@ class ResgistrarListaEstController extends Controller
     
         // Validar grupos de invitación
         foreach ($gruposInvitacion as $codigo => $grupo) {
+            $modalidad = strtolower($grupo['modalidad']);
+            $cantidadMiembros = count($grupo['miembros']);
+            
             // Validar número de miembros según modalidad
-            if (strtolower($grupo['modalidad']) == 'duo' && count($grupo['miembros']) != 2) {
-                $errors[] = "Código de invitación '{$codigo}': La modalidad Dúo requiere exactamente 2 estudiantes.";
-            } elseif (strtolower($grupo['modalidad']) == 'equipo' && (count($grupo['miembros']) < 3 || count($grupo['miembros']) > 5)) {
-                $errors[] = "Código de invitación '{$codigo}': La modalidad Equipo requiere entre 3 y 5 estudiantes.";
+            if ($modalidad == 'duo') {
+                if ($cantidadMiembros != 2) {
+                    $errors[] = "Código de invitación '{$codigo}': La modalidad Dúo requiere exactamente 2 estudiantes (actualmente tiene {$cantidadMiembros}).";
+                }
+            } elseif ($modalidad == 'equipo') {
+                if ($cantidadMiembros < 3) {
+                    $errors[] = "Código de invitación '{$codigo}': La modalidad Equipo requiere al menos 3 estudiantes (actualmente tiene {$cantidadMiembros}).";
+                } elseif ($cantidadMiembros > 10) {
+                    $errors[] = "Código de invitación '{$codigo}': La modalidad Equipo permite máximo 10 estudiantes (actualmente tiene {$cantidadMiembros}).";
+                }
             }
         }
     
@@ -260,16 +282,24 @@ class ResgistrarListaEstController extends Controller
                     
                     // Crear grupo si no existe
                     if (!isset($gruposCreados[$codigoInvitacion])) {
-                        // Crear un registro en la tabla grupo_inscripcions
-                        $grupoInscripcion = GrupoInscripcion::create([
-                            'codigoInvitacion' => $codigoInvitacion,
-                            'nombreGrupo' => 'Grupo ' . $codigoInvitacion,
-                            'modalidad' => $modalidadInscripcion,
-                            'estado' => 'incompleto',
-                            'idDelegacion' => $data['idDelegacion']
-                        ]);
+                        // Verificar si ya existe un grupo con este código de invitación en la base de datos
+                        $grupoExistente = GrupoInscripcion::where('codigoInvitacion', $codigoInvitacion)->first();
                         
-                        $gruposCreados[$codigoInvitacion] = $grupoInscripcion->id;
+                        if ($grupoExistente) {
+                            // Si el grupo ya existe, usar ese grupo
+                            $gruposCreados[$codigoInvitacion] = $grupoExistente->id;
+                        } else {
+                            // Si no existe, crear un nuevo grupo
+                            $grupoInscripcion = GrupoInscripcion::create([
+                                'codigoInvitacion' => $codigoInvitacion,
+                                'nombreGrupo' => 'Grupo ' . $codigoInvitacion,
+                                'modalidad' => $modalidadInscripcion,
+                                'estado' => 'incompleto',
+                                'idDelegacion' => $data['idDelegacion']
+                            ]);
+                            
+                            $gruposCreados[$codigoInvitacion] = $grupoInscripcion->id;
+                        }
                     }
                     
                     $idGrupoInscripcion = $gruposCreados[$codigoInvitacion];
@@ -305,13 +335,24 @@ class ResgistrarListaEstController extends Controller
                 // Verificar si el grupo cumple con los requisitos de miembros según su modalidad
                 if ($grupo->modalidad == 'duo' && $cantidadMiembros == 2) {
                     $grupo->update(['estado' => 'activo']);
-                } elseif ($grupo->modalidad == 'equipo' && $cantidadMiembros >= 3 && $cantidadMiembros <= 5) {
+                } elseif ($grupo->modalidad == 'equipo' && $cantidadMiembros >= 3 && $cantidadMiembros <= 10) {
                     $grupo->update(['estado' => 'activo']);
                 }
             }
     
             DB::commit();
-            return back()->with('success', "Se crearon {$usersCreated} usuarios nuevos y se inscribieron a {$usersUpdated} usuarios existentes.");
+            
+            $mensaje = "¡Inscripción completada con éxito! ";
+            
+            if ($usersCreated > 0 && $usersUpdated > 0) {
+                $mensaje .= "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes.";
+            } elseif ($usersCreated > 0) {
+                $mensaje .= "Se crearon {$usersCreated} usuarios nuevos.";
+            } elseif ($usersUpdated > 0) {
+                $mensaje .= "Se actualizaron {$usersUpdated} usuarios existentes.";
+            }
+            
+            return back()->with('success', $mensaje);
     
         } catch (\Exception $e) {
             DB::rollBack();

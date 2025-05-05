@@ -18,10 +18,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('css/custom.css')}}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     <!-- Scripts -->
-    <script src="js/app.js'" defer></script>
+    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ asset('js/themeToggle.js') }}"></script>
 
     @stack('styles')
 
@@ -64,30 +65,3 @@
 </body>
 
 </html>
-
-
-{{-- Codigo anterior del body, porsiacaso, eliminar el Title header si les da error--}}
-
-{{-- <body class="font-sans antialiased">
-    <!-- Navigation -->
-    @include('layouts.navigation')
-    <!-- Contenido principal -->
-    <div class="min-h-screen bg-gray-100 main-content">
-        <!-- Sidebar first to ensure it's below other elements -->
-        @include('layouts.sidebar')
-        <!-- Page Content -->
-        <main>
-            <!-- Header del contenido -->
-            @if (isset($header))
-            <header class="area-header">
-                {{ $header }}
-            </header>
-            @endif
-            {{ $slot }}
-        </main>
-        <!-- Right Sidebar -->
-        @include('layouts.rigthbar')
-    </div>
-    <!-- Footer -->
-    @include('layouts.footer')
-</body> --}}

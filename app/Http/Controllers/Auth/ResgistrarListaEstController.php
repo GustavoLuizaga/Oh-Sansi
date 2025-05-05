@@ -23,6 +23,8 @@ use App\Http\Controllers\Inscripcion\ObtenerCategoriasArea;
 use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 use Illuminate\Support\Facades\DB;
 use App\Models\TutorEstudianteInscripcion;
+use App\Models\DetalleInscripcion;
+use App\Models\GrupoInscripcion;
 use Illuminate\Support\Str;
 
 class ResgistrarListaEstController extends Controller
@@ -236,13 +238,11 @@ class ResgistrarListaEstController extends Controller
                     'fechaInscripcion' => now(),
                     'numeroContacto' => $row[10],
                     'idConvocatoria' => $data['idConvocatoriaResult'],
-                    'idArea' => $data['idArea'],
                     'idDelegacion' => $data['idDelegacion'],
-                    'idCategoria' => $data['idCategoria'],
                     'idGrado' => $data['idGrado'],
                     'nombreApellidosTutor' => $row[12],
                     'correoTutor' => $row[13],
-                    'modalidad' => $data['modalidad']
+                    'status' => 'pendiente'
                 ]);
     
                 // Asociar estudiante con tutor e inscripción
@@ -250,23 +250,39 @@ class ResgistrarListaEstController extends Controller
                     'idEstudiante' => $user->id,
                 ]);
                 
+                // Crear detalle de inscripción
+                $modalidadInscripcion = strtolower($data['modalidad']);
+                $idGrupoInscripcion = null;
+                
                 // Si tiene código de invitación, asociar al grupo
                 if (!empty($data['codigoInvitacion'])) {
                     $codigoInvitacion = $data['codigoInvitacion'];
                     
                     // Crear grupo si no existe
                     if (!isset($gruposCreados[$codigoInvitacion])) {
-                        // Generar un ID único para el grupo
-                        $grupoId = Str::uuid();
-                        $gruposCreados[$codigoInvitacion] = $grupoId;
+                        // Crear un registro en la tabla grupo_inscripcions
+                        $grupoInscripcion = GrupoInscripcion::create([
+                            'codigoInvitacion' => $codigoInvitacion,
+                            'nombreGrupo' => 'Grupo ' . $codigoInvitacion,
+                            'modalidad' => $modalidadInscripcion,
+                            'estado' => 'incompleto',
+                            'idDelegacion' => $data['idDelegacion']
+                        ]);
                         
-                        // Aquí podrías crear un registro en una tabla de grupos si es necesario
-                        // GrupoInscripcion::create(['id' => $grupoId, 'codigo' => $codigoInvitacion, 'modalidad' => $data['modalidad']]);
+                        $gruposCreados[$codigoInvitacion] = $grupoInscripcion->id;
                     }
                     
-                    // Asociar inscripción al grupo
-                    // $inscripcion->update(['idGrupo' => $gruposCreados[$codigoInvitacion]]);
+                    $idGrupoInscripcion = $gruposCreados[$codigoInvitacion];
                 }
+                
+                // Crear el detalle de inscripción
+                $detalleInscripcion = DetalleInscripcion::create([
+                    'modalidadInscripcion' => $modalidadInscripcion,
+                    'idInscripcion' => $inscripcion->idInscripcion,
+                    'idArea' => $data['idArea'],
+                    'idCategoria' => $data['idCategoria'],
+                    'idGrupoInscripcion' => $idGrupoInscripcion
+                ]);
     
                 // Notificar si es nuevo usuario
                 if ($isNewUser) {
@@ -279,6 +295,19 @@ class ResgistrarListaEstController extends Controller
             if (!empty($errors)) {
                 DB::rollBack();
                 return back()->with('error_messages', $errors);
+            }
+            
+            // Actualizar el estado de los grupos según la cantidad de miembros
+            foreach ($gruposCreados as $codigoInvitacion => $grupoId) {
+                $grupo = GrupoInscripcion::find($grupoId);
+                $cantidadMiembros = DetalleInscripcion::where('idGrupoInscripcion', $grupoId)->count();
+                
+                // Verificar si el grupo cumple con los requisitos de miembros según su modalidad
+                if ($grupo->modalidad == 'duo' && $cantidadMiembros == 2) {
+                    $grupo->update(['estado' => 'activo']);
+                } elseif ($grupo->modalidad == 'equipo' && $cantidadMiembros >= 3 && $cantidadMiembros <= 5) {
+                    $grupo->update(['estado' => 'activo']);
+                }
             }
     
             DB::commit();

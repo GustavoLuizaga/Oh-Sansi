@@ -70,6 +70,7 @@ class ResgistrarListaEstController extends Controller
     
         $filaDatos = []; // Aquí vamos a guardar las filas validadas y procesables
         $gruposInvitacion = []; // Para agrupar estudiantes por código de invitación
+        $estudiantesPorCI = []; // Para agrupar estudiantes por CI y validar el límite de áreas
     
         // PRIMERA PASADA: Validar datos sin tocar la base de datos
         foreach ($rows as $key => $row) {
@@ -101,6 +102,30 @@ class ResgistrarListaEstController extends Controller
                 $errors[] = "Fila {$currentRow}: El área '{$area}' no está habilitada para esta convocatoria. Por favor revise la información de la convocatoria vigente.";
                 continue;
             }
+            
+            // Agrupar estudiantes por CI para validar el límite de áreas
+            $ci = $row[3] ?? null;
+            if (empty($ci)) {
+                $errors[] = "Fila {$currentRow}: El CI es obligatorio.";
+                continue;
+            }
+            
+            if (!isset($estudiantesPorCI[$ci])) {
+                $estudiantesPorCI[$ci] = [
+                    'areas' => [],
+                    'filas' => []
+                ];
+            }
+            
+            // Verificar que no se repita la misma área para el mismo estudiante
+            if (in_array($area, $estudiantesPorCI[$ci]['areas'])) {
+                $errors[] = "Fila {$currentRow}: El estudiante con CI '{$ci}' ya tiene una inscripción en el área '{$area}' en este archivo.";
+                continue;
+            }
+            
+            // Agregar el área a la lista de áreas del estudiante
+            $estudiantesPorCI[$ci]['areas'][] = $area;
+            $estudiantesPorCI[$ci]['filas'][] = $currentRow;
             
             // Validar que el área pertenezca al tutor actual
             $tutorId = Auth::user()->id;
@@ -192,6 +217,15 @@ class ResgistrarListaEstController extends Controller
                 }
             }
         }
+        
+        // Validar que ningún estudiante se inscriba en más de 2 áreas
+        foreach ($estudiantesPorCI as $ci => $datos) {
+            if (count($datos['areas']) > 2) {
+                $filasStr = implode(', ', $datos['filas']);
+                $areasStr = implode(', ', $datos['areas']);
+                $errors[] = "El estudiante con CI '{$ci}' (filas {$filasStr}) está intentando inscribirse en más de 2 áreas: {$areasStr}. Solo se permiten máximo 2 áreas por estudiante.";
+            }
+        }
     
         // SI HUBO ERRORES DE VALIDACIÓN, no hacemos nada
         if (!empty($errors)) {
@@ -241,7 +275,7 @@ class ResgistrarListaEstController extends Controller
                     $usersUpdated++;
                 }
     
-                // Validar que no esté ya inscrito en el área
+                // Validar que no esté ya inscrito en el área y que no exceda el límite de 2 áreas
                 $areasInscritas = TutorEstudianteInscripcion::where('idEstudiante', $user->id)
                     ->with('inscripcion.area')
                     ->get()
@@ -250,8 +284,16 @@ class ResgistrarListaEstController extends Controller
                     ->unique()
                     ->values();
     
+                // Verificar si ya está inscrito en esta área específica
                 if ($areasInscritas->contains($row[7])) {
                     $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en el área '{$row[7]}'.";
+                    continue;
+                }
+                
+                // Verificar si ya alcanzó el límite de 2 áreas en la base de datos
+                if ($areasInscritas->count() >= 2) {
+                    $areasInscritasStr = $areasInscritas->implode(', ');
+                    $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en 2 áreas ({$areasInscritasStr}) y no puede inscribirse en más áreas.";
                     continue;
                 }
     

@@ -111,12 +111,30 @@ class EstudianteController extends Controller
         $categorias = Categoria::all();
         $delegaciones = Delegacion::all();
         
+        // Verificar si el usuario es tutor (rol con ID 2)
+        $user = auth()->user();
+        $esTutor = false;
+        
+        if ($user && $user->roles) {
+            foreach ($user->roles as $rol) {
+                if ($rol->idRol == 2) { // ID 2 corresponde al rol de tutor
+                    $esTutor = true;
+                    break;
+                }
+            }
+        }
+        
+        // Definir las modalidades disponibles
+        $modalidades = ['individual', 'duo', 'equipo'];
+        
         return view('inscripciones.listaEstudiantesPendientes', compact(
             'estudiantes', 
             'convocatorias', 
             'areas', 
             'categorias', 
-            'delegaciones'
+            'delegaciones',
+            'esTutor',
+            'modalidades'
         ));
     }
     

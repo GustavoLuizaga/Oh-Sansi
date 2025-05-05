@@ -24,13 +24,18 @@
                         <!-- Información del perfil -->
                         <div class="bg-white p-6 rounded-lg shadow-md">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold"><i class="fas fa-info-circle"></i> Información Personal</h3>
-                                <button type="button" id="edit-profile-btn" class="edit-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button type="button" id="cancel-edit-btn" class="cancel-btn bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hidden">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </button>
+                                <h3 class="text-lg font-semibold" style="color:white"><i class="fas fa-info-circle"></i> Información Personal</h3>
+                                <div class="flex gap-2">
+                                    <button type="button" id="change-password-btn" class="password-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                        <i class="fas fa-key"></i> Cambiar Contraseña
+                                    </button>
+                                    <button type="button" id="edit-profile-btn" class="edit-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button type="button" id="cancel-edit-btn" class="cancel-btn bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hidden">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
                             </div>
                             
                             <form method="POST" action="{{ route('perfil.update') }}" id="profile-form">
@@ -134,7 +139,7 @@
                         
                         <!-- Información del rol -->
                         <div class="bg-white p-6 rounded-lg shadow-md md:col-span-2">
-                            <h3 class="text-lg font-semibold mb-4"><i class="fas fa-user-tag"></i> Roles y Permisos</h3>
+                            <h3 class="text-lg font-semibold mb-4" style="color:white"><i class="fas fa-user-tag"></i> Roles y Permisos</h3>
                             
                             <div class="overflow-x-auto">
                                 <table class="min-w-full bg-white">

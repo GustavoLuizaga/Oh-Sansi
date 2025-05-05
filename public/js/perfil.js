@@ -6,9 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileForm = document.getElementById('profile-form');
     const passwordSection = document.querySelector('.password-section');
     const profileInputs = document.querySelectorAll('.profile-input');
+    const changePasswordBtn = document.getElementById('change-password-btn');
     
     // Estado inicial
     let isEditing = false;
+    let isPasswordVisible = false;
     
     // Función para habilitar la edición
     function enableEditing() {
@@ -23,9 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
         editBtn.classList.add('hidden');
         cancelBtn.classList.remove('hidden');
         saveBtn.classList.remove('hidden');
-        
-        // Mostrar sección de cambio de contraseña
-        passwordSection.classList.remove('hidden');
     }
     
     // Función para cancelar la edición
@@ -42,14 +41,22 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelBtn.classList.add('hidden');
         saveBtn.classList.add('hidden');
         
-        // Ocultar sección de cambio de contraseña
-        passwordSection.classList.add('hidden');
-        
         // Resetear el formulario a los valores originales
         profileForm.reset();
+    }
+
+    // Función para toggle sección de contraseña
+    function togglePasswordSection() {
+        isPasswordVisible = !isPasswordVisible;
+        if (isPasswordVisible) {
+            passwordSection.classList.remove('hidden');
+        } else {
+            passwordSection.classList.add('hidden');
+        }
     }
     
     // Event listeners
     editBtn.addEventListener('click', enableEditing);
     cancelBtn.addEventListener('click', cancelEditing);
+    changePasswordBtn.addEventListener('click', togglePasswordSection);
 });

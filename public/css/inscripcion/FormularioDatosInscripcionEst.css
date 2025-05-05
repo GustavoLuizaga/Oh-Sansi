@@ -361,6 +361,125 @@
     border: 1px solid rgba(250, 82, 82, 0.3);
 }
 
+.info-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.section-header {
+    font-size: 0.95rem;
+}
+
+.section-content {
+    flex: 1;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.info-item {
+    margin-bottom: 0.3rem;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+.info-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.tutor-block {
+    height: 100%;
+}
+
+.detail-item {
+    font-size: 0.85rem;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.detail-value {
+    font-weight: 400;
+}
+
+.section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.colegio-nombre {
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.payment-summary {
+    font-size: 0.9rem;
+}
+
+.summary-label {
+    color: #6c757d;
+}
+
+.summary-value {
+    font-weight: 500;
+}
+
+.total-label {
+    font-size: 0.95rem;
+}
+
+.total-amount {
+    font-size: 1rem;
+}
+
+.border-end-md {
+    border-right: 1px solid #dee2e6;
+}
+
+@media (max-width: 767.98px) {
+    .border-end-md {
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .actions-container {

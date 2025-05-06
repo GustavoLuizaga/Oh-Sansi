@@ -82,13 +82,14 @@ class EstudianteController extends Controller
     {
         // Obtener estudiantes con inscripciones pendientes
         // Consideramos pendientes aquellos que tienen registros en la tabla tutorEstudianteInscripcion
-        // pero que aún no tienen una inscripción completa
+        // y que tienen inscripciones con status='pendiente' o no tienen inscripciones completas
         $estudiantesQuery = Estudiante::with(['user', 'inscripciones.delegacion', 'inscripciones.area', 'inscripciones.categoria'])
-            ->whereHas('tutores', function($query) {
-                // Estudiantes que tienen tutores asignados
-            })
-            ->whereDoesntHave('inscripciones', function($query) {
-                // Pero que no tienen inscripciones completas
+            ->whereHas('tutores')
+            ->where(function($query) {
+                $query->whereHas('inscripciones', function($q) {
+                    $q->where('status', 'pendiente');
+                })
+                ->orWhereDoesntHave('inscripciones');
             });
         
         // Aplicar filtros si existen (similar a index)

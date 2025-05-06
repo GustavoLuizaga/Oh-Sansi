@@ -32,9 +32,11 @@
     <div class="container-fluid mt-2 px-2">
         <!-- Botones de acción -->
         <div class="payment-actions mb-2 text-center">
+            <h4>CODIGO DE INSCRIPCION UNICO DEL ESTUDIANTE ID-000001
+            </h4>
             <button class="btn btn-sm btn-primary me-1">
                 <i class="fas fa-print me-1"></i> Imprimir Formulario
-            </button>
+            </button>'
         </div>
 
         <!-- SECCIÓN UNIFICADA: Información de Inscripción del Estudiante -->

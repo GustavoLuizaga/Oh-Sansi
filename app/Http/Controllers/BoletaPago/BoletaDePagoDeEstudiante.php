@@ -56,6 +56,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'tutor.profesion AS tutor_profesion',
                 'tutor.telefono AS tutor_telefono',
                 'tutor_user.email AS tutor_email',
+                'tutor.tokenTutor AS tutor_token', // Añadido el token del tutor
                 'delegacion.nombre AS tutor_colegio',
                 'delegacion.dependencia AS colegio_dependencia',
                 'delegacion.departamento AS colegio_departamento',
@@ -146,6 +147,7 @@ class BoletaDePagoDeEstudiante extends Controller
                     'profesion' => $first->tutor_profesion,
                     'telefono' => $first->tutor_telefono,
                     'email' => $first->tutor_email,
+                    'token' => $first->tutor_token, // Añadido el token del tutor
                     'areas' => $tutorGroup->map(function($item) {
                         return [
                             'id' => $item->area_id,

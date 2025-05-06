@@ -17,6 +17,11 @@ class UsuarioController extends Controller
     {
         $query = User::with('roles');
         
+        // Excluir usuarios con rol de administrador (id 1)
+        $query->whereDoesntHave('roles', function($q) {
+            $q->where('rol.idRol', 1);
+        });
+        
         // Búsqueda por nombre o correo
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -34,19 +39,26 @@ class UsuarioController extends Controller
         }
         
         $usuarios = $query->paginate(10);
-        $roles = Rol::all();
+        $roles = Rol::where('idRol', '!=', 1)->get(); // Excluir rol de administrador
         
         return view('Usuarios.usuario', compact('usuarios', 'roles'));
     }
 
     public function create()
     {
-        $roles = Rol::all();
+        $roles = Rol::where('idRol', '!=', 1)->get(); // Excluir rol de administrador
         return view('Usuarios.crearUsuario', compact('roles'));
     }
 
     public function store(Request $request)
     {
+        // Verificar que no se esté intentando asignar el rol de administrador
+        if (in_array(1, (array)$request->roles)) {
+            return redirect()->back()
+                ->with('error', 'No tiene permisos para asignar el rol de administrador')
+                ->withInput();
+        }
+        
         // Validar los datos del formulario
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -124,13 +136,27 @@ class UsuarioController extends Controller
     public function show($id)
     {
         $usuario = User::with('roles')->findOrFail($id);
+        
+        // Verificar si el usuario tiene rol de administrador
+        if ($usuario->roles->contains('idRol', 1)) {
+            return redirect()->route('usuarios')
+                ->with('error', 'No tiene permisos para ver este usuario');
+        }
+        
         return view('Usuarios.verUsuario', compact('usuario'));
     }
 
     public function edit($id)
     {
         $usuario = User::with('roles')->findOrFail($id);
-        $roles = Rol::all();
+        
+        // Verificar si el usuario tiene rol de administrador
+        if ($usuario->roles->contains('idRol', 1)) {
+            return redirect()->route('usuarios')
+                ->with('error', 'No tiene permisos para editar este usuario');
+        }
+        
+        $roles = Rol::where('idRol', '!=', 1)->get(); // Excluir rol de administrador
         $usuarioRoles = $usuario->roles->pluck('idRol')->toArray();
         
         return view('Usuarios.editarUsuario', compact('usuario', 'roles', 'usuarioRoles'));
@@ -138,7 +164,20 @@ class UsuarioController extends Controller
 
     public function update(Request $request, $id)
     {
-        $usuario = User::findOrFail($id);
+        $usuario = User::with('roles')->findOrFail($id);
+        
+        // Verificar si el usuario tiene rol de administrador
+        if ($usuario->roles->contains('idRol', 1)) {
+            return redirect()->route('usuarios')
+                ->with('error', 'No tiene permisos para editar este usuario');
+        }
+        
+        // Verificar que no se esté intentando asignar el rol de administrador
+        if (in_array(1, (array)$request->roles)) {
+            return redirect()->back()
+                ->with('error', 'No tiene permisos para asignar el rol de administrador')
+                ->withInput();
+        }
         
         // Validar los datos del formulario
         $rules = [
@@ -239,7 +278,13 @@ class UsuarioController extends Controller
 
     public function destroy($id)
     {
-        $usuario = User::findOrFail($id);
+        $usuario = User::with('roles')->findOrFail($id);
+        
+        // Verificar si el usuario tiene rol de administrador
+        if ($usuario->roles->contains('idRol', 1)) {
+            return redirect()->route('usuarios')
+                ->with('error', 'No tiene permisos para eliminar este usuario');
+        }
         
         // Eliminar relaciones de roles
         DB::table('userRol')->where('id', $id)->delete();

@@ -32,10 +32,11 @@
     <div class="container-fluid mt-2 px-2">
         <!-- Botones de acción -->
         <div class="payment-actions mb-2 text-center">
-            <h4>CODIGO DE INSCRIPCION UNICO DEL ESTUDIANTE ID-000001
+            <h4>CODIGO DE INSCRIPCION UNICO DEL ESTUDIANTE "{{ $codigoInscripcion}}"
             </h4>
-            <button class="btn btn-sm btn-primary me-1">
+            <button class="btn btn-sm btn-primary me-1 export-button pdf py-1 px-2" id="exportPdf"">
                 <i class="fas fa-print me-1"></i> Imprimir Formulario
+
             </button>'
         </div>
 
@@ -249,7 +250,7 @@
         // Export PDF button
         document.getElementById('exportPdf').addEventListener('click', function(e) {
             e.preventDefault();
-            window.location.href = "{{ route('inscripcionEstudiante.exportar.pdf') }}";
+            window.location.href = "{{ route('inscripcionEstudiante.ImprimirFormulario.pdf') }}";
         });
     });
 </script>

@@ -429,7 +429,7 @@ class BoletaDePagoDeEstudiante extends Controller
     public function ImprimirFormularioInscripcion()
     {
         $estudianteId = Auth::id();
-    
+
         $data = DB::table('tutorestudianteinscripcion')
             ->select([
                 'estudiante.id AS estudiante_id',
@@ -440,7 +440,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'categoria.idCategoria AS categoria_id',
                 'delegacion.idDelegacion AS delegacion_id',
                 'grado.idGrado AS grado_id',
-    
+
                 'estudiante.name AS estudiante_nombre',
                 'estudiante.apellidoPaterno AS estudiante_apellido_paterno',
                 'estudiante.apellidoMaterno AS estudiante_apellido_materno',
@@ -448,7 +448,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'grado.grado AS estudiante_grado',
                 'estudiante.fechaNacimiento AS estudiante_nacimiento',
                 'estudiante.genero AS estudiante_genero',
-    
+
                 'tutor_user.name AS tutor_nombre',
                 'tutor_user.apellidoPaterno AS tutor_apellido_paterno',
                 'tutor_user.apellidoMaterno AS tutor_apellido_materno',
@@ -462,21 +462,21 @@ class BoletaDePagoDeEstudiante extends Controller
                 'delegacion.provincia AS colegio_provincia',
                 'delegacion.direccion AS colegio_direccion',
                 'delegacion.telefono AS colegio_telefono',
-    
+
                 'area.nombre AS area_nombre',
                 'categoria.nombre AS categoria_nombre',
                 'detalle_inscripcion.created_at AS area_fecha_registro',
                 'detalle_inscripcion.idDetalleInscripcion AS detalle_inscripcion_id',
-    
+
                 'convocatoria.nombre AS convocatoria_nombre',
                 'convocatoria.fechaFin AS convocatoria_fecha_limite',
                 'convocatoria.metodoPago AS convocatoria_metodo_pago',
                 'convocatoria.contacto AS convocatoria_contacto',
-    
+
                 'inscripcion.fechaInscripcion AS inscripcion_fecha',
                 'inscripcion.numeroContacto AS inscripcion_numero_contacto',
                 'inscripcion.status AS inscripcion_status',
-    
+
                 DB::raw('15 AS precio'),
                 DB::raw("'INDIVIDUAL' AS modalidad")
             ])
@@ -497,18 +497,23 @@ class BoletaDePagoDeEstudiante extends Controller
             ->where('tutorestudianteinscripcion.idEstudiante', $estudianteId)
             ->where('convocatoria.estado', 'Publicada')
             ->get();
-    
+
         if ($data->isEmpty()) {
             return back()->with('error', 'No se encontraron inscripciones para mostrar la boleta');
         }
-    
+
         $boletaInfo = $this->verificarBoletaExistente($estudianteId);
-    
+        
+        // Crear el código de inscripción con formato ID-000000INSCRIPCION-ID
+        $inscripcionId = $data->first()->inscripcion_id;
+        $CodigoInscripcionEst = 'ID-' . str_pad($inscripcionId, 6, '0', STR_PAD_LEFT) ;
+
         $processed = [
             'codigoOrden' => $boletaInfo['codigoBoleta'],
             'fechaGeneracion' => $boletaInfo['fechaInicio'],
             'fechaVencimiento' => $boletaInfo['fechaFin'],
-    
+            'codigoInscripcion' => $CodigoInscripcionEst, // Nueva variable añadida
+
             'ids' => [
                 'estudiante_id' => $data->first()->estudiante_id,
                 'tutor_id' => $data->first()->tutor_id,
@@ -517,7 +522,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'delegacion_id' => $data->first()->delegacion_id,
                 'grado_id' => $data->first()->grado_id
             ],
-    
+
             'estudiante' => [
                 'id' => $data->first()->estudiante_id,
                 'nombre' => $data->first()->estudiante_nombre,
@@ -528,7 +533,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'fecha_nacimiento' => $data->first()->estudiante_nacimiento,
                 'genero' => $data->first()->estudiante_genero
             ],
-    
+
             'tutores' => $data->groupBy('tutor_ci')->map(function($tutorGroup) {
                 $first = $tutorGroup->first();
                 return [
@@ -561,7 +566,7 @@ class BoletaDePagoDeEstudiante extends Controller
                     ]
                 ];
             })->values()->toArray(),
-    
+
             'convocatoria' => [
                 'id' => $data->first()->convocatoria_id,
                 'nombre' => $data->first()->convocatoria_nombre,
@@ -569,7 +574,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'metodo_pago' => $data->first()->convocatoria_metodo_pago,
                 'contacto' => $data->first()->convocatoria_contacto
             ],
-    
+
             'inscripcion' => [
                 'id' => $data->first()->inscripcion_id,
                 'fecha' => $data->first()->inscripcion_fecha,
@@ -577,7 +582,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'status' => $data->first()->inscripcion_status,
                 'grado_id' => $data->first()->grado_id
             ],
-    
+
             'inscripciones' => $data->map(function($item) {
                 return [
                     'modalidad' => $item->modalidad,
@@ -591,10 +596,191 @@ class BoletaDePagoDeEstudiante extends Controller
                 ];
             })->toArray(),
         ];
-    
+
         $processed['totalPagar'] = array_sum(array_column($processed['inscripciones'], 'precio'));
-    
-        return view('inscripciones.ImprimirFormularioDeInscripcion',$processed);
+
+        return view('inscripciones.ImprimirFormularioDeInscripcion', $processed);
+    }
+
+    public function PDFImprimirFormulario()
+    {
+        $estudianteId = Auth::id();
+
+        $data = DB::table('tutorestudianteinscripcion')
+            ->select([
+                'estudiante.id AS estudiante_id',
+                'tutor.id AS tutor_id',
+                'inscripcion.idInscripcion AS inscripcion_id',
+                'convocatoria.idConvocatoria AS convocatoria_id',
+                'area.idArea AS area_id',
+                'categoria.idCategoria AS categoria_id',
+                'delegacion.idDelegacion AS delegacion_id',
+                'grado.idGrado AS grado_id',
+
+                'estudiante.name AS estudiante_nombre',
+                'estudiante.apellidoPaterno AS estudiante_apellido_paterno',
+                'estudiante.apellidoMaterno AS estudiante_apellido_materno',
+                'estudiante.ci AS estudiante_ci',
+                'grado.grado AS estudiante_grado',
+                'estudiante.fechaNacimiento AS estudiante_nacimiento',
+                'estudiante.genero AS estudiante_genero',
+
+                'tutor_user.name AS tutor_nombre',
+                'tutor_user.apellidoPaterno AS tutor_apellido_paterno',
+                'tutor_user.apellidoMaterno AS tutor_apellido_materno',
+                'tutor_user.ci AS tutor_ci',
+                'tutor.profesion AS tutor_profesion',
+                'tutor.telefono AS tutor_telefono',
+                'tutor_user.email AS tutor_email',
+                'delegacion.nombre AS tutor_colegio',
+                'delegacion.dependencia AS colegio_dependencia',
+                'delegacion.departamento AS colegio_departamento',
+                'delegacion.provincia AS colegio_provincia',
+                'delegacion.direccion AS colegio_direccion',
+                'delegacion.telefono AS colegio_telefono',
+
+                'area.nombre AS area_nombre',
+                'categoria.nombre AS categoria_nombre',
+                'detalle_inscripcion.created_at AS area_fecha_registro',
+                'detalle_inscripcion.idDetalleInscripcion AS detalle_inscripcion_id',
+
+                'convocatoria.nombre AS convocatoria_nombre',
+                'convocatoria.fechaFin AS convocatoria_fecha_limite',
+                'convocatoria.metodoPago AS convocatoria_metodo_pago',
+                'convocatoria.contacto AS convocatoria_contacto',
+
+                'inscripcion.fechaInscripcion AS inscripcion_fecha',
+                'inscripcion.numeroContacto AS inscripcion_numero_contacto',
+                'inscripcion.status AS inscripcion_status',
+
+                DB::raw('15 AS precio'),
+                DB::raw("'INDIVIDUAL' AS modalidad")
+            ])
+            ->join('inscripcion', 'tutorestudianteinscripcion.idInscripcion', '=', 'inscripcion.idInscripcion')
+            ->join('users AS estudiante', 'tutorestudianteinscripcion.idEstudiante', '=', 'estudiante.id')
+            ->join('tutor', 'tutorestudianteinscripcion.idTutor', '=', 'tutor.id')
+            ->join('users AS tutor_user', 'tutor.id', '=', 'tutor_user.id')
+            ->join('detalle_inscripcion', 'inscripcion.idInscripcion', '=', 'detalle_inscripcion.idInscripcion')
+            ->join('area', 'detalle_inscripcion.idArea', '=', 'area.idArea')
+            ->join('tutorareadelegacion', function($join) {
+                $join->on('tutor.id', '=', 'tutorareadelegacion.id')
+                    ->on('area.idArea', '=', 'tutorareadelegacion.idArea');
+            })
+            ->join('delegacion', 'tutorareadelegacion.idDelegacion', '=', 'delegacion.idDelegacion')
+            ->join('categoria', 'detalle_inscripcion.idCategoria', '=', 'categoria.idCategoria')
+            ->join('grado', 'inscripcion.idGrado', '=', 'grado.idGrado')
+            ->join('convocatoria', 'inscripcion.idConvocatoria', '=', 'convocatoria.idConvocatoria')
+            ->where('tutorestudianteinscripcion.idEstudiante', $estudianteId)
+            ->where('convocatoria.estado', 'Publicada')
+            ->get();
+
+        if ($data->isEmpty()) {
+            return back()->with('error', 'No se encontraron inscripciones para mostrar la boleta');
+        }
+
+        $boletaInfo = $this->verificarBoletaExistente($estudianteId);
+        
+        // Crear el código de inscripción con formato ID-000000INSCRIPCION-ID
+        $inscripcionId = $data->first()->inscripcion_id;
+        $CodigoInscripcionEst = 'ID-' . str_pad($inscripcionId, 6, '0', STR_PAD_LEFT) ;
+
+        $processed = [
+            'codigoOrden' => $boletaInfo['codigoBoleta'],
+            'fechaGeneracionFormulario' => now()->format('d/m/Y H:i'),
+            'fechaGeneracion' => $boletaInfo['fechaInicio'],
+            'fechaVencimiento' => $boletaInfo['fechaFin'],
+            'codigoInscripcion' => $CodigoInscripcionEst, // Nueva variable añadida
+
+            'ids' => [
+                'estudiante_id' => $data->first()->estudiante_id,
+                'tutor_id' => $data->first()->tutor_id,
+                'inscripcion_id' => $data->first()->inscripcion_id,
+                'convocatoria_id' => $data->first()->convocatoria_id,
+                'delegacion_id' => $data->first()->delegacion_id,
+                'grado_id' => $data->first()->grado_id
+            ],
+
+            'estudiante' => [
+                'id' => $data->first()->estudiante_id,
+                'nombre' => $data->first()->estudiante_nombre,
+                'apellido_paterno' => $data->first()->estudiante_apellido_paterno,
+                'apellido_materno' => $data->first()->estudiante_apellido_materno,
+                'ci' => $data->first()->estudiante_ci,
+                'grado' => $data->first()->estudiante_grado,
+                'fecha_nacimiento' => $data->first()->estudiante_nacimiento,
+                'genero' => $data->first()->estudiante_genero
+            ],
+
+            'tutores' => $data->groupBy('tutor_ci')->map(function($tutorGroup) {
+                $first = $tutorGroup->first();
+                return [
+                    'id' => $first->tutor_id,
+                    'nombre' => $first->tutor_nombre,
+                    'apellido_paterno' => $first->tutor_apellido_paterno,
+                    'apellido_materno' => $first->tutor_apellido_materno,
+                    'ci' => $first->tutor_ci,
+                    'profesion' => $first->tutor_profesion,
+                    'telefono' => $first->tutor_telefono,
+                    'email' => $first->tutor_email,
+                    'areas' => $tutorGroup->map(function($item) {
+                        return [
+                            'id' => $item->area_id,
+                            'nombre' => $item->area_nombre,
+                            'categoria_id' => $item->categoria_id,
+                            'categoria' => $item->categoria_nombre,
+                            'detalle_inscripcion_id' => $item->detalle_inscripcion_id,
+                            'fecha_registro' => $item->area_fecha_registro
+                        ];
+                    })->toArray(),
+                    'colegio' => [
+                        'id' => $first->delegacion_id,
+                        'nombre' => $first->tutor_colegio,
+                        'dependencia' => $first->colegio_dependencia,
+                        'departamento' => $first->colegio_departamento,
+                        'provincia' => $first->colegio_provincia,
+                        'direccion' => $first->colegio_direccion,
+                        'telefono' => $first->colegio_telefono
+                    ]
+                ];
+            })->values()->toArray(),
+
+            'convocatoria' => [
+                'id' => $data->first()->convocatoria_id,
+                'nombre' => $data->first()->convocatoria_nombre,
+                'fecha_limite' => $data->first()->convocatoria_fecha_limite,
+                'metodo_pago' => $data->first()->convocatoria_metodo_pago,
+                'contacto' => $data->first()->convocatoria_contacto
+            ],
+
+            'inscripcion' => [
+                'id' => $data->first()->inscripcion_id,
+                'fecha' => $data->first()->inscripcion_fecha,
+                'numero_contacto' => $data->first()->inscripcion_numero_contacto,
+                'status' => $data->first()->inscripcion_status,
+                'grado_id' => $data->first()->grado_id
+            ],
+
+            'inscripciones' => $data->map(function($item) {
+                return [
+                    'modalidad' => $item->modalidad,
+                    'area_id' => $item->area_id,
+                    'area' => $item->area_nombre,
+                    'categoria_id' => $item->categoria_id,
+                    'categoria' => $item->categoria_nombre,
+                    'detalle_inscripcion_id' => $item->detalle_inscripcion_id,
+                    'fecha_registro' => $item->area_fecha_registro,
+                    'precio' => (float)$item->precio
+                ];
+            })->toArray(),
+        ];
+
+        $processed['totalPagar'] = array_sum(array_column($processed['inscripciones'], 'precio'));
+
+        $nombreArchivo = 'Formulario_Inscripcion_'.$processed['codigoInscripcion'].'.pdf';
+        
+        // Generar PDF
+        return PDF::loadView('inscripciones.PDFImprimirFormulario', $processed)
+                ->download($nombreArchivo);
     }
     
 }

@@ -41,7 +41,10 @@ Route::middleware('auth')->group(function () {
     // Add these routes for exports
     Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])
         ->name('inscripcionEstudiante.exportar.pdf');
-        
+    // Add these routes for exports= IMRIMIR FORMULARIO DE INSCRIPCION
+    Route::get('/inscripciones/estudiante/informacion/exportarFormulario/pdf', [BoletaDePagoDeEstudiante::class, 'PDFImprimirFormulario'])
+        ->name('inscripcionEstudiante.ImprimirFormulario.pdf'); 
+    
     // Tutor registration routes
     Route::get('/inscripcion/tutor', [InscripcionController::class, 'showTutorProfile'])
         ->name('inscripcion.tutor');

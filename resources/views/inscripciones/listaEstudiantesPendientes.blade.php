@@ -142,82 +142,37 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterForm = document.getElementById('filterForm');
-            const selectElements = filterForm.querySelectorAll('select');
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('filterForm');
+        const selectElements = filterForm.querySelectorAll('select');
 
-            // Actualizar filtros cuando cambian los selects
-            selectElements.forEach(select => {
-                select.addEventListener('change', function() {
-                    filterForm.submit();
-                });
+        // Actualizar filtros cuando cambian los selects
+        selectElements.forEach(select => {
+            select.addEventListener('change', function() {
+                filterForm.submit();
             });
+        });
 
-            // Exportar a PDF (Generar orden de pago)
+        // Exportar a PDF (Generar orden de pago)
+        document.getElementById('generarOrdenPago').addEventListener('click', function() {
+            try {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
 
-            document.getElementById('generarOrdenPago').addEventListener('click', function() {
-                try {
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-
-
-                    // Realizar la solicitud usando fetch
-                    fetch('{{ route("boleta.preview") }}', {
-                            method: 'GET',
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/pdf'
-                            }
-                        })
-                        .then(response => response.blob())
-                        .then(blob => {
-                            // Crear un objeto URL para el blob
-                            const url = window.URL.createObjectURL(blob);
-                            // Crear un enlace temporal
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = 'orden-de-pago.pdf';
-
-                            // Agregar al documento y hacer clic
-                            document.body.appendChild(a);
-                            a.click();
-
-                            // Limpiar
-                            window.URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-
-                            // Restaurar el botón
-                            this.disabled = false;
-                            this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            document.getElementById('mensajeError').style.display = 'block';
-                            document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                            this.disabled = false;
-                            this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                        });
-                } catch (error) {
-                    console.error('Error:', error);
-                    document.getElementById('mensajeError').style.display = 'block';
-                    document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                }
-            });
-
-            // Realizar la solicitud usando fetch
-            fetch('{{ route("boleta.preview") }}', {
+                // Realizar la solicitud usando fetch
+                fetch('{{ route("boleta") }}', {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/pdf'
                     }
                 })
-                .then(response => response.blob())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.blob();
+                })
                 .then(blob => {
                     // Crear un objeto URL para el blob
                     const url = window.URL.createObjectURL(blob);
@@ -247,7 +202,15 @@
                     this.disabled = false;
                     this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
                 });
-        
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('mensajeError').style.display = 'block';
+                document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
+
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+            }
         });
-    </script>
+    });
+</script>
 </x-app-layout>

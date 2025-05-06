@@ -62,6 +62,17 @@ Route::get('/boleta/preview', [
     'generarOrdenPago'
 ])->name('boleta.preview');
 
+Route::get('/boleta', [
+    App\Http\Controllers\BoletaPago\BoletaDePago::class, 
+    'generarOrdenPago'])->name('boleta');;
+
+
+
+
+
+
+
+
 require __DIR__.'/auth.php';
 require __DIR__.'/areasCategorias.php';
 require __DIR__.'/areas.php';

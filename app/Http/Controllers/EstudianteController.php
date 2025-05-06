@@ -21,28 +21,51 @@ class EstudianteController extends Controller
      */
     public function index(Request $request)
     {
-        // Obtener el usuario y su delegación
+        // Obtener el usuario actual
         $user = auth()->user();
-        $tutor = $user->tutor;
-        $delegacionId = $tutor->primerIdDelegacion();
-
+        
+        // Verificar si el usuario es tutor
+        $esTutor = $user->roles->contains('idRol', 2);
+    
         // Log para debug
-        Log::info('Consultando lista de estudiantes para delegación:', ['delegacionId' => $delegacionId]);
-
-        // Obtener estudiantes con sus relaciones
-        // Modificar la consulta para filtrar por delegación y estado
-        $estudiantesQuery = Estudiante::with(['user', 'inscripciones.delegacion', 'inscripciones.area', 'inscripciones.categoria'])
-            ->whereHas('tutores')
-            ->whereHas('inscripciones', function ($query) use ($delegacionId) {
-                $query->where('idDelegacion', $delegacionId)
-                    ->where('status', 'aprobado');
-            })
-            ->orWhere(function ($query) use ($delegacionId) {
-                $query->whereHas('tutores')
-                    ->whereDoesntHave('inscripciones');
+        Log::info('Verificando rol de usuario:', ['esTutor' => $esTutor]);
+    
+        // Inicializar la consulta base
+        $estudiantesQuery = Estudiante::with(['user', 'inscripciones.delegacion', 'inscripciones.area', 'inscripciones.categoria']);
+    
+        if ($esTutor) {
+            // Lógica para tutores
+            $tutor = $user->tutor;
+            $delegacionId = $tutor->primerIdDelegacion();
+    
+            Log::info('Consultando estudiantes para delegación (tutor):', ['delegacionId' => $delegacionId]);
+    
+            $estudiantesQuery->whereHas('tutores')
+                ->whereHas('inscripciones', function ($query) use ($delegacionId) {
+                    $query->where('idDelegacion', $delegacionId)
+                        ->where('status', 'aprobado');
+                })
+                ->orWhere(function ($query) use ($delegacionId) {
+                    $query->whereHas('tutores')
+                        ->whereDoesntHave('inscripciones');
+                });
+        } else {
+            // Lógica para otros usuarios
+            Log::info('Consultando todos los estudiantes');
+    
+            $estudiantesQuery->whereHas('inscripciones', function ($query) {
+                $query->where('status', 'aprobado');
             });
-
-        // Aplicar filtros si existen
+    
+            // Filtrar por delegación si se especifica
+            if ($request->filled('delegacion')) {
+                $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request) {
+                    $query->where('idDelegacion', $request->delegacion);
+                });
+            }
+        }
+    
+        // Aplicar filtros de búsqueda
         if ($request->filled('search')) {
             $search = $request->search;
             $estudiantesQuery->whereHas('user', function ($query) use ($search) {
@@ -52,47 +75,50 @@ class EstudianteController extends Controller
                     ->orWhere('ci', 'like', "%{$search}%");
             });
         }
-
-        if ($request->filled('convocatoria')) {
-            $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request, $delegacionId) {
-                $query->where('idConvocatoria', $request->convocatoria)
-                    ->where('idDelegacion', $delegacionId);
-            });
+    
+        // Aplicar filtros adicionales solo si es tutor
+        if ($esTutor) {
+            $delegacionId = $user->tutor->primerIdDelegacion();
+            
+            if ($request->filled('convocatoria')) {
+                $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request, $delegacionId) {
+                    $query->where('idConvocatoria', $request->convocatoria)
+                        ->where('idDelegacion', $delegacionId);
+                });
+            }
+    
+            if ($request->filled('area')) {
+                $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request, $delegacionId) {
+                    $query->where('idArea', $request->area)
+                        ->where('idDelegacion', $delegacionId);
+                });
+            }
+    
+            if ($request->filled('categoria')) {
+                $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request, $delegacionId) {
+                    $query->where('idCategoria', $request->categoria)
+                        ->where('idDelegacion', $delegacionId);
+                });
+            }
         }
-
-        if ($request->filled('area')) {
-            $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request, $delegacionId) {
-                $query->where('idArea', $request->area)
-                    ->where('idDelegacion', $delegacionId);
-            });
-        }
-
-        if ($request->filled('categoria')) {
-            $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request, $delegacionId) {
-                $query->where('idCategoria', $request->categoria)
-                    ->where('idDelegacion', $delegacionId);
-            });
-        }
-
+    
         // Obtener estudiantes paginados
         $estudiantes = $estudiantesQuery->paginate(10);
-
+    
         // Log del resultado
         Log::info('Estudiantes encontrados:', [
             'total' => $estudiantes->total(),
             'pagina_actual' => $estudiantes->currentPage(),
-            'por_pagina' => $estudiantes->perPage()
+            'por_pagina' => $estudiantes->perPage(),
+            'esTutor' => $esTutor
         ]);
-
+    
         // Obtener datos para los filtros
         $convocatorias = Convocatoria::all();
         $areas = Area::all();
         $categorias = Categoria::all();
         $delegaciones = Delegacion::all();
-
-        // Verificar si el usuario es tutor
-        $esTutor = $user->roles->contains('idRol', 2);
-
+    
         return view('inscripciones.listaEstudiantes', compact(
             'estudiantes',
             'convocatorias',
@@ -107,18 +133,27 @@ class EstudianteController extends Controller
      * Muestra la lista de estudiantes con inscripciones pendientes
      */
     public function pendientes(Request $request)
-    {
-        // Obtener el usuario y su delegación
-        $user = auth()->user();
+{
+    // Obtener el usuario actual
+    $user = auth()->user();
+    
+    // Verificar si el usuario es tutor (rol con ID 2)
+    $esTutor = $user->roles->contains('idRol', 2);
+
+    // Log para debug
+    Log::info('Verificando rol de usuario:', ['esTutor' => $esTutor]);
+
+    // Inicializar la consulta base
+    $estudiantesQuery = Estudiante::with(['user', 'inscripciones.delegacion', 'inscripciones.area', 'inscripciones.categoria']);
+
+    if ($esTutor) {
+        // Lógica para tutores
         $tutor = $user->tutor;
         $delegacionId = $tutor->primerIdDelegacion();
 
-        // Log para debug
-        Log::info('Consultando estudiantes para delegación:', ['delegacionId' => $delegacionId]);
+        Log::info('Consultando estudiantes para delegación (tutor):', ['delegacionId' => $delegacionId]);
 
-        // Modificar la consulta para filtrar por delegación
-        $estudiantesQuery = Estudiante::with(['user', 'inscripciones.delegacion', 'inscripciones.area', 'inscripciones.categoria'])
-            ->whereHas('tutores')
+        $estudiantesQuery->whereHas('tutores')
             ->whereHas('inscripciones', function ($query) use ($delegacionId) {
                 $query->where('idDelegacion', $delegacionId)
                     ->where('status', 'pendiente');
@@ -127,46 +162,61 @@ class EstudianteController extends Controller
                 $query->whereHas('tutores')
                     ->whereDoesntHave('inscripciones');
             });
+    } else {
+        // Lógica para otros usuarios
+        Log::info('Consultando todos los estudiantes con inscripciones pendientes');
 
-        // Resto de los filtros de búsqueda
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $estudiantesQuery->whereHas('user', function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('apellidoPaterno', 'like', "%{$search}%")
-                    ->orWhere('apellidoMaterno', 'like', "%{$search}%")
-                    ->orWhere('ci', 'like', "%{$search}%");
+        $estudiantesQuery->whereHas('inscripciones', function ($query) {
+            $query->where('status', 'pendiente');
+        });
+
+        // Filtrar por delegación si se especifica
+        if ($request->filled('delegacion')) {
+            $estudiantesQuery->whereHas('inscripciones', function ($query) use ($request) {
+                $query->where('idDelegacion', $request->delegacion);
             });
         }
-
-        // Obtener estudiantes paginados
-        $estudiantes = $estudiantesQuery->paginate(10);
-
-        // Log del resultado
-        Log::info('Estudiantes encontrados:', ['total' => $estudiantes->total()]);
-
-        // Obtener datos para los filtros
-        $convocatorias = Convocatoria::all();
-        $areas = Area::all();
-        $categorias = Categoria::all();
-        $delegaciones = Delegacion::all();
-
-        // Verificar si el usuario es tutor (rol con ID 2)
-        $esTutor = $user->roles->contains('idRol', 2);
-
-        // Definir las modalidades disponibles
-        $modalidades = ['individual', 'duo', 'equipo'];
-
-        return view('inscripciones.listaEstudiantesPendientes', compact(
-            'estudiantes',
-            'convocatorias',
-            'areas',
-            'categorias',
-            'delegaciones',
-            'esTutor',
-            'modalidades'
-        ));
     }
+
+    // Aplicar filtros de búsqueda
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $estudiantesQuery->whereHas('user', function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('apellidoPaterno', 'like', "%{$search}%")
+                ->orWhere('apellidoMaterno', 'like', "%{$search}%")
+                ->orWhere('ci', 'like', "%{$search}%");
+        });
+    }
+
+    // Obtener estudiantes paginados
+    $estudiantes = $estudiantesQuery->paginate(10);
+
+    // Log del resultado
+    Log::info('Estudiantes encontrados:', [
+        'total' => $estudiantes->total(),
+        'esTutor' => $esTutor
+    ]);
+
+    // Obtener datos para los filtros
+    $convocatorias = Convocatoria::all();
+    $areas = Area::all();
+    $categorias = Categoria::all();
+    $delegaciones = Delegacion::all();
+    
+    // Definir las modalidades disponibles
+    $modalidades = ['individual', 'duo', 'equipo'];
+
+    return view('inscripciones.listaEstudiantesPendientes', compact(
+        'estudiantes',
+        'convocatorias',
+        'areas',
+        'categorias',
+        'delegaciones',
+        'esTutor',
+        'modalidades'
+    ));
+}
     /**
      * Muestra los detalles de un estudiante
      */

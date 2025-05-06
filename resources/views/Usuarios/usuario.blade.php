@@ -1,10 +1,16 @@
 <x-app-layout>
     <link rel="stylesheet" href="{{ asset('css/usuarios/usuario.css') }}">
 
-    <!-- Success Message -->
+    <!-- Messages -->
     @if(session('success'))
     <div class="alert alert-success py-1 px-2 mb-1">
         <i class="fas fa-check-circle"></i> {{ session('success') }}
+    </div>
+    @endif
+    
+    @if(session('error'))
+    <div class="alert alert-danger py-1 px-2 mb-1">
+        <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
     </div>
     @endif
 

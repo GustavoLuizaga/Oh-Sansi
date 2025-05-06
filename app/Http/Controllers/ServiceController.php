@@ -12,7 +12,8 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $roles = Rol::all();
+        // Obtener todos los roles excepto el de administrador (id 1)
+        $roles = Rol::where('idRol', '!=', 1)->get();
         $funciones = Funcion::all();
         
         // Obtener la primera relación rol-función para mostrar por defecto

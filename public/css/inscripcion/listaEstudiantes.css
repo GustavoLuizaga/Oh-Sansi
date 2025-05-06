@@ -13,6 +13,40 @@
     --pending-color: #f59e0b; /* Color para estudiantes pendientes */
 }
 
+body.dark-theme {
+    /* Colores principales - Paleta corporativa */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    --pending-color: #f59e0b;
+
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-card: #1e293b;
+    --bg-table: #1e293b;
+    --bg-table-even: #2d3748;
+    --bg-input: #2d3748;
+
+    /* Estados y Alertas */
+    --alert-success-bg: rgba(12, 166, 120, 0.2);
+    --alert-success-text: #31c48d;
+    --alert-warning-bg: rgba(245, 158, 11, 0.2);
+    --alert-warning-text: #f59e0b;
+    --alert-danger-bg: rgba(248, 113, 113, 0.2);
+    --alert-danger-text: #f87171;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
 .estudiantes-header {
     background-color: var(--primary-color);
     color: white;
@@ -109,6 +143,8 @@
     border-radius: 0.25rem;
     font-size: 0.7rem;
     transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: var(--bg-input);
+    color: var(--text-color);
 }
 
 .search-box input:focus {
@@ -154,7 +190,7 @@
 }
 
 .export-button {
-    background-color: white;
+    background-color: var(--bg-card);
     color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
@@ -196,7 +232,7 @@
     flex-wrap: nowrap;
     gap: 8px;
     margin-bottom: 10px;
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: 0.375rem;
     padding: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -213,7 +249,7 @@
 
 .filter-group label {
     margin-bottom: 0.2rem;
-    color: #4a5568;
+    color: var(--text-color);
     font-size: 0.65rem;
     font-weight: 500;
 }
@@ -223,7 +259,8 @@
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
     font-size: 0.7rem;
-    background-color: white;
+    background-color: var(--bg-input);
+    color: var(--text-color);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -259,12 +296,13 @@
 }
 
 .estudiantes-table tbody tr {
-    background-color: white;
+    background-color: var(--bg-card);
+    color: var(--text-color);
     transition: background-color 0.2s;
 }
 
 .estudiantes-table tbody tr:nth-child(even) {
-    background-color: #f8fafc;
+    background-color: var(--bg-table-even);
 }
 
 .estudiantes-table tbody tr:hover {
@@ -381,11 +419,11 @@
 }
 
 .pagination .text-gray-700 {
-    color: #4a5568;
+    color: var(--text-color);
 }
 
 .pagination .bg-white {
-    background-color: #ffffff;
+    background-color: var(--bg-card);
 }
 
 .pagination .hover\:bg-gray-50:hover {
@@ -472,4 +510,24 @@
         display: block;
         overflow-x: auto;
     }
+}
+
+/* Asegurar que los inputs mantengan su color en modo oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-color);
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-input) inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Agregar transición suave entre modos */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
 }

@@ -67,7 +67,7 @@
                     <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" class="template-link">
                         <i class="fas fa-download"></i> Descargar plantilla
                     </a>
-                    <button onclick="cargarDatosConvocatoria()">
+                    <button onclick="cargarDatosConvocatoria()" class="info-button" type="button">
                         Ver información sobre la convocatoria
                     </button>
 

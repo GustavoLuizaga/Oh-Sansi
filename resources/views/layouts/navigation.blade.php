@@ -5,37 +5,69 @@
             Oh! <span>Sansi</span>
         </a>
     </div>
-    <button id="theme-toggle" class="theme-toggle desktop-only">
-                <i class="fas fa-moon"></i>
-    </button>
-    <!-- User Dropdown -->
-    <div class="user-dropdown">
-        <button type="button" class="user-menu-button" onclick="toggleDropdown()">
-            <i class="fas fa-user"></i>
-            {{ Auth::user()->name }}
-            @if(Auth::user()->roles->first())
-                <span>({{ Auth::user()->roles->first()->nombre }})</span>
-            @endif
-            <i class="fas fa-chevron-down"></i>
+    
+    <!-- Contenedor derecho -->
+    <div class="nav-right">
+        <button id="theme-toggle" class="theme-toggle desktop-only">
+            <i class="fas fa-moon"></i>
         </button>
         
-        <div class="dropdown-menu" id="userDropdown">
-            <a href="{{ route('perfil.index') }}" class="dropdown-item">
-                <i class="fas fa-user-circle"></i>
-                Ver Perfil
-            </a>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="dropdown-item">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Cerrar Sesión
-                </button>
-            </form>
+        <!-- User Dropdown -->
+        <div class="user-dropdown">
+            <button type="button" class="user-menu-button" onclick="toggleDropdown()">
+                <i class="fas fa-user"></i>
+                {{ Auth::user()->name }}
+                @if(Auth::user()->roles->first())
+                    <span>({{ Auth::user()->roles->first()->nombre }})</span>
+                @endif
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            
+            <div class="dropdown-menu" id="userDropdown">
+                <a href="{{ route('perfil.index') }}" class="dropdown-item">
+                    <i class="fas fa-user-circle"></i>
+                    Ver Perfil
+                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar Sesión
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>
 
 <style>
+/* Estilos existentes */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.theme-toggle {
+    padding: 8px;
+    background: none;
+    border: none;
+    color: var(--dark-color);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    color: var(--primary-color);
+}
+
 .user-dropdown {
     position: relative;
     display: inline-block;
@@ -61,7 +93,7 @@
     position: absolute;
     right: 0;
     top: 100%;
-    background: white;
+    background: var(--div-medio);
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     min-width: 200px;

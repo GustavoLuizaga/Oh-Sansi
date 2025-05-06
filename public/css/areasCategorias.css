@@ -51,7 +51,9 @@ body.dark-theme {
     /* Sombras */
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
-
+.bg-white{
+    background-color: var(--bg-main)!important; ;
+}
 /* Header Section */
 .area-header {
     background-color: var(--azul-oscuro-estatico);

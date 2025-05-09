@@ -143,77 +143,85 @@ class BoletaDePago extends Controller
         try {
             $user = Auth::user();
             $tutor = $user->tutor;
-    
+
             // Obtener IDs de inscripciones del tutor
             $inscripcionesIds = TutorEstudianteInscripcion::where('idTutor', $user->id)
                 ->select('idInscripcion')
-                ->get()
                 ->pluck('idInscripcion');
-    
-            // Verificar/Crear boleta como lo tenías antes
+
+            // Obtener totales antes de crear la boleta
+            $detalles = DB::select("
+            SELECT 
+                a.nombre as area,
+                c.nombre as categoria,
+                di.modalidadInscripcion as modalidad,
+                COUNT(*) as cantidad,
+                SUM(CASE 
+                    WHEN di.modalidadInscripcion = 'Individual' THEN 15
+                    WHEN di.modalidadInscripcion = 'Duo' THEN 15
+                    ELSE 15
+                END) as total
+            FROM tutorestudianteinscripcion tei
+            JOIN inscripcion i ON i.idInscripcion = tei.idInscripcion
+            JOIN detalle_inscripcion di ON di.idInscripcion = i.idInscripcion
+            JOIN area a ON a.idArea = di.idArea
+            JOIN categoria c ON c.idCategoria = di.idCategoria
+            WHERE tei.idTutor = ?
+            GROUP BY a.nombre, c.nombre, di.modalidadInscripcion
+        ", [$user->id]);
+
+            $totalGeneral = collect($detalles)->sum('total');
+
+            // Verificar/Crear boleta
             $boletaExistente = BoletaPagoInscripcion::whereIn('idInscripcion', $inscripcionesIds)->first();
             if ($boletaExistente) {
                 $boleta = $boletaExistente->boletaPago;
                 $codigoBoleta = $boleta->CodigoBoleta;
             } else {
-                // Crear nueva boleta
                 $codigoBoleta = 'OP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT);
-                // ... resto del código de creación de boleta ...
+                $boleta = BoletaPago::create([
+                    'CodigoBoleta' => $codigoBoleta,
+                    'MontoBoleta' => $totalGeneral,
+                    'fechainicio' => now(),
+                    'fechafin' => now()->addDays(30)
+                ]);
+                foreach ($inscripcionesIds as $idInscripcion) {
+                    BoletaPagoInscripcion::create([
+                        'idInscripcion' => $idInscripcion,
+                        'idBoleta' => $boleta->idBoleta
+                    ]);
+                }
             }
-    
-            // Usar la consulta SQL directamente
+
+            // Obtener inscripciones para mostrar
             $inscripciones = DB::select("
-                SELECT 
-                    a.nombre as area_nombre,
-                    c.nombre as categoria_nombre,
-                    di.modalidadInscripcion,
-                    u.name,
-                    u.apellidoPaterno,
-                    u.apellidoMaterno,
-                    u.ci,
-                    g.grado
-                FROM tutorestudianteinscripcion tei
-                JOIN inscripcion i ON i.idInscripcion = tei.idInscripcion
-                JOIN estudiante e ON e.id = tei.idEstudiante
-                JOIN users u ON u.id = e.id
-                JOIN grado g ON g.idGrado = i.idGrado
-                JOIN detalle_inscripcion di ON di.idInscripcion = i.idInscripcion
-                JOIN area a ON a.idArea = di.idArea
-                JOIN categoria c ON c.idCategoria = di.idCategoria
-                WHERE tei.idTutor = ?
-                ORDER BY a.nombre, c.nombre, di.modalidadInscripcion
-            ", [$user->id]);
-    
-            // Agrupar los resultados
+            SELECT 
+                a.nombre as area_nombre,
+                c.nombre as categoria_nombre,
+                di.modalidadInscripcion,
+                u.name,
+                u.apellidoPaterno,
+                u.apellidoMaterno,
+                u.ci,
+                g.grado
+            FROM tutorestudianteinscripcion tei
+            JOIN inscripcion i ON i.idInscripcion = tei.idInscripcion
+            JOIN estudiante e ON e.id = tei.idEstudiante
+            JOIN users u ON u.id = e.id
+            JOIN grado g ON g.idGrado = i.idGrado
+            JOIN detalle_inscripcion di ON di.idInscripcion = i.idInscripcion
+            JOIN area a ON a.idArea = di.idArea
+            JOIN categoria c ON c.idCategoria = di.idCategoria
+            WHERE tei.idTutor = ?
+            ORDER BY a.nombre, c.nombre, di.modalidadInscripcion
+        ", [$user->id]);
+
             $inscripcionesAgrupadas = collect($inscripciones)->groupBy([
                 'area_nombre',
                 'categoria_nombre',
                 'modalidadInscripcion'
             ]);
-    
-            // Obtener totales
-            $detalles = DB::select("
-                SELECT 
-                    a.nombre as area,
-                    c.nombre as categoria,
-                    di.modalidadInscripcion as modalidad,
-                    COUNT(*) as cantidad,
-                    SUM(CASE 
-                        WHEN di.modalidadInscripcion = 'Individual' THEN 15
-                        WHEN di.modalidadInscripcion = 'Duo' THEN 15
-                        ELSE 15
-                    END) as total
-                FROM tutorestudianteinscripcion tei
-                JOIN inscripcion i ON i.idInscripcion = tei.idInscripcion
-                JOIN detalle_inscripcion di ON di.idInscripcion = i.idInscripcion
-                JOIN area a ON a.idArea = di.idArea
-                JOIN categoria c ON c.idCategoria = di.idCategoria
-                WHERE tei.idTutor = ?
-                GROUP BY a.nombre, c.nombre, di.modalidadInscripcion
-            ", [$user->id]);
-    
-            $totalGeneral = collect($detalles)->sum('total');
-    
+
             $data = [
                 'fecha' => now()->format('d/m/Y'),
                 'codigoOrden' => $codigoBoleta,
@@ -230,15 +238,11 @@ class BoletaDePago extends Controller
                 'detalles' => $detalles,
                 'totalGeneral' => $totalGeneral
             ];
-    
-            // Para debug
-            //return response()->json($data);
-    
+
             // Generar PDF
             $pdf = PDF::loadView('inscripciones.pdfLISTA-OP', $data);
 
             return $pdf->download('orden-de-pago.pdf');
-    
         } catch (\Exception $e) {
             Log::error('Error generando orden de pago:', [
                 'error' => $e->getMessage(),
@@ -247,6 +251,7 @@ class BoletaDePago extends Controller
             return back()->withErrors(['error' => 'Error generando la orden de pago']);
         }
     }
+
     private function obtenerPrecioModalidad($modalidad)
     {
         return [
@@ -258,20 +263,20 @@ class BoletaDePago extends Controller
 
 
     public function testOrdenPago($idTutor)
-{
-    try {
-        $user = \App\Models\User::whereHas('tutor', function($q) use ($idTutor) {
-            $q->where('id', $idTutor);
-        })->first();
+    {
+        try {
+            $user = \App\Models\User::whereHas('tutor', function ($q) use ($idTutor) {
+                $q->where('id', $idTutor);
+            })->first();
 
-        if (!$user) {
-            return response()->json(['error' => 'Tutor no encontrado'], 404);
-        }
+            if (!$user) {
+                return response()->json(['error' => 'Tutor no encontrado'], 404);
+            }
 
-        $tutor = $user->tutor;
+            $tutor = $user->tutor;
 
-        // Usar la consulta SQL directamente
-        $inscripciones = DB::select("
+            // Usar la consulta SQL directamente
+            $inscripciones = DB::select("
             SELECT 
                 a.nombre as area_nombre,
                 c.nombre as categoria_nombre,
@@ -293,15 +298,15 @@ class BoletaDePago extends Controller
             ORDER BY a.nombre, c.nombre, di.modalidadInscripcion
         ", [$idTutor]);
 
-        // Agrupar los resultados
-        $inscripcionesAgrupadas = collect($inscripciones)->groupBy([
-            'area_nombre',
-            'categoria_nombre',
-            'modalidadInscripcion'
-        ]);
+            // Agrupar los resultados
+            $inscripcionesAgrupadas = collect($inscripciones)->groupBy([
+                'area_nombre',
+                'categoria_nombre',
+                'modalidadInscripcion'
+            ]);
 
-        // Obtener totales
-        $detalles = DB::select("
+            // Obtener totales
+            $detalles = DB::select("
             SELECT 
                 a.nombre as area,
                 c.nombre as categoria,
@@ -321,32 +326,31 @@ class BoletaDePago extends Controller
             GROUP BY a.nombre, c.nombre, di.modalidadInscripcion
         ", [$idTutor]);
 
-        $totalGeneral = collect($detalles)->sum('total');
+            $totalGeneral = collect($detalles)->sum('total');
 
-        $data = [
-            'fecha' => now()->format('d/m/Y'),
-            'codigoOrden' => 'OP-' . str_pad($idTutor, 6, '0', STR_PAD_LEFT),
-            'tutor' => [
-                'nombre' => $user->name,
-                'apellidoPaterno' => $user->apellidoPaterno,
-                'apellidoMaterno' => $user->apellidoMaterno,
-                'ci' => $user->ci,
-                'profesion' => $tutor->profesion,
-                'areas' => $tutor->areasSimple()->pluck('nombre')->implode(', '),
-                'colegio' => 'Unidad Educativa ' . $tutor->colegio
-            ],
-            'inscripciones' => $inscripcionesAgrupadas,
-            'detalles' => $detalles,
-            'totalGeneral' => $totalGeneral
-        ];
+            $data = [
+                'fecha' => now()->format('d/m/Y'),
+                'codigoOrden' => 'OP-' . str_pad($idTutor, 6, '0', STR_PAD_LEFT),
+                'tutor' => [
+                    'nombre' => $user->name,
+                    'apellidoPaterno' => $user->apellidoPaterno,
+                    'apellidoMaterno' => $user->apellidoMaterno,
+                    'ci' => $user->ci,
+                    'profesion' => $tutor->profesion,
+                    'areas' => $tutor->areasSimple()->pluck('nombre')->implode(', '),
+                    'colegio' => 'Unidad Educativa ' . $tutor->colegio
+                ],
+                'inscripciones' => $inscripcionesAgrupadas,
+                'detalles' => $detalles,
+                'totalGeneral' => $totalGeneral
+            ];
 
-        return response()->json($data);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ], 500);
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
     }
-}
 }

@@ -1,32 +1,136 @@
-:root {
-    --primary-color: #1a365d; /* Azul principal */
-    --secondary-color: #2c5282; /* Azul secundario */
+/* ==========================================================================
+   Variables - Modo Claro (todas las variables)
+   ========================================================================== */
+   :root {
+    /* Colores base */
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
     --text-color: #333;
     --border-color: #e2e8f0;
     --hover-color: #f7fafc;
     --button-text: #fff;
+
+    /* Estados */
     --success-color: #0ca678;
     --warning-color: #f59f00;
     --danger-color: #fa5252;
-    --primary-light: #20BBFF; /* Azul claro */
-    --primary-dark: #002A4C; /* Azul oscuro */
-    --secondary-dark: #631A33; /* Burdeos */
-    --accent-color: #FF9E1B; /* Naranja complementario */
+    --danger-hover-color: #e05462;
+
+    /* Variaciones */
+    --primary-light: #20BBFF;
+    --primary-dark: #002A4C;
+    --secondary-dark: #631A33;
+    --accent-color: #FF9E1B;
+
+    /* Fondos */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-card: #ffffff;
+
+    /* Bordes y Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    /* Variables de Modo Oscuro también disponibles */
+    --dark-primary-color: #3182ce;
+    --dark-secondary-color: #4299e1;
+    --dark-text-color: #e2e8f0;
+    --dark-border-color: #2d3748;
+    --dark-hover-color: #2d3748;
+    --dark-button-text: #ffffff;
+    --dark-danger-color: #f87171;
+
+    --dark-primary-light: #63B3ED;
+    --dark-primary-dark: #2C5282;
+    --dark-secondary-dark: #9B2C2C;
+    --dark-accent-color: #ED8936;
+
+    --dark-bg-main: #1a202c;
+    --dark-bg-secondary: #2d3748;
+    --dark-bg-card: #1e293b;
+
+    --alert-success-bg: rgba(12, 166, 120, 0.2);
+    --alert-success-text: #31c48d;
+    --alert-danger-bg: rgba(248, 113, 113, 0.2);
+    --alert-danger-text: #f87171;
 }
 
+/* ==========================================================================
+   Variables - Modo Oscuro (todas las variables)
+   ========================================================================== */
+body.dark-theme {
+    /* Colores base */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+
+    /* Estados */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    --danger-hover-color: #e05462;
+
+    /* Variaciones */
+    --primary-light: #63B3ED;
+    --primary-dark: #2C5282;
+    --secondary-dark: #9B2C2C;
+    --accent-color: #ED8936;
+
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-card: #1e293b;
+
+    /* Bordes y Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    /* Variables de Modo Claro también disponibles */
+    --light-primary-color: #1a365d;
+    --light-secondary-color: #2c5282;
+    --light-text-color: #333;
+    --light-border-color: #e2e8f0;
+    --light-hover-color: #f7fafc;
+    --light-button-text: #fff;
+    --light-danger-color: #fa5252;
+
+    --light-primary-light: #20BBFF;
+    --light-primary-dark: #002A4C;
+    --light-secondary-dark: #631A33;
+    --light-accent-color: #FF9E1B;
+
+    --light-bg-main: #ffffff;
+    --light-bg-secondary: #f8fafc;
+    --light-bg-card: #ffffff;
+}
+/* ==========================================================================
+   Layout Principal
+   ========================================================================== */
 .servicios-container {
-    background-color: #fff;
+    background-color: var(--bg-card);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     margin: 20px;
     overflow: hidden;
     width: calc(100% - 40px);
     transition: box-shadow 0.3s ease;
 }
 
+.roles-permisos-container {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
 .servicios-header {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--button-text);
     padding: 0.5rem 1rem;
     display: flex;
     justify-content: space-between;
@@ -38,7 +142,6 @@
 .servicios-header h1 {
     font-size: 0.85rem;
     font-weight: 600;
-    color: white;
     margin: 0;
     display: flex;
     align-items: center;
@@ -49,17 +152,15 @@
     font-size: 0.85rem;
 }
 
-.roles-permisos-container {
-    display: flex;
-    gap: 20px;
-    padding: 15px;
-}
-
-.roles-section, .permisos-section {
+/* ==========================================================================
+   Secciones
+   ========================================================================== */
+.roles-section,
+.permisos-section {
     flex: 1;
-    background-color: white;
+    background-color: var(--bg-card);
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
     padding: 15px;
     border: 1px solid var(--border-color);
 }
@@ -76,63 +177,17 @@
     align-items: center;
 }
 
-.roles-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.rol-item {
-    padding: 10px 15px;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border: 1px solid var(--border-color);
-}
-
-.rol-item:hover {
-    background-color: var(--hover-color);
-}
-
-.rol-item.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* Estilos para alertas */
-.alert {
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 1rem;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    display: flex;
-    align-items: center;
-}
-
-.alert i {
-    margin-right: 0.5rem;
-}
-
-.alert-success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.alert-danger {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    border-color: var(--primary-color);
-}
-
+/* ==========================================================================
+   Listas y Items
+   ========================================================================== */
+.roles-list,
 .permisos-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
+.rol-item,
 .permiso-item {
     display: flex;
     justify-content: space-between;
@@ -141,92 +196,103 @@
     border-radius: 4px;
     margin-bottom: 5px;
     border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
+.rol-item:hover,
 .permiso-item:hover {
     background-color: var(--hover-color);
 }
 
+.rol-item.active {
+    background-color: var(--primary-dark);
+    color: var(--button-text);
+}
+
+/* ==========================================================================
+   Botones de Acción
+   ========================================================================== */
 .item-actions {
-    display: none;
+    display: flex;
+    gap: 4px;
+    align-items: center;
     margin-left: auto;
 }
 
-.rol-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.rol-item:hover .item-actions {
-    display: flex;
-}
-
 .action-button {
-    width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    padding: 4px 8px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--button-text);
     border-radius: 4px;
-    color: white;
     cursor: pointer;
     transition: background-color 0.2s;
-    text-decoration: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    font-size: 0.75rem;
-    margin: 0 1px;
-}
-
-.action-button.view {
-    background-color: var(--primary-color);
-}
-
-.action-button.view:hover {
-    background-color: var(--secondary-color);
-}
-
-.action-button.edit {
-    background-color: var(--secondary-color);
 }
 
 .action-button.edit:hover {
-    background-color: var(--primary-color);
+    background-color: var(--secondary-color);
 }
 
-.action-button.delete, .action-button.delete-button {
+.action-button.delete {
     background-color: var(--danger-color);
 }
 
-.action-button.delete:hover, .action-button.delete-button:hover {
-    background-color: #c82333;
+.action-button.delete:hover {
+    background-color: var(--danger-hover-color);
 }
 
+/* ==========================================================================
+   Botones de Agregar
+   ========================================================================== */
 .add-button {
     background-color: var(--primary-color);
     color: var(--button-text);
     border: none;
-    border-radius: 0.25rem;
-    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    transition: background-color 0.2s;
+    gap: 8px;
+    transition: all 0.2s ease;
     text-decoration: none;
-    font-size: 0.8rem;
 }
 
 .add-button:hover {
     background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .add-button i {
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
-/* Modal Styles */
+/* Versión pequeña del botón agregar */
+.add-button.small {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+}
+
+.add-button.small i {
+    font-size: 0.8rem;
+}
+
+/* Versión del botón agregar en modo oscuro */
+:root[data-theme="dark"] .add-button {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .add-button:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Modal
+   ========================================================================== */
 .modal {
     display: none;
     position: fixed;
@@ -240,53 +306,57 @@
 }
 
 .modal-content {
-    background-color: #fff;
+    background-color: var(--bg-card);
     margin: 10% auto;
     padding: 0;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     width: 90%;
     max-width: 500px;
     animation: modalFadeIn 0.3s;
 }
 
-@keyframes modalFadeIn {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
 .modal-header {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--button-text);
     padding: 15px 20px;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-radius: 8px 8px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.close {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: #f1f1f1;
 }
 
 .modal-body {
     padding: 20px;
 }
 
+/* Estilos para el botón de cerrar del modal */
+.close {
+    color: var(--button-text);
+    font-size: 1.8rem; /* Aumentar tamaño */
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: var(--hover-color);
+}
+
+/* Alineación de los botones del modal */
+.modal-footer,
+.form-actions,
+.modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Alinear a la derecha */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* ==========================================================================
+   Formularios
+   ========================================================================== */
 .form-group {
     margin-bottom: 15px;
 }
@@ -301,74 +371,92 @@
 .form-control {
     width: 100%;
     padding: 8px 12px;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 0.9rem;
 }
 
-select.form-control[multiple] {
-    height: 150px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
+/* ==========================================================================
+   Botones
+   ========================================================================== */
+.btn-submit,
+.btn-danger,
+.btn-cancel {
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 .btn-submit {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--button-text);
     border: none;
-    border-radius: 4px;
-    padding: 8px 15px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
-}
-
-.btn-submit:hover {
-    background-color: var(--secondary-color);
 }
 
 .btn-cancel {
-    background-color: #f1f1f1;
+    background-color: var(--bg-secondary);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 8px 15px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
-}
-
-.btn-cancel:hover {
-    background-color: #e1e1e1;
 }
 
 .btn-danger {
     background-color: var(--danger-color);
-    color: white;
+    color: var(--button-text);
     border: none;
-    border-radius: 4px;
-    padding: 8px 15px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
 }
 
-.btn-danger:hover {
-    background-color: #c82333;
+/* ==========================================================================
+   Alertas
+   ========================================================================== */
+.alert {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
 }
 
-/* Responsive styles */
+.alert-success {
+    color: var(--alert-success-text);
+    background-color: var(--alert-success-bg);
+    border-color: var(--success-color);
+}
+
+.alert-danger {
+    color: var(--alert-danger-text);
+    background-color: var(--alert-danger-bg);
+    border-color: var(--danger-color);
+}
+
+/* ==========================================================================
+   Animaciones
+   ========================================================================== */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
 @media (max-width: 768px) {
     .roles-permisos-container {
         flex-direction: column;
     }
     
-    .roles-section, .permisos-section {
+    .roles-section,
+    .permisos-section {
         width: 100%;
     }
     

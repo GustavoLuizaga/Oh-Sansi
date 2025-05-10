@@ -389,6 +389,12 @@ class ResgistrarListaEstController extends Controller
                     $user->notify(new WelcomeEmailNotification($plainPassword));
                     event(new Registered($user));
                 }*/
+                // Notificar al estudiante sobre la inscripción
+                event(new InscripcionArea(
+                    $user->id,
+                    'Te has inscrito exitosamente en el área: ' . $row[7] . '.',
+                    'inscripcion'
+                ));
             }
 
             // Si hubo errores de inscripción (como áreas ya inscritas), también rollback

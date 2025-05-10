@@ -269,8 +269,8 @@ class ResgistrarListaEstController extends Controller
 
                     event(new CreacionCuenta(
                         $user->id,
-                        '¡Tu cuenta ha sido creada exitosamente!',
-                        'sistema, por seguridad debes cambiar tus credenciales de acceso.'
+                        '¡Tu cuenta ha sido creada exitosamente!, Por seguridad te recoendamos cambiar tu contraseña.',
+                        'sistema'
                     ));
 
                     $rol = Rol::find(3); // Rol de estudiante
@@ -338,7 +338,7 @@ class ResgistrarListaEstController extends Controller
                     event(new InscripcionArea(
                         $user->id,
                         'Te has inscrito exitosamente en el área: ' . $row[7] . '.',
-                        'inscripcion'
+                        'sistema'
                     ));
                 }
 
@@ -390,11 +390,6 @@ class ResgistrarListaEstController extends Controller
                     event(new Registered($user));
                 }*/
                 // Notificar al estudiante sobre la inscripción
-                event(new InscripcionArea(
-                    $user->id,
-                    'Te has inscrito exitosamente en el área: ' . $row[7] . '.',
-                    'inscripcion'
-                ));
             }
 
             // Si hubo errores de inscripción (como áreas ya inscritas), también rollback

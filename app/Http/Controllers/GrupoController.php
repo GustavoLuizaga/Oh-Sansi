@@ -131,4 +131,57 @@ class GrupoController extends Controller
         return redirect()->route('inscripcion.grupos')
                          ->with('success', 'Grupo eliminado correctamente');
     }
+    
+    /**
+     * Get groups by modality.
+     *
+     * @param  string  $modalidad
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function obtenerGruposPorModalidad($modalidad)
+    {
+        try {
+            // Validate modality
+            if (!in_array($modalidad, ['duo', 'equipo'])) {
+                return response()->json([], 200);
+            }
+            
+            // Get current user ID (tutor)
+            $user = Auth::user();
+            
+            // Get tutor's delegation
+            $tutorAreaDelegacion = TutorAreaDelegacion::where('id', $user->id)->first();
+            
+            if (!$tutorAreaDelegacion) {
+                // Log for debugging
+                \Illuminate\Support\Facades\Log::warning('No delegation found for tutor', ['user_id' => $user->id]);
+                return response()->json([], 200);
+            }
+            
+            $idDelegacion = $tutorAreaDelegacion->idDelegacion;
+            
+            // Log for debugging
+            \Illuminate\Support\Facades\Log::info('Searching groups for delegation', [
+                'idDelegacion' => $idDelegacion,
+                'modalidad' => $modalidad
+            ]);
+            
+            // Get active groups with available capacity for the specified modality
+            $grupos = GrupoInscripcion::where('modalidad', $modalidad)
+                ->where('idDelegacion', $idDelegacion)
+                ->where('estado', 'activo')
+                ->select('id', 'nombreGrupo', 'codigoInvitacion')
+                ->get();
+            
+            // Log for debugging
+            \Illuminate\Support\Facades\Log::info('Groups found', ['count' => $grupos->count()]);
+            
+            return response()->json($grupos, 200);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error loading groups', ['error' => $e->getMessage()]);
+            return response()->json([
+                'error' => 'Error al cargar grupos: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -369,10 +369,11 @@ class ResgistrarListaEstController extends Controller
                 ]);
     
                 // Notificar si es nuevo usuario
+                /*
                 if ($isNewUser) {
                     $user->notify(new WelcomeEmailNotification($plainPassword));
                     event(new Registered($user));
-                }
+                }*/
             }
     
             // Si hubo errores de inscripción (como áreas ya inscritas), también rollback

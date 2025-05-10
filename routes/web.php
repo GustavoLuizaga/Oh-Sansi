@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Notificacion\NotificacionController;
+
 
 
 /*
@@ -68,9 +68,6 @@ Route::get('/boleta', [
     App\Http\Controllers\BoletaPago\BoletaDePago::class,
     'generarOrdenPago'
 ])->name('boleta');;
-
-
-Route::get('/aprobar-inscripcion/{userId}', [NotificacionController::class, 'aprobarInscripcion']);
 
 
 

@@ -27,6 +27,7 @@ use App\Models\DetalleInscripcion;
 use App\Models\GrupoInscripcion;
 use Illuminate\Support\Str;
 use App\Events\CreacionCuenta;
+use App\Events\InscripcionArea;
 
 class ResgistrarListaEstController extends Controller
 {
@@ -269,7 +270,7 @@ class ResgistrarListaEstController extends Controller
                     event(new CreacionCuenta(
                         $user->id,
                         '¡Tu cuenta ha sido creada exitosamente!',
-                        'sistema'
+                        'sistema, por seguridad debes cambiar tus credenciales de acceso.'
                     ));
 
                     $rol = Rol::find(3); // Rol de estudiante
@@ -333,6 +334,12 @@ class ResgistrarListaEstController extends Controller
                     $inscripcion->tutores()->attach(Auth::user()->id, [
                         'idEstudiante' => $user->id,
                     ]);
+
+                    event(new InscripcionArea(
+                        $user->id,
+                        'Te has inscrito exitosamente en el área: ' . $row[7] . '.',
+                        'inscripcion'
+                    ));
                 }
 
                 // Crear detalle de inscripción

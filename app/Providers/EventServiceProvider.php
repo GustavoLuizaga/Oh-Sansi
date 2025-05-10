@@ -8,6 +8,8 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Event;
 use App\Events\CreacionCuenta;
 use App\Listeners\CrearNotificacion;
+use App\Events\InscripcionArea;
+use App\Listeners\CrearNotificacionInscripcionArea;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -20,9 +22,12 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-           CreacionCuenta::class => [
-        CrearNotificacion::class,
-    ],
+        CreacionCuenta::class => [
+            CrearNotificacion::class,
+        ],
+        InscripcionArea::class => [
+            CrearNotificacionInscripcionArea::class,
+        ],
     ];
 
     /**

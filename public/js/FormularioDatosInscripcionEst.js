@@ -225,9 +225,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 throw new Error(errorMsg);
             }
-
             // Éxito
-            alert(data.message);
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.textContent = data.message;
+
+                // Agregar botón de cierre
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'alert-close';
+                closeBtn.innerHTML = '×';
+                closeBtn.onclick = () => {
+                    alertDiv.remove();
+                    window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
+                };
+                alertDiv.appendChild(closeBtn);
+
+                // Insertar la alerta en el DOM (puedes ajustar el contenedor según tu estructura HTML)
+                document.body.appendChild(alertDiv);
+
+                // Cierre automático después de 5s con redirección
+                setTimeout(() => {
+                    alertDiv.style.opacity = '0';
+                    setTimeout(() => {
+                        alertDiv.remove();
+                        window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
+                    }, 300);
+                }, 5000);
         } catch (error) {
             console.error('Error:', error);
             mostrarError('Error de conexión con el servidor');

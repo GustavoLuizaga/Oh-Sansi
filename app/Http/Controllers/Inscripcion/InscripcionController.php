@@ -181,7 +181,7 @@ class InscripcionController extends Controller
         
         return view('inscripciones.inscripcionTutor', compact('areas', 'token', 'idConvocatoriaResult'));
     }
-
+/*
 
     public function storeManual(Request $request)
     {
@@ -273,5 +273,5 @@ class InscripcionController extends Controller
             Log::error('Error en inscripción:', ['error' => $e->getMessage()]);
             return back()->with('error', 'Hubo un error al procesar la inscripción. Por favor, intente nuevamente.');
         }
-    }
+    }*/
 }

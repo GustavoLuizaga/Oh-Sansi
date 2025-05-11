@@ -83,4 +83,22 @@ Route::middleware('auth')->group(function () {
         ->name('inscripcion.grupos.update-status');
     Route::delete('/inscripcion/grupos/{id}', [\App\Http\Controllers\GrupoController::class, 'destroy'])
         ->name('inscripcion.grupos.destroy');
+
+    // Manual Student Registration routes
+    Route::get('/inscripcion/estudiante/manual', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'index'])
+        ->name('inscripcion.estudiante.manual');
+    
+    Route::get('/inscripcion/estudiante/buscar', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'buscarEstudiante'])
+        ->name('inscripcion.estudiante.buscar');
+
+    // Routes for categories and groups in manual registration
+    Route::get('/inscripcion/estudiante/categorias/{idArea}', 
+        [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerCategorias'])
+        ->name('inscripcion.estudiante.categorias');
+    
+    Route::get('/inscripcion/estudiante/grupos/{modalidad}', 
+        [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerGrupos'])
+        ->name('inscripcion.estudiante.grupos');
+    Route::post('/inscripcion/estudiante/grados', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerGrados'])
+        ->name('inscripcion.estudiante.grados');
 });

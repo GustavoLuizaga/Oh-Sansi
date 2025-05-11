@@ -26,7 +26,6 @@ class BoletaDePagoDeEstudiante extends Controller
     public function index()
     {
         $estudianteId = Auth::id();
-    
         // Obtener datos del estudiante y sus inscripciones con todos los campos solicitados
         $data = DB::table('tutorestudianteinscripcion')
             ->select([
@@ -45,6 +44,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'estudiante.apellidoPaterno AS estudiante_apellido_paterno',
                 'estudiante.apellidoMaterno AS estudiante_apellido_materno',
                 'estudiante.ci AS estudiante_ci',
+                'estudiante.email AS estudiante_email', // Añadido el email del estudiante
                 'grado.grado AS estudiante_grado',
                 'estudiante.fechaNacimiento AS estudiante_nacimiento',
                 'estudiante.genero AS estudiante_genero',
@@ -57,7 +57,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'tutor.profesion AS tutor_profesion',
                 'tutor.telefono AS tutor_telefono',
                 'tutor_user.email AS tutor_email',
-                'tutor.tokenTutor AS tutor_token', // Añadido el token del tutor
+                'tutor.tokenTutor AS tutor_token',
                 'delegacion.nombre AS tutor_colegio',
                 'delegacion.dependencia AS colegio_dependencia',
                 'delegacion.departamento AS colegio_departamento',
@@ -103,7 +103,6 @@ class BoletaDePagoDeEstudiante extends Controller
             ->where('tutorestudianteinscripcion.idEstudiante', $estudianteId)
             ->where('convocatoria.estado', 'Publicada') // Solo convocatorias publicadas
             ->get();
-    
         if ($data->isEmpty()) {
             return back()->with('error', 'No se encontraron inscripciones para mostrar la boleta');
         }
@@ -132,6 +131,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 'apellido_paterno' => $data->first()->estudiante_apellido_paterno,
                 'apellido_materno' => $data->first()->estudiante_apellido_materno,
                 'ci' => $data->first()->estudiante_ci,
+                'email' => $data->first()->estudiante_email, // Añadido el email del estudiante
                 'grado' => $data->first()->estudiante_grado,
                 'fecha_nacimiento' => $data->first()->estudiante_nacimiento,
                 'genero' => $data->first()->estudiante_genero
@@ -148,7 +148,7 @@ class BoletaDePagoDeEstudiante extends Controller
                     'profesion' => $first->tutor_profesion,
                     'telefono' => $first->tutor_telefono,
                     'email' => $first->tutor_email,
-                    'token' => $first->tutor_token, // Añadido el token del tutor
+                    'token' => $first->tutor_token,
                     'areas' => $tutorGroup->map(function($item) {
                         return [
                             'id' => $item->area_id,
@@ -200,7 +200,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 ];
             })->toArray(),
         ];
-    
+
         // Calcular el total automáticamente
         $processed['totalPagar'] = array_sum(array_column($processed['inscripciones'], 'precio'));
         

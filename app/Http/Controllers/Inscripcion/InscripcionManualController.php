@@ -64,8 +64,12 @@ class InscripcionManualController extends Controller
     public function obtenerCategorias(Request $request, $idArea)
     {
         try {
+            // Get categories that belong to this area and are in the published convocatoria
             $categorias = Categoria::whereHas('convocatoriaAreaCategorias', function($query) use ($idArea) {
-                $query->where('idArea', $idArea);
+                $query->where('idArea', $idArea)
+                      ->whereHas('convocatoria', function($q) {
+                          $q->where('estado', 'Publicada');
+                      });
             })->get();
 
             return response()->json([

@@ -150,9 +150,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
             try {
                 const response = await fetch(`/inscripcion/estudiante/categorias/${this.value}`, {
-                    method: 'GET',
+                    method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
                 });
     

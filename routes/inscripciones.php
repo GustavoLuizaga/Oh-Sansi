@@ -92,7 +92,7 @@ Route::middleware('auth')->group(function () {
         ->name('inscripcion.estudiante.buscar');
 
     // Routes for categories and groups in manual registration
-    Route::get('/inscripcion/estudiante/categorias/{idArea}', 
+    Route::post('/inscripcion/estudiante/categorias/{idArea}', 
         [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerCategorias'])
         ->name('inscripcion.estudiante.categorias');
     

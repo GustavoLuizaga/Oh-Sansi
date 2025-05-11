@@ -64,13 +64,27 @@ class InscripcionManualController extends Controller
     public function obtenerCategorias(Request $request, $idArea)
     {
         try {
-            // Get categories that belong to this area and are in the published convocatoria
-            $categorias = Categoria::whereHas('convocatoriaAreaCategorias', function($query) use ($idArea) {
+            $selectedCategoriaId = $request->selectedCategoria;
+
+            $query = Categoria::whereHas('convocatoriaAreaCategorias', function($query) use ($idArea) {
                 $query->where('idArea', $idArea)
                       ->whereHas('convocatoria', function($q) {
                           $q->where('estado', 'Publicada');
                       });
-            })->get();
+            });
+
+            // If there's a selected categoria from another area, filter by common grades
+            if ($selectedCategoriaId) {
+                $query->whereHas('grados', function($gradosQuery) use ($selectedCategoriaId) {
+                    $gradosQuery->whereIn('grado.idGrado', function($subQuery) use ($selectedCategoriaId) {
+                        $subQuery->select('gradocategoria.idGrado')
+                                ->from('gradocategoria')
+                                ->where('gradocategoria.idCategoria', $selectedCategoriaId);
+                    });
+                });
+            }
+
+            $categorias = $query->get();
 
             return response()->json([
                 'success' => true,
@@ -90,10 +104,19 @@ class InscripcionManualController extends Controller
         try {
             $categoriaIds = $request->categorias;
             
-            // Get unique grades from all selected categories
-            $grados = Grado::whereHas('categorias', function($query) use ($categoriaIds) {
-                $query->whereIn('categoria.idCategoria', $categoriaIds);
-            })->get();
+            // If we have multiple categories, get only grades that are common to all categories
+            if (count($categoriaIds) > 1) {
+                $grados = Grado::whereHas('categorias', function($query) use ($categoriaIds) {
+                    $query->whereIn('categoria.idCategoria', [$categoriaIds[0]]);
+                })->whereHas('categorias', function($query) use ($categoriaIds) {
+                    $query->whereIn('categoria.idCategoria', [$categoriaIds[1]]);
+                })->get();
+            } else {
+                // For single category, get all its grades
+                $grados = Grado::whereHas('categorias', function($query) use ($categoriaIds) {
+                    $query->whereIn('categoria.idCategoria', $categoriaIds);
+                })->get();
+            }
 
             return response()->json([
                 'success' => true,

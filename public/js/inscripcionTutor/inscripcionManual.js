@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const categoriaSelects = document.querySelectorAll('.categoria-select');
         const gradoSelect = document.getElementById('gradoSelect');
         const selectedCategorias = [];
+        const areaCount = document.querySelectorAll('.area-section').length;
     
         // Get all selected categoria IDs
         categoriaSelects.forEach(select => {
@@ -107,9 +108,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     
-        // If no categories selected, clear and disable grado select
+        // If no categories selected, clear grado select
         if (selectedCategorias.length === 0) {
             gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
+            return;
+        }
+    
+        // If we have two areas but not all categories are selected, show message
+        if (areaCount === 2 && selectedCategorias.length !== 2) {
+            gradoSelect.innerHTML = '<option value="">Seleccione categorías en ambas áreas</option>';
             return;
         }
     
@@ -129,15 +136,22 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
-                data.grados.forEach(grado => {
-                    const option = document.createElement('option');
-                    option.value = grado.idGrado;
-                    option.textContent = grado.grado;
-                    gradoSelect.appendChild(option);
-                });
+                if (data.grados.length === 0) {
+                    gradoSelect.innerHTML = '<option value="">No hay grados en común</option>';
+                } else {
+                    data.grados.forEach(grado => {
+                        const option = document.createElement('option');
+                        option.value = grado.idGrado;
+                        option.textContent = grado.grado;
+                        gradoSelect.appendChild(option);
+                    });
+                }
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            gradoSelect.innerHTML = '<option value="">Error al cargar grados</option>';
+        });
     }
     
     // Modify setupAreaCategoriaListeners to include grade update
@@ -148,6 +162,18 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!this.value) return;
     
+            // Get the other area's selected categoria (if exists)
+            const areas = document.querySelectorAll('.area-section');
+            let selectedCategoria = null;
+            if (areas.length > 1) {
+                const otherArea = Array.from(areas).find(area => 
+                    area.querySelector('.area-select') !== this
+                );
+                if (otherArea) {
+                    selectedCategoria = otherArea.querySelector('.categoria-select').value;
+                }
+            }
+    
             try {
                 const response = await fetch(`/inscripcion/estudiante/categorias/${this.value}`, {
                     method: 'POST',
@@ -155,7 +181,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
+                    },
+                    body: JSON.stringify({
+                        selectedCategoria: selectedCategoria
+                    })
                 });
     
                 const data = await response.json();
@@ -172,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
             }
         });
+    
         const categoriaSelect = areaSelect.closest('.area-section').querySelector('.categoria-select');
         categoriaSelect.addEventListener('change', updateGradoSelect);
     }

@@ -37,28 +37,8 @@
 
     <div class="sidebar-derecho-notificacion">
         <h3><i class="fas fa-bell"></i> Notificaciones</h3>
-        <div class="lista-notificacion">
-            <div class="notificacion">
-                <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
-                <div class="notificacion-contenido">
-                    <p>Nueva convocatoria disponible</p>
-                    <span class="notificacion-tiempo">Hace 2 horas</span>
-                </div>
-            </div>
-            <div class="notificacion">
-                <div class="notificacion-icono"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="notificacion-contenido">
-                    <p>Recordatorio: Fecha límite de inscripción</p>
-                    <span class="notificacion-tiempo">Hace 1 día</span>
-                </div>
-            </div>
-            <div class="notificacion">
-                <div class="notificacion-icono"><i class="fas fa-check-circle"></i></div>
-                <div class="notificacion-contenido">
-                    <p>Registro completado exitosamente</p>
-                    <span class="notificacion-tiempo">Hace 3 días</span>
-                </div>
-            </div>
+        <div class="lista-notificacion" id="notificaciones">
+            <!-- Aquí se insertarán dinámicamente desde JS -->
         </div>
     </div>
 </div>
@@ -66,3 +46,36 @@
 @push('scripts')
 <script src="{{ asset('js/calendario.js') }}"></script>
 @endpush
+
+<script>
+    function cargarNotificaciones() {
+        fetch('/notificaciones/nuevas')
+            .then(response => response.json())
+            .then(data => {
+                const contenedor = document.getElementById('notificaciones');
+
+                // Limpia notificaciones viejas antes de insertar
+                contenedor.innerHTML = '';
+
+                data.forEach(notificacion => {
+                    const nuevaNotificacion = `
+                        <div class="notificacion">
+                            <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
+                            <div class="notificacion-contenido">
+                                <p>${notificacion.mensaje}</p>
+                                <span class="notificacion-tiempo">${notificacion.tiempo}</span>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+                });
+            })
+            .catch(error => console.error('Error al cargar notificaciones:', error));
+    }
+
+    // Llamar al cargar la página
+    cargarNotificaciones();
+
+    // Repetir cada 10 segundos
+    setInterval(cargarNotificaciones, 10000);
+</script>

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Incluir rutas de usuarios
-require __DIR__.'/usuarios.php';
+require __DIR__ . '/usuarios.php';
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,7 +39,7 @@ Route::get('/dashboard', function () {
             return view('dashboard'); // Vista por defecto
     }
     //return view('dashboard');
-})->middleware(['auth','verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/servicios', [\App\Http\Controllers\ServiceController::class, 'index'])->middleware(['auth'])->name('servicios');
 Route::get('/servicios/obtener-funciones-rol/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerFuncionesRol'])->middleware(['auth'])->name('servicios.obtenerFuncionesRol');
@@ -58,30 +60,27 @@ Route::post('/servicios/eliminar-permiso', [\App\Http\Controllers\ServiceControl
 Route::get('/descargar-plantilla-excel', [\App\Http\Controllers\Auth\ResgistrarListaEstController::class, 'descargarPlantilla'])->name('descargar.plantilla.excel');
 
 Route::get('/boleta/preview', [
-    App\Http\Controllers\BoletaPago\BoletaDePago::class, 
+    App\Http\Controllers\BoletaPago\BoletaDePago::class,
     'generarOrdenPago'
 ])->name('boleta.preview');
 
 Route::get('/boleta', [
-    App\Http\Controllers\BoletaPago\BoletaDePago::class, 
-    'generarOrdenPago'])->name('boleta');;
+    App\Http\Controllers\BoletaPago\BoletaDePago::class,
+    'generarOrdenPago'
+])->name('boleta');;
 
 
 
 
-
-
-
-
-require __DIR__.'/auth.php';
-require __DIR__.'/areasCategorias.php';
-require __DIR__.'/areas.php';
-require __DIR__.'/categorias.php';
-require __DIR__.'/convocatoria.php';
-require __DIR__.'/delegaciones.php';
-require __DIR__.'/delegado.php';
-require __DIR__.'/grados.php';
-require __DIR__.'/inscripciones.php';
-require __DIR__.'/estudiantes.php';
-require __DIR__.'/perfil.php';
-
+require __DIR__ . '/auth.php';
+require __DIR__ . '/areasCategorias.php';
+require __DIR__ . '/areas.php';
+require __DIR__ . '/categorias.php';
+require __DIR__ . '/convocatoria.php';
+require __DIR__ . '/delegaciones.php';
+require __DIR__ . '/delegado.php';
+require __DIR__ . '/grados.php';
+require __DIR__ . '/inscripciones.php';
+require __DIR__ . '/estudiantes.php';
+require __DIR__ . '/perfil.php';
+require __DIR__ . '/notificaciones.php';

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\Estudiante\EstudianteController as EstudianteVerificacionController;
 
 Route::middleware('auth')->group(function () {
     // Lista de estudiantes registrados
@@ -57,3 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/estudiantes/pendientes/exportar/excel', [EstudianteController::class, 'exportPendientesExcel'])
         ->name('estudiantes.pendientes.exportExcel');
 });
+
+// Route to verify if a student exists by CI (no auth required)
+Route::get('/verificar-estudiante/{ci}', [EstudianteVerificacionController::class, 'verificarEstudiante'])
+    ->name('verificar.estudiante');

@@ -79,6 +79,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/obtener-grados/{idCategoria}', [ObtenerGradosdeUnaCategoria::class, 'obtenerGradosPorArea2']);
     
+    // Ruta para obtener grupos según modalidad
+    Route::get('/obtener-grupos/{modalidad}', [\App\Http\Controllers\GrupoController::class, 'obtenerGruposPorModalidad']);
+    
     // Rutas para gestión de grupos
     Route::get('/inscripcion/grupos', [\App\Http\Controllers\GrupoController::class, 'index'])
         ->name('inscripcion.grupos');

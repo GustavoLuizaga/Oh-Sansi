@@ -2,6 +2,8 @@
     <link rel="stylesheet" href="{{ asset('css/inscripcion/FormularioDatosInscripcionEst.css') }}">
 @endpush
 @push('scripts')
+    <!-- Carga Tesseract.js de forma tradicional -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="{{ asset('js/FormularioDatosInscripcionEst.js') }}"></script>
 @endpush
 <x-app-layout>

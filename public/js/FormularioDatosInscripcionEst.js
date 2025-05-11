@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/*JS DEL MODAL */
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('comprobantePagoFile');
     const dropArea = document.querySelector('.file-drop-area');
@@ -27,27 +28,76 @@ document.addEventListener('DOMContentLoaded', function() {
     const removeBtn = document.querySelector('.btn-remove-file');
     const feedbackArea = document.querySelector('.file-feedback');
     
+    // Variable global para el número de comprobante
+    let codigoComprobante = null;
+    let estadoOCR = 0; // 0 = no procesado, 1 = éxito, 2 = error
+
+    // Función para mostrar errores
+    function mostrarError(mensaje) {
+        feedbackArea.textContent = mensaje;
+        feedbackArea.style.display = 'block';
+    }
+
+    // Función para procesar OCR
+    async function processImageWithOCR(imageUrl) {
+        console.log("Iniciando OCR...");
+        
+        try {
+            const worker = await Tesseract.createWorker('spa');
+            const { data: { text } } = await worker.recognize(imageUrl);
+            console.log("Texto extraído:", text);
+            
+            // Buscar el número de comprobante en los primeros 95 caracteres
+            const textoBusqueda = text.substring(0, 95);
+            const regex1 = /(Nro|No|Numero?)[\s:]*([0-9]{7})/i;
+            const regex2 = /[0-9]{7}/;
+            
+            let match = textoBusqueda.match(regex1) || textoBusqueda.match(regex2);
+            
+            if (match) {
+                // Extraer solo los números (eliminar posibles espacios o guiones)
+                const numero = match[2] ? match[2] : match[0];
+                codigoComprobante = parseInt(numero.replace(/\D/g, ''));
+                estadoOCR = 1;
+                console.log("Número de comprobante detectado:", codigoComprobante);
+            } else {
+                estadoOCR = 2;
+                mostrarError("No se encontró el número de comprobante. Asegúrese que el texto 'Nro. XXXXXXX' sea visible en la imagen.");
+                codigoComprobante = null;
+            }
+            
+            await worker.terminate();
+        } catch (error) {
+            console.error("Error en OCR:", error);
+            estadoOCR = 2;
+            mostrarError("Error al procesar la imagen. Vuelva a subirla, asegurando que el texto sea claro.");
+            codigoComprobante = null;
+        }
+    }
+
     // Función para manejar archivos
-function handleFiles(files) {
-    feedbackArea.style.display = 'none';
-    
-    if (files.length > 0) {
-        const file = files[0];
-        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+    async function handleFiles(files) {
+        feedbackArea.style.display = 'none';
+        estadoOCR = 0;
+        codigoComprobante = null;
+        
+        if (files.length > 0) {
+            const file = files[0];
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
 
-        if (!validTypes.includes(file.type)) {
-            mostrarError('Formato de archivo no válido. Use PDF, JPG o PNG.');
-            fileInput.value = '';
-            return;
-        }
+            if (!validTypes.includes(file.type)) {
+                mostrarError('Formato de archivo no válido. Use PDF, JPG o PNG.');
+                fileInput.value = '';
+                return;
+            }
 
-        if (file.size > maxSize) {
-            mostrarError('El archivo excede el límite de 5MB');
-            fileInput.value = '';
-            return;
-        }
-                
+            if (file.size > maxSize) {
+                mostrarError('El archivo excede el límite de 5MB');
+                fileInput.value = '';
+                return;
+            }
+            
             // Mostrar nombre del archivo
             fileName.textContent = file.name;
             
@@ -59,6 +109,7 @@ function handleFiles(files) {
             if (file.type === 'application/pdf') {
                 pdfPreview.style.display = 'block';
                 imagePreview.style.display = 'none';
+                mostrarError("Los archivos PDF no son soportados para OCR. Suba una imagen JPG o PNG.");
             } else if (file.type.startsWith('image/')) {
                 // Crear vista previa para imágenes
                 const reader = new FileReader();
@@ -66,6 +117,9 @@ function handleFiles(files) {
                     imgElement.src = e.target.result;
                     imagePreview.style.display = 'block';
                     pdfPreview.style.display = 'none';
+                    
+                    // Procesar OCR
+                    processImageWithOCR(e.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -109,23 +163,61 @@ function handleFiles(files) {
         pdfPreview.style.display = 'none';
         dropArea.style.display = 'block';
         feedbackArea.style.display = 'none';
+        codigoComprobante = null;
+        estadoOCR = 0;
     });
     
     // Validar formulario
-    document.getElementById('comprobantePagoForm').addEventListener('submit', function(e) {
+    document.getElementById('comprobantePagoForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (!fileInput.files.length) {
-            feedbackArea.textContent = 'Por favor, selecciona un archivo.';
-            feedbackArea.style.display = 'block';
+            mostrarError('Por favor, selecciona un archivo.');
             return;
         }
         
-        // Aquí iría la lógica para enviar el formulario
-        //alert('¡Comprobante subido correctamente!');
+        // Esperar a que termine el OCR si es una imagen
+        if (fileInput.files[0].type.startsWith('image/') && estadoOCR === 0) {
+            mostrarError('Espere mientras procesamos la imagen...');
+            return;
+        }
         
-        // Cerrar modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('SubirComprobantePago'));
-        modal.hide();
+        if (estadoOCR === 2) {
+            mostrarError('No se pudo leer el número de comprobante. Suba una imagen más clara.');
+            return;
+        }
+        
+        // Crear FormData y agregar los datos
+        const formData = new FormData(this);
+        if (codigoComprobante) {
+            formData.append('codigo_comprobante', codigoComprobante);
+        }
+        formData.append('estado_ocr', estadoOCR);
+        
+        // Enviar al servidor (usando Fetch API)
+        try {
+            // Mostrar mensaje de carga await fetch('/inscripcion/estudiante/comprobante/procesar-boleta', {
+            const response = await fetch(window.location.origin + '/inscripcion/estudiante/comprobante/procesar-boleta', {
+                method: 'POST',
+                body: formData, // Ya incluye todos los campos necesarios
+                headers: {
+                    'Accept': 'application/json' // Para recibir respuestas JSON
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                // Cerrar modal y mostrar mensaje de éxito
+                bootstrap.Modal.getInstance(document.getElementById('SubirComprobantePago')).hide();
+                alert(result.message || 'Comprobante subido correctamente');
+                location.reload(); // Recargar para ver los cambios
+            } else {
+                mostrarError(result.message || 'Error al subir el comprobante');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarError('Error de conexión con el servidor');
+        }
     });
 });

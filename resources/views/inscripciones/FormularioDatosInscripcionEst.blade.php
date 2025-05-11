@@ -124,6 +124,7 @@
                                 <label for="numeroContacto">Número de Contacto</label>
                                 <div class="input-with-icon">
                                     <input type="tel" id="numeroContacto" name="numeroContacto" required
+                                        value="{{ $inscripcion['numero_contacto'] }}" 
                                         maxlength="8" pattern="[0-9]{8}"
                                         placeholder="Ej: 63772394">
                                 </div>

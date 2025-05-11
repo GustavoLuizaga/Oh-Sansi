@@ -306,7 +306,7 @@
                     <i class="fas fa-times me-2"></i>Cancelar
                 </button>
                 <!-- Cambiar el ID del botón de submit para evitar conflicto -->
-                <button type="submit" form="comprobantePagoForm" class="btn-save" id="btnSubirComprobante" title="Subir el comprobante de pago para su verificacion">
+                <button type="submit" form="comprobantePagoForm" class="btn-save" id="btnSubirComprobante" title="Subir el comprobante de pago para su verificacion" disabled>
                     <i class="fas fa-upload me-2"></i>Subir Comprobante
                 </button>
             </div>

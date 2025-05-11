@@ -234,6 +234,50 @@
     transform: translateY(1px);
 }
 
+/* Estilos para botón deshabilitado */
+.btn-save:disabled,
+.btn-save[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    border-color: #b3b3b3 !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+/* Añadir una línea diagonal para indicar claramente que está deshabilitado */
+.btn-save:disabled::before,
+.btn-save[disabled]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.1) 10px,
+        rgba(0, 0, 0, 0.05) 10px,
+        rgba(0, 0, 0, 0.05) 20px
+    );
+    border-radius: inherit;
+}
+
+/* Estilos para el ícono dentro del botón deshabilitado */
+.btn-save:disabled i,
+.btn-save[disabled] i {
+    opacity: 0.6;
+}
+
+/* Efecto hover eliminado para botones deshabilitados */
+.btn-save:disabled:hover,
+.btn-save[disabled]:hover {
+    transform: none;
+    transition: none;
+}
+
 /* File Preview Styles */
 .file-preview {
     background-color: var(--hover-color);

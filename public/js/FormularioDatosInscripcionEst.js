@@ -40,40 +40,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para procesar OCR
     async function processImageWithOCR(imageUrl) {
-    console.log("Iniciando OCR...");
-    feedbackArea.textContent = "Procesando imagen...";
-    feedbackArea.style.display = 'block';
-    
-    try {
-        const worker = await Tesseract.createWorker('spa');
-        const { data: { text } } = await worker.recognize(imageUrl);
-        console.log("Texto extraído:", text);
+        console.log("Iniciando OCR...");
+        feedbackArea.textContent = "Procesando imagen...";
+        feedbackArea.style.display = 'block';
         
-        // Buscar el número de comprobante
-        const textoBusqueda = text.substring(0, 95);
-        const regex1 = /(Nro|No|Numero?)[\s:]*([0-9]{7})/i;
-        const regex2 = /[0-9]{7}/;
+        // Desactivar botón mientras se procesa
+        const btnSubir = document.getElementById('btnSubirComprobante');
+        btnSubir.disabled = true;
         
-        let match = textoBusqueda.match(regex1) || textoBusqueda.match(regex2);
-        
-        if (match) {
-            const numero = match[2] ? match[2] : match[0];
-            codigoComprobante = parseInt(numero.replace(/\D/g, ''));
-            estadoOCR = 1;
-            console.log("Número detectado:", codigoComprobante);
-            feedbackArea.style.display = 'none';
-        } else {
+        try {
+            const worker = await Tesseract.createWorker('spa');
+            const { data: { text } } = await worker.recognize(imageUrl);
+            console.log("Texto extraído:", text);
+            
+            // Buscar el número de comprobante
+            const textoBusqueda = text.substring(0, 95);
+            const regex1 = /(Nro|No|Numero?)[\s:]*([0-9]{7})/i;
+            const regex2 = /[0-9]{7}/;
+            
+            let match = textoBusqueda.match(regex1) || textoBusqueda.match(regex2);
+            
+            if (match) {
+                const numero = match[2] ? match[2] : match[0];
+                codigoComprobante = parseInt(numero.replace(/\D/g, ''));
+                estadoOCR = 1;
+                console.log("Número detectado:", codigoComprobante);
+                feedbackArea.style.display = 'none';
+                
+                // Activar botón solo si se encontró el número de comprobante
+                btnSubir.disabled = false;
+            } else {
+                estadoOCR = 2;
+                btnSubir.disabled = true; // Mantener desactivado si no se encontró número
+                throw new Error("En la imagen no se detectó ningún Nro. Comprobante. Vuelve a subir una imagen con más calidad, donde se distinga claramente la boleta de pago completa.");
+            }
+            
+            await worker.terminate();
+        } catch (error) {
+            console.error("Error en OCR:", error);
             estadoOCR = 2;
-            throw new Error("En la imagen no se detectó ningún Nro. Comprobante. Vuelve a subir una imagen con más calidad, donde se distinga claramente la boleta de pago completa.");
+            mostrarError(error.message);
+            codigoComprobante = null;
+            btnSubir.disabled = true; // Mantener desactivado en caso de error
         }
-        
-        await worker.terminate();
-    } catch (error) {
-        console.error("Error en OCR:", error);
-        estadoOCR = 2;
-        mostrarError(error.message);
-        codigoComprobante = null;
-    }
     }
 
     // Función para manejar archivos
@@ -170,25 +179,32 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Validar formulario
     document.getElementById('comprobantePagoForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (!fileInput.files.length) {
-        mostrarError('Por favor, selecciona un archivo.');
-        return;
-    }
-    
-    // Validación OCR para imágenes
-    if (fileInput.files[0].type.startsWith('image/')) {
-        if (estadoOCR === 0) {
-            mostrarError('Espere mientras procesamos la imagen...');
+        e.preventDefault();
+        
+        // Desactivar botón inmediatamente al hacer submit
+        const btnSubir = document.getElementById('btnSubirComprobante');
+        btnSubir.disabled = true;
+        
+        if (!fileInput.files.length) {
+            mostrarError('Por favor, selecciona un archivo.');
+            btnSubir.disabled = false; // Reactivar si no hay archivo
             return;
         }
         
-        if (estadoOCR === 2) {
-            mostrarError('En la imagen no se detectó ningún Nro. Comprobante. Suba una imagen con mejor calidad donde se vea claramente toda la boleta.');
-            return;
+        // Validación OCR para imágenes
+        if (fileInput.files[0].type.startsWith('image/')) {
+            if (estadoOCR === 0) {
+                mostrarError('Espere mientras procesamos la imagen...');
+                btnSubir.disabled = true; // Mantener desactivado
+                return;
+            }
+            
+            if (estadoOCR === 2) {
+                mostrarError('En la imagen no se detectó ningún Nro. Comprobante. Suba una imagen con mejor calidad donde se vea claramente toda la boleta.');
+                btnSubir.disabled = true; // Mantener desactivado
+                return;
+            }
         }
-    }
         
         // Crear FormData y agregar los datos
         const formData = new FormData(this);
@@ -198,14 +214,11 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('estado_ocr', estadoOCR);
         
         // Enviar al servidor (usando Fetch API)
-        try {
-            // Mostrar mensaje de carga await fetch('/inscripcion/estudiante/comprobante/procesar-boleta', {
-            // En el fetch
+try {
             const response = await fetch('/inscripcion/estudiante/comprobante/procesar-boleta', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
                 }
             });
@@ -215,7 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 let errorMsg = 'Error desconocido';
                 
-                // Manejar errores de validación
                 if (response.status === 422 && data.errors) {
                     errorMsg = Object.values(data.errors).join('\n');
                 } 
@@ -225,35 +237,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 throw new Error(errorMsg);
             }
-            // Éxito
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = data.message;
+            
+            // Éxito - no necesitamos reactivar el botón porque vamos a redireccionar
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success';
+            alertDiv.textContent = data.message;
 
-                // Agregar botón de cierre
-                const closeBtn = document.createElement('button');
-                closeBtn.className = 'alert-close';
-                closeBtn.innerHTML = '×';
-                closeBtn.onclick = () => {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'alert-close';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = () => {
+                alertDiv.remove();
+                window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
+            };
+            alertDiv.appendChild(closeBtn);
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
                     alertDiv.remove();
                     window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
-                };
-                alertDiv.appendChild(closeBtn);
-
-                // Insertar la alerta en el DOM (puedes ajustar el contenedor según tu estructura HTML)
-                document.body.appendChild(alertDiv);
-
-                // Cierre automático después de 5s con redirección
-                setTimeout(() => {
-                    alertDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        alertDiv.remove();
-                        window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
-                    }, 300);
-                }, 5000);
+                }, 300);
+            }, 5000);
         } catch (error) {
             console.error('Error:', error);
             mostrarError('Error de conexión con el servidor');
+            // Reactivar botón en caso de error
+            btnSubir.disabled = false;
         }
     });
 });

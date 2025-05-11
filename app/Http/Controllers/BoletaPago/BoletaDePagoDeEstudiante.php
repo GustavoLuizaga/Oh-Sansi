@@ -15,6 +15,7 @@ use App\Models\Area;
 use App\Models\Categoria;
 use App\Models\Convocatoria;
 use App\Models\Grado;
+use App\Models\VerificacionInscripcion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade as PDF;
@@ -371,55 +372,79 @@ class BoletaDePagoDeEstudiante extends Controller
      * @return string
      */
     private function generarCodigoOrdenPagoEstudiante($estudianteId)
-    {
-        try {
-            // Verificar si ya existe una boleta para las inscripciones de este estudiante
-            $inscripcionesIds = TutorEstudianteInscripcion::where('idEstudiante', $estudianteId)
-                ->select('idInscripcion')
-                ->get()
-                ->pluck('idInscripcion');
+{
+    // Verificar primero si el estudiante tiene inscripciones
+    $inscripcionesIds = TutorEstudianteInscripcion::where('idEstudiante', $estudianteId)
+        ->pluck('idInscripcion');
+    
+    if ($inscripcionesIds->isEmpty()) {
+        Log::error('El estudiante no tiene inscripciones asociadas', ['estudianteId' => $estudianteId]);
+        throw new \Exception("El estudiante no tiene inscripciones registradas");
+    }
 
-            // Buscar si ya existe una boleta para alguna de estas inscripciones
-            $boletaExistente = BoletaPagoInscripcion::whereIn('idInscripcion', $inscripcionesIds)
-                ->with('boletaPago')
-                ->first();
+    DB::beginTransaction();
+    
+    try {
+        // Buscar boleta existente SOLO si está activa (fechafin >= hoy)
+        $boletaExistente = BoletaPagoInscripcion::whereIn('idInscripcion', $inscripcionesIds)
+            ->whereHas('boletaPago', function($query) {
+                $query->where('fechafin', '>=', now()->format('Y-m-d'));
+            })
+            ->with('boletaPago')
+            ->first();
 
-            if ($boletaExistente && $boletaExistente->boletaPago) {
-                // Si ya existe una boleta, retornar su código
-                return $boletaExistente->boletaPago->CodigoBoleta;
-            }
+        if ($boletaExistente && $boletaExistente->boletaPago) {
+            DB::commit();
+            return $boletaExistente->boletaPago->CodigoBoleta;
+        }
 
-            // Si no existe, crear nuevo código
-            $codigoBoleta = 'OP-' . str_pad($estudianteId, 6, '0', STR_PAD_LEFT);
+        // Crear nueva boleta
+        $codigoBoleta = 'OP-' . str_pad($estudianteId, 6, '0', STR_PAD_LEFT);
 
-            // Crear registro en la base de datos
-            $boleta = BoletaPago::create([
-                'CodigoBoleta' => $codigoBoleta,
-                'MontoBoleta' => 15,
-                'fechainicio' => now()->format('Y-m-d'),
-                'fechafin' => now()->addMonth()->format('Y-m-d'),
-            ]);
+        $boleta = BoletaPago::create([
+            'CodigoBoleta' => $codigoBoleta,
+            'MontoBoleta' => 15, // Valor estático como en tu código original
+            'fechainicio' => now()->format('Y-m-d'),
+            'fechafin' => now()->addMonth()->format('Y-m-d'),
+            'estado' => 'pendiente' // Asegúrate de que tu tabla tenga este campo
+        ]);
 
-            // Crear las relaciones con las inscripciones
-            foreach ($inscripcionesIds as $inscripcionId) {
-                BoletaPagoInscripcion::create([
-                    'idBoleta' => $boleta->idBoleta,
-                    'idInscripcion' => $inscripcionId,
-                ]);
-            }
-
-            return $codigoBoleta;
-
-        } catch (\Exception $e) {
-            Log::error('Error generando código de orden de pago para estudiante:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+        // Registrar en boletapagoinscripcion
+        foreach ($inscripcionesIds as $inscripcionId) {
+            BoletaPagoInscripcion::create([
+                'idBoleta' => $boleta->idBoleta,
+                'idInscripcion' => $inscripcionId
             ]);
             
-            // En caso de error, devolver un código por defecto
-            return 'OP-' . str_pad($estudianteId, 6, '0', STR_PAD_LEFT);
+            // Registrar en verificacioninscripcion
+            VerificacionInscripcion::create([
+                'idInscripcion' => $inscripcionId,
+                'idBoleta' => $boleta->idBoleta
+            ]);
         }
+
+        DB::commit();
+        
+        Log::info('Nueva boleta creada', [
+            'boletaId' => $boleta->idBoleta,
+            'codigo' => $codigoBoleta,
+            'inscripciones' => $inscripcionesIds
+        ]);
+        
+        return $codigoBoleta;
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        Log::error('Error al generar boleta de pago', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'estudianteId' => $estudianteId
+        ]);
+        
+        throw $e; // Relanzar la excepción para manejo superior
     }
+}
     
     /**
      * Método para mostrar el formulario de impresión de inscripción

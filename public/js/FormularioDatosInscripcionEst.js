@@ -40,39 +40,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para procesar OCR
     async function processImageWithOCR(imageUrl) {
-        console.log("Iniciando OCR...");
+    console.log("Iniciando OCR...");
+    feedbackArea.textContent = "Procesando imagen...";
+    feedbackArea.style.display = 'block';
+    
+    try {
+        const worker = await Tesseract.createWorker('spa');
+        const { data: { text } } = await worker.recognize(imageUrl);
+        console.log("Texto extraído:", text);
         
-        try {
-            const worker = await Tesseract.createWorker('spa');
-            const { data: { text } } = await worker.recognize(imageUrl);
-            console.log("Texto extraído:", text);
-            
-            // Buscar el número de comprobante en los primeros 95 caracteres
-            const textoBusqueda = text.substring(0, 95);
-            const regex1 = /(Nro|No|Numero?)[\s:]*([0-9]{7})/i;
-            const regex2 = /[0-9]{7}/;
-            
-            let match = textoBusqueda.match(regex1) || textoBusqueda.match(regex2);
-            
-            if (match) {
-                // Extraer solo los números (eliminar posibles espacios o guiones)
-                const numero = match[2] ? match[2] : match[0];
-                codigoComprobante = parseInt(numero.replace(/\D/g, ''));
-                estadoOCR = 1;
-                console.log("Número de comprobante detectado:", codigoComprobante);
-            } else {
-                estadoOCR = 2;
-                mostrarError("No se encontró el número de comprobante. Asegúrese que el texto 'Nro. XXXXXXX' sea visible en la imagen.");
-                codigoComprobante = null;
-            }
-            
-            await worker.terminate();
-        } catch (error) {
-            console.error("Error en OCR:", error);
+        // Buscar el número de comprobante
+        const textoBusqueda = text.substring(0, 95);
+        const regex1 = /(Nro|No|Numero?)[\s:]*([0-9]{7})/i;
+        const regex2 = /[0-9]{7}/;
+        
+        let match = textoBusqueda.match(regex1) || textoBusqueda.match(regex2);
+        
+        if (match) {
+            const numero = match[2] ? match[2] : match[0];
+            codigoComprobante = parseInt(numero.replace(/\D/g, ''));
+            estadoOCR = 1;
+            console.log("Número detectado:", codigoComprobante);
+            feedbackArea.style.display = 'none';
+        } else {
             estadoOCR = 2;
-            mostrarError("Error al procesar la imagen. Vuelva a subirla, asegurando que el texto sea claro.");
-            codigoComprobante = null;
+            throw new Error("En la imagen no se detectó ningún Nro. Comprobante. Vuelve a subir una imagen con más calidad, donde se distinga claramente la boleta de pago completa.");
         }
+        
+        await worker.terminate();
+    } catch (error) {
+        console.error("Error en OCR:", error);
+        estadoOCR = 2;
+        mostrarError(error.message);
+        codigoComprobante = null;
+    }
     }
 
     // Función para manejar archivos
@@ -169,23 +170,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Validar formulario
     document.getElementById('comprobantePagoForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        if (!fileInput.files.length) {
-            mostrarError('Por favor, selecciona un archivo.');
-            return;
-        }
-        
-        // Esperar a que termine el OCR si es una imagen
-        if (fileInput.files[0].type.startsWith('image/') && estadoOCR === 0) {
+    e.preventDefault();
+    
+    if (!fileInput.files.length) {
+        mostrarError('Por favor, selecciona un archivo.');
+        return;
+    }
+    
+    // Validación OCR para imágenes
+    if (fileInput.files[0].type.startsWith('image/')) {
+        if (estadoOCR === 0) {
             mostrarError('Espere mientras procesamos la imagen...');
             return;
         }
         
         if (estadoOCR === 2) {
-            mostrarError('No se pudo leer el número de comprobante. Suba una imagen más clara.');
+            mostrarError('En la imagen no se detectó ningún Nro. Comprobante. Suba una imagen con mejor calidad donde se vea claramente toda la boleta.');
             return;
         }
+    }
         
         // Crear FormData y agregar los datos
         const formData = new FormData(this);
@@ -197,24 +200,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Enviar al servidor (usando Fetch API)
         try {
             // Mostrar mensaje de carga await fetch('/inscripcion/estudiante/comprobante/procesar-boleta', {
-            const response = await fetch(window.location.origin + '/inscripcion/estudiante/comprobante/procesar-boleta', {
+            // En el fetch
+            const response = await fetch('/inscripcion/estudiante/comprobante/procesar-boleta', {
                 method: 'POST',
-                body: formData, // Ya incluye todos los campos necesarios
+                body: formData,
                 headers: {
-                    'Accept': 'application/json' // Para recibir respuestas JSON
+                    // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
                 }
             });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                // Cerrar modal y mostrar mensaje de éxito
-                bootstrap.Modal.getInstance(document.getElementById('SubirComprobantePago')).hide();
-                alert(result.message || 'Comprobante subido correctamente');
-                location.reload(); // Recargar para ver los cambios
-            } else {
-                mostrarError(result.message || 'Error al subir el comprobante');
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                let errorMsg = 'Error desconocido';
+                
+                // Manejar errores de validación
+                if (response.status === 422 && data.errors) {
+                    errorMsg = Object.values(data.errors).join('\n');
+                } 
+                else if (data.message) {
+                    errorMsg = data.message;
+                }
+                
+                throw new Error(errorMsg);
             }
+
+            // Éxito
+            alert(data.message);
         } catch (error) {
             console.error('Error:', error);
             mostrarError('Error de conexión con el servidor');

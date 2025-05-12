@@ -103,12 +103,19 @@
             .then(response => response.json())
             .then(data => {
                 const contenedor = document.getElementById('notificaciones');
-
-                // Limpia notificaciones viejas antes de insertar
                 contenedor.innerHTML = '';
 
-                data.forEach(notificacion => {
-                    const nuevaNotificacion = `
+                if (!data || data.length === 0) {
+                    const mensajeVacio = `
+                    <div class="notificacion-vacia">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No tienes notificaciones nuevas</p>
+                    </div>
+                `;
+                    contenedor.innerHTML = mensajeVacio;
+                } else {
+                    data.forEach(notificacion => {
+                        const nuevaNotificacion = `
                         <div class="notificacion">
                             <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
                             <div class="notificacion-contenido">
@@ -117,8 +124,9 @@
                             </div>
                         </div>
                     `;
-                    contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
-                });
+                        contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+                    });
+                }
             })
             .catch(error => console.error('Error al cargar notificaciones:', error));
     }

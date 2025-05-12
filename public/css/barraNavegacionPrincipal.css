@@ -212,11 +212,11 @@ nav {
 }
 
 /* Dark Theme Overrides */
-body.dark-theme .theme-toggle.mobile-only {
+.modo-oscuro .theme-toggle.mobile-only {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-body.dark-theme .menu-footer {
+.modo-oscuro .menu-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -293,12 +293,12 @@ body.dark-theme .menu-footer {
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    body.dark-theme .nav-links {
+    .modo-oscuro .nav-links {
         background-color: var(--surface-secondary);
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
     }
 
-    body.dark-theme .nav-links a {
+    .modo-oscuro .nav-links a {
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 }

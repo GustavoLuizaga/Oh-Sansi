@@ -1,33 +1,47 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const icon = themeToggle.querySelector('i');
-    const wavePath = document.querySelector('.wave-path');
-    
-    // Check for saved theme preference
-    const currentTheme = localStorage.getItem('theme');
-    if (currentTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-        if (wavePath) wavePath.setAttribute('fill', '#272727');
-    } else {
-        if (wavePath) wavePath.setAttribute('fill', '#ffffff');
+    // Seleccionar ambos botones (desktop y mobile)
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    const root = document.documentElement;
+
+    // Función para actualizar el tema
+    const updateTheme = (isDark) => {
+        const icon = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        const theme = isDark ? 'oscuro' : 'claro';
+        
+        // Actualizar ambos botones
+        if (themeToggleDesktop) themeToggleDesktop.innerHTML = icon;
+        if (themeToggleMobile) themeToggleMobile.innerHTML = icon;
+        
+        // Actualizar el tema
+        if (isDark) {
+            root.classList.add('modo-oscuro');
+            root.style.backgroundColor = '#1a202c';
+        } else {
+            root.classList.remove('modo-oscuro');
+            root.style.backgroundColor = '';
+        }
+        
+        localStorage.setItem('tema', theme);
+    };
+
+    // Aplicar tema inicial
+    const temaGuardado = localStorage.getItem('tema') || 'claro';
+    updateTheme(temaGuardado === 'oscuro');
+
+    // Manejar clicks en botón desktop
+    if (themeToggleDesktop) {
+        themeToggleDesktop.addEventListener('click', function() {
+            const isDark = !root.classList.contains('modo-oscuro');
+            updateTheme(isDark);
+        });
     }
 
-    themeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('dark-theme');
-        
-        // Toggle icon
-        if (document.body.classList.contains('dark-theme')) {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-            localStorage.setItem('theme', 'dark');
-            if (wavePath) wavePath.setAttribute('fill', '#272727');
-        } else {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-            localStorage.setItem('theme', 'light');
-            if (wavePath) wavePath.setAttribute('fill', '#ffffff');
-        }
-    });
+    // Manejar clicks en botón mobile
+    if (themeToggleMobile) {
+        themeToggleMobile.addEventListener('click', function() {
+            const isDark = !root.classList.contains('modo-oscuro');
+            updateTheme(isDark);
+        });
+    }
 });

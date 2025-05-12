@@ -24,7 +24,7 @@
 }
 
 /* Variables modo oscuro */
-body.dark-theme {
+:root.modo-oscuro {
     --input-bg: #1f2735;
     --input-text: #E2E8F0;
     --input-placeholder: #9CA3AF;
@@ -135,11 +135,11 @@ textarea.form-control {
     margin-bottom: 1rem;
 }
 
-body.dark-theme .precios-container{
+.modo-oscuro .precios-container{
   background-color: var(--input-bg);
   color: var(--text-color);
 }
-body.dark-theme .precio-input:disabled {
+.modo-oscuro .precio-input:disabled {
   background-color: var(--input-bg);
   color: var(--input-text);
 }

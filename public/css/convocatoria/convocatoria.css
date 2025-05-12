@@ -20,7 +20,7 @@
 }
 
 /* Variables modo oscuro */
-body.dark-theme {
+:root.modo-oscuro {
     --primary-color: #3182ce;
     --secondary-color: #4299e1;
     --text-color: #e2e8f0;
@@ -96,6 +96,7 @@ body.dark-theme {
 
 .btn-nueva-convocatoria:hover {
     background-color: var(--secondary-color);
+    color: var(--texto-estatico);
 }
 
 /* Search Box */
@@ -149,7 +150,10 @@ body.dark-theme {
     align-items: center;
     gap: 0.5rem;
 }
-
+.search-button:hover {
+    background-color: var(--secondary-color);
+    color: var(--texto-estatico);
+}
 /* Filter Dropdown */
 .filter-dropdown {
     display: flex;
@@ -260,15 +264,15 @@ body.dark-theme {
     color: var(--danger-color);
 }
 
-body.dark-theme .estado-publicada {
+.modo-oscuro .estado-publicada {
     background-color: rgba(52, 211, 153, 0.2);
 }
 
-body.dark-theme .estado-borrador {
+.modo-oscuro .estado-borrador {
     background-color: rgba(251, 191, 36, 0.2);
 }
 
-body.dark-theme .estado-cancelada {
+.modo-oscuro .estado-cancelada {
     background-color: rgba(248, 113, 113, 0.2);
 }
 
@@ -398,11 +402,11 @@ body.dark-theme .estado-cancelada {
     border-left: 4px solid var(--danger-color);
 }
 
-body.dark-theme .alert-success {
+.modo-oscuro .alert-success {
     background-color: rgba(52, 211, 153, 0.2);
 }
 
-body.dark-theme .alert-danger {
+.modo-oscuro .alert-danger {
     background-color: rgba(248, 113, 113, 0.2);
 }
 

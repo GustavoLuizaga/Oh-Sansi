@@ -11,6 +11,21 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    // Verificar que jQuery y DataTables estén disponibles
+    window.addEventListener('DOMContentLoaded', function() {
+        if (typeof $ === 'undefined') {
+            console.error('jQuery no está disponible');
+        } else {
+            console.log('jQuery está disponible');
+            if (typeof $.fn.DataTable === 'undefined') {
+                console.error('DataTables no está disponible');
+            } else {
+                console.log('DataTables está disponible');
+            }
+        }
+    });
+</script>
 
 @endpush
 
@@ -112,6 +127,9 @@
                         <button type="submit" class="upload-button">
                             <i class="fas fa-upload"></i> Subir
                         </button>
+                        <button type="button" id="previewBtn" class="preview-button">
+                            <i class="fas fa-eye"></i> Previsualizar
+                        </button>
                         <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" class="template-link">
                             <i class="fas fa-download"></i> Descargar plantilla
                         </a>
@@ -207,6 +225,35 @@
                 </div>
             </div>
         </div>
+@push('scripts')
+<script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
+<script>
+    // Asegurarse de que el botón de previsualización funcione correctamente
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM completamente cargado');
+        const previewBtn = document.getElementById('previewBtn');
+        if (previewBtn) {
+            console.log('Botón de previsualización encontrado');
+            previewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Botón de previsualización clickeado');
+                // Si estamos usando jQuery
+                if (typeof $ !== 'undefined' && typeof $.fn.modal !== 'undefined') {
+                    $('#previewModal').modal('show');
+                } else if (typeof bootstrap !== 'undefined') {
+                    // Si estamos usando Bootstrap nativo
+                    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                    previewModal.show();
+                } else {
+                    console.error('No se encontró Bootstrap ni jQuery');
+                }
+            });
+        } else {
+            console.error('Botón de previsualización no encontrado');
+        }
+    });
+</script>
+@endpush
 </x-app-layout>
 
 <!-- Overlay de carga -->
@@ -223,5 +270,4 @@
     <h4>¡Operación Exitosa!</h4>
     <span id="successText"></span>
 </div>
-<script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/inscripcionManual.js') }}"></script>

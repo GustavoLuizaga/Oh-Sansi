@@ -62,20 +62,24 @@ $(document).ready(function () {
     let excelData = [];
     let dataTable;
     let errorCount = 0;
+    
+    // Verificar que DataTables esté disponible
+    if (!$.fn.DataTable) {
+        console.error('DataTables no está disponible. Asegúrese de que la biblioteca esté cargada correctamente.');
+    } else {
+        console.log('DataTables está disponible correctamente');
+    }
 
     // El botón Subir enviará el formulario directamente sin previsualización
     // No prevenimos el envío automático del formulario para que funcione normalmente
 
-    // Agregar botón de previsualización si no existe
-    if ($('#previewBtn').length === 0) {
-        $('.upload-button').before('<button type="button" id="previewBtn" class="preview-button"><i class="fas fa-eye"></i> Previsualizar</button>');
-    }
-
-    // Eliminar cualquier evento previo y agregar el nuevo
-    $(document).off('click', '#previewBtn');
-    $(document).on('click', '#previewBtn', function () {
+    // Asegurarse de que el evento click esté correctamente asignado al botón de previsualización
+    $(document).on('click', '#previewBtn', function(e) {
+        e.preventDefault();
+        console.log('Botón de previsualización clickeado');
         previewExcelData();
     });
+
 
     // Asegurarse de que el modal se reinicie completamente al cerrarse
     $('#previewModal').on('hidden.bs.modal', function () {
@@ -83,8 +87,12 @@ $(document).ready(function () {
         $('#previewTableBody').empty();
 
         // Destruir DataTable si existe
-        if ($.fn.DataTable.isDataTable('#previewTable')) {
-            $('#previewTable').DataTable().destroy();
+        try {
+            if ($ && $.fn && $.fn.DataTable && typeof $.fn.DataTable.isDataTable === 'function' && $.fn.DataTable.isDataTable('#previewTable')) {
+                $('#previewTable').DataTable().destroy();
+            }
+        } catch (error) {
+            console.error('Error al verificar o destruir DataTable:', error);
         }
 
         // Ocultar contador de errores
@@ -93,6 +101,7 @@ $(document).ready(function () {
 
 
     function previewExcelData() {
+        console.log('Función previewExcelData ejecutada');
         const fileInput = document.getElementById('excelFile');
         if (!fileInput.files.length) {
             alert('Por favor, seleccione un archivo Excel');
@@ -103,6 +112,7 @@ $(document).ready(function () {
         const reader = new FileReader();
 
         reader.onload = function (e) {
+            console.log('Archivo Excel cargado correctamente');
             // Reiniciar variables
             excelData = [];
             errorCount = 0;
@@ -111,8 +121,12 @@ $(document).ready(function () {
             $('#previewTableBody').empty();
 
             // Destruir DataTable si ya existe
-            if ($.fn.DataTable.isDataTable('#previewTable')) {
-                $('#previewTable').DataTable().destroy();
+            try {
+                if ($.fn && $.fn.DataTable && typeof $.fn.DataTable.isDataTable === 'function' && $.fn.DataTable.isDataTable('#previewTable')) {
+                    $('#previewTable').DataTable().destroy();
+                }
+            } catch (error) {
+                console.error('Error al verificar o destruir DataTable:', error);
             }
 
             const data = new Uint8Array(e.target.result);
@@ -163,8 +177,12 @@ $(document).ready(function () {
             });
 
             // Destruir DataTable si ya existe
-            if ($.fn.DataTable.isDataTable('#previewTable')) {
-                $('#previewTable').DataTable().clear().destroy();
+            try {
+                if ($ && $.fn && $.fn.DataTable && typeof $.fn.DataTable.isDataTable === 'function' && $.fn.DataTable.isDataTable('#previewTable')) {
+                    $('#previewTable').DataTable().clear().destroy();
+                }
+            } catch (error) {
+                console.error('Error al verificar o destruir DataTable:', error);
             }
 
             // Inicializar DataTable
@@ -201,9 +219,23 @@ $(document).ready(function () {
                 dom: '<"top"lf>rt<"bottom"ip><"clear">'
             });
 
-            // Mostrar modal
-            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-            previewModal.show();
+            try {
+                // Mostrar modal usando jQuery para evitar problemas con Bootstrap
+                $('#previewModal').modal('show');
+                console.log('Modal mostrado con jQuery');
+            } catch (error) {
+                console.error('Error al mostrar modal con jQuery:', error);
+                
+                try {
+                    // Intentar con Bootstrap como respaldo
+                    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                    previewModal.show();
+                    console.log('Modal mostrado con Bootstrap');
+                } catch (bootstrapError) {
+                    console.error('Error al mostrar modal con Bootstrap:', bootstrapError);
+                    alert('Hubo un problema al mostrar la previsualización. Por favor, intente de nuevo.');
+                }
+            }
 
             // Validar datos
             validateExcelData();

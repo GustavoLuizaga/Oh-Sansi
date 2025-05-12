@@ -1,380 +1,640 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Referencias a elementos del formulario
-    const ciInput = document.querySelector('input[name="ci"]');
-    const nombresInput = document.querySelector('input[name="nombres"]');
-    const apellidoPaternoInput = document.querySelector('input[name="apellidoPaterno"]');
-    const apellidoMaternoInput = document.querySelector('input[name="apellidoMaterno"]');
-    const fechaNacimientoInput = document.querySelector('input[name="fechaNacimiento"]');
-    const generoSelect = document.querySelector('select[name="genero"]');
-    const emailInput = document.querySelector('input[name="email"]');
-    const telefonoInput = document.querySelector('input[name="telefono"]');
-    const nombreCompletoTutorInput = document.querySelector('input[name="nombreCompletoTutor"]');
-    const correoTutorInput = document.querySelector('input[name="correoTutor"]');
-    const areaSelect = document.getElementById('areaSelect');
-    const categoriaSelect = document.getElementById('categoriaSelect');
-    const gradoSelect = document.getElementById('gradoSelect');
-    const registrationForm = document.querySelector('.registration-form');
+    // Get DOM elements
+    const studentTypeRadios = document.querySelectorAll('input[name="studentType"]');
+    const studentTypeHidden = document.getElementById('studentTypeHidden');
+    const ciSearchContainer = document.getElementById('ciSearchContainer');
+    const userInfoSection = document.querySelector('.user-info');
+    const userInfoInputs = userInfoSection.querySelectorAll('input, select');
 
-    // Agregar elementos para la selección de usuario existente/nuevo
-    const formHeader = document.querySelector('.form-card h2');
-    if (formHeader) {
-        const userTypeSelector = document.createElement('div');
-        userTypeSelector.className = 'user-type-selector';
-        userTypeSelector.innerHTML = `
-            <div class="selector-container">
-                <label class="selector-label">Tipo de registro:</label>
-                <div class="selector-options">
-                    <label class="option">
-                        <input type="radio" name="userType" value="existing" checked>
-                        <span>Estudiante existente</span>
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="userType" value="new">
-                        <span>Nuevo estudiante</span>
-                    </label>
-                </div>
-            </div>
-            <div class="ci-verification-container" id="ciVerificationContainer">
-                <div class="input-group">
-                    <label>CI del estudiante</label>
-                    <div class="input-with-button">
-                        <input type="text" id="ciVerification" placeholder="Ingrese CI para verificar">
-                        <button type="button" id="verifyCI" class="verify-button">
-                            <i class="fas fa-search"></i> Verificar
-                        </button>
-                    </div>
-                </div>
-                <div id="verificationResult" class="verification-result"></div>
-            </div>
-        `;
-        formHeader.insertAdjacentElement('afterend', userTypeSelector);
+    // Function to toggle form state
+    function toggleFormState(isExistingStudent) {
+        // Update hidden input value
+        studentTypeHidden.value = isExistingStudent ? 'existing' : 'new';
 
-        // Agregar contenedor para áreas adicionales
-        const academicSection = document.querySelector('.form-section:last-child');
-        if (academicSection) {
-            const additionalAreasContainer = document.createElement('div');
-            additionalAreasContainer.id = 'additionalAreasContainer';
-            additionalAreasContainer.className = 'additional-areas-container';
-            additionalAreasContainer.innerHTML = `
-                <h3 class="mt-4">Áreas adicionales (opcional)</h3>
-                <div class="area-container" id="additionalArea" style="display: none;">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>Área</label>
-                            <select id="areaSelect2" name="area2">
-                                <option value="">Seleccione un área</option>
-                                ${areaSelect.innerHTML.split('<option value="">Seleccione un área</option>')[1] || ''}
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Categoría</label>
-                            <select id="categoriaSelect2" name="categoria2">
-                                <option value="">Seleccione una categoría</option>
-                            </select>
-                        </div>
-                        <!-- Eliminamos el selector de grado ya que debe ser único por inscripción -->
-                        <div class="input-group area-note">
-                            <small class="text-info">Nota: El grado seleccionado en el área principal se aplicará a todas las áreas.</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="toggle-area-container">
-                    <button type="button" id="toggleAdditionalArea" class="toggle-area-button">
-                        <i class="fas fa-plus-circle"></i> Agregar otra área
-                    </button>
-                </div>
+        // Show/hide CI search
+        ciSearchContainer.style.display = isExistingStudent ? 'block' : 'none';
 
-                <div class="input-group modalidad-container">
-                    <label>Modalidad de participación</label>
-                    <select id="modalidadSelect" name="modalidad">
-                        <option value="individual">Individual</option>
-                        <option value="duo">Dúo</option>
-                        <option value="equipo">Equipo</option>
-                    </select>
-                </div>
+        // Toggle user info section state
+        userInfoSection.style.opacity = isExistingStudent ? '0.7' : '1';
 
-                <div class="input-group grupo-container" style="display: none;">
-                    <label>Grupo</label>
-                    <select id="grupoSelect" name="grupo">
-                        <option value="">Seleccione un grupo</option>
-                    </select>
-                </div>
-            `;
-            academicSection.appendChild(additionalAreasContainer);
-        }
+        // Enable/disable user info inputs
+        userInfoInputs.forEach(input => {
+            input.disabled = isExistingStudent;
+            input.readOnly = isExistingStudent;
+        });
 
-        // Eventos para el selector de tipo de usuario
-        const userTypeRadios = document.querySelectorAll('input[name="userType"]');
-        const ciVerificationContainer = document.getElementById('ciVerificationContainer');
-        const personalInfoSection = document.querySelector('.form-section:first-child');
-
-        userTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'existing') {
-                    ciVerificationContainer.style.display = 'block';
-                    personalInfoSection.style.opacity = '0.5';
-                    personalInfoSection.style.pointerEvents = 'none';
-                    // Deshabilitar campos de información personal
-                    togglePersonalFieldsState(true);
-                } else {
-                    ciVerificationContainer.style.display = 'none';
-                    personalInfoSection.style.opacity = '1';
-                    personalInfoSection.style.pointerEvents = 'auto';
-                    // Habilitar campos de información personal y limpiarlos
-                    togglePersonalFieldsState(false);
-                    clearPersonalFields();
-                }
+        // Clear form if switching to new student
+        if (!isExistingStudent) {
+            userInfoInputs.forEach(input => {
+                input.value = '';
             });
+        }
+    }
+
+    // Add event listeners to radio buttons
+    studentTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            const isExistingStudent = this.value === 'existing';
+            toggleFormState(isExistingStudent);
         });
+    });
 
-        // Inicializar estado
-        personalInfoSection.style.opacity = '0.5';
-        personalInfoSection.style.pointerEvents = 'none';
-        togglePersonalFieldsState(true);
+    // Initialize form state (assuming "existing student" is checked by default)
+    toggleFormState(true);
 
-        // Evento para verificar CI
-        const verifyButton = document.getElementById('verifyCI');
-        const ciVerificationInput = document.getElementById('ciVerification');
-        const verificationResult = document.getElementById('verificationResult');
+    // Add new code for handling modalidad selection
+    const modalidadSelects = document.querySelectorAll('.modalidad-select');
+    const grupoContainers = document.querySelectorAll('.grupo-container');
 
-        verifyButton.addEventListener('click', function() {
-            const ci = ciVerificationInput.value.trim();
-            if (!ci) {
-                verificationResult.innerHTML = '<div class="alert alert-warning">Por favor, ingrese un CI válido.</div>';
-                return;
-            }
-
-            verificationResult.innerHTML = '<div class="alert alert-info">Verificando...</div>';
-
-            // Llamada AJAX para verificar el CI
-            fetch(`/verificar-estudiante/${ci}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists && data.isEstudiante) {
-                        verificationResult.innerHTML = '<div class="alert alert-success">Estudiante encontrado. Cargando datos...</div>';
-                        // Llenar el formulario con los datos del estudiante
-                        fillFormWithStudentData(data.estudiante);
-                        // Mostrar la sección pero mantener los campos deshabilitados
-                        personalInfoSection.style.opacity = '1';
-                        personalInfoSection.style.pointerEvents = 'none';
-                        togglePersonalFieldsState(true);
-                    } else if (data.exists && !data.isEstudiante) {
-                        verificationResult.innerHTML = '<div class="alert alert-warning">El usuario existe pero no es un estudiante.</div>';
-                    } else {
-                        verificationResult.innerHTML = '<div class="alert alert-danger">No se encontró ningún estudiante con ese CI.</div>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al verificar CI:', error);
-                    verificationResult.innerHTML = '<div class="alert alert-danger">Error al verificar. Intente nuevamente.</div>';
-                });
-        });
-
-        // Evento para mostrar/ocultar área adicional
-        const toggleAdditionalAreaBtn = document.getElementById('toggleAdditionalArea');
-        const additionalAreaDiv = document.getElementById('additionalArea');
-
-        toggleAdditionalAreaBtn.addEventListener('click', function() {
-            if (additionalAreaDiv.style.display === 'none') {
-                additionalAreaDiv.style.display = 'block';
-                this.innerHTML = '<i class="fas fa-minus-circle"></i> Quitar área adicional';
-            } else {
-                additionalAreaDiv.style.display = 'none';
-                this.innerHTML = '<i class="fas fa-plus-circle"></i> Agregar otra área';
-                // Limpiar selecciones
-                document.getElementById('areaSelect2').value = '';
-                document.getElementById('categoriaSelect2').value = '';
-            }
-        });
-
-        // Evento para cambiar modalidad y mostrar grupos
-        const modalidadSelect = document.getElementById('modalidadSelect');
-        const grupoContainer = document.querySelector('.grupo-container');
-        const grupoSelect = document.getElementById('grupoSelect');
-
-        modalidadSelect.addEventListener('change', function() {
-            const modalidad = this.value;
-            if (modalidad === 'duo' || modalidad === 'equipo') {
+    modalidadSelects.forEach((select, index) => {
+        select.addEventListener('change', function () {
+            const grupoContainer = grupoContainers[index];
+            if (this.value === 'duo' || this.value === 'equipo') {
                 grupoContainer.style.display = 'block';
-                // Cargar grupos según la modalidad
-                loadGrupos(modalidad);
             } else {
                 grupoContainer.style.display = 'none';
-                grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+            }
+        });
+    });
+
+    // Add area functionality
+    const areasContainer = document.getElementById('areasContainer');
+    const addAreaBtn = document.getElementById('addAreaBtn');
+    const MAX_AREAS = 2;
+
+    function updateAreaVisibility() {
+        const areas = areasContainer.querySelectorAll('.area-section');
+        const removeButtons = areasContainer.querySelectorAll('.btn-remove-area');
+
+        // Show/hide add button based on number of areas
+        addAreaBtn.style.display = areas.length < MAX_AREAS ? 'block' : 'none';
+
+        // Show/hide remove buttons
+        removeButtons.forEach((btn, index) => {
+            btn.style.display = areas.length > 1 ? 'block' : 'none';
+        });
+
+        // Update area titles
+        areas.forEach((area, index) => {
+            area.querySelector('h4').textContent = `Área de Participación ${index + 1}`;
+        });
+    }
+
+    // Function to update available areas in selects
+    function updateAvailableAreas() {
+        const areaSelects = document.querySelectorAll('.area-select');
+        const selectedAreas = Array.from(areaSelects).map(select => select.value);
+
+        areaSelects.forEach((select, index) => {
+            const currentValue = select.value;
+            const options = select.querySelectorAll('option');
+
+            options.forEach(option => {
+                if (option.value === '') return; // Skip the default "Select" option
+                const isSelected = selectedAreas.includes(option.value);
+                option.disabled = isSelected && option.value !== currentValue;
+            });
+        });
+    }
+
+    // Add after existing area select event listeners
+    // Add this function after setupModalidadGrupoListeners
+    function updateGradoSelect() {
+        const categoriaSelects = document.querySelectorAll('.categoria-select');
+        const gradoSelect = document.getElementById('gradoSelect');
+        const selectedCategorias = [];
+        const areaCount = document.querySelectorAll('.area-section').length;
+
+        // Get all selected categoria IDs
+        categoriaSelects.forEach(select => {
+            if (select.value) {
+                selectedCategorias.push(select.value);
             }
         });
 
-        // Eventos para cargar categorías y grados para el área principal
-        const idConvocatoria = document.body.getAttribute('data-convocatoria-id') || document.querySelector('input[name="idConvocatoria"]')?.value || '';
-        
-        // Evento para cargar categorías cuando se selecciona un área principal
-        areaSelect.addEventListener('change', function() {
-            const idArea = this.value;
-            categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+        // If no categories selected, clear grado select
+        if (selectedCategorias.length === 0) {
             gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
+            return;
+        }
 
-            if (idArea) {
-                fetch(`/obtener-categorias/${idConvocatoria}/${idArea}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(categoria => {
-                            const option = document.createElement('option');
-                            option.value = categoria.idCategoria;
-                            option.textContent = categoria.nombre;
-                            categoriaSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar categorías:', error);
-                    });
-            }
-        });
+        // If we have two areas but not all categories are selected, show message
+        if (areaCount === 2 && selectedCategorias.length !== 2) {
+            gradoSelect.innerHTML = '<option value="">Seleccione categorías en ambas áreas</option>';
+            return;
+        }
 
-        // Evento para cargar grados cuando se selecciona una categoría principal
-        categoriaSelect.addEventListener('change', function() {
-            const idCategoria = this.value;
-            gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
-
-            if (idCategoria) {
-                fetch(`/obtener-grados/${idCategoria}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(grado => {
+        // Fetch grades for selected categories
+        fetch('/inscripcion/estudiante/grados', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                categorias: selectedCategorias
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    gradoSelect.innerHTML = '<option value="">Seleccione un grado</option>';
+                    if (data.grados.length === 0) {
+                        gradoSelect.innerHTML = '<option value="">No hay grados en común</option>';
+                    } else {
+                        data.grados.forEach(grado => {
                             const option = document.createElement('option');
                             option.value = grado.idGrado;
                             option.textContent = grado.grado;
                             gradoSelect.appendChild(option);
                         });
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar grados:', error);
-                    });
-            }
-        });
-        
-        // Eventos para cargar categorías y grados para el área adicional
-        const areaSelect2 = document.getElementById('areaSelect2');
-        const categoriaSelect2 = document.getElementById('categoriaSelect2');
-        const gradoSelect2 = document.getElementById('gradoSelect2');
-        // Usamos el mismo ID de convocatoria que para el área principal
-
-        areaSelect2.addEventListener('change', function() {
-            const idArea = this.value;
-            categoriaSelect2.innerHTML = '<option value="">Seleccione una categoría</option>';
-
-            if (idArea) {
-                fetch(`/obtener-categorias/${idConvocatoria}/${idArea}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(categoria => {
-                            const option = document.createElement('option');
-                            option.value = categoria.idCategoria;
-                            option.textContent = categoria.nombre;
-                            categoriaSelect2.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar categorías:', error);
-                    });
-            }
-        });
-
-        // Ya no necesitamos el evento para cargar grados en el área adicional
-        // porque usamos el mismo grado para todas las áreas
-
-        // Validación del formulario antes de enviar
-        registrationForm.addEventListener('submit', function(event) {
-            // Verificar si se seleccionó un área adicional pero no se completaron todos los campos
-            if (additionalAreaDiv.style.display !== 'none') {
-                const area2 = document.getElementById('areaSelect2').value;
-                const categoria2 = document.getElementById('categoriaSelect2').value;
-                
-                if ((area2 && !categoria2) || (categoria2 && !area2)) {
-                    event.preventDefault();
-                    alert('Si selecciona un área adicional, debe completar todos los campos relacionados (Área y Categoría).');
-                    return false;
-                }
-            }
-
-            // Verificar si se seleccionó modalidad dúo o equipo pero no se seleccionó un grupo
-            const modalidad = document.getElementById('modalidadSelect').value;
-            const grupo = document.getElementById('grupoSelect').value;
-            
-            if ((modalidad === 'duo' || modalidad === 'equipo') && !grupo) {
-                event.preventDefault();
-                alert('Para la modalidad seleccionada, debe elegir un grupo.');
-                return false;
-            }
-        });
-    } // Closing brace for if(formHeader) condition
-
-    // Función para habilitar/deshabilitar campos de información personal
-    function togglePersonalFieldsState(disabled) {
-        const personalFields = [
-            nombresInput, apellidoPaternoInput, apellidoMaternoInput, ciInput,
-            fechaNacimientoInput, generoSelect, emailInput, telefonoInput
-        ];
-        
-        personalFields.forEach(field => {
-            if (field) field.disabled = disabled;
-        });
-    }
-
-    // Función para limpiar campos de información personal
-    function clearPersonalFields() {
-        const personalFields = [
-            nombresInput, apellidoPaternoInput, apellidoMaternoInput, ciInput,
-            fechaNacimientoInput, generoSelect, emailInput, telefonoInput
-        ];
-        
-        personalFields.forEach(field => {
-            if (field) field.value = '';
-        });
-    }
-
-    // Función para llenar el formulario con los datos del estudiante
-    function fillFormWithStudentData(estudiante) {
-        if (nombresInput) nombresInput.value = estudiante.name || '';
-        if (apellidoPaternoInput) apellidoPaternoInput.value = estudiante.apellidoPaterno || '';
-        if (apellidoMaternoInput) apellidoMaternoInput.value = estudiante.apellidoMaterno || '';
-        if (ciInput) ciInput.value = estudiante.ci || '';
-        if (fechaNacimientoInput) fechaNacimientoInput.value = estudiante.fechaNacimiento || '';
-        if (generoSelect) {
-            // Asegurarse de que el valor del género se establezca correctamente
-            generoSelect.value = estudiante.genero || '';
-            console.log('Estableciendo género:', estudiante.genero);
-        }
-        if (emailInput) emailInput.value = estudiante.email || '';
-        if (telefonoInput) telefonoInput.value = estudiante.telefono || '';
-    }
-
-    // Función para cargar grupos según la modalidad
-    function loadGrupos(modalidad) {
-        const grupoSelect = document.getElementById('grupoSelect');
-        grupoSelect.innerHTML = '<option value="">Cargando grupos...</option>';
-
-        // El backend ya filtra los grupos por la delegación del tutor autenticado
-        fetch(`/obtener-grupos/${modalidad}`)
-            .then(response => response.json())
-            .then(data => {
-                grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
-                if (data.length === 0) {
-                    const noGruposOption = document.createElement('option');
-                    noGruposOption.disabled = true;
-                    noGruposOption.textContent = 'No hay grupos disponibles para su delegación';
-                    grupoSelect.appendChild(noGruposOption);
-                } else {
-                    data.forEach(grupo => {
-                        const option = document.createElement('option');
-                        option.value = grupo.id;
-                        option.textContent = grupo.nombreGrupo || `Grupo ${grupo.codigoInvitacion}`;
-                        grupoSelect.appendChild(option);
-                    });
+                    }
                 }
             })
             .catch(error => {
-                console.error('Error al cargar grupos:', error);
-                grupoSelect.innerHTML = '<option value="">Error al cargar grupos</option>';
+                console.error('Error:', error);
+                gradoSelect.innerHTML = '<option value="">Error al cargar grados</option>';
             });
     }
-}); // Closing brace for DOMContentLoaded event listener
+
+    // Modify setupAreaCategoriaListeners to include grade update
+    // Modify setupAreaCategoriaListeners function
+    function setupAreaCategoriaListeners(areaSelect) {
+        // Remove existing listeners before adding new ones
+        const newAreaSelect = areaSelect.cloneNode(true);
+        areaSelect.parentNode.replaceChild(newAreaSelect, areaSelect);
+        
+        const categoriaSelect = newAreaSelect.closest('.area-section').querySelector('.categoria-select');
+        const newCategoriaSelect = categoriaSelect.cloneNode(true);
+        categoriaSelect.parentNode.replaceChild(newCategoriaSelect, categoriaSelect);
+
+        newAreaSelect.addEventListener('change', async function () {
+            newCategoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+
+            if (!this.value) return;
+
+            try {
+                const response = await fetch(`/inscripcion/estudiante/categorias/${this.value}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        selectedCategoria: null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Create a Map to store unique categories by ID
+                    const uniqueCategories = new Map();
+                    
+                    data.categorias.forEach(categoria => {
+                        if (!uniqueCategories.has(categoria.idCategoria)) {
+                            uniqueCategories.set(categoria.idCategoria, categoria);
+                        }
+                    });
+
+                    // Add unique categories to select
+                    uniqueCategories.forEach(categoria => {
+                        const option = document.createElement('option');
+                        option.value = categoria.idCategoria;
+                        option.textContent = categoria.nombre;
+                        newCategoriaSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Single event listener for categoria changes
+        newCategoriaSelect.addEventListener('change', updateGradoSelect);
+        
+        return { newAreaSelect, newCategoriaSelect };
+    }
+
+    // Remove the nested DOMContentLoaded event listener
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     const initialCategoriaSelect = document.querySelector('.categoria-select');
+    //     initialCategoriaSelect.addEventListener('change', updateGradoSelect);
+    // });
+
+    // Add event listener for initial categoria select
+    document.addEventListener('DOMContentLoaded', function () {
+        const initialCategoriaSelect = document.querySelector('.categoria-select');
+        initialCategoriaSelect.addEventListener('change', updateGradoSelect);
+    });
+
+    // Add this new function to update available groups
+    function updateAvailableGroups() {
+        const grupoSelects = document.querySelectorAll('.grupo-select');
+        const selectedGroups = Array.from(grupoSelects).map(select => select.value);
+
+        grupoSelects.forEach((select, index) => {
+            const currentValue = select.value;
+            const options = select.querySelectorAll('option');
+
+            options.forEach(option => {
+                if (option.value === '') return; // Skip the default "Select" option
+                const isSelected = selectedGroups.includes(option.value);
+                option.disabled = isSelected && option.value !== currentValue;
+            });
+        });
+    }
+
+    // Modify setupModalidadGrupoListeners function
+    function setupModalidadGrupoListeners(modalidadSelect) {
+        modalidadSelect.addEventListener('change', async function () {
+            const grupoContainer = this.closest('.area-section').querySelector('.grupo-container');
+            const grupoSelect = grupoContainer.querySelector('.grupo-select');
+
+            if (this.value === 'duo' || this.value === 'equipo') {
+                grupoContainer.style.display = 'block';
+                grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+
+                try {
+                    const response = await fetch(`/inscripcion/estudiante/grupos/${this.value}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        data.grupos.forEach(grupo => {
+                            const option = document.createElement('option');
+                            option.value = grupo.id;
+                            option.textContent = grupo.nombreGrupo;
+                            grupoSelect.appendChild(option);
+                        });
+
+                        // Add change event listener to grupo select
+                        grupoSelect.addEventListener('change', updateAvailableGroups);
+                        updateAvailableGroups();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            } else {
+                grupoContainer.style.display = 'none';
+                grupoSelect.value = ''; // Clear selection when switching to individual
+                updateAvailableGroups();
+            }
+        });
+    }
+
+    // Modify createNewArea function
+    function createNewArea() {
+        const areaTemplate = areasContainer.querySelector('.area-section').cloneNode(true);
+        const newIndex = areasContainer.querySelectorAll('.area-section').length;
+
+        // Update names for new elements
+        areaTemplate.querySelectorAll('[name^="areas[0]"]').forEach(element => {
+            element.name = element.name.replace('areas[0]', `areas[${newIndex}]`);
+            if (element.tagName === 'SELECT') {
+                element.selectedIndex = 0;
+            }
+        });
+
+        // Clear any selected values
+        areaTemplate.querySelectorAll('select').forEach(select => {
+            select.selectedIndex = 0;
+        });
+
+        // Hide grupo container by default
+        areaTemplate.querySelector('.grupo-container').style.display = 'none';
+
+        // Add the new area
+        areasContainer.appendChild(areaTemplate);
+        updateAreaVisibility();
+
+        // Add change event listeners to new selects
+        const newAreaSelect = areaTemplate.querySelector('.area-select');
+        const newModalidadSelect = areaTemplate.querySelector('.modalidad-select');
+        const newGrupoContainer = areaTemplate.querySelector('.grupo-container');
+
+        setupAreaCategoriaListeners(newAreaSelect);
+        setupModalidadGrupoListeners(newModalidadSelect);
+
+        newAreaSelect.addEventListener('change', function () {
+            updateAvailableAreas();
+        });
+
+        // Remove duplicate declaration and use the existing newModalidadSelect variable
+        newModalidadSelect.addEventListener('change', function () {
+            if (this.value === 'duo' || this.value === 'equipo') {
+                newGrupoContainer.style.display = 'block';
+            } else {
+                newGrupoContainer.style.display = 'none';
+            }
+        });
+
+        updateAvailableAreas();
+    }
+
+    // Initialize event listeners for the first area
+    const initialAreaSelect = areasContainer.querySelector('.area-select');
+    const initialModalidadSelect = areasContainer.querySelector('.modalidad-select');
+
+    // Setup the event listeners for the initial selects
+    setupAreaCategoriaListeners(initialAreaSelect);
+    setupModalidadGrupoListeners(initialModalidadSelect);
+
+    // Add change event listener to initial area select for updating available areas
+    initialAreaSelect.addEventListener('change', function () {
+        updateAvailableAreas();
+    });
+
+    // Modify remove area functionality
+    areasContainer.addEventListener('click', function (e) {
+        if (e.target.closest('.btn-remove-area')) {
+            e.preventDefault();
+            const areaToRemove = e.target.closest('.area-section');
+            areaToRemove.remove();
+            updateAreaVisibility();
+            updateAvailableAreas();
+        }
+    });
+
+    // Add area button click handler
+    addAreaBtn.addEventListener('click', function () {
+        const currentAreas = areasContainer.querySelectorAll('.area-section');
+        if (currentAreas.length < MAX_AREAS) {
+            createNewArea();
+        }
+    });
+
+    // Remove area functionality
+    areasContainer.addEventListener('click', function (e) {
+        if (e.target.closest('.btn-remove-area')) {
+            e.preventDefault();
+            const areaToRemove = e.target.closest('.area-section');
+            areaToRemove.remove();
+            updateAreaVisibility();
+        }
+    });
+
+    // Initialize area visibility
+    updateAreaVisibility();
+
+    // Search functionality
+    const searchButton = document.getElementById('searchButton');
+    const searchInput = document.getElementById('searchCI');
+    const searchResult = document.getElementById('searchResult');
+    let foundStudentCI = ''; // Variable to store the found student's CI
+
+    searchButton.addEventListener('click', async function () {
+        const ci = searchInput.value.trim();
+        if (!ci) {
+            searchResult.innerHTML = '<div class="alert alert-warning">Por favor ingrese un CI</div>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/inscripcion/estudiante/buscar?ci=${ci}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                searchResult.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                return;
+            }
+
+            // Fill form with student data
+            const estudiante = data.estudiante;
+            document.querySelector('input[name="nombres"]').value = estudiante.nombres;
+            document.querySelector('input[name="apellidoPaterno"]').value = estudiante.apellidoPaterno;
+            document.querySelector('input[name="apellidoMaterno"]').value = estudiante.apellidoMaterno;
+            document.querySelector('input[name="ci"]').value = estudiante.ci;
+            foundStudentCI = estudiante.ci; // Store the CI for form submission
+            document.querySelector('input[name="fechaNacimiento"]').value = estudiante.fechaNacimiento;
+            document.querySelector('select[name="genero"]').value = estudiante.genero;
+            document.querySelector('input[name="email"]').value = estudiante.email;
+
+            searchResult.innerHTML = '<div class="alert alert-success">Estudiante encontrado</div>';
+
+        } catch (error) {
+            searchResult.innerHTML = '<div class="alert alert-danger">Error al buscar estudiante</div>';
+            console.error('Error:', error);
+        }
+    });
+
+    // Add form submission handler
+    const form = document.querySelector('.registration-form');
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        // Disable submit button to prevent double submission
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+
+        try {
+            if (studentTypeHidden.value !== 'existing') {
+                displayError('Esta función es solo para estudiantes existentes');
+                return;
+            }
+
+            const formData = {
+                ci: document.querySelector('input[name="ci"]').value,
+                idConvocatoria: document.getElementById('idConvocatoria').value,
+                idDelegacion: document.getElementById('idDelegacion').value,
+                grado: document.getElementById('gradoSelect').value,
+                numeroContacto: document.querySelector('input[name="numeroContacto"]').value,
+                nombreCompletoTutor: document.querySelector('input[name="nombreCompletoTutor"]').value,
+                correoTutor: document.querySelector('input[name="correoTutor"]').value,
+                areas: []
+            };
+
+            // Get areas data
+            document.querySelectorAll('.area-section').forEach((areaSection) => {
+                const areaData = {
+                    area: areaSection.querySelector('.area-select').value,
+                    categoria: areaSection.querySelector('.categoria-select').value,
+                    modalidad: areaSection.querySelector('.modalidad-select').value,
+                };
+
+                // Add grupo if modalidad is duo or equipo
+                if (areaData.modalidad !== 'individual') {
+                    areaData.grupo = areaSection.querySelector('.grupo-select').value;
+                }
+
+                formData.areas.push(areaData);
+            });
+
+            const response = await fetch('/inscripcion/estudiante/manual/store', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                displayError(data.message || 'Error al procesar la inscripción');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            displayError('Error al enviar el formulario');
+        } finally {
+            // Re-enable submit button
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+    });
+
+    // Replace showError with displayError function
+    function displayError(message) {
+        const errorDisplay = document.getElementById('errorDisplay');
+        if (errorDisplay) {
+            errorDisplay.textContent = message;
+            errorDisplay.style.display = 'block';
+        } else {
+            // Fallback if errorDisplay doesn't exist
+            alert(message);
+        }
+        console.error('Form Error:', message);
+    }
+
+    // Update validateForm to use displayError
+    function validateForm() {
+        const studentType = document.querySelector('input[name="studentType"]:checked').value;
+        const areas = document.querySelectorAll('.area-section');
+        const gradoSelect = document.getElementById('gradoSelect');
+
+        if (studentType === 'existing' && !document.querySelector('input[name="ci"]').value) {
+            displayError('Por favor, ingrese el CI del estudiante');
+            return false;
+        }
+
+        // Rest of validation code...
+        for (let area of areas) {
+            const areaSelect = area.querySelector('.area-select');
+            const categoriaSelect = area.querySelector('.categoria-select');
+            const modalidadSelect = area.querySelector('.modalidad-select');
+            const grupoSelect = area.querySelector('.grupo-select');
+
+            if (!areaSelect.value || !categoriaSelect.value || !modalidadSelect.value) {
+                showError('Por favor, complete todos los campos de área');
+                return false;
+            }
+
+            // Validate grupo if modalidad is duo or equipo
+            if (['duo', 'equipo'].includes(modalidadSelect.value)) {
+                if (!grupoSelect.value) {
+                    showError('Por favor, seleccione un grupo para la modalidad ' + modalidadSelect.value);
+                    return false;
+                }
+            }
+        }
+
+        // Validate grado
+        if (!gradoSelect.value) {
+            showError('Por favor, seleccione un grado');
+            return false;
+        }
+
+        return true;
+    }
+});
+// Function to display errors
+function showError(message) {
+        const errorDisplay = document.getElementById('errorDisplay');
+        errorDisplay.textContent = message;
+        errorDisplay.style.display = 'block';
+        console.error('Form Error:', message);
+    }
+
+    // Add this at the beginning of your DOMContentLoaded event
+    async function cargarConvocatoriaActiva() {
+        try {
+            const response = await fetch('/inscripcion/estudiante/convocatoria-activa', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Respuesta convocatoria:', data);
+
+            const convocatoriaInput = document.getElementById('convocatoriaInput');
+            const idConvocatoriaInput = document.getElementById('idConvocatoria');
+
+            if (data.success && data.convocatoria) {
+                convocatoriaInput.value = data.convocatoria.nombre;
+                idConvocatoriaInput.value = data.convocatoria.id;
+            } else {
+                convocatoriaInput.value = 'No hay convocatoria activa';
+                idConvocatoriaInput.value = '';
+                displayError('No hay una convocatoria activa disponible');
+            }
+        } catch (error) {
+            console.error('Error al cargar convocatoria:', error);
+            document.getElementById('convocatoriaInput').value = 'Error al cargar convocatoria';
+            displayError('Error al cargar la convocatoria');
+        }
+    }
+
+    // Call the function when the page loads
+    cargarConvocatoriaActiva();
+
+    async function cargarColegio() {
+        try {
+            const response = await fetch('/inscripcion/estudiante/colegio', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                }
+            });
+
+            const data = await response.json();
+
+            const colegioInput = document.getElementById('colegioInput');
+            const idDelegacionInput = document.getElementById('idDelegacion');
+
+            if (data.success) {
+                colegioInput.value = data.colegio.nombre;
+                idDelegacionInput.value = data.colegio.id;
+            } else {
+                colegioInput.value = 'No asignado';
+                idDelegacionInput.value = '';
+                displayError('No hay colegio asignado');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('colegioInput').value = 'Error al cargar colegio';
+            displayError('Error al cargar el colegio');
+        }
+    }
+
+    // Call both functions when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarConvocatoriaActiva();
+        cargarColegio();
+    });

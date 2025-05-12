@@ -10,6 +10,7 @@ use App\Models\TutorAreaDelegacion;
 use App\Models\DetalleInscripcion;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class GrupoController extends Controller
 {
@@ -132,53 +133,66 @@ class GrupoController extends Controller
                          ->with('success', 'Grupo eliminado correctamente');
     }
     
-    /**
-     * Get groups by modality.
-     *
-     * @param  string  $modalidad
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function obtenerGruposPorModalidad($modalidad)
     {
         try {
-            // Validate modality
+            // Validar modalidad
             if (!in_array($modalidad, ['duo', 'equipo'])) {
+                Log::warning('Modalidad inválida', ['modalidad' => $modalidad]);
                 return response()->json([], 200);
             }
             
-            // Get current user ID (tutor)
+            // Obtener usuario actual (tutor)
             $user = Auth::user();
             
-            // Get tutor's delegation
-            $tutorAreaDelegacion = TutorAreaDelegacion::where('id', $user->id)->first();
+            // Verificar si el usuario tiene rol de tutor
+            if (!$user || !$user->tutor) {
+                Log::warning('Usuario no es tutor', ['user_id' => $user ? $user->id : 'null']);
+                return response()->json([], 200);
+            }
+            
+            // Obtener la delegación del tutor
+            $tutor = $user->tutor;
+            
+            if (!$tutor) {
+                Log::warning('No se encontró el tutor asociado al usuario', ['user_id' => $user->id]);
+                return response()->json([], 200);
+            }
+            
+            // Obtener la relación tutorAreaDelegacion usando una consulta directa
+            $tutorAreaDelegacion = TutorAreaDelegacion::where('id', $tutor->id)->first();
             
             if (!$tutorAreaDelegacion) {
-                // Log for debugging
-                \Illuminate\Support\Facades\Log::warning('No delegation found for tutor', ['user_id' => $user->id]);
+                Log::warning('No se encontró delegación para el tutor', ['user_id' => $user->id, 'tutor_id' => $tutor->id]);
                 return response()->json([], 200);
             }
             
             $idDelegacion = $tutorAreaDelegacion->idDelegacion;
             
-            // Log for debugging
-            \Illuminate\Support\Facades\Log::info('Searching groups for delegation', [
+            // Registrar para depuración
+            Log::info('Buscando grupos para delegación', [
                 'idDelegacion' => $idDelegacion,
-                'modalidad' => $modalidad
+                'modalidad' => $modalidad,
+                'user_id' => $user->id
             ]);
             
-            // Get active groups with available capacity for the specified modality
+            // Obtener todos los grupos para la modalidad y delegación especificadas
+            // Modificado para incluir grupos independientemente de su estado
             $grupos = GrupoInscripcion::where('modalidad', $modalidad)
                 ->where('idDelegacion', $idDelegacion)
-                ->where('estado', 'activo')
-                ->select('id', 'nombreGrupo', 'codigoInvitacion')
+                ->select('idGrupoInscripcion as id', 'nombreGrupo', 'codigoInvitacion', 'estado')
                 ->get();
             
-            // Log for debugging
-            \Illuminate\Support\Facades\Log::info('Groups found', ['count' => $grupos->count()]);
+            // Registrar los datos que se devuelven
+            Log::info('Grupos encontrados', ['count' => $grupos->count(), 'grupos' => $grupos]);
             
             return response()->json($grupos, 200);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error loading groups', ['error' => $e->getMessage()]);
+            Log::error('Error al cargar grupos', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'error' => 'Error al cargar grupos: ' . $e->getMessage()
             ], 500);

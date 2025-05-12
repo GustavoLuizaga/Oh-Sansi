@@ -13,14 +13,20 @@ class Inscripcion extends Migration
             $table->date('fechaInscripcion');
             $table->integer('numeroContacto');
             $table->enum('status', ['pendiente', 'aprobado', 'rechazado'])->default('pendiente');
-            $table->unsignedBigInteger('idGrado');  // Grado del estudiante
-            $table->unsignedBigInteger('idConvocatoria');  // Convocatoria asociada
-            $table->unsignedBigInteger('idDelegacion');  // Delegación asociada
-            $table->string('nombreApellidosTutor', 100)->nullable();  // Nombre del tutor
-            $table->string('correoTutor', 100)->nullable();  // Correo del tutor
+            $table->unsignedBigInteger('idGrado');
+            $table->unsignedBigInteger('idConvocatoria');
+            $table->unsignedBigInteger('idDelegacion');
+            $table->string('nombreApellidosTutor', 100)->nullable();
+            $table->string('correoTutor', 100)->nullable();
+            $table->timestamps();
+            
+            // Foreign keys
             $table->foreign('idGrado')->references('idGrado')->on('grado');
             $table->foreign('idConvocatoria')->references('idConvocatoria')->on('convocatoria');
             $table->foreign('idDelegacion')->references('idDelegacion')->on('delegacion');
+            
+            // Con esto me aseguro que solo halla una inscripcion por convocatoria
+            $table->unique(['idConvocatoria'], 'unique_convocatoria');
         });
     }
 

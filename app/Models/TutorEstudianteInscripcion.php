@@ -9,6 +9,8 @@ class TutorEstudianteInscripcion extends Model
 {
     use HasFactory;
     protected $table = 'tutorEstudianteInscripcion'; // Nombre real de la tabla
+    protected $primaryKey = null; // No tiene una única clave primaria
+    public $incrementing = false; // No es autoincremental
 
     protected $fillable = [
         'idEstudiante',
@@ -21,11 +23,20 @@ class TutorEstudianteInscripcion extends Model
         return $this->belongsTo(Inscripcion::class, 'idInscripcion', 'idInscripcion');
     }
 
-    public function obtenerInscripcionesPorTutor($idTutor)
-{
-    return $this->where('idTutor', $idTutor)
-        ->with('inscripcion')  // Carga eager loading de la relación inscripcion
-        ->get();
-}
+    public function estudiante()
+    {
+        return $this->belongsTo(Estudiante::class, 'idEstudiante', 'id');
+    }
 
+    public function tutor()
+    {
+        return $this->belongsTo(Tutor::class, 'idTutor', 'id');
+    }
+
+    public function obtenerInscripcionesPorTutor($idTutor)
+    {
+        return $this->where('idTutor', $idTutor)
+            ->with('inscripcion')  // Carga eager loading de la relación inscripcion
+            ->get();
+    }
 }

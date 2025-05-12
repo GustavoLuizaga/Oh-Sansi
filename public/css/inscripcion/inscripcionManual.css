@@ -4,6 +4,7 @@
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    /*display: none; /* OCultamos el selecctor*/
 }
 
 .selector-options {
@@ -58,6 +59,23 @@
 
 #searchButton:hover {
     background-color: var(--secondary-color);
+}
+
+.clear-button {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.clear-button:hover {
+    background-color: #e03131;
 }
 
 /* Area Section Styles */

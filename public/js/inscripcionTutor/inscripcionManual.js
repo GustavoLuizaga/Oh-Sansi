@@ -14,21 +14,19 @@ document.addEventListener('DOMContentLoaded', function () {
         // Show/hide CI search
         ciSearchContainer.style.display = isExistingStudent ? 'block' : 'none';
 
-        // Toggle user info section state
-        userInfoSection.style.opacity = isExistingStudent ? '0.7' : '1';
-
-        // Enable/disable user info inputs
-        userInfoInputs.forEach(input => {
-            input.disabled = isExistingStudent;
-            input.readOnly = isExistingStudent;
-        });
-
-        // Clear form if switching to new student
+        // For new students, we always enable inputs
         if (!isExistingStudent) {
+            userInfoSection.style.opacity = '1';
+            userInfoInputs.forEach(input => {
+                input.disabled = false;
+                input.readOnly = false;
+            });
+            // Clear form when switching to new student
             userInfoInputs.forEach(input => {
                 input.value = '';
             });
         }
+        // For existing students, we keep inputs enabled until a student is found
     }
 
     // Add event listeners to radio buttons
@@ -40,7 +38,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Initialize form state (assuming "existing student" is checked by default)
+    // But keep inputs enabled by default
     toggleFormState(true);
+    userInfoSection.style.opacity = '1';
+    userInfoInputs.forEach(input => {
+        input.disabled = false;
+        input.readOnly = false;
+    });
 
     // Add new code for handling modalidad selection
     const modalidadSelects = document.querySelectorAll('.modalidad-select');
@@ -390,6 +394,37 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchResult = document.getElementById('searchResult');
     let foundStudentCI = ''; // Variable to store the found student's CI
 
+    // Add a clear button to the search container only if it doesn't already exist
+    if (!document.getElementById('clearButton')) {
+        const clearButtonHTML = `
+            <button type="button" id="clearButton" class="clear-button">
+                <i class="fas fa-times"></i> Limpiar
+            </button>
+        `;
+        searchInput.insertAdjacentHTML('afterend', clearButtonHTML);
+    }
+    const clearButton = document.getElementById('clearButton');
+    
+    // Initially hide the clear button
+    clearButton.style.display = 'none';
+
+    // Clear button functionality
+    clearButton.addEventListener('click', function() {
+        // Clear search input
+        searchInput.value = '';
+        searchResult.innerHTML = '';
+        
+        // Clear and enable user info inputs
+        userInfoInputs.forEach(input => {
+            input.value = '';
+            input.disabled = false;
+            input.readOnly = false;
+        });
+        
+        userInfoSection.style.opacity = '1';
+        clearButton.style.display = 'none';
+    });
+
     searchButton.addEventListener('click', async function () {
         const ci = searchInput.value.trim();
         if (!ci) {
@@ -422,6 +457,16 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('input[name="fechaNacimiento"]').value = estudiante.fechaNacimiento;
             document.querySelector('select[name="genero"]').value = estudiante.genero;
             document.querySelector('input[name="email"]').value = estudiante.email;
+
+            // Disable user info inputs after finding a student
+            userInfoSection.style.opacity = '0.7';
+            userInfoInputs.forEach(input => {
+                input.disabled = true;
+                input.readOnly = true;
+            });
+
+            // Show clear button after finding a student
+            clearButton.style.display = 'block';
 
             searchResult.innerHTML = '<div class="alert alert-success">Estudiante encontrado</div>';
 

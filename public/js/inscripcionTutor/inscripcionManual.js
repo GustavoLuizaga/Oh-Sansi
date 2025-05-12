@@ -159,24 +159,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Modify setupAreaCategoriaListeners to include grade update
+    // Modify setupAreaCategoriaListeners function
     function setupAreaCategoriaListeners(areaSelect) {
-        areaSelect.addEventListener('change', async function () {
-            const categoriaSelect = this.closest('.area-section').querySelector('.categoria-select');
-            categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+        // Remove existing listeners before adding new ones
+        const newAreaSelect = areaSelect.cloneNode(true);
+        areaSelect.parentNode.replaceChild(newAreaSelect, areaSelect);
+        
+        const categoriaSelect = newAreaSelect.closest('.area-section').querySelector('.categoria-select');
+        const newCategoriaSelect = categoriaSelect.cloneNode(true);
+        categoriaSelect.parentNode.replaceChild(newCategoriaSelect, categoriaSelect);
+
+        newAreaSelect.addEventListener('change', async function () {
+            newCategoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
 
             if (!this.value) return;
-
-            // Get the other area's selected categoria (if exists)
-            const areas = document.querySelectorAll('.area-section');
-            let selectedCategoria = null;
-            if (areas.length > 1) {
-                const otherArea = Array.from(areas).find(area =>
-                    area.querySelector('.area-select') !== this
-                );
-                if (otherArea) {
-                    selectedCategoria = otherArea.querySelector('.categoria-select').value;
-                }
-            }
 
             try {
                 const response = await fetch(`/inscripcion/estudiante/categorias/${this.value}`, {
@@ -187,18 +183,28 @@ document.addEventListener('DOMContentLoaded', function () {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        selectedCategoria: selectedCategoria
+                        selectedCategoria: null
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
+                    // Create a Map to store unique categories by ID
+                    const uniqueCategories = new Map();
+                    
                     data.categorias.forEach(categoria => {
+                        if (!uniqueCategories.has(categoria.idCategoria)) {
+                            uniqueCategories.set(categoria.idCategoria, categoria);
+                        }
+                    });
+
+                    // Add unique categories to select
+                    uniqueCategories.forEach(categoria => {
                         const option = document.createElement('option');
                         option.value = categoria.idCategoria;
                         option.textContent = categoria.nombre;
-                        categoriaSelect.appendChild(option);
+                        newCategoriaSelect.appendChild(option);
                     });
                 }
             } catch (error) {
@@ -206,9 +212,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        const categoriaSelect = areaSelect.closest('.area-section').querySelector('.categoria-select');
-        categoriaSelect.addEventListener('change', updateGradoSelect);
+        // Single event listener for categoria changes
+        newCategoriaSelect.addEventListener('change', updateGradoSelect);
+        
+        return { newAreaSelect, newCategoriaSelect };
     }
+
+    // Remove the nested DOMContentLoaded event listener
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     const initialCategoriaSelect = document.querySelector('.categoria-select');
+    //     initialCategoriaSelect.addEventListener('change', updateGradoSelect);
+    // });
 
     // Add event listener for initial categoria select
     document.addEventListener('DOMContentLoaded', function () {

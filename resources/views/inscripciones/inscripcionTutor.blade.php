@@ -18,6 +18,7 @@
 
     <body data-convocatoria-id="{{ $idConvocatoriaResult ?? '' }}">
 
+        <!-- Change this part -->
         <div class="tutor-container">
             <!-- Top Section: Token and Excel Upload -->
             <div class="top-section">
@@ -131,8 +132,13 @@
                     @endif
                 </div>
             </div>
-            @include('inscripciones/formInscripcionEst')
-            <!-- Modal -->
+            
+            
+            <div class="manual-registration-section">
+                @include('inscripciones/formInscripcionEst')
+            </div>
+            
+            <!-- Modal and other content -->
             <div id="modalDatos" class="modal">
                 <div class="modal-contenido">
                     <button onclick="cerrarModal()" class="modal-cerrar">✖</button>
@@ -218,7 +224,4 @@
     <span id="successText"></span>
 </div>
 <script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/inscripcionTutor.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/inscripcionManual.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/modalidadGrupos.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/additionalArea.js') }}"></script>

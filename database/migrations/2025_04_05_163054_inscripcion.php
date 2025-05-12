@@ -18,6 +18,7 @@ class Inscripcion extends Migration
             $table->unsignedBigInteger('idDelegacion');  // Delegación asociada
             $table->string('nombreApellidosTutor', 100)->nullable();  // Nombre del tutor
             $table->string('correoTutor', 100)->nullable();  // Correo del tutor
+            $table->timestamps(); // Add timestamps columns
             $table->foreign('idGrado')->references('idGrado')->on('grado');
             $table->foreign('idConvocatoria')->references('idConvocatoria')->on('convocatoria');
             $table->foreign('idDelegacion')->references('idDelegacion')->on('delegacion');

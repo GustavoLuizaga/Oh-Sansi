@@ -28,8 +28,32 @@
         <div id="searchResult" class="search-result"></div>
     </div>
 
+    <!-- Make sure the form has the registration-form class -->
     <form class="registration-form" method="POST" action="{{ route('inscripcion.estudiante.manual.store') }}">
         @csrf
+        <!-- Remove this duplicated section -->
+        <!-- <div class="form-section">
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Convocatoria Actual</label>
+                    <input type="text" value="{{ $convocatoria->nombre ?? 'No hay convocatoria activa' }}" readonly class="form-control">
+                    <input type="hidden" name="idConvocatoria" value="{{ $convocatoria->idConvocatoria ?? '' }}">
+                </div>
+                <div class="input-group">
+                    <label>Colegio/Delegación</label>
+                    <input type="text" value="{{ $nombreColegio ?? 'No asignado' }}" readonly class="form-control">
+                    <input type="hidden" name="idDelegacion" value="{{ $delegacion->idDelegacion ?? '' }}">
+                </div>
+            </div>
+        </div> -->
+
+        <div id="errorDisplay" class="alert alert-danger" style="display: none;"></div>
+        
+        <input type="hidden" id="studentTypeHidden" name="studentType" value="existing">
+        <!-- Keep these hidden fields here -->
+        <input type="hidden" name="idConvocatoria" value="{{ $convocatoria->idConvocatoria ?? '' }}">
+        <input type="hidden" name="idDelegacion" value="{{ $delegacion->idDelegacion ?? '' }}">
+        
         <div class="form-grid">
             <!-- Información del Usuario -->
             <div class="form-section user-info">
@@ -80,7 +104,19 @@
             <div class="form-section academic-info">
                 <h3><i class="fas fa-graduation-cap"></i> Información Académica</h3>
                 
-                
+                <!-- Campos no editables para convocatoria y delegación -->
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Convocatoria Activa</label>
+                        <input type="text" id="convocatoriaInput" readonly class="readonly-field">
+                        <input type="hidden" name="idConvocatoria" id="idConvocatoria">
+                    </div>
+                    <div class="input-group">
+                        <label>Colegio/Delegación</label>
+                        <input type="text" id="colegioInput" readonly class="readonly-field">
+                        <input type="hidden" name="idDelegacion" id="idDelegacion">
+                    </div>
+                </div>
 
                 <!-- Contenedor dinámico para áreas -->
                 <div id="areasContainer">
@@ -156,6 +192,13 @@
                         <input type="email" name="correoTutor" required>
                     </div>
                 </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Número de Contacto</label>
+                        <input type="text" name="numeroContacto" required 
+                               placeholder="Ingrese número telefónico">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -166,3 +209,19 @@
         </div>
     </form>
 </div>
+
+<!-- Add at the bottom of the file -->
+@push('scripts')
+<script>
+    // Function to display errors
+    function showError(message) {
+        const errorDisplay = document.getElementById('errorDisplay');
+        errorDisplay.textContent = message;
+        errorDisplay.style.display = 'block';
+        console.error('Form Error:', message);
+    }
+</script>
+<!-- Make sure you're loading the correct JS file -->
+<script src="{{ asset('js/formInscripcionEst.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/inscripcionManual.js') }}"></script>
+@endpush

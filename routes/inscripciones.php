@@ -24,8 +24,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/inscripcion/estudiante', [InscripcionController::class, 'index'])
         ->name('inscripcion.estudiante');
     
-    Route::post('/inscripcion/estudiante/manual/store', [InscripcionController::class, 'storeManual'])
-        ->name('inscripcion.estudiante.manual.store');    
+    // Add this route inside the middleware('auth') group
+    Route::post('/inscripcion/estudiante/manual/store', 
+        [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'store'])
+        ->name('inscripcion.estudiante.manual.store');
 
     Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
         ->name('inscripcion.store');
@@ -88,6 +90,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/inscripcion/estudiante/manual', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'index'])
         ->name('inscripcion.estudiante.manual');
     
+    // Add this new route for getting active convocatoria
+    Route::get('/inscripcion/estudiante/convocatoria-activa', 
+        [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerConvocatoriaActiva'])
+        ->name('inscripcion.estudiante.convocatoria-activa');
+
     Route::get('/inscripcion/estudiante/buscar', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'buscarEstudiante'])
         ->name('inscripcion.estudiante.buscar');
 
@@ -101,4 +108,8 @@ Route::middleware('auth')->group(function () {
         ->name('inscripcion.estudiante.grupos');
     Route::post('/inscripcion/estudiante/grados', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerGrados'])
         ->name('inscripcion.estudiante.grados');
+    // Add this new route for getting tutor's college
+    Route::get('/inscripcion/estudiante/colegio', 
+        [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerColegio'])
+        ->name('inscripcion.estudiante.colegio');
 });

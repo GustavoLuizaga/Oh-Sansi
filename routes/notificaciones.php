@@ -22,3 +22,21 @@ Route::get('/notificaciones/nuevas', function () {
 
     return response()->json($notificaciones);
 })->middleware('auth');
+
+Route::get('/notificaciones/todas', function () {
+    $userId = auth()->id();
+
+    // Retorna todas las notificaciones del usuario
+    $notificaciones = Notificacion::where('user_id', $userId)
+        ->latest()
+        ->get()
+        ->map(function ($n) {
+            return [
+                'mensaje' => $n->mensaje,
+                'tipo' => $n->tipo,
+                'tiempo' => $n->created_at->diffForHumans()
+            ];
+        });
+
+    return response()->json($notificaciones);
+})->middleware('auth');

@@ -15,6 +15,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 use App\Http\Controllers\Inscripcion\VerificarExistenciaConvocatoria;
+use App\Events\CreacionCuenta;
 
 
 class RegisteredUserController extends Controller
@@ -64,7 +65,11 @@ class RegisteredUserController extends Controller
 
         // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
         // Solo lo haremos cuando el tutor sea aprobado
-        
+        event(new CreacionCuenta(
+            $user->id,
+            '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+            'sistema'
+        ));
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
@@ -132,7 +137,7 @@ class RegisteredUserController extends Controller
             }
             // Generar un token único para el tutor
             $tokenTutor = Str::random(40);
-            
+
             $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
@@ -142,7 +147,7 @@ class RegisteredUserController extends Controller
                 'es_director' => false, // Este tutor no será director por defecto
                 'estado' => 'pendiente'
             ]);
-            
+
             // Adjuntar cada área seleccionada a la delegación
             foreach ($request->area_tutoria as $areaId) {
                 $tutor->areas()->attach($areaId, [
@@ -154,7 +159,11 @@ class RegisteredUserController extends Controller
 
         // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
         // Solo lo haremos cuando el tutor sea aprobado
-        
+        event(new CreacionCuenta(
+            $user->id,
+            '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+            'sistema'
+        ));
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
@@ -203,7 +212,7 @@ class RegisteredUserController extends Controller
             }
             // Generar un token único para el tutor
             $tokenTutor = Str::random(40);
-            
+
             $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
@@ -213,7 +222,7 @@ class RegisteredUserController extends Controller
                 'es_director' => true, // Este tutor será director de la delegación
                 'estado' => 'pendiente'
             ]);
-            
+
             // Adjuntar cada área seleccionada a la delegación
             foreach ($request->area_tutoria as $areaId) {
                 $tutor->areas()->attach($areaId, [
@@ -225,7 +234,11 @@ class RegisteredUserController extends Controller
 
         // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
         // Solo lo haremos cuando el tutor sea aprobado
-        
+        event(new CreacionCuenta(
+            $user->id,
+            '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+            'sistema'
+        ));
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');

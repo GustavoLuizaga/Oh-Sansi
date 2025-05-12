@@ -52,142 +52,13 @@
         data-grado-id="{{ $ids['grado_id'] }}"
         style="display: none;">
     </div>
-
-<div class="container mt-4">
-    <h2>Datos del Estudiante</h2>
-    <div class="card mb-3">
-        <div class="card-body">
-            <p><strong>Nombre:</strong> {{ $estudiante['nombre'] }} {{ $estudiante['apellido_paterno'] }} {{ $estudiante['apellido_materno'] }}</p>
-            <p><strong>CI:</strong> {{ $estudiante['ci'] }}</p>
-            <p><strong>Email:</strong> {{ $estudiante['email'] }}</p>
-            <p><strong>Grado:</strong> {{ $estudiante['grado'] }}</p>
-            <p><strong>Fecha Nacimiento:</strong> {{ $estudiante['fecha_nacimiento'] }}</p>
-            <p><strong>Género:</strong> {{ $estudiante['genero'] }}</p>
-        </div>
-    </div>
-
-    <h2>Datos del Tutor</h2>
-    @foreach ($tutores as $tutor)
-        <div class="card mb-3">
-            <div class="card-body">
-                <p><strong>Nombre:</strong> {{ $tutor['nombre'] }} {{ $tutor['apellido_paterno'] }} {{ $tutor['apellido_materno'] }}</p>
-                <p><strong>Token:</strong> {{ $tutor['token'] }}</p>
-                <p><strong>CI:</strong> {{ $tutor['ci'] }}</p>
-                <p><strong>Profesión:</strong> {{ $tutor['profesion'] }}</p>
-                <p><strong>Teléfono:</strong> {{ $tutor['telefono'] }}</p>
-                <p><strong>Email:</strong> {{ $tutor['email'] }}</p>
-                <h5>Colegio</h5>
-                <p><strong>Nombre:</strong> {{ $tutor['colegio']['nombre'] }}</p>
-                <p><strong>Dependencia:</strong> {{ $tutor['colegio']['dependencia'] }}</p>
-                <p><strong>Dirección:</strong> {{ $tutor['colegio']['direccion'] }}</p>
-                <p><strong>Teléfono:</strong> {{ $tutor['colegio']['telefono'] }}</p>
-                
-                <h5>Áreas en esta inscripción</h5>
-                <ul>
-                    @foreach ($tutor['areas'] as $area)
-                        <li>
-                            {{ $area['nombre'] }} ({{ $area['categoria'] }}) - Registrado el: {{ $area['fecha_registro'] }}
-                        </li>
-                    @endforeach
-                </ul>
-                
-                <h5>Todas las áreas del tutor</h5>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre del Área</th>
-                                        <th>Categorías del Área</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($tutor['todas_areas'] as $area)
-                                        <tr>
-                                            <td>{{ $area['id'] }}</td>
-                                            <td>{{ $area['nombre'] }}</td>
-                                            <td>
-                                                @if (!empty($area['categorias']))
-                                                    <ul class="list-unstyled">
-                                                        @foreach ($area['categorias'] as $categoria)
-                                                            <li>
-                                                                {{ $categoria['nombre_categoria'] }} 
-                                                                (Precios: Individual: {{ $categoria['precios']['individual'] }} Bs, 
-                                                                Duo: {{ $categoria['precios']['duo'] }} Bs, 
-                                                                Equipo: {{ $categoria['precios']['equipo'] }} Bs)
-                                                            </li>
-                                                        @endforeach
-                                                    </ul>
-                                                @else
-                                                    <span class="text-muted">Sin categorías</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" class="text-center">No hay áreas adicionales para este tutor</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
-
-        <h2>Datos de Convocatoria</h2>
-        <div class="card mb-3">
-            <div class="card-body">
-                <p><strong>Nombre:</strong> {{ $convocatoria['nombre'] }}</p>
-                <p><strong>Fecha Límite:</strong> {{ $convocatoria['fecha_limite'] }}</p>
-                <p><strong>Método de Pago:</strong> {{ $convocatoria['metodo_pago'] }}</p>
-                <p><strong>Contacto:</strong> {{ $convocatoria['contacto'] }}</p>
-            </div>
-        </div>
-        <h2>Datos de Inscripción</h2>
-        <div class="card mb-3">
-            <div class="card-body">
-                <p><strong>Fecha:</strong> {{ $inscripcion['fecha'] }}</p>
-                <p><strong>Contacto:</strong> {{ $inscripcion['numero_contacto'] }}</p>
-                <p><strong>Status:</strong> {{ $inscripcion['status'] }}</p>
-                <p><strong>Nombre Apellidos Tutor:</strong> {{ $inscripcion['nombre_apellidos_tutor'] }}</p>
-                <p><strong>Correo Tutor:</strong> {{ $inscripcion['correo_tutor'] }}</p>
-            </div>
-        </div>
-        <h2>Inscripciones por Área</h2>
-        <div class="card mb-3">
-            <div class="card-body">
-                <ul>
-                    @foreach ($inscripciones as $ins)
-                        <li>
-                            {{ $ins['area'] }} ({{ $ins['categoria'] }}) - Precio: {{ $ins['precio'] }} Bs - Registrado: {{ $ins['fecha_registro'] }}
-                        </li>
-                    @endforeach
-                </ul>
-                <p><strong>Total a Pagar:</strong> {{ $totalPagar }} Bs</p>
-            </div>
-        </div>
-        <h2>Boleta de Pago</h2>
-        <div class="card mb-3">
-            <div class="card-body">
-                <p><strong>Código Orden:</strong> {{ $codigoOrden }}</p>
-                <p><strong>Fecha Generación:</strong> {{ $fechaGeneracion }}</p>
-                <p><strong>Fecha Vencimiento:</strong> {{ $fechaVencimiento }}</p>
-            </div>
-        </div>
-</div>   
-
     <!-- Main Form -->
         <form id="inscriptionForm" method="POST" action="#" class="inscription-form" onsubmit="return validateForm(event)">
             <input type="hidden" name="idConvocatoria" value="1">
 
             <!-- Instrucciones del Formulario -->
             <div class="form-instructions">
-                <h2>Complete todos los campos del formulario</h2>
+                <h2>Editar informacion de inscripcion,cambiar de tutor, cambiar de areas, categorias, grados</h2>
             </div>
 
             <div class="form-content">
@@ -409,8 +280,11 @@
 
         <!-- Botón de Envío -->
         <div class="subir-formulario">
+            <button type="reset" class="btn-subir">
+                <i class="fas fa-undo"></i> Cancelar
+            </button>
             <button type="submit" class="btn-subir">
-                <i class="fas fa-check"></i> Completar Inscripción
+                <i class="fas fa-check"></i> Guardar cambios
             </button>
         </div>
         </form>

@@ -15,7 +15,12 @@ use App\Models\Convocatoria;
 use App\Models\TutorEstudianteInscripcion;
 use App\Models\Delegacion;
 use App\Models\DetalleInscripcion;
+use App\Models\Estudiante;
+use App\Models\Rol;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+
 class InscripcionManualController extends Controller
 {
     public function index()
@@ -320,6 +325,166 @@ class InscripcionManualController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error in inscription process: ' . $e->getMessage(), [
+                'user' => auth()->user()->id ?? 'no user',
+                'tutor' => auth()->user()->tutor->id ?? 'no tutor'
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la inscripción: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function storeNewStudent(Request $request)
+    {
+        try {
+            Log::info('Starting new student inscription process', [
+                'request_data' => $request->all(),
+                'validation_rules' => [
+                    'nombres' => 'required|string|max:255',
+                    'apellidoPaterno' => 'required|string|max:255',
+                    'apellidoMaterno' => 'required|string|max:255',
+                    'ci' => 'required|string|max:20|unique:users,ci',
+                    'fechaNacimiento' => 'required|date',
+                    'genero' => 'required|in:M,F',
+                    'email' => 'required|email|max:255|unique:users,email',
+                    'idConvocatoria' => 'required|exists:convocatoria,idConvocatoria',
+                    'idDelegacion' => 'required|exists:delegacion,idDelegacion',
+                    'grado' => 'required|exists:grado,idGrado',
+                    'nombreCompletoTutor' => 'required|string|max:100',
+                    'correoTutor' => 'required|email|max:100',
+                    'numeroContacto' => 'required|numeric',
+                    'areas' => 'required|array|min:1',
+                    'areas.*.area' => 'required|exists:area,idArea',
+                    'areas.*.categoria' => 'required|exists:categoria,idCategoria',
+                    'areas.*.modalidad' => 'required|in:individual,duo,equipo'
+                ]
+            ]);
+
+            // Get authenticated user and verify tutor role
+            $user = auth()->user();
+            $tutor = $user->tutor;
+
+            if (!$tutor) {
+                Log::error('Tutor not found for user', ['userId' => $user->id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró información del tutor'
+                ], 404);
+            }
+
+            try {
+                // Validate request data
+                $validated = $request->validate([
+                    'nombres' => 'required|string|max:255',
+                    'apellidoPaterno' => 'required|string|max:255',
+                    'apellidoMaterno' => 'required|string|max:255',
+                    'ci' => 'required|string|max:20|unique:users,ci',
+                    'fechaNacimiento' => 'required|date',
+                    'genero' => 'required|in:M,F',
+                    'email' => 'required|email|max:255|unique:users,email',
+                    'idConvocatoria' => 'required|exists:convocatoria,idConvocatoria',
+                    'idDelegacion' => 'required|exists:delegacion,idDelegacion',
+                    'grado' => 'required|exists:grado,idGrado',
+                    'nombreCompletoTutor' => 'required|string|max:100',
+                    'correoTutor' => 'required|email|max:100',
+                    'numeroContacto' => 'required|numeric',
+                    'areas' => 'required|array|min:1',
+                    'areas.*.area' => 'required|exists:area,idArea',
+                    'areas.*.categoria' => 'required|exists:categoria,idCategoria',
+                    'areas.*.modalidad' => 'required|in:individual,duo,equipo',
+                ]);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                Log::error('Validation failed', [
+                    'errors' => $e->errors(),
+                    'request_data' => $request->all()
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error de validación',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            // 1. Create new User with student role
+            $newUser = User::create([
+                'name' => $request->nombres,
+                'apellidoPaterno' => $request->apellidoPaterno,
+                'apellidoMaterno' => $request->apellidoMaterno,
+                'ci' => $request->ci,
+                'fechaNacimiento' => $request->fechaNacimiento,
+                'genero' => $request->genero,
+                'email' => $request->email,
+                'password' => Hash::make(substr($request->ci, 0, 6)), // Default password is first 6 digits of CI
+            ]);
+
+            // 2. Assign student role to the new user
+            $rolEstudiante = Rol::where('nombre', 'estudiante')->first();
+            if (!$rolEstudiante) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Rol de estudiante no encontrado'
+                ], 404);
+            }
+            
+            $newUser->roles()->attach($rolEstudiante->idRol, ['habilitado' => true]);
+
+            // 3. Create Estudiante record
+            $estudianteRecord = Estudiante::create([
+                'id' => $newUser->id,
+            ]);
+
+            // 4. Create Inscripcion record
+            $inscripcion = Inscripcion::create([
+                'fechaInscripcion' => now(),
+                'numeroContacto' => $request->numeroContacto,
+                'status' => 'pendiente',
+                'idGrado' => $request->grado,
+                'idConvocatoria' => $request->idConvocatoria,
+                'idDelegacion' => $request->idDelegacion,
+                'nombreApellidosTutor' => $request->nombreCompletoTutor,
+                'correoTutor' => $request->correoTutor,
+            ]);
+
+            // 5. Create DetalleInscripcion records for each area
+            foreach ($request->areas as $area) {
+                DetalleInscripcion::create([
+                    'idInscripcion' => $inscripcion->idInscripcion,
+                    'idArea' => $area['area'],
+                    'idCategoria' => $area['categoria'],
+                    'modalidadInscripcion' => $area['modalidad'],
+                    'idGrupoInscripcion' => isset($area['grupo']) ? $area['grupo'] : null
+                ]);
+            }
+
+            // 6. Create TutorEstudianteInscripcion relationship
+            TutorEstudianteInscripcion::create([
+                'idTutor' => $tutor->id,
+                'idEstudiante' => $estudianteRecord->id,
+                'idInscripcion' => $inscripcion->idInscripcion
+            ]);
+
+            DB::commit();
+
+            Log::info('New student inscription completed successfully', [
+                'inscripcionId' => $inscripcion->idInscripcion,
+                'estudianteId' => $estudianteRecord->id,
+                'tutorId' => $tutor->id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estudiante creado e inscripción realizada con éxito',
+                'redirect' => route('inscripcion.estudiante.informacion')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error in new student inscription process: ' . $e->getMessage(), [
                 'user' => auth()->user()->id ?? 'no user',
                 'tutor' => auth()->user()->tutor->id ?? 'no tutor'
             ]);

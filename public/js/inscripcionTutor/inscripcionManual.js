@@ -477,6 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Add form submission handler
+    // Replace the form submission handler with this updated version
     const form = document.querySelector('.registration-form');
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -488,13 +489,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            if (studentTypeHidden.value !== 'existing') {
-                displayError('Esta función es solo para estudiantes existentes');
-                return;
-            }
-
+            // Get the student type (existing or new)
+            const studentType = studentTypeHidden.value;
+            
+            // Common form data for both student types
             const formData = {
-                ci: document.querySelector('input[name="ci"]').value,
                 idConvocatoria: document.getElementById('idConvocatoria').value,
                 idDelegacion: document.getElementById('idDelegacion').value,
                 grado: document.getElementById('gradoSelect').value,
@@ -520,7 +519,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.areas.push(areaData);
             });
 
-            const response = await fetch('/inscripcion/estudiante/manual/store', {
+            // Add student-specific data based on student type
+            if (studentType === 'existing') {
+                // For existing student, just add the CI
+                formData.ci = document.querySelector('input[name="ci"]').value;
+                var endpoint = '/inscripcion/estudiante/manual/store';
+            } else {
+                // For new student, add all user information
+                formData.nombres = document.querySelector('input[name="nombres"]').value;
+                formData.apellidoPaterno = document.querySelector('input[name="apellidoPaterno"]').value;
+                formData.apellidoMaterno = document.querySelector('input[name="apellidoMaterno"]').value;
+                formData.ci = document.querySelector('input[name="ci"]').value;
+                formData.fechaNacimiento = document.querySelector('input[name="fechaNacimiento"]').value;
+                formData.genero = document.querySelector('select[name="genero"]').value;
+                formData.email = document.querySelector('input[name="email"]').value;
+                var endpoint = '/inscripcion/estudiante/manual/store-new';
+            }
+
+            console.log('Sending form data:', formData);
+            console.log('To endpoint:', endpoint);
+
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -531,11 +550,18 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             const data = await response.json();
+            console.log('Server response:', data);
 
             if (data.success) {
                 window.location.href = data.redirect;
             } else {
-                displayError(data.message || 'Error al procesar la inscripción');
+                if (data.errors) {
+                    // Si hay errores específicos de validación, mostrarlos
+                    const errorMessages = Object.values(data.errors).flat().join('\n');
+                    displayError(errorMessages);
+                } else {
+                    displayError(data.message || 'Error al procesar la inscripción');
+                }
             }
         } catch (error) {
             console.error('Error:', error);

@@ -26,7 +26,7 @@ class Inscripcion extends Migration
             $table->foreign('idDelegacion')->references('idDelegacion')->on('delegacion');
             
             // Con esto me aseguro que solo halla una inscripcion por convocatoria
-            $table->unique(['idConvocatoria'], 'unique_convocatoria');
+            //$table->unique(['idConvocatoria'], 'unique_convocatoria');
         });
     }
 

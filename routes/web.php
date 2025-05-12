@@ -73,6 +73,8 @@ Route::get('/boleta', [
 
 
 require __DIR__ . '/auth.php';
+// Rutas de inscripciones
+require __DIR__ . '/inscripciones.php';
 require __DIR__ . '/areasCategorias.php';
 require __DIR__ . '/areas.php';
 require __DIR__ . '/categorias.php';
@@ -80,7 +82,6 @@ require __DIR__ . '/convocatoria.php';
 require __DIR__ . '/delegaciones.php';
 require __DIR__ . '/delegado.php';
 require __DIR__ . '/grados.php';
-require __DIR__ . '/inscripciones.php';
 require __DIR__ . '/estudiantes.php';
 require __DIR__ . '/perfil.php';
 require __DIR__ . '/notificaciones.php';

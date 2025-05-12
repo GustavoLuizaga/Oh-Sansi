@@ -1,4 +1,3 @@
-
 function copyToken() {
     var tokenInput = document.getElementById('tokenInput');
     tokenInput.select();
@@ -438,8 +437,13 @@ $(document).ready(function () {
             return; // Si hay errores de grupo, no continuar
         }
 
+        // Cerrar el modal de previsualización
+        const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
+        previewModal.hide();
+
         // Mostrar overlay de carga
-        $('#loadingOverlay').fadeIn();
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        loadingOverlay.style.display = 'flex';
 
         // Crear un nuevo archivo Excel con los datos editados
         const wb = XLSX.utils.book_new();
@@ -472,31 +476,23 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                // Ocultar overlay de carga con una transición suave
-                $('#loadingOverlay').fadeOut(300);
-
-                // Cerrar modal
-                bootstrap.Modal.getInstance(document.getElementById('previewModal')).hide();
+                // Ocultar overlay de carga
+                loadingOverlay.style.display = 'none';
 
                 // Mostrar mensaje de éxito
-                let successMessage = "La inscripción se ha completado con éxito.";
-                if (response && response.success) {
-                    successMessage = response.success;
-                }
-
-                $('#successText').text(successMessage);
-                $('#successMessage').fadeIn(500);
-
-                // Recargar página después de mostrar el mensaje (tiempo aumentado para mejor visibilidad)
-                setTimeout(function () {
-                    $('#successMessage').fadeOut(500, function () {
-                        location.reload();
-                    });
-                }, 4000);
+                const successMessage = document.getElementById('successMessage');
+                const successText = document.getElementById('successText');
+                successText.textContent = response.success || "La inscripción se ha completado con éxito.";
+                
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                    window.location.reload();
+                }, 3000);
             },
             error: function (xhr) {
-                // Ocultar overlay de carga con una transición suave
-                $('#loadingOverlay').fadeOut(300);
+                // Ocultar overlay de carga
+                loadingOverlay.style.display = 'none';
 
                 let errorMsg = 'Ocurrió un error al procesar la inscripción.';
 
@@ -513,13 +509,15 @@ $(document).ready(function () {
                     }
                 }
 
-                // Mostrar errores en un modal más amigable
-                const errorModal = `
-                    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+                // Crear y mostrar el modal de error
+                const errorModalHTML = `
+                    <div class="modal fade error-modal" id="errorModal" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
-                                <div class="modal-header bg-danger text-white">
-                                    <h5 class="modal-title"><i class="fas fa-exclamation-circle"></i> Error en la inscripción</h5>
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-exclamation-circle"></i> Error en la inscripción
+                                    </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -530,19 +528,20 @@ $(document).ready(function () {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    `;
+                    </div>`;
 
-                // Agregar modal al DOM si no existe
-                if ($('#errorModal').length === 0) {
-                    $('body').append(errorModal);
-                } else {
-                    $('#errorModal .modal-body p').html(errorMsg.replace(/\n/g, '<br>'));
+                // Remover modal anterior si existe
+                const existingModal = document.getElementById('errorModal');
+                if (existingModal) {
+                    existingModal.remove();
                 }
 
-                // Mostrar modal de error
-                const errorModalInstance = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModalInstance.show();
+                // Agregar nuevo modal al DOM
+                document.body.insertAdjacentHTML('beforeend', errorModalHTML);
+
+                // Mostrar el modal
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
             }
         });
     });

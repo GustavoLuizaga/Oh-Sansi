@@ -29,6 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/inscripcion/estudiante/manual/store', 
         [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'store'])
         ->name('inscripcion.estudiante.manual.store');
+        
+    // Add the missing route for store-new method
+    Route::post('/inscripcion/estudiante/manual/store-new', 
+        [\App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'storeNewStudent'])
+        ->name('inscripcion.estudiante.manual.store-new');
 
     Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
         ->name('inscripcion.store');

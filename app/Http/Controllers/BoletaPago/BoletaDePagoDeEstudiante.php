@@ -16,6 +16,8 @@ use App\Models\Categoria;
 use App\Models\Convocatoria;
 use App\Models\Grado;
 use App\Models\VerificacionInscripcion;
+use App\Models\ConvocatoriaAreaCategoria;
+use App\Http\Controllers\Inscripcion\ObtenerGradosArea;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade as PDF;
@@ -81,6 +83,8 @@ class BoletaDePagoDeEstudiante extends Controller
                 'inscripcion.fechaInscripcion AS inscripcion_fecha',
                 'inscripcion.numeroContacto AS inscripcion_numero_contacto',
                 'inscripcion.status AS inscripcion_status',
+                'inscripcion.nombreApellidosTutor AS nombreApellidosTutor',
+                'inscripcion.correoTutor AS correoTutor',
                 
                 // Precio (usamos precioIndividual como valor estático)
                 DB::raw('15 AS precio'), // Valor estático de 15 Bs para INDIVIDUAL
@@ -103,6 +107,7 @@ class BoletaDePagoDeEstudiante extends Controller
             ->where('tutorestudianteinscripcion.idEstudiante', $estudianteId)
             ->where('convocatoria.estado', 'Publicada') // Solo convocatorias publicadas
             ->get();
+        
         if ($data->isEmpty()) {
             return back()->with('error', 'No se encontraron inscripciones para mostrar la boleta');
         }
@@ -110,6 +115,36 @@ class BoletaDePagoDeEstudiante extends Controller
         // Verificar si existe una boleta para mostrar sus datos
         $boletaInfo = $this->verificarBoletaExistente($estudianteId);
         
+        // Obtener todas las áreas para cada tutor con sus categorías
+        $tutoresIds = $data->pluck('tutor_id')->unique()->values()->toArray();
+        $todasAreasDeLosTutores = [];
+        
+        foreach ($tutoresIds as $tutorId) {
+            $todasAreasDeLosTutores[$tutorId] = DB::table('tutorareadelegacion')
+                ->select([
+                    'area.idArea',
+                    'area.nombre AS nombre_area',
+                ])
+                ->join('area', 'tutorareadelegacion.idArea', '=', 'area.idArea')
+                ->where('tutorareadelegacion.id', $tutorId)
+                ->get()
+                ->map(function($area) use ($data) {
+                    // Obtener las categorías para cada área usando la función categoriasPorArea
+                    $categorias = $this->categoriasPorArea(
+                        $data->first()->convocatoria_id, 
+                        $area->idArea
+                    );
+                    
+                    return [
+                        'id' => $area->idArea,
+                        'nombre' => $area->nombre_area,
+                        'categorias' => $categorias
+                    ];
+                })
+                ->toArray();
+        }
+
+        $totalTutores = $data->groupBy('tutor_ci')->count(); // <- Añade esto antes de procesar
         // Procesar los datos para la vista
         $processed = [
             'codigoOrden' => $boletaInfo['codigoBoleta'],
@@ -131,16 +166,17 @@ class BoletaDePagoDeEstudiante extends Controller
                 'apellido_paterno' => $data->first()->estudiante_apellido_paterno,
                 'apellido_materno' => $data->first()->estudiante_apellido_materno,
                 'ci' => $data->first()->estudiante_ci,
-                'email' => $data->first()->estudiante_email, // Añadido el email del estudiante
+                'email' => $data->first()->estudiante_email,
                 'grado' => $data->first()->estudiante_grado,
                 'fecha_nacimiento' => $data->first()->estudiante_nacimiento,
                 'genero' => $data->first()->estudiante_genero
             ],
             
-            'tutores' => $data->groupBy('tutor_ci')->map(function($tutorGroup) {
+            'tutores' => $data->groupBy('tutor_ci')->map(function($tutorGroup) use ($todasAreasDeLosTutores, $totalTutores) { // <- Añade $totalTutores aquí
                 $first = $tutorGroup->first();
+                $tutorId = $first->tutor_id;
                 return [
-                    'id' => $first->tutor_id,
+                    'id' => $tutorId,
                     'nombre' => $first->tutor_nombre,
                     'apellido_paterno' => $first->tutor_apellido_paterno,
                     'apellido_materno' => $first->tutor_apellido_materno,
@@ -149,7 +185,19 @@ class BoletaDePagoDeEstudiante extends Controller
                     'telefono' => $first->tutor_telefono,
                     'email' => $first->tutor_email,
                     'token' => $first->tutor_token,
-                    'areas' => $tutorGroup->map(function($item) {
+                    // Áreas del tutor en la inscripción actual
+                    'areas' => $totalTutores > 1 
+                    ? [ // Si hay más de 1 tutor: solo la primera área
+                        [
+                            'id' => $first->area_id,
+                            'nombre' => $first->area_nombre,
+                            'categoria_id' => $first->categoria_id,
+                            'categoria' => $first->categoria_nombre,
+                            'detalle_inscripcion_id' => $first->detalle_inscripcion_id,
+                            'fecha_registro' => $first->area_fecha_registro
+                        ]
+                    ]
+                    : $tutorGroup->map(function($item) { // Un solo tutor: todas las áreas
                         return [
                             'id' => $item->area_id,
                             'nombre' => $item->area_nombre,
@@ -159,6 +207,8 @@ class BoletaDePagoDeEstudiante extends Controller
                             'fecha_registro' => $item->area_fecha_registro
                         ];
                     })->toArray(),
+                    // Todas las áreas del tutor con sus categorías
+                    'todas_areas' => $todasAreasDeLosTutores[$tutorId] ?? [],
                     'colegio' => [
                         'id' => $first->delegacion_id,
                         'nombre' => $first->tutor_colegio,
@@ -184,7 +234,9 @@ class BoletaDePagoDeEstudiante extends Controller
                 'fecha' => $data->first()->inscripcion_fecha,
                 'numero_contacto' => $data->first()->inscripcion_numero_contacto,
                 'status' => $data->first()->inscripcion_status,
-                'grado_id' => $data->first()->grado_id
+                'grado_id' => $data->first()->grado_id,
+                'nombre_apellidos_tutor' => $data->first()->nombreApellidosTutor,
+                'correo_tutor' => $data->first()->correoTutor
             ],
             
             'inscripciones' => $data->map(function($item) {
@@ -198,7 +250,10 @@ class BoletaDePagoDeEstudiante extends Controller
                     'fecha_registro' => $item->area_fecha_registro,
                     'precio' => (float)$item->precio
                 ];
-            })->toArray(),
+            })->unique('detalle_inscripcion_id')->values()->toArray(), // Eliminar duplicados
+            
+            // Añadir todas las áreas de todos los tutores con sus categorías para facilitar su uso en la vista
+            'todas_areas_tutores' => $todasAreasDeLosTutores
         ];
 
         // Calcular el total automáticamente
@@ -206,6 +261,34 @@ class BoletaDePagoDeEstudiante extends Controller
         
         return view('inscripciones.FormularioDatosInscripcionEst', $processed);
     }
+
+    public function categoriasPorArea($idConvocatoria, $idArea) 
+    {
+        $resultados = ConvocatoriaAreaCategoria::with('categoria:idCategoria,nombre')
+            ->where('idConvocatoria', $idConvocatoria)
+            ->where('idArea', $idArea)
+            ->get();
+        
+        // Verificación para evitar errores si no encuentra datos
+        if ($resultados->isEmpty()) {
+            return collect(); // Devuelve colección vacía
+        }
+
+        return $resultados->map(function ($registro) {
+            return [
+                'id_categoria' => $registro->idCategoria,
+                'nombre_categoria' => $registro->categoria->nombre ?? 'Sin nombre', // Seguro contra valores nulos
+                'precios' => [
+                    'individual' => $registro->precioIndividual,
+                    'duo' => $registro->precioDuo,
+                    'equipo' => $registro->precioEquipo,
+                ],
+                'area_id' => $registro->idArea,
+                'convocatoria_id' => $registro->idConvocatoria
+            ];
+        });
+    }
+
     
     /**
      * Verifica si existe una boleta para las inscripciones del estudiante
@@ -372,79 +455,79 @@ class BoletaDePagoDeEstudiante extends Controller
      * @return string
      */
     private function generarCodigoOrdenPagoEstudiante($estudianteId)
-{
-    // Verificar primero si el estudiante tiene inscripciones
-    $inscripcionesIds = TutorEstudianteInscripcion::where('idEstudiante', $estudianteId)
-        ->pluck('idInscripcion');
-    
-    if ($inscripcionesIds->isEmpty()) {
-        Log::error('El estudiante no tiene inscripciones asociadas', ['estudianteId' => $estudianteId]);
-        throw new \Exception("El estudiante no tiene inscripciones registradas");
-    }
-
-    DB::beginTransaction();
-    
-    try {
-        // Buscar boleta existente SOLO si está activa (fechafin >= hoy)
-        $boletaExistente = BoletaPagoInscripcion::whereIn('idInscripcion', $inscripcionesIds)
-            ->whereHas('boletaPago', function($query) {
-                $query->where('fechafin', '>=', now()->format('Y-m-d'));
-            })
-            ->with('boletaPago')
-            ->first();
-
-        if ($boletaExistente && $boletaExistente->boletaPago) {
-            DB::commit();
-            return $boletaExistente->boletaPago->CodigoBoleta;
+    {
+        // Verificar primero si el estudiante tiene inscripciones
+        $inscripcionesIds = TutorEstudianteInscripcion::where('idEstudiante', $estudianteId)
+            ->pluck('idInscripcion');
+        
+        if ($inscripcionesIds->isEmpty()) {
+            Log::error('El estudiante no tiene inscripciones asociadas', ['estudianteId' => $estudianteId]);
+            throw new \Exception("El estudiante no tiene inscripciones registradas");
         }
 
-        // Crear nueva boleta
-        $codigoBoleta = 'OP-' . str_pad($estudianteId, 6, '0', STR_PAD_LEFT);
+        DB::beginTransaction();
+        
+        try {
+            // Buscar boleta existente SOLO si está activa (fechafin >= hoy)
+            $boletaExistente = BoletaPagoInscripcion::whereIn('idInscripcion', $inscripcionesIds)
+                ->whereHas('boletaPago', function($query) {
+                    $query->where('fechafin', '>=', now()->format('Y-m-d'));
+                })
+                ->with('boletaPago')
+                ->first();
 
-        $boleta = BoletaPago::create([
-            'CodigoBoleta' => $codigoBoleta,
-            'MontoBoleta' => 15, // Valor estático como en tu código original
-            'fechainicio' => now()->format('Y-m-d'),
-            'fechafin' => now()->addMonth()->format('Y-m-d'),
-            'estado' => 'pendiente' // Asegúrate de que tu tabla tenga este campo
-        ]);
+            if ($boletaExistente && $boletaExistente->boletaPago) {
+                DB::commit();
+                return $boletaExistente->boletaPago->CodigoBoleta;
+            }
 
-        // Registrar en boletapagoinscripcion
-        foreach ($inscripcionesIds as $inscripcionId) {
-            BoletaPagoInscripcion::create([
-                'idBoleta' => $boleta->idBoleta,
-                'idInscripcion' => $inscripcionId
+            // Crear nueva boleta
+            $codigoBoleta = 'OP-' . str_pad($estudianteId, 6, '0', STR_PAD_LEFT);
+
+            $boleta = BoletaPago::create([
+                'CodigoBoleta' => $codigoBoleta,
+                'MontoBoleta' => 30, // Valor estático como en tu código original
+                'fechainicio' => now()->format('Y-m-d'),
+                'fechafin' => now()->addMonth()->format('Y-m-d'),
+                'estado' => 'pendiente' // Asegúrate de que tu tabla tenga este campo
+            ]);
+
+            // Registrar en boletapagoinscripcion
+            foreach ($inscripcionesIds as $inscripcionId) {
+                BoletaPagoInscripcion::create([
+                    'idBoleta' => $boleta->idBoleta,
+                    'idInscripcion' => $inscripcionId
+                ]);
+                
+                // Registrar en verificacioninscripcion
+                VerificacionInscripcion::create([
+                    'idInscripcion' => $inscripcionId,
+                    'idBoleta' => $boleta->idBoleta
+                ]);
+            }
+
+            DB::commit();
+            
+            Log::info('Nueva boleta creada', [
+                'boletaId' => $boleta->idBoleta,
+                'codigo' => $codigoBoleta,
+                'inscripciones' => $inscripcionesIds
             ]);
             
-            // Registrar en verificacioninscripcion
-            VerificacionInscripcion::create([
-                'idInscripcion' => $inscripcionId,
-                'idBoleta' => $boleta->idBoleta
+            return $codigoBoleta;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Error al generar boleta de pago', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'estudianteId' => $estudianteId
             ]);
+            
+            throw $e; // Relanzar la excepción para manejo superior
         }
-
-        DB::commit();
-        
-        Log::info('Nueva boleta creada', [
-            'boletaId' => $boleta->idBoleta,
-            'codigo' => $codigoBoleta,
-            'inscripciones' => $inscripcionesIds
-        ]);
-        
-        return $codigoBoleta;
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        
-        Log::error('Error al generar boleta de pago', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'estudianteId' => $estudianteId
-        ]);
-        
-        throw $e; // Relanzar la excepción para manejo superior
     }
-}
     
     /**
      * Método para mostrar el formulario de impresión de inscripción

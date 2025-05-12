@@ -53,7 +53,7 @@
         style="display: none;">
     </div>
     <!-- Main Form -->
-        <form id="inscriptionForm" method="POST" action="#" class="inscription-form" onsubmit="return validateForm(event)">
+        <form id="inscriptionForm" method="POST" action="#" class="inscription-form-custom" onsubmit="return validateForm(event)">
             <input type="hidden" name="idConvocatoria" value="1">
 
             <!-- Instrucciones del Formulario -->
@@ -259,20 +259,20 @@
                         <div class="input-grupo">
                             <label for="idGrado">Grado</label>
                             <select id="idGrado" name="idGrado" class="grado-select-common" required>
-    <option value="">Seleccione un grado</option>
-    <option value="1ro de Primaria" {{ $estudiante['grado'] == '1ro de Primaria' ? 'selected' : '' }}>1ro de Primaria</option>
-    <option value="2do de Primaria" {{ $estudiante['grado'] == '2do de Primaria' ? 'selected' : '' }}>2do de Primaria</option>
-    <option value="3ro de Primaria" {{ $estudiante['grado'] == '3ro de Primaria' ? 'selected' : '' }}>3ro de Primaria</option>
-    <option value="4to de Primaria" {{ $estudiante['grado'] == '4to de Primaria' ? 'selected' : '' }}>4to de Primaria</option>
-    <option value="5to de Primaria" {{ $estudiante['grado'] == '5to de Primaria' ? 'selected' : '' }}>5to de Primaria</option>
-    <option value="6to de Primaria" {{ $estudiante['grado'] == '6to de Primaria' ? 'selected' : '' }}>6to de Primaria</option>
-    <option value="1ro de Secundaria" {{ $estudiante['grado'] == '1ro de Secundaria' ? 'selected' : '' }}>1ro de Secundaria</option>
-    <option value="2do de Secundaria" {{ $estudiante['grado'] == '2do de Secundaria' ? 'selected' : '' }}>2do de Secundaria</option>
-    <option value="3ro de Secundaria" {{ $estudiante['grado'] == '3ro de Secundaria' ? 'selected' : '' }}>3ro de Secundaria</option>
-    <option value="4to de Secundaria" {{ $estudiante['grado'] == '4to de Secundaria' ? 'selected' : '' }}>4to de Secundaria</option>
-    <option value="5to de Secundaria" {{ $estudiante['grado'] == '5to de Secundaria' ? 'selected' : '' }}>5to de Secundaria</option>
-    <option value="6to de Secundaria" {{ $estudiante['grado'] == '6to de Secundaria' ? 'selected' : '' }}>6to de Secundaria</option>
-</select>
+                                <option value="">Seleccione un grado</option>
+                                <option value="1ro de Primaria" {{ $estudiante['grado'] == '1ro de Primaria' ? 'selected' : '' }}>1ro de Primaria</option>
+                                <option value="2do de Primaria" {{ $estudiante['grado'] == '2do de Primaria' ? 'selected' : '' }}>2do de Primaria</option>
+                                <option value="3ro de Primaria" {{ $estudiante['grado'] == '3ro de Primaria' ? 'selected' : '' }}>3ro de Primaria</option>
+                                <option value="4to de Primaria" {{ $estudiante['grado'] == '4to de Primaria' ? 'selected' : '' }}>4to de Primaria</option>
+                                <option value="5to de Primaria" {{ $estudiante['grado'] == '5to de Primaria' ? 'selected' : '' }}>5to de Primaria</option>
+                                <option value="6to de Primaria" {{ $estudiante['grado'] == '6to de Primaria' ? 'selected' : '' }}>6to de Primaria</option>
+                                <option value="1ro de Secundaria" {{ $estudiante['grado'] == '1ro de Secundaria' ? 'selected' : '' }}>1ro de Secundaria</option>
+                                <option value="2do de Secundaria" {{ $estudiante['grado'] == '2do de Secundaria' ? 'selected' : '' }}>2do de Secundaria</option>
+                                <option value="3ro de Secundaria" {{ $estudiante['grado'] == '3ro de Secundaria' ? 'selected' : '' }}>3ro de Secundaria</option>
+                                <option value="4to de Secundaria" {{ $estudiante['grado'] == '4to de Secundaria' ? 'selected' : '' }}>4to de Secundaria</option>
+                                <option value="5to de Secundaria" {{ $estudiante['grado'] == '5to de Secundaria' ? 'selected' : '' }}>5to de Secundaria</option>
+                                <option value="6to de Secundaria" {{ $estudiante['grado'] == '6to de Secundaria' ? 'selected' : '' }}>6to de Secundaria</option>
+                            </select>
                         </div>
                     </div>
                 </div>

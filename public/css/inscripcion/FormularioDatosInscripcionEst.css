@@ -114,6 +114,10 @@ body.dark-theme {
     text-decoration: none;
     transition: background-color 0.2s;
 }
+.add-button:hover {
+    background-color: none;
+    color: white;
+}
 
 /* Alert Messages */
 .alert {

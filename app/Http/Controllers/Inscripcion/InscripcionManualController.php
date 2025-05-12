@@ -262,7 +262,20 @@ class InscripcionManualController extends Controller
                 ], 404);
             }
 
-            // 2. Create inscription
+            // Check if student already has an inscription for this convocatoria
+            $existingInscription = Inscripcion::whereHas('estudiantes', function($query) use ($estudianteRecord) {
+                $query->where('estudiante.id', $estudianteRecord->id);
+            })->where('idConvocatoria', $request->idConvocatoria)->first();
+
+            if ($existingInscription) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El estudiante ya tiene una inscripción en esta convocatoria'
+                ], 422);
+            }
+
+            // Continue with inscription creation...
+            // Rest of the store method remains the same...
             $inscripcion = Inscripcion::create([
                 'fechaInscripcion' => now(),
                 'numeroContacto' => $request->numeroContacto,

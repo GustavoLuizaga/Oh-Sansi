@@ -422,39 +422,45 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
 
-        if (studentTypeHidden.value !== 'existing') {
-            displayError('Esta función es solo para estudiantes existentes');
-            return;
+        // Disable submit button to prevent double submission
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
         }
 
-        const formData = {
-            ci: document.querySelector('input[name="ci"]').value,
-            idConvocatoria: document.getElementById('idConvocatoria').value,
-            idDelegacion: document.getElementById('idDelegacion').value,
-            grado: document.getElementById('gradoSelect').value,
-            numeroContacto: document.querySelector('input[name="numeroContacto"]').value,
-            nombreCompletoTutor: document.querySelector('input[name="nombreCompletoTutor"]').value,
-            correoTutor: document.querySelector('input[name="correoTutor"]').value,
-            areas: []
-        };
-
-        // Get areas data
-        document.querySelectorAll('.area-section').forEach((areaSection, index) => {
-            const areaData = {
-                area: areaSection.querySelector('.area-select').value,
-                categoria: areaSection.querySelector('.categoria-select').value,
-                modalidad: areaSection.querySelector('.modalidad-select').value,
-            };
-
-            // Add grupo if modalidad is duo or equipo
-            if (areaData.modalidad !== 'individual') {
-                areaData.grupo = areaSection.querySelector('.grupo-select').value;
+        try {
+            if (studentTypeHidden.value !== 'existing') {
+                displayError('Esta función es solo para estudiantes existentes');
+                return;
             }
 
-            formData.areas.push(areaData);
-        });
+            const formData = {
+                ci: document.querySelector('input[name="ci"]').value,
+                idConvocatoria: document.getElementById('idConvocatoria').value,
+                idDelegacion: document.getElementById('idDelegacion').value,
+                grado: document.getElementById('gradoSelect').value,
+                numeroContacto: document.querySelector('input[name="numeroContacto"]').value,
+                nombreCompletoTutor: document.querySelector('input[name="nombreCompletoTutor"]').value,
+                correoTutor: document.querySelector('input[name="correoTutor"]').value,
+                areas: []
+            };
 
-        try {
+            // Get areas data
+            document.querySelectorAll('.area-section').forEach((areaSection) => {
+                const areaData = {
+                    area: areaSection.querySelector('.area-select').value,
+                    categoria: areaSection.querySelector('.categoria-select').value,
+                    modalidad: areaSection.querySelector('.modalidad-select').value,
+                };
+
+                // Add grupo if modalidad is duo or equipo
+                if (areaData.modalidad !== 'individual') {
+                    areaData.grupo = areaSection.querySelector('.grupo-select').value;
+                }
+
+                formData.areas.push(areaData);
+            });
+
             const response = await fetch('/inscripcion/estudiante/manual/store', {
                 method: 'POST',
                 headers: {
@@ -475,6 +481,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             console.error('Error:', error);
             displayError('Error al enviar el formulario');
+        } finally {
+            // Re-enable submit button
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
         }
     });
 

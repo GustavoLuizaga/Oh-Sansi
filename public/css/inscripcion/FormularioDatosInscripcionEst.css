@@ -1,7 +1,8 @@
+/* Variables - Modo claro */
 :root {
-    /* Colores principales - Paleta corporativa */
-    --primary-color: #1a365d; /* Azul principal */
-    --secondary-color: #2c5282; /* Azul secundario */
+    /* Colores base */
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
     --text-color: #333;
     --border-color: #e2e8f0;
     --hover-color: #f7fafc;
@@ -9,8 +10,58 @@
     --success-color: #0ca678;
     --warning-color: #f59f00;
     --danger-color: #fa5252;
-    --pending-color: #f59e0b;
+    --primary-light: #20BBFF;
+    --primary-dark: #002A4C;
+    --secondary-dark: #631A33;
+    --accent-color: #FF9E1B;
+    
+    /* Fondos */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-header: #1a365d;
+    
+    /* Textos */
+    --text-muted: #718096;
+    --text-header: #4a5568;
+    --text-label: #4a5568;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Variables - Modo oscuro */
+body.dark-theme {
+    /* Colores base */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    
+    /* Estados */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-card: #1e293b;
+    --bg-input: #2D3748;
+    --bg-header: #2d3748;
+    
+    /* Textos */
+    --text-muted: #a0aec0;
+    --text-header: #e2e8f0;
+    --text-label: #e2e8f0;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
 
 /* Header Styles */
 .estudiantes-header {
@@ -49,7 +100,7 @@
 }
 
 .add-button {
-    background-color: var(--success-color);
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 0.25rem;
@@ -63,9 +114,9 @@
     text-decoration: none;
     transition: background-color 0.2s;
 }
-
 .add-button:hover {
-    background-color: #099268;
+    background-color: none;
+    color: white;
 }
 
 /* Alert Messages */
@@ -318,6 +369,277 @@
     white-space: nowrap;
     display: inline-block;
     vertical-align: middle;
+}
+
+/* Estilos específicos para el formulario de inscripción */
+.inscription-form-custom .form-instructions {
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+}
+
+.inscription-form-custom .form-instructions h2 {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.inscription-form-custom .formulario-seccion {
+    margin-bottom: 1.5rem;
+}
+
+.inscription-form-custom .seccion-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.inscription-form-custom .seccion-header {
+    background-color: var(--bg-secondary);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inscription-form-custom .seccion-header h2 {
+    font-size: 0.9rem;
+    color: var(--text-header);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .section-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.inscription-form-custom .seccion-body {
+    padding: 1rem;
+}
+
+.inscription-form-custom .info-group {
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .info-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-label);
+    margin-bottom: 0.25rem;
+}
+
+.inscription-form-custom .info-value {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    padding: 0.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 0.25rem;
+}
+
+.inscription-form-custom .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .input-grupo {
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .input-grupo label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-label);
+    margin-bottom: 0.25rem;
+}
+
+.inscription-form-custom .input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inscription-form-custom .input-with-icon input,
+.inscription-form-custom .input-with-icon select {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.inscription-form-custom .input-with-icon input:focus,
+.inscription-form-custom .input-with-icon select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+}
+
+.inscription-form-custom .token-verification-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .btn-verificar-token {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.inscription-form-custom .btn-verificar-token:hover {
+    background-color: var(--secondary-color);
+}
+
+.inscription-form-custom .tutor-block {
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+.inscription-form-custom .tutor-header {
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .tutor-header h3 {
+    font-size: 0.9rem;
+    color: var(--text-header);
+    margin: 0;
+}
+
+.inscription-form-custom .btn-add-tutor,
+.inscription-form-custom .btn-add-area {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px dashed var(--primary-color);
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .btn-add-tutor:hover,
+.inscription-form-custom .btn-add-area:hover {
+    background-color: var(--hover-color);
+}
+
+.inscription-form-custom .token-status {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.inscription-form-custom .error-message {
+    color: var(--danger-color);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.inscription-form-custom .subir-formulario {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.inscription-form-custom .btn-subir {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.75rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .btn-subir:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Select Styles específicos para este formulario */
+.inscription-form-custom select {
+    appearance: none;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    width: 100%;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    padding-right: 2.5rem;
+}
+
+.inscription-form-custom select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+}
+
+.inscription-form-custom select:disabled {
+    background-color: var(--bg-disabled);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.inscription-form-custom select option {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+}
+
+.inscription-form-custom select option:hover {
+    background-color: var(--hover-color);
+}
+
+.inscription-form-custom .select-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .select-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+}
+
+.inscription-form-custom .select-group .error-message {
+    position: absolute;
+    bottom: -1.25rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: var(--danger-color);
 }
 
 /* Responsive adjustments */

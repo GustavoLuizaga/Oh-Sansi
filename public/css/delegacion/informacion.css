@@ -209,17 +209,17 @@
 }
 
 /* Modo oscuro específico para inputs */
-body.dark-theme .form-control {
+.modo-oscuro .form-control {
     background-color: var(--input-fondo);
     border-color: var(--input-borde);
     color: var(--texto-principal);
 }
 
-body.dark-theme .form-control:focus {
+.modo-oscuro .form-control:focus {
     border-color: var(--input-borde-enfocado);
 }
 
-body.dark-theme .form-control::placeholder {
+.modo-oscuro .form-control::placeholder {
     color: var(--input-placeholder);
 }
 

@@ -28,12 +28,12 @@
 }
 
 /* Variables modo oscuro */
-body.dark-theme {  
+:root.modo-oscuro {  
     /* Colores base - Modo oscuro */
     --primary-color: #3182ce;
     --secondary-color: #4299e1;
     --text-color: #e2e8f0;
-    --border-color: #2d3748;
+    --border-color: #364155;
     --hover-color: #2d3748;
     --button-text: #ffffff;
     --danger-color: #f87171;

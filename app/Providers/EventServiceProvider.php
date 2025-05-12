@@ -10,6 +10,8 @@ use App\Events\CreacionCuenta;
 use App\Listeners\CrearNotificacion;
 use App\Events\InscripcionArea;
 use App\Listeners\CrearNotificacionInscripcionArea;
+use App\Events\InscripcionAprobadaEstudiante;
+use App\Listeners\NotificarInscripcionAprobada;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -27,6 +29,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         InscripcionArea::class => [
             CrearNotificacionInscripcionArea::class,
+        ],
+        InscripcionAprobadaEstudiante::class => [
+            NotificarInscripcionAprobada::class,
         ],
     ];
 

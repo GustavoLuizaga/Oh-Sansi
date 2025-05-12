@@ -54,7 +54,7 @@
                 <div class="convocatoria-header">
                     <h5>
                         <span class="convocatoria-label">Convocatoria Publicada:</span> 
-                        <a href="http://127.0.0.1:8000/convocatoria/{{ $convocatoriaActiva->id }}" class="convocatoria-nombre">
+                        <a href="{{ url('/convocatoria/' . $convocatoriaActiva->id) }}" class="convocatoria-nombre">
                             {{ $convocatoriaActiva->nombre }}
                         </a>
                     </h5>

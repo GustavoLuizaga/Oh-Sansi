@@ -281,7 +281,7 @@
         <!-- Botón de Envío -->
         <div class="subir-formulario">
             <button type="reset" class="btn-subir">
-                <i class="fas fa-undo"></i> Cancelar
+                <i class="fas fa-undo"></i> Restaurar
             </button>
             <button type="submit" class="btn-subir">
                 <i class="fas fa-check"></i> Guardar cambios

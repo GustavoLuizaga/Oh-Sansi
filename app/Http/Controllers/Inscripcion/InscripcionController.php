@@ -29,16 +29,11 @@ class InscripcionController extends Controller
     {
         // // IGNOREN ESTO, NO AFECTA EN NADA SOLO ESTABA PROBANDO UNAS COSITAS
         // $user = Auth::user();
-        // // Obtener todos los idEstudiante únicos de la tabla tutorEstudianteInscripcion
-        // $estudiantesInscritos = TutorEstudianteInscripcion::select('idEstudiante')
-        //     ->distinct()
-        //     ->pluck('idEstudiante')
-        //     ->toArray();
-        // // Verificar si el usuario actual es un estudiante inscrito
-        // if ($user && $user->estudiante && in_array($user->id, $estudiantesInscritos)) {
-        //     return view('inscripciones.FormularioDatosInscripcionEst', [
-        //         'convocatoriaActiva' => false // O true, según tu lógica
-        //     ]);
+        // if ($user && $user->estudiante) {
+        //     $estaInscrito = TutorEstudianteInscripcion::where('idEstudiante', $user->id)->exists();
+        //     if ($estaInscrito) {
+        //         return redirect()->route('inscripcion.estudiante.informacion');
+        //     }
         // }
 
         // Obtener el ID de la convocatoria activa

@@ -32,7 +32,7 @@
 }
 
 /* Variables del tema - Modo oscuro */
-body.dark-theme {
+:root.modo-oscuro {
     /* Colores base */
     --primary-color: #3182ce;
     --secondary-color: #4299e1;
@@ -150,6 +150,8 @@ body.dark-theme {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.25);
+    background-color: var(--bg-input);
+    color: var(--text-color);
 }
 
 .form-control:read-only {

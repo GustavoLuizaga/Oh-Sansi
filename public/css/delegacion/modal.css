@@ -13,7 +13,7 @@
 }
 
 /* Variables para modo oscuro */
-body.dark-theme {
+:root.modo-oscuro {
     --modal-bg: #1e293b;
     --modal-overlay: rgba(0, 0, 0, 0.6);
     --modal-border: #334155;
@@ -158,34 +158,34 @@ body.dark-theme {
 }
 
 /* Botones en modo oscuro */
-body.dark-theme .btn-cancelar {
+.modo-oscuro .btn-cancelar {
     background-color: #475569;
     color: #e2e8f0;
 }
 
-body.dark-theme .btn-cancelar:hover {
+.modo-oscuro .btn-cancelar:hover {
     background-color: #334155;
 }
 
-body.dark-theme .btn-confirmar {
+.modo-oscuro .btn-confirmar {
     background-color: #dc2626;
     color: #e2e8f0;
 }
 
-body.dark-theme .btn-confirmar:hover {
+.modo-oscuro .btn-confirmar:hover {
     background-color: #b91c1c;
 }
 
 /* Animaciones para modo oscuro */
-body.dark-theme .modal {
+.modo-oscuro .modal {
     backdrop-filter: blur(4px);
 }
 
-body.dark-theme .modal-content {
+.modo-oscuro .modal-content {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-body.dark-theme .modal-content:hover {
+.modo-oscuro .modal-content:hover {
     box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.5);
 }
 

@@ -22,7 +22,7 @@
 }
 
 /* Modo Oscuro */
-body.dark-theme {
+.modo-oscuro {
   /* Colores base */
   --primary-color: #3182ce;
   --secondary-color: #4299e1;

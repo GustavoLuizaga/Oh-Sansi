@@ -19,7 +19,7 @@
 }
 
 /* Dark Theme Colors - Versión Profesional */
-body.dark-theme {
+:root.modo-oscuro  {
     /* Fondos principales */
     --form-bg: #1a1f2e;                /* Fondo principal más oscuro y profesional */
     --surface-primary: #242938;        /* Fondo de tarjeta más suave */
@@ -151,15 +151,15 @@ body.dark-theme {
 }
 
 /* Modo oscuro */
-body.dark-theme .input-with-icon input,
-body.dark-theme .input-with-icon select {
+.modo-oscuro .input-with-icon input,
+.modo-oscuro .input-with-icon select {
     background: var(--surface-secondaryy);
     border-color: var(--input-border);
     color: var(--input-text);
 }
 
-body.dark-theme .input-with-icon input:focus,
-body.dark-theme .input-with-icon select:focus {
+.modo-oscuro .input-with-icon input:focus,
+.modo-oscuro .input-with-icon select:focus {
     border-color: var(--blue-600);
     box-shadow: var(--shadow-focus);
 }
@@ -252,12 +252,12 @@ body.dark-theme .input-with-icon select:focus {
     box-shadow: var(--shadow-focus);
 }
 
-body.dark-theme .file-input {
+.modo-oscuro .file-input {
     background: var(--surface-secondaryy);
     border-color: var(--input-border);
 }
 
-body.dark-theme .file-input::-webkit-file-upload-button {
+.modo-oscuro .file-input::-webkit-file-upload-button {
     background: var(--button-bg);
     color: white;
 }
@@ -384,11 +384,11 @@ body.dark-theme .file-input::-webkit-file-upload-button {
 }
 
 /* Modo oscuro para áreas */
-body.dark-theme .area-option:hover {
+.modo-oscuro .area-option:hover {
     background-color: rgba(59, 130, 246, 0.1);
 }
 
-body.dark-theme .area-option.selected {
+.modo-oscuro .area-option.selected {
     background-color: rgba(59, 130, 246, 0.15);
 }
 

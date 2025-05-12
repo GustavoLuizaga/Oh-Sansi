@@ -174,12 +174,12 @@
 }
 
 /* Modo oscuro específico para login */
-body.dark-theme .login-form .input-with-icon input {
+.modo-oscuro .login-form .input-with-icon input {
     background: var(--surface-secondary);
     border-color: var(--input-border);
 }
 
-body.dark-theme .login-form .input-with-icon input:focus {
+.modo-oscuro .login-form .input-with-icon input:focus {
     border-color: var(--blue-600);
     box-shadow: var(--shadow-focus);
 }

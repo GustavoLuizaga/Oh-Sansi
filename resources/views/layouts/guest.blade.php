@@ -3,6 +3,31 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            :root[class='modo-oscuro'] {
+                color-scheme: dark;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    color-scheme: dark;
+                }
+            }
+        </style>
+        <script>
+            // Aplicar tema antes de que se cargue la página
+            const tema = (() => {
+                const guardado = localStorage.getItem('tema');
+                if (guardado) return guardado;
+                
+                return window.matchMedia('(prefers-color-scheme: dark)').matches 
+                    ? 'oscuro' 
+                    : 'claro';
+            })();
+            
+            if (tema === 'oscuro') {
+                document.documentElement.classList.add('modo-oscuro');
+            }
+        </script>
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>

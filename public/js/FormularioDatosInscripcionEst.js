@@ -270,6 +270,8 @@ try {
     });
 });
 
+
+//JS que servira para cargar dinamicamente los sleectores de categorias y areas
 document.addEventListener('DOMContentLoaded', function() 
 {
 const tutorContainer = document.getElementById('tutorContainer');

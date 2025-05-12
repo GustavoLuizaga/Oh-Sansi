@@ -26,7 +26,7 @@
 }
 
 /* Variables modo oscuro */
-body.dark-theme {
+:root.modo-oscuro  {
     /* Colores base - Modo oscuro */
     --primary-color: #3182ce;
     --secondary-color: #4299e1;
@@ -322,35 +322,35 @@ td.action-cell {
 }
 
 /* Modales en modo oscuro */
-body.dark-theme .modal-content {
+.modo-oscuro .modal-content {
     background-color: var(--bg-modal);
     border-color: var(--border-color);
 }
 
-body.dark-theme .modal-header {
+.modo-oscuro .modal-header {
     border-color: var(--border-color);
 }
-body.dark-theme .form-text{
+.modo-oscuro .form-text{
   color: var(--texto-deshabilitado);
 }
-body.dark-theme .modal-footer {
+.modo-oscuro .modal-footer {
     border-color: var(--border-color);
 }
 
-body.dark-theme .form-control {
+.modo-oscuro .form-control {
     background-color: var(--bg-main);
     color: var(--text-color);
     border-color: var(--border-color);
 }
 
 /* Botones en modo oscuro */
-body.dark-theme .btn-cancel {
+.modo-oscuro .btn-cancel {
     background-color: var(--bg-secondary);
     color: var(--text-color);
     border-color: var(--border-color);
 }
 
-body.dark-theme .btn-cancel:hover {
+.modo-oscuro .btn-cancel:hover {
     background-color: var(--hover-color);
 }
 

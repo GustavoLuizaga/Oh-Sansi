@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
+use App\Events\InscripcionAprobadaEstudiante;
 class BoletaController extends Controller
 {
     public function procesarBoleta(Request $request)
@@ -35,7 +35,7 @@ class BoletaController extends Controller
         // Verificar si falló el OCR
         if ($request->estado_ocr == 2) {
             $validator->errors()->add(
-                'ocr_error', 
+                'ocr_error',
                 'No se detectó el número de comprobante. Suba una imagen nítida.'
             );
         }
@@ -55,11 +55,11 @@ class BoletaController extends Controller
             $inscripcionId = $request->inscripcion_id;
             $directory = "public/inscripcionID/{$inscripcionId}";
             $filename = $file->getClientOriginalName();
-            
+
             // Limpiar directorio existente
             Storage::deleteDirectory($directory);
             Storage::makeDirectory($directory);
-            
+
             // Guardar archivo
             $path = $file->storeAs($directory, $filename);
 
@@ -76,18 +76,40 @@ class BoletaController extends Controller
             if ($affected === 0) {
                 throw new \Exception("No se encontró la inscripción especificada");
             }
-            
+
             // 3. Actualización del campo status en la tabla inscripcion
             $statusUpdated = DB::table('inscripcion')
                 ->where('idInscripcion', $inscripcionId)
                 ->update([
                     'status' => 'aprobado', // Actualizado de "pendiente" a "aprobado"
-                    
+
                 ]);
-                
+
             if ($statusUpdated === 0) {
                 throw new \Exception("No se pudo actualizar el estado en la tabla inscripcion");
             }
+
+            // Obtener el área de la inscripción
+            $inscripcion = DB::table('detalle_inscripcion')
+                ->join('area', 'detalle_inscripcion.idArea', '=', 'area.idArea')
+                ->where('detalle_inscripcion.idInscripcion', $inscripcionId)
+                ->select('area.nombre as nombreArea')
+                ->first();
+
+            // Obtener el ID del estudiante
+            $estudiante = DB::table('tutorestudianteinscripcion')
+                ->where('idInscripcion', $inscripcionId)
+                ->select('idEstudiante')
+                ->first();
+
+            // Disparar el evento
+            event(new InscripcionAprobadaEstudiante(
+                $estudiante->idEstudiante,
+                'Tu inscripción ha sido aprobada exitosamente',
+                'aprobacion',
+                $inscripcion->nombreArea
+            ));
+
 
             DB::commit();
 
@@ -99,11 +121,10 @@ class BoletaController extends Controller
                     'ruta' => Storage::url($path)
                 ]
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error en BoletaController: ' . $e->getMessage());
-            
+
             // Limpiar archivos en caso de error
             if (isset($path) && Storage::exists($path)) {
                 Storage::delete($path);

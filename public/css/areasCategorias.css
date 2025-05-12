@@ -26,7 +26,7 @@
 }
 
 /* Variables modo oscuro */
-body.dark-theme {
+:root.modo-oscuro {
     /* Colores base - Modo oscuro */
     --primary-color: #3182ce;
     --secondary-color: #4299e1;

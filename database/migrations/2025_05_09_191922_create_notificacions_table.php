@@ -17,7 +17,7 @@ class CreateNotificacionsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('mensaje');
-            $table->enum('tipo', ['mensaje', 'comentario', 'reaccion', 'alerta', 'sistema']);
+            $table->enum('tipo', ['mensaje', 'denegacion', 'aprobacion', 'alerta', 'sistema']);
             $table->timestamps();
 
             // Clave foránea (opcional pero recomendable)

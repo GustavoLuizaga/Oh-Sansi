@@ -125,7 +125,7 @@
     --color-azul-estatico:#17283a;
     --texto-estatico:#eaf3ff;
   }
-  body.dark-theme {
+:root.modo-oscuro  {
       --fondo-claro: #0b0f14;             /* casi negro, con tinte azul */
       --fondo-secundario-claro: #121a26;  /* gris azulado muy oscuro */
       --fondo-terciario-claro: #1c2738;   /* más visible pero aún oscuro */

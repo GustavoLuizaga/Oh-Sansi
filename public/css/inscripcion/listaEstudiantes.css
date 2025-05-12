@@ -13,7 +13,7 @@
     --pending-color: #f59e0b; /* Color para estudiantes pendientes */
 }
 
-body.dark-theme {
+:root.modo-oscuro {
     /* Colores principales - Paleta corporativa */
     --primary-color: #3182ce;
     --secondary-color: #4299e1;

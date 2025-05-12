@@ -10,6 +10,34 @@
   --warning-color: #f59f00;
   --danger-color: #fa5252;
   --info-color: #4299e1;
+
+  /* Fondos */
+  --bg-main: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-badge: #e2e8f0;
+
+  /* Contenedores */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Modo Oscuro */
+body.dark-theme {
+  /* Colores base */
+  --primary-color: #3182ce;
+  --secondary-color: #4299e1;
+  --text-color: #e2e8f0;
+  --border-color: #2d3748;
+  --hover-color: #2d3748;
+
+  /* Fondos */
+  --bg-main: #1a202c;
+  --bg-secondary: #2d3748;
+  --bg-card: #1e293b;
+  --bg-badge: #4a5568;
+
+  /* Contenedores */
+  --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 /* Back Button */
@@ -29,9 +57,9 @@
 
 /* Detail Container */
 .convocatoria-detail-container {
-  background-color: white;
+  background-color: var(--bg-main);
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--shadow-color);
   overflow: hidden;
 }
 
@@ -39,14 +67,14 @@
 .detail-header {
   background-color: var(--primary-color);
   color: white;
-  padding: 1.5rem 2rem;
+  padding: 0.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .detail-header h1 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
   display: flex;
@@ -84,7 +112,22 @@
 
 .estado-cancelada {
   background-color: var(--danger-color);
-  color: white;
+  color: var(--estado-text);
+}
+
+:root[data-theme="dark"] .estado-publicada {
+  background-color: var(--success-color);
+  opacity: 0.9;
+}
+
+:root[data-theme="dark"] .estado-borrador {
+  background-color: var(--warning-color);
+  opacity: 0.9;
+}
+
+:root[data-theme="dark"] .estado-cancelada {
+  background-color: var(--danger-color);
+  opacity: 0.9;
 }
 
 /* Action Buttons */
@@ -92,7 +135,7 @@
   display: flex;
   gap: 1rem;
   padding: 1rem 2rem;
-  background-color: #f8fafc;
+  background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -106,15 +149,12 @@
   font-weight: 500;
   text-decoration: none;
   transition: background-color 0.2s;
+  background-color: var(--secondary-color);
+  color: var(--estado-text);
 }
 
 .btn-action i {
   font-size: 1rem;
-}
-
-.btn-action {
-  background-color: var(--secondary-color);
-  color: white;
 }
 
 .btn-action:hover {
@@ -123,7 +163,7 @@
 
 .btn-publish {
   background-color: var(--success-color);
-  color: white;
+  color:var(--estado-text);
 }
 
 .btn-publish:hover {
@@ -158,11 +198,14 @@
 }
 
 .btn-pdf {
-  background-color: var(--info-color);
-  color: white;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color:  var(--primary-color);
 }
 
+
 .btn-pdf:hover {
+  color: var(--button-text);
   background-color: #3182ce;
 }
 
@@ -197,7 +240,7 @@
 
 .info-label {
   font-weight: 600;
-  color: #4a5568;
+  color: var(--text-color);
   margin-bottom: 0.5rem;
 }
 
@@ -207,6 +250,7 @@
 
 .description {
   line-height: 1.6;
+  color: var(--text-color);
 }
 
 /* Areas and Categories */
@@ -235,7 +279,7 @@
 }
 
 .categoria-item {
-  background-color: #f8fafc;
+  background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 0.375rem;
   padding: 1rem;
@@ -249,12 +293,12 @@
 .precio-label {
   font-weight: 500;
   margin-right: 0.5rem;
-  color: var(--text-color);
+  color: var(--border-color);
 }
 
 .precio-value {
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--text-color);
 }
 
 .categoria-title {
@@ -271,10 +315,18 @@
 }
 
 .grado-badge {
-  background-color: #e2e8f0;
+  background-color: var(--bg-badge);
   color: var(--text-color);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+/* Transiciones suaves */
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
 }

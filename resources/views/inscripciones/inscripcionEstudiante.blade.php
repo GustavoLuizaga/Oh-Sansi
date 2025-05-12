@@ -13,8 +13,8 @@
             </a>
         </div>
     </div>
-    @endif
-
+    @else
+    <!-- Todo el contenido del formulario envuelto en este else -->
     <div class="inscription-container">
         <!-- Header -->
         <div class="inscription-header">
@@ -207,6 +207,7 @@
         </form>
     </div>
     <script src="{{ asset('js/inscripcionEstudiante.js') }}"></script>
+    @endif
 </x-app-layout>
 
 <script>

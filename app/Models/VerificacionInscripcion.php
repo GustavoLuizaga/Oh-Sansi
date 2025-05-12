@@ -12,10 +12,11 @@ class VerificacionInscripcion extends Model
     protected $fillable = [
         'idInscripcion',
         'idBoleta',
-        'valido',
-        'imagen_comprobante',
+        'CodigoComprobante',
+        'Comprobante_valido',
+        'RutaComprobante',
     ];
-    //public $timestamps = true;
+    public $timestamps = true;
 
 
     public function inscripcion()
@@ -25,8 +26,7 @@ class VerificacionInscripcion extends Model
 
     public function boletaPago()
     {
-        return $this->belongsTo(boletaPago::class, 'idBoleta', 'idBoleta');
+        return $this->belongsTo(BoletaPago::class, 'idBoleta', 'idBoleta');
         
     }
 }
-

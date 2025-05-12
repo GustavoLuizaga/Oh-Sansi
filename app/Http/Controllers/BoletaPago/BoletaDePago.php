@@ -144,12 +144,24 @@ class BoletaDePago extends Controller
             $user = Auth::user();
             $tutor = $user->tutor;
 
-            // Obtener IDs de inscripciones del tutor
+            // Obtener IDs de inscripciones del tutor que NO están en otras boletas o están en boletas creadas por este tutor
             $inscripcionesIds = TutorEstudianteInscripcion::where('idTutor', $user->id)
                 ->select('idInscripcion')
+                ->whereNotExists(function ($query) use ($user) {
+                    $query->select(DB::raw(1))
+                        ->from('boletapagoinscripcion')
+                        ->join('boletapago', 'boletapago.idBoleta', '=', 'boletapagoinscripcion.idBoleta')
+                        ->whereRaw('boletapagoinscripcion.idInscripcion = tutorestudianteinscripcion.idInscripcion')
+                        ->where('boletapago.CodigoBoleta', 'NOT LIKE', 'OP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT));
+                })
                 ->pluck('idInscripcion');
 
-            // Obtener totales antes de crear la boleta
+            // Si no hay inscripciones disponibles
+            if ($inscripcionesIds->isEmpty()) {
+                return back()->withErrors(['error' => 'No hay inscripciones disponibles para generar una orden de pago']);
+            }
+
+            // Modificar la consulta de detalles para incluir solo las inscripciones disponibles
             $detalles = DB::select("
             SELECT 
                 a.nombre as area,
@@ -166,34 +178,34 @@ class BoletaDePago extends Controller
             JOIN detalle_inscripcion di ON di.idInscripcion = i.idInscripcion
             JOIN area a ON a.idArea = di.idArea
             JOIN categoria c ON c.idCategoria = di.idCategoria
-            WHERE tei.idTutor = ?
+            WHERE tei.idTutor = ? AND i.idInscripcion IN (" . $inscripcionesIds->implode(',') . ")
             GROUP BY a.nombre, c.nombre, di.modalidadInscripcion
         ", [$user->id]);
 
             $totalGeneral = collect($detalles)->sum('total');
 
-            // Verificar/Crear boleta
-            $boletaExistente = BoletaPagoInscripcion::whereIn('idInscripcion', $inscripcionesIds)->first();
-            if ($boletaExistente) {
-                $boleta = $boletaExistente->boletaPago;
-                $codigoBoleta = $boleta->CodigoBoleta;
-            } else {
-                $codigoBoleta = 'OP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT);
+            // Verificar si ya existe una boleta para este tutor
+            $codigoBoleta = 'OP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT);
+            $boleta = BoletaPago::where('CodigoBoleta', $codigoBoleta)->first();
+
+            if (!$boleta) {
                 $boleta = BoletaPago::create([
                     'CodigoBoleta' => $codigoBoleta,
                     'MontoBoleta' => $totalGeneral,
                     'fechainicio' => now(),
                     'fechafin' => now()->addDays(30)
                 ]);
-                foreach ($inscripcionesIds as $idInscripcion) {
-                    BoletaPagoInscripcion::create([
-                        'idInscripcion' => $idInscripcion,
-                        'idBoleta' => $boleta->idBoleta
-                    ]);
-                }
             }
 
-            // Obtener inscripciones para mostrar
+            // Crear las asociaciones solo para las inscripciones que no tienen boleta
+            foreach ($inscripcionesIds as $idInscripcion) {
+                BoletaPagoInscripcion::firstOrCreate([
+                    'idInscripcion' => $idInscripcion,
+                    'idBoleta' => $boleta->idBoleta
+                ]);
+            }
+
+            // Modificar la consulta de inscripciones para incluir solo las disponibles
             $inscripciones = DB::select("
             SELECT 
                 a.nombre as area_nombre,
@@ -212,7 +224,7 @@ class BoletaDePago extends Controller
             JOIN detalle_inscripcion di ON di.idInscripcion = i.idInscripcion
             JOIN area a ON a.idArea = di.idArea
             JOIN categoria c ON c.idCategoria = di.idCategoria
-            WHERE tei.idTutor = ?
+            WHERE tei.idTutor = ? AND i.idInscripcion IN (" . $inscripcionesIds->implode(',') . ")
             ORDER BY a.nombre, c.nombre, di.modalidadInscripcion
         ", [$user->id]);
 

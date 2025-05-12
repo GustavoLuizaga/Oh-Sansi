@@ -2,6 +2,8 @@
     <link rel="stylesheet" href="{{ asset('css/inscripcion/FormularioDatosInscripcionEst.css') }}">
 @endpush
 @push('scripts')
+    <!-- Carga Tesseract.js de forma tradicional -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="{{ asset('js/FormularioDatosInscripcionEst.js') }}"></script>
 @endpush
 <x-app-layout>
@@ -9,6 +11,11 @@
     @if(session('success'))
     <div class="alert alert-success py-1 px-2 mb-1">
         <i class="fas fa-check-circle"></i> {{ session('success') }}
+    </div>
+    @endif
+    @if(session('numero_boleta'))
+    <div class="alert alert-info py-1 px-2 mb-1">
+        <i class="fas fa-file-invoice"></i> Número de boleta detectado: {{ session('numero_boleta') }}
     </div>
     @endif
 
@@ -24,14 +31,13 @@
                 <i class="fas fa-arrow-left"></i> Volver Formulario de Inscripción
             </a>
         </div>
-        
         <div class="export-buttons">
             <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
                 <i class="fas fa-file-pdf"></i> Generar orden de pago
             </button>
             
-            <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
-                <i class="fas fa-file-excel"></i> Subir comprobante de pago
+            <button type="button" class="export-button excel py-1 px-2" id="importComprobante" data-bs-toggle="modal" data-bs-target="#SubirComprobantePago">
+                <i class="fas fa-file-pdf"></i> Subir comprobante de pago
             </button>
         </div>
     </div>
@@ -239,6 +245,75 @@
     </form>
 
 
+<!-- Modal para SUBIR comprobante de Pago -->
+<div class="modal fade" id="SubirComprobantePago" tabindex="-1" aria-labelledby="SubirComprobantePagoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h2 class="modal-title fs-4 fw-bold" id="SubirComprobantePagoLabel">
+                    <i class="fas fa-file-upload me-2"></i>Subir Comprobante de Pago
+                </h2>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-file-invoice-dollar display-4 mb-3" id="icon-dollar"></i>
+                    <p class="lead">Por favor, sube tu comprobante de pago para completar el proceso de inscripción </p>
+                    <div>Una vez se verifique el Nro.Comprobante sea correcto, seras aceptado oficialmente como estudiante inscrito en las Olimpiadas Oh Sansi!!</div>
+                </div>
+                
+                <form id="comprobantePagoForm" enctype="multipart/form-data">
+                @csrf <!-- Faltaba el token CSRF -->
+                <input type="hidden" name="estudiante_id" value="{{ $ids['estudiante_id'] }}">
+                <input type="hidden" name="inscripcion_id" value="{{ $ids['inscripcion_id'] }}">
+                    <div class="file-drop-area border-2 border-dashed rounded-3 p-5 text-center mb-3">
+                        <input type="file" id="comprobantePagoFile" name="comprobantePago" class="file-input" accept=".pdf,.jpg,.jpeg,.png">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="mb-1">Arrastra y suelta tu comprobante aquí</p>
+                        <p class="text-muted small mb-3">o</p>
+                        <label for="comprobantePagoFile" class="btn btn-primary px-4">
+                            <i class="fas fa-folder-open me-2"></i>Buscar Archivo
+                        </label>
+                        <p class="small text-muted mt-2">Formatos aceptados: PDF, JPG, PNG (Tamaño máximo: 5MB)</p>
+                    </div>
+                    
+                    <div class="file-feedback text-danger" style="display: none;"></div>
+                    
+                    <div class="file-preview p-4 border rounded text-center" style="display: none;">
+                        <!-- Previsualización para imágenes -->
+                        <div class="image-preview mb-3" style="display: none;">
+                            <img src="" alt="Vista previa" class="img-preview img-fluid mb-2" style="max-height: 200px;">
+                        </div>
+                        
+                        <!-- Icono para PDF -->
+                        <div class="pdf-preview mb-3" style="display: none;">
+                            <i class="fas fa-file-pdf fa-4x text-danger mb-2"></i>
+                        </div>
+                        
+                        <!-- Nombre del archivo -->
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-paperclip me-2"></i>
+                            <span class="file-name fw-bold"></span>
+                            <button type="button" class="btn-remove-file ms-3 btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash-alt me-1"></i>Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 bg-light">
+                <button type="button" class="btn-cancel" data-bs-dismiss="modal" title="Cancelar subida de comprobante de pago">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <!-- Cambiar el ID del botón de submit para evitar conflicto -->
+                <button type="submit" form="comprobantePagoForm" class="btn-save" id="btnSubirComprobante" title="Subir el comprobante de pago para su verificacion" disabled>
+                    <i class="fas fa-upload me-2"></i>Subir Comprobante
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </x-app-layout>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -248,5 +323,5 @@
         window.location.href = "{{ route('inscripcionEstudiante.exportar.pdf') }}";
         });
         
-    });
+    }); 
 </script>

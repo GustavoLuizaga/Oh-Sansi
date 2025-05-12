@@ -7,6 +7,7 @@ use App\Http\Controllers\Inscripcion\VerificacionConvocatoriaController;
 use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 use App\Http\Controllers\BoletaPago\BoletaDePago;
 use App\Http\Controllers\BoletaPago\BoletaDePagoDeEstudiante;
+use App\Http\Controllers\BoletaController;
 
 // Add these routes for exports
 Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])->name('inscripcionEstudiante.exportar.pdf');
@@ -32,21 +33,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
         ->name('inscripcion.store');
 
-    //Ruta para mostrar los datos de inscripcion del estudiante
+    //Ruta para mostrar los datos de inscripcion del estudiante y EDITAR SU INFORMACION DE AREAS,CATEGORIAS, INCLUSO CAMBIAR TUTORES
     Route::get('/inscripcion/estudiante/informacion', [BoletaDePagoDeEstudiante::class, 'index'])
         ->name('inscripcion.estudiante.informacion');
     
-    //Ruta para mostrar el formulario de datos de inscripcion del estudiante
+    //Ruta para mostrar el la vista formulario de datos de inscripcion del estudiante, osea la vista donde se muestra todos los datos del estudiante
     Route::get('/inscripcion/estudiante/imprimirFormularioInscripcion', [BoletaDePagoDeEstudiante::class, 'ImprimirFormularioInscripcion'])
     ->name('inscripcion.estudiante.imprimirFormularioInscripcion');
 
-    // Add these routes for exports
+    // Ruta para exportar el PDF de la boleta de ORDEN DE PAGO DEL ESTUDIANTE
     Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])
         ->name('inscripcionEstudiante.exportar.pdf');
-    // Add these routes for exports= IMRIMIR FORMULARIO DE INSCRIPCION
+    // Ruta para IMRIMIR FORMULARIO DE INSCRIPCION en PDF
     Route::get('/inscripciones/estudiante/informacion/exportarFormulario/pdf', [BoletaDePagoDeEstudiante::class, 'PDFImprimirFormulario'])
         ->name('inscripcionEstudiante.ImprimirFormulario.pdf'); 
-    
+
+    // Ruta para procesar el comprobante de pago subido por el estudiante, crear y guardar la ruta de la imagen en la base de datos
+    Route::post('/inscripcion/estudiante/comprobante/procesar-boleta', [BoletaController::class, 'procesarBoleta'])
+        ->name('inscripcionEstudiante.subirComprobante.pago');
+    // Ruta para verificar que el modal de subir comprobante no aparezca almenos que se haya generado una orden de pago primero, ESTO AUN NO SE IMPLEMENTO, NO SIRVE, 
+    Route::get('/verificar-inscripcion', [BoletaController::class, 'verificarInscripcion'])
+        ->name('inscripcion.verificar');
+
     // Tutor registration routes
     Route::get('/inscripcion/tutor', [InscripcionController::class, 'showTutorProfile'])
         ->name('inscripcion.tutor');

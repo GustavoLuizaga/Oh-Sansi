@@ -16,9 +16,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('idInscripcion');
             $table->unsignedBigInteger('idBoleta');
-            $table->boolean('valido')->default(false);
-            $table->string('imagen_comprobante')->nullable();
-            //$table->timestamps();
+            $table->integer('CodigoComprobante')->nullable();
+            $table->boolean('Comprobante_valido')->default(false)->nullable();
+            $table->string('RutaComprobante')->nullable();
+            $table->timestamps();
 
             // Claves foráneas
             $table->foreign('idInscripcion')->references('idInscripcion')->on('inscripcion')->onDelete('cascade');
@@ -41,6 +42,3 @@ return new class extends Migration
         Schema::dropIfExists('verificacioninscripcion');
     }
 };
-
-
-

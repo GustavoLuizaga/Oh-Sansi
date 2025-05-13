@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionTutor.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionManual.css') }}">
+<link rel="stylesheet" href="{{ asset('css/inscripcion/mostrarConvocatoriaInfo.css') }}">
 <!-- Scripts necesarios para el modal y la previsualización -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
@@ -159,10 +160,13 @@
                 @include('inscripciones/formInscripcionEst')
             </div>
             
-            <!-- Modal and other content -->
+            <!-- Modal para mostrar datos -->
             <div id="modalDatos" class="modal">
                 <div class="modal-contenido">
-                    <button onclick="cerrarModal()" class="modal-cerrar">✖</button>
+                    <div class="modal-header">
+                        <h3>Información de la Convocatoria</h3>
+                        <button onclick="cerrarModal()" class="modal-cerrar">✖</button>
+                    </div>
                     <div id="contenidoModal" class="modal-cuerpo">
                         Cargando datos...
                     </div>
@@ -171,19 +175,29 @@
         </div>
         <!-- Modal para previsualización de datos Excel -->
         <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
+            <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="previewModalLabel">
                             <i class="fas fa-table"></i> Previsualización de Datos
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="toggleColumnsBtn">
+                                <i class="fas fa-columns"></i> Mostrar/Ocultar Columnas
+                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i> Revise los datos antes de confirmar. Puede hacer clic en las celdas para editar la información.
+                            <ul class="mt-2 mb-0">
+                                <li>Use el botón "Mostrar/Ocultar Columnas" para gestionar la visibilidad de las columnas</li>
+                                <li>Puede ordenar los datos haciendo clic en los encabezados de las columnas</li>
+                                <li>Use el campo de búsqueda para filtrar registros específicos</li>
+                            </ul>
                         </div>
-                        <div class="alert alert-warning mb-3" style="display: none;">
+                        <div id="errorCounter" class="alert alert-warning mb-3" style="display: none;">
                             <i class="fas fa-exclamation-triangle"></i>
                             <span id="errorCountText">Errores encontrados: 0 filas con errores.</span>
                         </div>

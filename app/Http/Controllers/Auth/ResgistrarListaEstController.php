@@ -166,6 +166,18 @@ class ResgistrarListaEstController extends Controller
                 continue;
             }
 
+            $tutorId = Auth::user()->id;
+            $tutorDelegaciones = DB::table('tutorAreaDelegacion')
+                ->join('delegacion', 'tutorAreaDelegacion.idDelegacion', '=', 'delegacion.idDelegacion')
+                ->where('tutorAreaDelegacion.id', $tutorId)
+                ->pluck('delegacion.nombre')
+                ->toArray();
+
+            if (!in_array($delegacion, $tutorDelegaciones)) {
+                $errors[] = "Fila {$currentRow}: La delegación '{$delegacion}' no está asignada al tutor actual. Solo puede inscribir estudiantes en sus delegaciones asignadas.";
+                continue;
+            }
+
             // Guardar información para grupos de invitación
             if (!empty($codigoInvitacion)) {
                 if (!isset($gruposInvitacion[$codigoInvitacion])) {
@@ -385,10 +397,10 @@ class ResgistrarListaEstController extends Controller
                 ]);
 
                 // Notificar si es nuevo usuario
-                /*if ($isNewUser) {
+                if ($isNewUser) {
                     $user->notify(new WelcomeEmailNotification($plainPassword));
                     event(new Registered($user));
-                }*/
+                }
                 // Notificar al estudiante sobre la inscripción
             }
 

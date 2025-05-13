@@ -107,36 +107,39 @@
                     @endif
                     <form method="POST" action="{{ route('register.lista.store') }}" enctype="multipart/form-data" class="excel-actions">
                         @csrf
-                        <input type="file"
-                            id="excelFile"
-                            name="file"
-                            accept=".xlsx, .xls"
-                            class="file-input"
-                            required>
-                        <label for="excelFile" class="upload-label">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <span id="fileName">Seleccionar archivo</span>
-                        </label>
-                        <div id="fileInfo" class="file-info" style="display: none;">
-                            <i class="fas fa-file-excel"></i>
-                            <span id="selectedFileName"></span>
-                            <button type="button" class="remove-file" onclick="removeFile()">
-                                <i class="fas fa-times"></i>
+                        <div class="file-upload-container">
+                            <input type="file"
+                                id="excelFile"
+                                name="file"
+                                accept=".xlsx, .xls"
+                                class="file-input"
+                                required>
+                            <label for="excelFile" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span id="fileName">Seleccionar archivo</span>
+                            </label>
+                            <div id="fileInfo" class="file-info" style="display: none;">
+                                <i class="fas fa-file-excel"></i>
+                                <span id="selectedFileName"></span>
+                                <button type="button" class="remove-file" onclick="removeFile()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="upload-button">
+                                <i class="fas fa-upload"></i> Subir
+                            </button>
+                            <button type="button" id="previewBtn" class="preview-button">
+                                <i class="fas fa-eye"></i> Previsualizar
+                            </button>
+                            <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" class="template-link">
+                                <i class="fas fa-download"></i> Descargar plantilla
+                            </a>
+                            <button type="button" class="info-button" onclick="cargarDatosConvocatoria()">
+                                <i class="fas fa-info-circle"></i> Ver información sobre la convocatoria
                             </button>
                         </div>
-                        <button type="submit" class="upload-button">
-                            <i class="fas fa-upload"></i> Subir
-                        </button>
-                        <button type="button" id="previewBtn" class="preview-button">
-                            <i class="fas fa-eye"></i> Previsualizar
-                        </button>
-                        <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" class="template-link">
-                            <i class="fas fa-download"></i> Descargar plantilla
-                        </a>
-                        <button onclick="cargarDatosConvocatoria()">
-                            Ver información sobre la convocatoria
-                        </button>
-
                     </form>
 
                     @if ($errors->any())

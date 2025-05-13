@@ -57,7 +57,7 @@
         <div class="form-grid">
             <!-- Información del Usuario -->
             <div class="form-section user-info">
-                <h3><i class="fas fa-user"></i> Información del Usuario</h3>
+                <h3 style="color: #1a365d; font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #2c5282; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-user"></i> Información del Usuario</h3>
                 <div class="input-row">
                     <div class="input-group">
                         <label>Nombres</label>
@@ -102,7 +102,7 @@
 
             <!-- Información Académica -->
             <div class="form-section academic-info">
-                <h3><i class="fas fa-graduation-cap"></i> Información Académica</h3>
+                <h3 style="color: #1a365d; font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #2c5282; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-graduation-cap"></i> Información Académica</h3>
                 
                 <!-- Campos no editables para convocatoria y delegación -->
                 <div class="input-row">
@@ -181,7 +181,7 @@
 
             <!-- Información Adicional -->
             <div class="form-section additional-info">
-                <h3><i class="fas fa-info-circle"></i> Información Adicional</h3>
+                <h3 style="color: #1a365d; font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #2c5282; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-info-circle"></i> Información Adicional</h3>
                 <div class="input-row">
                     <div class="input-group">
                         <label>Nombre Completo del Tutor</label>

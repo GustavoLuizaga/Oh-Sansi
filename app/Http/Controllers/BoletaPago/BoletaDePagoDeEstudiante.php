@@ -27,6 +27,20 @@ class BoletaDePagoDeEstudiante extends Controller
 {
     public function index()
     {
+        // Verificar si el usuario está autenticado y tiene el rol de estudiante y si tiene inscripciones aprobadas,OSEA SI YA SE APROBO SU COMPR0BANTE DE PAGO
+        // $user = Auth::user();
+        // if ($user && $user->estudiante) {
+        //     $inscripcionAprobada = TutorEstudianteInscripcion::with('inscripcion')
+        //         ->where('idEstudiante', $user->id)
+        //         ->whereHas('inscripcion', function($query) {
+        //             $query->where('status', 'aprobado');
+        //         })
+        //         ->exists();
+
+        //     if ($inscripcionAprobada) {
+        //         return redirect()->route('inscripcion.estudiante.imprimirFormularioInscripcion');
+        //     }
+        // }
         $estudianteId = Auth::id();
         // Obtener datos del estudiante y sus inscripciones con todos los campos solicitados
         $data = DB::table('tutorestudianteinscripcion')

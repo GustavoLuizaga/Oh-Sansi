@@ -27,8 +27,8 @@
     <!-- Actions Container -->
     <div class="actions-container mb-1">
         <div class="button-group">
-            <a href="{{ route('inscripcion.estudiante') }}" class="add-button py-1 px-2">
-                <i class="fas fa-arrow-left"></i> Volver Formulario de Inscripción
+            <a href="#" class="add-button py-1 px-2"><!-- Cambiar el enlace a la ruta correcta {{ route('inscripcion.estudiante') }}-->
+                <i class="fas fa-info-circle"></i> Importante: Una vez subido el comprobante, la información ya no se podra modificar
             </a>
         </div>
         <div class="export-buttons">
@@ -55,12 +55,6 @@
     <!-- Main Form -->
         <form id="inscriptionForm" method="POST" action="#" class="inscription-form-custom" onsubmit="return validateForm(event)">
             <input type="hidden" name="idConvocatoria" value="1">
-
-            <!-- Instrucciones del Formulario -->
-            <div class="form-instructions">
-                <h2>Editar informacion de inscripcion,cambiar de tutor, cambiar de areas, categorias, grados</h2>
-            </div>
-
             <div class="form-content">
                 <!-- Información Personal -->
                 <div class="formulario-seccion" id="personal-info">
@@ -281,7 +275,7 @@
         <!-- Botón de Envío -->
         <div class="subir-formulario">
             <button type="reset" class="btn-subir">
-                <i class="fas fa-undo"></i> Cancelar
+                <i class="fas fa-undo"></i> Restaurar
             </button>
             <button type="submit" class="btn-subir">
                 <i class="fas fa-check"></i> Guardar cambios

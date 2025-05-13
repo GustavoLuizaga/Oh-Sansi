@@ -40,3 +40,15 @@ Route::get('/notificaciones/todas', function () {
 
     return response()->json($notificaciones);
 })->middleware('auth');
+
+Route::delete('/notificaciones/borrar/{id}', function ($id) {
+    $userId = auth()->id();
+    $notificacion = \App\Models\Notificacion::where('id', $id)->where('user_id', $userId)->first();
+
+    if ($notificacion) {
+        $notificacion->delete();
+        return response()->json(['success' => true]);
+    } else {
+        return response()->json(['success' => false, 'message' => 'No encontrada o no autorizada'], 404);
+    }
+})->middleware('auth');

@@ -625,87 +625,339 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
+        // Validaciones para nombres y apellidos
+        const nameFields = ['nombres', 'apellidoPaterno', 'apellidoMaterno'];
+        const nameRegex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]{3,}$/;
+        
+        for (const field of nameFields) {
+            const input = document.querySelector(`input[name="${field}"]`);
+            if (!nameRegex.test(input.value)) {
+                displayError(`El campo ${field} solo debe contener letras y tener al menos 3 caracteres`);
+                input.focus();
+                return false;
+            }
+        }
+
+        // Validación de CI
+        const ciInput = document.querySelector('input[name="ci"]');
+        if (!/^\d{7}$/.test(ciInput.value)) {
+            displayError('El CI debe tener exactamente 7 dígitos');
+            ciInput.focus();
+            return false;
+        }
+
+        // Validación de fecha de nacimiento
+        const fechaNacimiento = document.querySelector('input[name="fechaNacimiento"]');
+        const fechaMinima = new Date();
+        fechaMinima.setFullYear(fechaMinima.getFullYear() - 5);
+        
+        if (new Date(fechaNacimiento.value) > fechaMinima) {
+            displayError('La edad mínima requerida es 5 años');
+            fechaNacimiento.focus();
+            return false;
+        }
+
+        // Validación de emails
+        const emailFields = ['email', 'correoTutor'];
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        
+        for (const field of emailFields) {
+            const input = document.querySelector(`input[name="${field}"]`);
+            if (!emailRegex.test(input.value)) {
+                displayError(`El ${field} debe ser una dirección de Gmail válida`);
+                input.focus();
+                return false;
+            }
+        }
+
+        // Validación del nombre del tutor
+        const nombreTutorInput = document.querySelector('input[name="nombreCompletoTutor"]');
+        if (!nameRegex.test(nombreTutorInput.value)) {
+            displayError('El nombre del tutor solo debe contener letras y tener al menos 3 caracteres');
+            nombreTutorInput.focus();
+            return false;
+        }
+
+        // Validación del número de contacto
+        const numeroContactoInput = document.querySelector('input[name="numeroContacto"]');
+        if (!/^\d{8}$/.test(numeroContactoInput.value)) {
+            displayError('El número de contacto debe tener exactamente 8 dígitos');
+            numeroContactoInput.focus();
+            return false;
+        }
+
         return true;
     }
+
+    // Función para validar solo letras y espacios
+    function soloLetras(event) {
+        const charCode = event.which || event.keyCode;
+        const char = String.fromCharCode(charCode);
+        // Permitir letras, espacios, ñ, Ñ y vocales con acentos
+        if (!/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]$/.test(char)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+
+    // Función para validar solo números con límite
+    function soloNumeros(event, maxLength) {
+        const input = event.target;
+        const charCode = event.which || event.keyCode;
+        
+        // Permitir teclas de control (backspace, delete, flechas, etc.)
+        if (event.type === 'keydown') {
+            if (charCode === 8 || charCode === 9 || charCode === 37 || charCode === 39 || charCode === 46) {
+                return true;
+            }
+        }
+
+        // Validar que sea número y no exceda el máximo
+        if (event.type === 'keypress') {
+            const char = String.fromCharCode(charCode);
+            if (!/^\d$/.test(char) || input.value.length >= maxLength) {
+                event.preventDefault();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Validación en tiempo real para campos de texto (nombres y apellidos)
+    const camposTexto = [
+        'input[name="nombres"]',
+        'input[name="apellidoPaterno"]',
+        'input[name="apellidoMaterno"]',
+        'input[name="nombreCompletoTutor"]'
+    ];
+
+    camposTexto.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input) {
+            input.addEventListener('keypress', soloLetras);
+            input.addEventListener('input', function() {
+                // Remover cualquier número que se haya pegado
+                this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+                
+                // Validar longitud mínima
+                if (this.value.length < 3) {
+                    this.classList.add('invalid');
+                    mostrarError(this, 'Mínimo 3 caracteres');
+                } else {
+                    this.classList.remove('invalid');
+                    ocultarError(this);
+                }
+            });
+        }
+    });
+
+    // Validación en tiempo real para CI
+    const inputCI = document.querySelector('input[name="ci"]');
+    if (inputCI) {
+        inputCI.addEventListener('keydown', e => soloNumeros(e, 7));
+        inputCI.addEventListener('keypress', e => soloNumeros(e, 7));
+        inputCI.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            const numerosFiltrados = texto.replace(/\D/g, '').slice(0, 7);
+            this.value = numerosFiltrados;
+        });
+    }
+
+    // Validación en tiempo real para número de contacto
+    const inputContacto = document.querySelector('input[name="numeroContacto"]');
+    if (inputContacto) {
+        inputContacto.addEventListener('keydown', e => soloNumeros(e, 8));
+        inputContacto.addEventListener('keypress', e => soloNumeros(e, 8));
+        inputContacto.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const texto = (e.clipboardData || window.clipboardData).getData('text');
+            const numerosFiltrados = texto.replace(/\D/g, '').slice(0, 8);
+            this.value = numerosFiltrados;
+        });
+    }
+
+    // Validación en tiempo real para emails
+    const camposEmail = ['input[name="email"]', 'input[name="correoTutor"]'];
+    camposEmail.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input) {
+            input.addEventListener('input', function() {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+                if (!emailRegex.test(this.value)) {
+                    this.classList.add('invalid');
+                    mostrarError(this, 'Debe ser un correo Gmail válido');
+                } else {
+                    this.classList.remove('invalid');
+                    ocultarError(this);
+                }
+            });
+        }
+    });
+
+    // Función para mostrar error debajo del campo
+    function mostrarError(input, mensaje) {
+        let errorDiv = input.nextElementSibling;
+        if (!errorDiv || !errorDiv.classList.contains('error-message')) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            input.parentNode.insertBefore(errorDiv, input.nextSibling);
+        }
+        errorDiv.textContent = mensaje;
+        errorDiv.style.display = 'block';
+    }
+
+    // Función para ocultar error
+    function ocultarError(input) {
+        const errorDiv = input.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('error-message')) {
+            errorDiv.style.display = 'none';
+        }
+    }
+
+    // Agregar estilos para los mensajes de error y campos inválidos
+    const style = document.createElement('style');
+    style.textContent = `
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .invalid {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5 !important;
+        }
+        .invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Agregar validación en tiempo real para los campos
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación en tiempo real para nombres y apellidos
+        const nameInputs = document.querySelectorAll('input[pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\\s]+"]');
+        nameInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+        });
+
+        // Validación en tiempo real para CI y número de contacto
+        const numberInputs = document.querySelectorAll('input[pattern="[0-9]{7,8}"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, this.pattern.match(/\d+/)[0]);
+            });
+        });
+
+        // Validación de fecha de nacimiento en tiempo real
+        const fechaNacimientoInput = document.querySelector('input[name="fechaNacimiento"]');
+        fechaNacimientoInput.addEventListener('change', function() {
+            const fechaMinima = new Date();
+            fechaMinima.setFullYear(fechaMinima.getFullYear() - 5);
+            
+            if (new Date(this.value) > fechaMinima) {
+                displayError('La edad mínima requerida es 5 años');
+                this.value = '';
+            }
+        });
+    });
+
+    // Modify the event listener of the form to include the new validation
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        // Validate the form before sending
+        if (!validateForm()) {
+            return;
+        }
+
+        // ... rest of the existing code for submitting the form ...
+    });
 });
+
 // Function to display errors
 function showError(message) {
-        const errorDisplay = document.getElementById('errorDisplay');
-        errorDisplay.textContent = message;
-        errorDisplay.style.display = 'block';
-        console.error('Form Error:', message);
-    }
+    const errorDisplay = document.getElementById('errorDisplay');
+    errorDisplay.textContent = message;
+    errorDisplay.style.display = 'block';
+    console.error('Form Error:', message);
+}
 
-    // Add this at the beginning of your DOMContentLoaded event
-    async function cargarConvocatoriaActiva() {
-        try {
-            const response = await fetch('/inscripcion/estudiante/convocatoria-activa', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+// Add this at the beginning of your DOMContentLoaded event
+async function cargarConvocatoriaActiva() {
+    try {
+        const response = await fetch('/inscripcion/estudiante/convocatoria-activa', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
+        });
 
-            const data = await response.json();
-            console.log('Respuesta convocatoria:', data);
-
-            const convocatoriaInput = document.getElementById('convocatoriaInput');
-            const idConvocatoriaInput = document.getElementById('idConvocatoria');
-
-            if (data.success && data.convocatoria) {
-                convocatoriaInput.value = data.convocatoria.nombre;
-                idConvocatoriaInput.value = data.convocatoria.id;
-            } else {
-                convocatoriaInput.value = 'No hay convocatoria activa';
-                idConvocatoriaInput.value = '';
-                displayError('No hay una convocatoria activa disponible');
-            }
-        } catch (error) {
-            console.error('Error al cargar convocatoria:', error);
-            document.getElementById('convocatoriaInput').value = 'Error al cargar convocatoria';
-            displayError('Error al cargar la convocatoria');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    }
 
-    // Call the function when the page loads
+        const data = await response.json();
+        console.log('Respuesta convocatoria:', data);
+
+        const convocatoriaInput = document.getElementById('convocatoriaInput');
+        const idConvocatoriaInput = document.getElementById('idConvocatoria');
+
+        if (data.success && data.convocatoria) {
+            convocatoriaInput.value = data.convocatoria.nombre;
+            idConvocatoriaInput.value = data.convocatoria.id;
+        } else {
+            convocatoriaInput.value = 'No hay convocatoria activa';
+            idConvocatoriaInput.value = '';
+            displayError('No hay una convocatoria activa disponible');
+        }
+    } catch (error) {
+        console.error('Error al cargar convocatoria:', error);
+        document.getElementById('convocatoriaInput').value = 'Error al cargar convocatoria';
+        displayError('Error al cargar la convocatoria');
+    }
+}
+
+// Call the function when the page loads
+cargarConvocatoriaActiva();
+
+async function cargarColegio() {
+    try {
+        const response = await fetch('/inscripcion/estudiante/colegio', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+
+        const data = await response.json();
+
+        const colegioInput = document.getElementById('colegioInput');
+        const idDelegacionInput = document.getElementById('idDelegacion');
+
+        if (data.success) {
+            colegioInput.value = data.colegio.nombre;
+            idDelegacionInput.value = data.colegio.id;
+        } else {
+            colegioInput.value = 'No asignado';
+            idDelegacionInput.value = '';
+            displayError('No hay colegio asignado');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('colegioInput').value = 'Error al cargar colegio';
+        displayError('Error al cargar el colegio');
+    }
+}
+
+// Call both functions when the page loads
+document.addEventListener('DOMContentLoaded', function() {
     cargarConvocatoriaActiva();
-
-    async function cargarColegio() {
-        try {
-            const response = await fetch('/inscripcion/estudiante/colegio', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                }
-            });
-
-            const data = await response.json();
-
-            const colegioInput = document.getElementById('colegioInput');
-            const idDelegacionInput = document.getElementById('idDelegacion');
-
-            if (data.success) {
-                colegioInput.value = data.colegio.nombre;
-                idDelegacionInput.value = data.colegio.id;
-            } else {
-                colegioInput.value = 'No asignado';
-                idDelegacionInput.value = '';
-                displayError('No hay colegio asignado');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('colegioInput').value = 'Error al cargar colegio';
-            displayError('Error al cargar el colegio');
-        }
-    }
-
-    // Call both functions when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        cargarConvocatoriaActiva();
-        cargarColegio();
-    });
+    cargarColegio();
+});

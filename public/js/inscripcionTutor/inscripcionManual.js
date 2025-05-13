@@ -253,13 +253,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Modify setupModalidadGrupoListeners function
     function setupModalidadGrupoListeners(modalidadSelect) {
-        modalidadSelect.addEventListener('change', async function () {
+        // Remover el listener existente antes de agregar uno nuevo
+        const newModalidadSelect = modalidadSelect.cloneNode(true);
+        modalidadSelect.parentNode.replaceChild(newModalidadSelect, modalidadSelect);
+
+        newModalidadSelect.addEventListener('change', async function () {
             const grupoContainer = this.closest('.area-section').querySelector('.grupo-container');
             const grupoSelect = grupoContainer.querySelector('.grupo-select');
 
+            // Remover listeners existentes del grupo select
+            const newGrupoSelect = grupoSelect.cloneNode(true);
+            grupoSelect.parentNode.replaceChild(newGrupoSelect, grupoSelect);
+
             if (this.value === 'duo' || this.value === 'equipo') {
                 grupoContainer.style.display = 'block';
-                grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+                newGrupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
 
                 try {
                     const response = await fetch(`/inscripcion/estudiante/grupos/${this.value}`, {
@@ -272,29 +280,44 @@ document.addEventListener('DOMContentLoaded', function () {
                     const data = await response.json();
 
                     if (data.success) {
+                        // Crear un objeto para rastrear grupos únicos
+                        const gruposUnicos = {};
+                        
+                        // Filtrar grupos duplicados usando el ID como clave
                         data.grupos.forEach(grupo => {
+                            if (!gruposUnicos[grupo.id]) {
+                                gruposUnicos[grupo.id] = grupo;
+                            }
+                        });
+
+                        // Convertir el objeto a array y ordenar
+                        const gruposOrdenados = Object.values(gruposUnicos)
+                            .sort((a, b) => a.nombreGrupo.localeCompare(b.nombreGrupo));
+
+                        // Agregar las opciones ordenadas
+                        gruposOrdenados.forEach(grupo => {
                             const option = document.createElement('option');
                             option.value = grupo.id;
                             option.textContent = grupo.nombreGrupo;
-                            grupoSelect.appendChild(option);
+                            newGrupoSelect.appendChild(option);
                         });
 
-                        // Add change event listener to grupo select
-                        grupoSelect.addEventListener('change', updateAvailableGroups);
-                        updateAvailableGroups();
+                        // Agregar un único event listener
+                        newGrupoSelect.addEventListener('change', updateAvailableGroups, { once: true });
                     }
                 } catch (error) {
                     console.error('Error:', error);
                 }
             } else {
                 grupoContainer.style.display = 'none';
-                grupoSelect.value = ''; // Clear selection when switching to individual
-                updateAvailableGroups();
+                newGrupoSelect.value = '';
             }
         });
+
+        return newModalidadSelect;
     }
 
-    // Modify createNewArea function
+    // Modify createNewArea function to handle the new modalidad select
     function createNewArea() {
         const areaTemplate = areasContainer.querySelector('.area-section').cloneNode(true);
         const newIndex = areasContainer.querySelectorAll('.area-section').length;
@@ -322,22 +345,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // Add change event listeners to new selects
         const newAreaSelect = areaTemplate.querySelector('.area-select');
         const newModalidadSelect = areaTemplate.querySelector('.modalidad-select');
-        const newGrupoContainer = areaTemplate.querySelector('.grupo-container');
 
         setupAreaCategoriaListeners(newAreaSelect);
         setupModalidadGrupoListeners(newModalidadSelect);
 
         newAreaSelect.addEventListener('change', function () {
             updateAvailableAreas();
-        });
-
-        // Remove duplicate declaration and use the existing newModalidadSelect variable
-        newModalidadSelect.addEventListener('change', function () {
-            if (this.value === 'duo' || this.value === 'equipo') {
-                newGrupoContainer.style.display = 'block';
-            } else {
-                newGrupoContainer.style.display = 'none';
-            }
         });
 
         updateAvailableAreas();

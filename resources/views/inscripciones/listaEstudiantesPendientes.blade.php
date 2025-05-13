@@ -248,6 +248,11 @@
 
     @push('scripts')
     <script>
+        // Add event listener for generarOrdenPago button
+        document.getElementById('generarOrdenPago').addEventListener('click', function() {
+            window.location.href = '{{ route("boleta") }}';
+        });
+
         function verEstudiante(id) {
             fetch(`/estudiantes/ver/${id}`, {
                 headers: {

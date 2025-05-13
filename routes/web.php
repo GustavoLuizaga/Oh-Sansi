@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\EstudianteController;
 
 
 
@@ -94,4 +95,17 @@ Route::prefix('inscripcion/grupos')->middleware(['auth'])->group(function () {
     Route::get('/{id}', [GrupoController::class, 'show'])->name('inscripcion.grupos.show');
     Route::put('/{id}', [GrupoController::class, 'update'])->name('inscripcion.grupos.update');
     Route::delete('/{id}', [GrupoController::class, 'destroy'])->name('inscripcion.grupos.destroy');
+});
+
+Route::prefix('inscripcion/estudiantes')->middleware(['auth'])->group(function () {
+    Route::get('/', [EstudianteController::class, 'index'])->name('inscripcion.estudiantes');
+    Route::get('/{id}', [EstudianteController::class, 'show'])->name('inscripcion.estudiantes.show');
+    Route::put('/{id}', [EstudianteController::class, 'update'])->name('inscripcion.estudiantes.update');
+});
+
+Route::prefix('estudiantes')->middleware(['auth'])->group(function () {
+    Route::get('/ver/{id}', [EstudianteController::class, 'show'])->name('estudiantes.ver');
+    Route::get('/completar/{id}', [EstudianteController::class, 'completarInscripcion'])->name('estudiantes.completar');
+    Route::post('/completar/{id}', [EstudianteController::class, 'storeCompletarInscripcion'])->name('estudiantes.completarInscripcion.store');
+    Route::put('/update/{id}', [EstudianteController::class, 'update'])->name('estudiantes.update');
 });

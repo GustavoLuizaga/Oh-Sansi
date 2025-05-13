@@ -14,28 +14,34 @@
     </div>
 
     <!-- Actions Container -->
-    <div class="actions-container mb-1">
+    <div class="actions-container">
         <div class="button-group">
-            <a href="{{ route('estudiantes.lista') }}" class="add-button py-1 px-2">
-                <i class="fas fa-arrow-left"></i> Volver a Lista de Estudiantes
+            <a href="{{ route('estudiantes.lista') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver a Lista</span>
             </a>
         </div>
-        <div class="search-filter-container mb-1">
-            <div class="search-box">
+
+        <div class="search-filter-container">
+            <form action="{{ route('estudiantes.pendientes') }}" method="GET" class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Nombre o CI" value="{{ request('search') }}" class="py-1">
-                <button type="submit" class="search-button py-1 px-2">
-                    <i class="fas fa-search"></i> Buscar
+                <input type="text" name="search" placeholder="Buscar por nombre o CI..." value="{{ request('search') }}">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar</span>
                 </button>
-            </div>
+            </form>
         </div>
+
         <div class="export-buttons">
-            <button type="button" class="export-button pdf py-1 px-2" id="generarOrdenPago">
-                <i class="fas fa-file-pdf"></i> Generar orden de pago
+            <button type="button" class="export-button payment" id="generarOrdenPago">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Generar Orden</span>
             </button>
 
-            <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
-                <i class="fas fa-file-excel"></i> Subir comprobante de pago
+            <button type="button" class="export-button upload" id="exportExcel">
+                <i class="fas fa-receipt"></i>
+                <span>Subir Comprobante</span>
             </button>
         </div>
     </div>
@@ -118,12 +124,16 @@
                 </td>
                 <td>{{ $estudiante->user->created_at->format('d/m/Y') }}</td>
                 <td class="actions">
-                    <div class="flex space-x-1">
-                        <a href="{{ route('estudiantes.ver', $estudiante->id) }}" class="action-button view w-5 h-5">
-                            <i class="fas fa-eye text-xs"></i>
+                    <div class="action-buttons">
+                        <!-- Change this line 
+                        <a href="javascript:void(0)" onclick="verEstudiante({{ $estudiante->id }})" class="action-button view" title="Visualizar">
+                        -->
+                        <!-- To this -->
+                        <a href="#" onclick="verEstudiante('{{ $estudiante->id }}'); return false;" class="action-button view" title="Visualizar">
+                            <i class="fas fa-eye"></i>
                         </a>
-                        <a href="{{ route('estudiantes.completar', $estudiante->id) }}" class="action-button edit w-5 h-5">
-                            <i class="fas fa-check text-xs"></i>
+                        <a href="{{ route('estudiantes.completar', $estudiante->id) }}" class="action-button edit" title="Editar">
+                            <i class="fas fa-edit"></i>
                         </a>
                     </div>
                 </td>
@@ -136,81 +146,240 @@
         </tbody>
     </table>
 
+    <!-- Modal de Visualización -->
+    <div id="modalVerEstudiante" class="modal">
+        <div class="modal-contenido">
+            <button type="button" class="modal-cerrar" onclick="cerrarModalVer()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-titulo">
+                <i class="fas fa-user-graduate"></i>
+                Detalles del Estudiante
+            </h2>
+            <div class="estudiante-detalles">
+                <div class="info-section">
+                    <div class="info-grupo">
+                        <h3>Información Personal</h3>
+                        <p><strong>CI:</strong> <span id="verCI"></span></p>
+                        <p><strong>Nombre:</strong> <span id="verNombre"></span></p>
+                        <p><strong>Apellidos:</strong> <span id="verApellidos"></span></p>
+                        <p><strong>Fecha de Registro:</strong> <span id="verFechaRegistro"></span></p>
+                    </div>
+                    <div class="info-grupo">
+                        <h3>Información Académica</h3>
+                        <p><strong>Delegación:</strong> <span id="verDelegacion"></span></p>
+                        <p><strong>Área:</strong> <span id="verArea"></span></p>
+                        <p><strong>Categoría:</strong> <span id="verCategoria"></span></p>
+                        <p><strong>Modalidad:</strong> <span id="verModalidad"></span></p>
+                        <div id="infoGrupo" style="display: none;">
+                            <h4 class="mt-2 text-sm font-semibold">Información del Grupo</h4>
+                            <p><strong>Nombre del Grupo:</strong> <span id="verNombreGrupo"></span></p>
+                            <p><strong>Código de Invitación:</strong> <span id="verCodigoGrupo"></span></p>
+                            <p><strong>Estado:</strong> <span id="verEstadoGrupo"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div id="modalEditarEstudiante" class="modal">
+        <div class="modal-contenido">
+            <button type="button" class="modal-cerrar" onclick="cerrarModalEditar()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-titulo">
+                <i class="fas fa-edit"></i>
+                Editar Estudiante
+            </h2>
+            <form id="formEditarEstudiante" class="form-editar">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="editEstudianteId" name="id">
+                
+                <div class="form-grupo">
+                    <div class="input-group">
+                        <label for="editArea">Área:</label>
+                        <select id="editArea" name="idArea" required>
+                            <option value="">Seleccione un área</option>
+                            @foreach($areas as $area)
+                                <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="editCategoria">Categoría:</label>
+                        <select id="editCategoria" name="idCategoria" required>
+                            <option value="">Seleccione una categoría</option>
+                            @foreach($categorias as $categoria)
+                                <option value="{{ $categoria->idCategoria }}">{{ $categoria->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="editModalidad">Modalidad:</label>
+                        <select id="editModalidad" name="modalidad" required>
+                            <option value="">Seleccione una modalidad</option>
+                            @foreach($modalidades as $modalidad)
+                                <option value="{{ $modalidad }}">{{ ucfirst($modalidad) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalEditar()">Cancelar</button>
+                    <button type="submit" class="btn-guardar">
+                        <i class="fas fa-save"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Pagination -->
     <div class="pagination">
         {{ $estudiantes->appends(request()->query())->links() }}
     </div>
 
+    @push('scripts')
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterForm = document.getElementById('filterForm');
-        const selectElements = filterForm.querySelectorAll('select');
+        function verEstudiante(id) {
+            fetch(`/estudiantes/ver/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const estudiante = data.estudiante;
+                    document.getElementById('verCI').textContent = estudiante.ci;
+                    document.getElementById('verNombre').textContent = estudiante.nombre;
+                    document.getElementById('verApellidos').textContent = `${estudiante.apellidoPaterno} ${estudiante.apellidoMaterno}`;
+                    document.getElementById('verFechaRegistro').textContent = estudiante.fechaNacimiento ? new Date(estudiante.fechaNacimiento).toLocaleDateString() : 'No disponible';
+                    
+                    // Actualizar información académica si existe
+                    if (estudiante.area) {
+                        document.getElementById('verArea').textContent = estudiante.area.nombre;
+                    } else {
+                        document.getElementById('verArea').textContent = 'No asignada';
+                    }
+                    
+                    if (estudiante.categoria) {
+                        document.getElementById('verCategoria').textContent = estudiante.categoria.nombre;
+                    } else {
+                        document.getElementById('verCategoria').textContent = 'No asignada';
+                    }
+                    
+                    if (estudiante.delegacion) {
+                        document.getElementById('verDelegacion').textContent = estudiante.delegacion.nombre;
+                    } else {
+                        document.getElementById('verDelegacion').textContent = 'No asignada';
+                    }
+                    
+                    document.getElementById('verModalidad').textContent = estudiante.modalidad || 'No definida';
 
-        // Actualizar filtros cuando cambian los selects
-        selectElements.forEach(select => {
-            select.addEventListener('change', function() {
-                filterForm.submit();
+                    // Mostrar información del grupo si existe y la modalidad es duo o equipo
+                    const infoGrupo = document.getElementById('infoGrupo');
+                    if (estudiante.grupo && (estudiante.modalidad === 'duo' || estudiante.modalidad === 'equipo')) {
+                        document.getElementById('verNombreGrupo').textContent = estudiante.grupo.nombre || 'Sin nombre';
+                        document.getElementById('verCodigoGrupo').textContent = estudiante.grupo.codigo;
+                        document.getElementById('verEstadoGrupo').textContent = estudiante.grupo.estado;
+                        infoGrupo.style.display = 'block';
+                    } else {
+                        infoGrupo.style.display = 'none';
+                    }
+
+                    document.getElementById('modalVerEstudiante').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del estudiante');
+            });
+        }
+
+        function editarEstudiante(id) {
+            fetch(`/estudiantes/ver/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const estudiante = data.estudiante;
+                    document.getElementById('editEstudianteId').value = estudiante.id;
+                    
+                    // Llenar el formulario con los datos actuales
+                    if (estudiante.area) {
+                        document.getElementById('editArea').value = estudiante.area.id;
+                    }
+                    if (estudiante.categoria) {
+                        document.getElementById('editCategoria').value = estudiante.categoria.id;
+                    }
+                    if (estudiante.modalidad) {
+                        document.getElementById('editModalidad').value = estudiante.modalidad;
+                    }
+
+                    document.getElementById('modalEditarEstudiante').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del estudiante');
+            });
+        }
+
+        function cerrarModalVer() {
+            document.getElementById('modalVerEstudiante').style.display = 'none';
+        }
+
+        function cerrarModalEditar() {
+            document.getElementById('modalEditarEstudiante').style.display = 'none';
+        }
+
+        document.getElementById('formEditarEstudiante').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editEstudianteId').value;
+            const formData = new FormData(this);
+
+            fetch(`/estudiantes/update/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al actualizar el estudiante');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al actualizar el estudiante');
             });
         });
 
-        // Exportar a PDF (Generar orden de pago)
-        document.getElementById('generarOrdenPago').addEventListener('click', function() {
-            try {
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-
-                // Realizar la solicitud usando fetch
-                fetch('{{ route("boleta") }}', {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/pdf'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
-                    return response.blob();
-                })
-                .then(blob => {
-                    // Crear un objeto URL para el blob
-                    const url = window.URL.createObjectURL(blob);
-                    // Crear un enlace temporal
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'orden-de-pago.pdf';
-
-                    // Agregar al documento y hacer clic
-                    document.body.appendChild(a);
-                    a.click();
-
-                    // Limpiar
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-
-                    // Restaurar el botón
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('mensajeError').style.display = 'block';
-                    document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                });
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('mensajeError').style.display = 'block';
-                document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
-        });
-    });
-</script>
+        }
+    </script>
+    @endpush
 </x-app-layout>

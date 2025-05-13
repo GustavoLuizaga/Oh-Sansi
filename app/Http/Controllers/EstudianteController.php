@@ -12,6 +12,7 @@ use App\Models\Categoria;
 use App\Models\Delegacion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 
 class EstudianteController extends Controller
@@ -218,22 +219,121 @@ class EstudianteController extends Controller
     ));
 }
     /**
-     * Muestra los detalles de un estudiante
+     * Muestra los detalles de un estudiante específico
      */
     public function show($id)
     {
-        $estudiante = Estudiante::with([
-            'user',
-            'inscripciones.delegacion',
-            'inscripciones.area',
-            'inscripciones.categoria',
-            'inscripciones.convocatoria',
-            'inscripciones.grado',
-            'tutores.user'
-        ])
-            ->findOrFail($id);
+        try {
+            $estudiante = Estudiante::with([
+                'user',
+                'inscripciones.area',
+                'inscripciones.categoria',
+                'inscripciones.delegacion',
+                'inscripciones.detalles.grupoInscripcion'
+            ])->findOrFail($id);
+            
+            // Preparar los datos del estudiante
+            $datos = [
+                'id' => $estudiante->id,
+                'nombre' => $estudiante->user->name,
+                'ci' => $estudiante->user->ci,
+                'apellidoPaterno' => $estudiante->user->apellidoPaterno,
+                'apellidoMaterno' => $estudiante->user->apellidoMaterno,
+                'fechaNacimiento' => $estudiante->user->fechaNacimiento,
+            ];
 
-        return view('inscripciones.verEstudiante', compact('estudiante'));
+            // Agregar información de la inscripción si existe
+            if ($estudiante->inscripciones->isNotEmpty()) {
+                $inscripcion = $estudiante->inscripciones->first();
+                $datos['area'] = $inscripcion->area ? [
+                    'id' => $inscripcion->area->idArea,
+                    'nombre' => $inscripcion->area->nombre
+                ] : null;
+                $datos['categoria'] = $inscripcion->categoria ? [
+                    'id' => $inscripcion->categoria->idCategoria,
+                    'nombre' => $inscripcion->categoria->nombre
+                ] : null;
+                $datos['delegacion'] = $inscripcion->delegacion ? [
+                    'id' => $inscripcion->delegacion->idDelegacion,
+                    'nombre' => $inscripcion->delegacion->nombre
+                ] : null;
+                
+                if ($inscripcion->detalles->isNotEmpty()) {
+                    $detalle = $inscripcion->detalles->first();
+                    $datos['modalidad'] = $detalle->modalidadInscripcion;
+                    
+                    if (in_array($detalle->modalidadInscripcion, ['duo', 'equipo']) && $detalle->grupoInscripcion) {
+                        $datos['grupo'] = [
+                            'id' => $detalle->grupoInscripcion->id,
+                            'nombre' => $detalle->grupoInscripcion->nombreGrupo,
+                            'codigo' => $detalle->grupoInscripcion->codigoInvitacion,
+                            'estado' => $detalle->grupoInscripcion->estado
+                        ];
+                    }
+                } else {
+                    $datos['modalidad'] = 'No definida';
+                }
+            } // Added missing closing brace here
+
+            return response()->json([
+                'success' => true,
+                'estudiante' => $datos
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener detalles del estudiante: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los detalles del estudiante',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualiza la información de un estudiante
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'area_id' => 'required|exists:areas,id',
+                'categoria_id' => 'required|exists:categorias,id',
+                'modalidad' => 'required|in:individual,duo,equipo'
+            ]);
+
+            $estudiante = Estudiante::findOrFail($id);
+            
+            // Verificar si el estudiante ya tiene un grupo asignado
+            if ($estudiante->grupo_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede modificar un estudiante que ya pertenece a un grupo'
+                ], 400);
+            }
+
+            $estudiante->update([
+                'area_id' => $request->area_id,
+                'categoria_id' => $request->categoria_id,
+                'modalidad' => $request->modalidad
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estudiante actualizado correctamente',
+                'estudiante' => $estudiante
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el estudiante'
+            ], 500);
+        }
     }
 
     /**

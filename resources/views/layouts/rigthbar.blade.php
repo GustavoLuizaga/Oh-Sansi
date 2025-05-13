@@ -47,75 +47,37 @@
         </div>
     </div>
 
-</div>
+    <div id="modalHistorial" class="modal-notificaciones" style="display:none;">
+        <div class="modal-contenido">
+            <span class="cerrar-modal" onclick="cerrarModalHistorial()">&times;</span>
+            <h2>Historial de Notificaciones</h2>
+            <div id="historialNotificaciones"></div>
+        </div>
+    </div>
 
-@push('scripts')
-<script src="{{ asset('js/calendario.js') }}"></script>
-@endpush
+    @push('scripts')
+    <script src="{{ asset('js/calendario.js') }}"></script>
+    @endpush
 
-<style>
-    .notificacion-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding: 0 5px;
-    }
+    <script>
+        function cargarNotificaciones() {
+            fetch('/notificaciones/nuevas')
+                .then(response => response.json())
+                .then(data => {
+                    const contenedor = document.getElementById('notificaciones');
+                    contenedor.innerHTML = '';
 
-    .notificacion-header h3 {
-        display: flex;
-        align-items: center;
-        margin: 0;
-        font-size: 1.1em;
-    }
-
-    .notificacion-header h3 i {
-        margin-right: 8px;
-    }
-
-    .btn-historial {
-        background: none;
-        border: none;
-        color: #0A2A4D;
-        cursor: pointer;
-        padding: 8px;
-        font-size: 1.1em;
-        transition: color 0.3s ease;
-        display: flex;
-        align-items: center;
-        height: 100%;
-        margin-left: 10px;
-    }
-
-    .btn-historial:hover {
-        color: #2980b9;
-    }
-
-    /* Estilos adicionales para mejorar el alineamiento vertical */
-    .sidebar-derecho-notificacion {
-        padding: 15px;
-    }
-</style>
-
-<script>
-    function cargarNotificaciones() {
-        fetch('/notificaciones/nuevas')
-            .then(response => response.json())
-            .then(data => {
-                const contenedor = document.getElementById('notificaciones');
-                contenedor.innerHTML = '';
-
-                if (!data || data.length === 0) {
-                    const mensajeVacio = `
+                    if (!data || data.length === 0) {
+                        const mensajeVacio = `
                     <div class="notificacion-vacia">
                         <i class="fas fa-bell-slash"></i>
                         <p>No tienes notificaciones nuevas</p>
                     </div>
                 `;
-                    contenedor.innerHTML = mensajeVacio;
-                } else {
-                    data.forEach(notificacion => {
-                        const nuevaNotificacion = `
+                        contenedor.innerHTML = mensajeVacio;
+                    } else {
+                        data.forEach(notificacion => {
+                            const nuevaNotificacion = `
                         <div class="notificacion">
                             <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
                             <div class="notificacion-contenido">
@@ -124,26 +86,83 @@
                             </div>
                         </div>
                     `;
-                        contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
-                    });
-                }
-            })
-            .catch(error => console.error('Error al cargar notificaciones:', error));
+                            contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error al cargar notificaciones:', error));
+        }
+
+        // Llamar al cargar la página
+        cargarNotificaciones();
+
+        // Repetir cada 10 segundos
+        setInterval(cargarNotificaciones, 10000);
+
+        function verHistorial() {
+            fetch('/notificaciones/todas')
+                .then(response => response.json())
+                .then(data => {
+                    const contenedor = document.getElementById('historialNotificaciones');
+                    contenedor.innerHTML = '';
+
+                    if (!data || data.length === 0) {
+                        contenedor.innerHTML = `
+                    <div class="notificacion-vacia">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No tienes historial de notificaciones</p>
+                    </div>
+                `;
+                    } else {
+                        data.forEach(notificacion => {
+                            const nuevaNotificacion = `
+                        <div class="notificacion" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center;">
+                                <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
+                                <div class="notificacion-contenido">
+                                    <p>${notificacion.mensaje}</p>
+                                    <span class="notificacion-tiempo">${notificacion.tiempo}</span>
+                                </div>
+                            </div>
+                            <button class="btn-borrar-notificacion" title="Eliminar" onclick="borrarNotificacion('${notificacion.id}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                            contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+                        });
+                    }
+                    document.getElementById('modalHistorial').style.display = 'block';
+                })
+                .catch(error => console.error('Error al cargar el historial:', error));
+        }
+
+        function cerrarModalHistorial() {
+            document.getElementById('modalHistorial').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalHistorial');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function borrarNotificacion(id) {
+    if (confirm('¿Seguro que deseas eliminar esta notificación?')) {
+        fetch(`/notificaciones/borrar/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Recargar historial después de borrar
+            verHistorial();
+        })
+        .catch(error => console.error('Error al borrar notificación:', error));
     }
-
-    // Llamar al cargar la página
-    cargarNotificaciones();
-
-    // Repetir cada 10 segundos
-    setInterval(cargarNotificaciones, 10000);
-
-    function verHistorial() {
-        fetch('/notificaciones/todas')
-            .then(response => response.json())
-            .then(data => {
-                // Aquí puedes implementar la lógica para mostrar el historial
-                console.log('Historial:', data);
-            })
-            .catch(error => console.error('Error al cargar el historial:', error));
-    }
-</script>
+}
+    </script>

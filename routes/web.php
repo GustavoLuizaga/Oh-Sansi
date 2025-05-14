@@ -64,12 +64,12 @@ Route::get('/descargar-plantilla-excel', [\App\Http\Controllers\Auth\ResgistrarL
 Route::get('/boleta/preview', [
     App\Http\Controllers\BoletaPago\BoletaDePago::class,
     'generarOrdenPago'
-])->name('boleta.preview');
+])->middleware(['auth'])->name('boleta.preview');
 
 Route::get('/boleta', [
     App\Http\Controllers\BoletaPago\BoletaDePago::class,
     'generarOrdenPago'
-])->name('boleta');;
+])->middleware(['auth'])->name('boleta');
 
 
 

@@ -1,4 +1,8 @@
 <!-- Right Sidebar -->
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
 <div class="sidebar-derecho">
     <div class="sidebar-derecho-calendario">
         <h3><i class="fas fa-calendar-alt"></i> Calendario</h3>
@@ -115,6 +119,14 @@
                 `;
                     } else {
                         data.forEach(notificacion => {
+                            // Verificar que el ID existe y convertirlo a string
+                            const notificacionId = notificacion.id || notificacion.idNotificacion;
+
+                            if (!notificacionId) {
+                                console.error('Notificación sin ID:', notificacion);
+                                return;
+                            }
+
                             const nuevaNotificacion = `
                         <div class="notificacion" style="display: flex; align-items: center; justify-content: space-between;">
                             <div style="display: flex; align-items: center;">
@@ -124,7 +136,10 @@
                                     <span class="notificacion-tiempo">${notificacion.tiempo}</span>
                                 </div>
                             </div>
-                            <button class="btn-borrar-notificacion" title="Eliminar" onclick="borrarNotificacion('${notificacion.id}')">
+                            <button class="btn-borrar-notificacion" 
+                                title="Eliminar" 
+                                data-id="${notificacionId}"
+                                onclick="borrarNotificacion('${notificacionId}')">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
@@ -134,7 +149,10 @@
                     }
                     document.getElementById('modalHistorial').style.display = 'block';
                 })
-                .catch(error => console.error('Error al cargar el historial:', error));
+                .catch(error => {
+                    console.error('Error al cargar el historial:', error);
+                    alert('Error al cargar el historial de notificaciones');
+                });
         }
 
         function cerrarModalHistorial() {
@@ -150,19 +168,31 @@
         }
 
         function borrarNotificacion(id) {
-    if (confirm('¿Seguro que deseas eliminar esta notificación?')) {
-        fetch(`/notificaciones/borrar/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            if (confirm('¿Seguro que deseas eliminar esta notificación?')) {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch(`/notificaciones/borrar/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Recargar solo si la eliminación fue exitosa
+                            verHistorial();
+                            cargarNotificaciones(); // También actualizar las notificaciones nuevas
+                        } else {
+                            alert(data.message || 'No se pudo eliminar la notificación');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al eliminar la notificación');
+                    });
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Recargar historial después de borrar
-            verHistorial();
-        })
-        .catch(error => console.error('Error al borrar notificación:', error));
-    }
-}
+        }
     </script>

@@ -32,6 +32,7 @@ Route::get('/notificaciones/todas', function () {
         ->get()
         ->map(function ($n) {
             return [
+                'id' => $n->id,
                 'mensaje' => $n->mensaje,
                 'tipo' => $n->tipo,
                 'tiempo' => $n->created_at->diffForHumans()

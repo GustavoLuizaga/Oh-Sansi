@@ -16,6 +16,7 @@ Route::get('/notificaciones/nuevas', function () {
         ->map(function ($n) {
             return [
                 'mensaje' => $n->mensaje,
+                'tipo' => $n->tipo,
                 'tiempo' => $n->created_at->diffForHumans()
             ];
         });

@@ -672,6 +672,23 @@ main {
     background-color: var(--div-claro);
     border-radius: var(--border-radius);
     transition: var(--transition-fast);
+    align-items: flex-start; /* Alinea el contenido desde arriba */
+    min-width: 0; /* Importante para que el contenedor se ajuste */
+}
+
+.btn-borrar-notificacion {
+    padding: 8px;
+    border: none;
+    background: none;
+    color: #64748b;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.btn-borrar-notificacion:hover {
+    background-color: #fee2e2;
+    color: #ef4444;
 }
 
 .notificacion:hover {
@@ -687,18 +704,64 @@ main {
     height: 32px;
     border-radius: 50%;
     background-color: var(--light-color);
-    color: var(--primary-color);
+    margin-right: 8px;
+
+}
+
+/* Colores para los iconos según tipo */
+.notificacion.mensaje .notificacion-icono {
+    background-color: #e8f4fd;
+    color: #3498db;
+}
+
+.notificacion.denegacion .notificacion-icono {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.notificacion.aprobacion .notificacion-icono {
+    background-color: #dcfce7;
+    color: #22c55e;
+}
+
+.notificacion.alerta .notificacion-icono {
+    background-color: #fff3dc;
+    color: #f59e0b;
+}
+
+.notificacion.sistema .notificacion-icono {
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+
+.notificacion.inscripcion .notificacion-icono {
+    background-color: #e0e7ff;
+    color: #6366f1;
+}
+
+.notificacion.recordatorio .notificacion-icono {
+    background-color: #fae8ff;
+    color: #d946ef;
+}
+
+.notificacion.importante .notificacion-icono {
+    background-color: #ffe4e6;
+    color: #f43f5e;
 }
 
 .notificacion-contenido {
     flex: 1;
+    min-width: 0; /* Importante para que el texto se ajuste */
 }
 
 .notificacion-contenido p {
     margin-bottom: var(--spacing-xs);
     font-size: var(--font-size-sm);
+    white-space: normal; /* Permite que el texto se envuelva */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word; /* Permite que las palabras largas se rompan */
 }
-
 .notificacion-tiempo {
     font-size: var(--font-size-xs);
     color: var(--gray-color);
@@ -787,6 +850,7 @@ main {
     margin-left: 10px;
     transition: color 0.2s;
 }
+
 .btn-borrar-notificacion:hover {
     color: #c0392b;
 }

@@ -87,6 +87,7 @@ require __DIR__ . '/grados.php';
 require __DIR__ . '/estudiantes.php';
 require __DIR__ . '/perfil.php';
 require __DIR__ . '/notificaciones.php';
+require __DIR__ . '/backup.php';
 
 // Rutas para grupos
 Route::prefix('inscripcion/grupos')->middleware(['auth'])->group(function () {

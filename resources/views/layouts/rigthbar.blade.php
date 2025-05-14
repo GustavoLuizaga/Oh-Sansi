@@ -81,7 +81,6 @@ function cargarNotificaciones() {
                 contenedor.innerHTML = mensajeVacio;
             } else {
                 data.forEach(notificacion => {
-                    console.log('Tipo de notificación:', notificacion.tipo); // Para debug
                     const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
                     const nuevaNotificacion = `
                         <div class="notificacion ${notificacion.tipo.toLowerCase()}">

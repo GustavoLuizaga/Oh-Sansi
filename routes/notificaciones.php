@@ -6,7 +6,7 @@ use App\Models\Notificacion;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/notificaciones/nuevas', function () {
-    $userId = auth()->id();
+    $userId = Auth::user()->id;
 
     // Retorna las últimas 5 notificaciones del usuario
     $notificaciones = Notificacion::where('user_id', $userId)

@@ -128,12 +128,13 @@
                         <!-- Change this line 
                         <a href="javascript:void(0)" onclick="verEstudiante({{ $estudiante->id }})" class="action-button view" title="Visualizar">
                         -->
-                        <!-- To this -->
-                        <a href="#" onclick="verEstudiante('{{ $estudiante->id }}'); return false;" class="action-button view" title="Visualizar">
+                        <!-- To this -->                        <a href="#" onclick="verEstudiante('{{ $estudiante->id }}'); return false;" class="action-button view" title="Visualizar">
                             <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ route('estudiantes.completar', $estudiante->id) }}" class="action-button edit" title="Editar">
+                        </a>                        <a href="#" onclick="editarEstudiante('{{ $estudiante->id }}'); return false;" class="action-button edit" title="Editar">
                             <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="action-button delete-button" title="Eliminar">
+                            <i class="fas fa-trash-alt"></i>
                         </a>
                     </div>
                 </td>
@@ -147,99 +148,11 @@
     </table>
 
     <!-- Modal de Visualización -->
-    <div id="modalVerEstudiante" class="modal">
-        <div class="modal-contenido">
-            <button type="button" class="modal-cerrar" onclick="cerrarModalVer()">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 class="modal-titulo">
-                <i class="fas fa-user-graduate"></i>
-                Detalles del Estudiante
-            </h2>
-            <div class="estudiante-detalles">
-                <div class="info-section">
-                    <div class="info-grupo">
-                        <h3>Información Personal</h3>
-                        <p><strong>CI:</strong> <span id="verCI"></span></p>
-                        <p><strong>Nombre:</strong> <span id="verNombre"></span></p>
-                        <p><strong>Apellidos:</strong> <span id="verApellidos"></span></p>
-                        <p><strong>Fecha de Registro:</strong> <span id="verFechaRegistro"></span></p>
-                    </div>
-                    <div class="info-grupo">
-                        <h3>Información Académica</h3>
-                        <p><strong>Delegación:</strong> <span id="verDelegacion"></span></p>
-                        <p><strong>Área:</strong> <span id="verArea"></span></p>
-                        <p><strong>Categoría:</strong> <span id="verCategoria"></span></p>
-                        <p><strong>Modalidad:</strong> <span id="verModalidad"></span></p>
-                        <div id="infoGrupo" style="display: none;">
-                            <h4 class="mt-2 text-sm font-semibold">Información del Grupo</h4>
-                            <p><strong>Nombre del Grupo:</strong> <span id="verNombreGrupo"></span></p>
-                            <p><strong>Código de Invitación:</strong> <span id="verCodigoGrupo"></span></p>
-                            <p><strong>Estado:</strong> <span id="verEstadoGrupo"></span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+     @include('inscripciones.modalPendienteVer')
+   
 
     <!-- Modal de Edición -->
-    <div id="modalEditarEstudiante" class="modal">
-        <div class="modal-contenido">
-            <button type="button" class="modal-cerrar" onclick="cerrarModalEditar()">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 class="modal-titulo">
-                <i class="fas fa-edit"></i>
-                Editar Estudiante
-            </h2>
-            <form id="formEditarEstudiante" class="form-editar">
-                @csrf
-                @method('PUT')
-                <input type="hidden" id="editEstudianteId" name="id">
-                
-                <div class="form-grupo">
-                    <div class="input-group">
-                        <label for="editArea">Área:</label>
-                        <select id="editArea" name="idArea" required>
-                            <option value="">Seleccione un área</option>
-                            @foreach($areas as $area)
-                                <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="editCategoria">Categoría:</label>
-                        <select id="editCategoria" name="idCategoria" required>
-                            <option value="">Seleccione una categoría</option>
-                            @foreach($categorias as $categoria)
-                                <option value="{{ $categoria->idCategoria }}">{{ $categoria->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="editModalidad">Modalidad:</label>
-                        <select id="editModalidad" name="modalidad" required>
-                            <option value="">Seleccione una modalidad</option>
-                            @foreach($modalidades as $modalidad)
-                                <option value="{{ $modalidad }}">{{ ucfirst($modalidad) }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancelar" onclick="cerrarModalEditar()">Cancelar</button>
-                    <button type="submit" class="btn-guardar">
-                        <i class="fas fa-save"></i>
-                        Guardar Cambios
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    @include('inscripciones.modalPendienteEditar')
 
     <!-- Pagination -->
     <div class="pagination">
@@ -308,8 +221,10 @@
                 console.error('Error:', error);
                 alert('Error al cargar los datos del estudiante');
             });
-        }
-
+        }        // Variable global para almacenar el ID de delegación y modalidad actual
+        let currentDelegacionId = null;
+        let currentModalidad = null;
+        
         function editarEstudiante(id) {
             fetch(`/estudiantes/ver/${id}`, {
                 headers: {
@@ -323,15 +238,42 @@
                     const estudiante = data.estudiante;
                     document.getElementById('editEstudianteId').value = estudiante.id;
                     
-                    // Llenar el formulario con los datos actuales
+                    // Guardar el ID de la delegación
+                    if (estudiante.delegacion && estudiante.delegacion.id) {
+                        currentDelegacionId = estudiante.delegacion.id;
+                    } else if (estudiante.delegacion && estudiante.delegacion.idDelegacion) {
+                        currentDelegacionId = estudiante.delegacion.idDelegacion;
+                    }
+                      // Llenar el formulario con los datos actuales
                     if (estudiante.area) {
-                        document.getElementById('editArea').value = estudiante.area.id;
+                        document.getElementById('editArea').value = estudiante.area.id || estudiante.area.idArea;
                     }
                     if (estudiante.categoria) {
-                        document.getElementById('editCategoria').value = estudiante.categoria.id;
-                    }
-                    if (estudiante.modalidad) {
+                        document.getElementById('editCategoria').value = estudiante.categoria.id || estudiante.categoria.idCategoria;
+                    }                    if (estudiante.modalidad) {
                         document.getElementById('editModalidad').value = estudiante.modalidad;
+                        currentModalidad = estudiante.modalidad;
+                        
+                        // Si es duo o equipo, mostrar el selector de grupos y cargarlos
+                        if (estudiante.modalidad === 'duo' || estudiante.modalidad === 'equipo') {
+                            const grupoContainer = document.getElementById('grupoContainer');
+                            grupoContainer.style.display = 'block';
+                            
+                            // Cargar los grupos si tenemos el ID de la delegación
+                            if (currentDelegacionId) {
+                                cargarGrupos(currentDelegacionId, estudiante.modalidad);
+                                
+                                // Si el estudiante ya tiene un grupo, seleccionarlo después de un pequeño retraso
+                                if (estudiante.grupo && estudiante.grupo.id) {
+                                    setTimeout(() => {
+                                        document.getElementById('editGrupo').value = estudiante.grupo.id;
+                                    }, 500);
+                                }
+                            }
+                        } else {
+                            // Ocultar selector de grupos para modalidad individual
+                            document.getElementById('grupoContainer').style.display = 'none';
+                        }
                     }
 
                     document.getElementById('modalEditarEstudiante').style.display = 'flex';
@@ -340,6 +282,64 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error al cargar los datos del estudiante');
+            });
+        }
+
+        // Función para manejar el cambio de modalidad
+        function handleModalidadChange() {
+            const modalidadSelect = document.getElementById('editModalidad');
+            const grupoContainer = document.getElementById('grupoContainer');
+            const grupoSelect = document.getElementById('editGrupo');
+            
+            // Guardar la modalidad actual seleccionada
+            currentModalidad = modalidadSelect.value;
+            
+            // Limpiar el selector de grupos
+            grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+            
+            // Mostrar u ocultar el selector de grupos según la modalidad
+            if (modalidadSelect.value === 'duo' || modalidadSelect.value === 'equipo') {
+                grupoContainer.style.display = 'block';
+                
+                // Cargar grupos si tenemos el ID de la delegación
+                if (currentDelegacionId) {
+                    cargarGrupos(currentDelegacionId, modalidadSelect.value);
+                } else {
+                    console.error('No se pudo obtener el ID de delegación');
+                }
+            } else {
+                grupoContainer.style.display = 'none';
+            }
+        }
+        
+        // Función para cargar los grupos según delegación y modalidad
+        function cargarGrupos(idDelegacion, modalidad) {
+            fetch(`/estudiantes/grupos/${idDelegacion}/${modalidad}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const grupoSelect = document.getElementById('editGrupo');
+                    
+                    // Limpiar opciones actuales
+                    grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+                      // Añadir los nuevos grupos
+                    data.grupos.forEach(grupo => {
+                        const option = document.createElement('option');
+                        option.value = grupo.id;
+                        option.textContent = `${grupo.nombreGrupo || 'Grupo'} (${grupo.codigoInvitacion})`;
+                        grupoSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('Error al cargar grupos:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener los grupos:', error);
             });
         }
 
@@ -354,16 +354,26 @@
         document.getElementById('formEditarEstudiante').addEventListener('submit', function(e) {
             e.preventDefault();
             const id = document.getElementById('editEstudianteId').value;
-            const formData = new FormData(this);
-
+            const formData = new FormData(this);            // Convertir FormData a un objeto para enviar como JSON            // Crear objeto para enviar como JSON
+            const formObject = {
+                area_id: formData.get('idArea'),
+                categoria_id: formData.get('idCategoria'),
+                modalidad: formData.get('modalidad')
+            };
+            
+            // Si la modalidad es duo o equipo y hay un grupo seleccionado, incluirlo
+            if ((formData.get('modalidad') === 'duo' || formData.get('modalidad') === 'equipo') && formData.get('idGrupoInscripcion')) {
+                formObject.idGrupoInscripcion = formData.get('idGrupoInscripcion');
+            }
+            
             fetch(`/estudiantes/update/${id}`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(Object.fromEntries(formData))
+                body: JSON.stringify(formObject)
             })
             .then(response => response.json())
             .then(data => {

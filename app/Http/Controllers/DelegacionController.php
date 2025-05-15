@@ -144,6 +144,7 @@ class DelegacionController extends Controller
         }
 
         // Actualizar en la base de datos
+        DB::statement('SET @current_user_id = ' . Auth::id());
         DB::table('delegacion')
             ->where('codigo_sie', $codigo_sie)
             ->update([
@@ -167,6 +168,7 @@ class DelegacionController extends Controller
     public function destroy($codigo_sie)
     {
         try {
+            DB::statement('SET @current_user_id = ' . Auth::id());
             $deleted = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->delete();
             
             if ($deleted) {

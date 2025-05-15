@@ -378,6 +378,42 @@
     animation: fadeIn 0.3s ease-in-out;
 }
 
+/* Estilos para el estado de carga de áreas */
+.loading-areas {
+    padding: 1.5rem;
+    text-align: center;
+    background-color: rgba(0, 42, 76, 0.03);
+    border-radius: 8px;
+    color: var(--blue-600);
+    font-size: 0.95rem;
+    animation: pulse 2s infinite;
+}
+
+.loading-areas i {
+    margin-right: 8px;
+    animation: spin 2s linear infinite;
+}
+
+.error-areas {
+    padding: 1.5rem;
+    text-align: center;
+    background-color: rgba(229, 62, 62, 0.05);
+    border-radius: 8px;
+    color: #e53e3e;
+    font-size: 0.95rem;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
@@ -572,6 +608,16 @@ input:focus, select:focus {
     margin-bottom: 1.5rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.4s forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .areas-for-convocatoria h4 {

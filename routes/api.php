@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Inscripcion\InscripcionEstController;
 use App\Http\Controllers\Inscripcion\VerificacionConvocatoriaController;
+use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,3 +26,4 @@ Route::get('/validate-tutor-token/{token}', [InscripcionEstController::class, 'v
 Route::get('/tutor-token/{token}/areas', [InscripcionEstController::class, 'getAreasByTutorToken']);
 Route::get('/categoria/{id}/grados', [InscripcionEstController::class, 'getGradosByCategoria']);
 Route::get('/convocatoria/{idConvocatoria}/area/{idArea}/categorias', [InscripcionEstController::class, 'getCategoriasByAreaConvocatoria']);
+Route::get('/convocatoria/{id}/areas', [ObtenerAreasConvocatoria::class, 'obtenerAreasPorConvocatoria']);

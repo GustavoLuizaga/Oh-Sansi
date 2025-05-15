@@ -205,35 +205,16 @@
                 </div>                <div id="areas-by-convocatoria-container" class="form-group">
                     <label>Áreas por Convocatoria*</label>
                     <p class="help-text">Seleccione las áreas para cada convocatoria seleccionada anteriormente</p>
-                    
-                    @if(isset($convocatorias) && $convocatorias->count() > 0)
+                      @if(isset($convocatorias) && $convocatorias->count() > 0)
                         @foreach($convocatorias as $convocatoria)
                             <div id="areas-convocatoria-{{ $convocatoria->idConvocatoria }}" class="areas-for-convocatoria" style="display: none;">
                                 <h4>Áreas para: {{ $convocatoria->nombre }}</h4>
                                 
-                                <div class="areas-search">
-                                    <i class="fas fa-search"></i>
-                                    <input type="text" id="areas_search_{{ $convocatoria->idConvocatoria }}" class="areas-search-input" 
-                                        data-convocatoria="{{ $convocatoria->idConvocatoria }}" placeholder="Buscar áreas..." />
-                                </div>
-                                
-                                <div class="areas-container">
-                                    @if(isset($areas) && $areas->count() > 0)
-                                        @foreach($areas as $area)
-                                            <div class="area-option" data-area-name="{{ strtolower($area->nombre) }}">
-                                                <input type="checkbox" 
-                                                    id="area_{{ $convocatoria->idConvocatoria }}_{{ $area->idArea }}" 
-                                                    name="areas[{{ $convocatoria->idConvocatoria }}][]" 
-                                                    value="{{ $area->idArea }}" 
-                                                    class="area-checkbox area-checkbox-{{ $convocatoria->idConvocatoria }}"
-                                                    data-convocatoria="{{ $convocatoria->idConvocatoria }}"
-                                                />
-                                                <label for="area_{{ $convocatoria->idConvocatoria }}_{{ $area->idArea }}">{{ $area->nombre }}</label>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        <div class="no-areas">No hay áreas de tutoría disponibles</div>
-                                    @endif
+                                <div class="areas-container" id="areas-container-{{ $convocatoria->idConvocatoria }}">
+                                    <div class="loading-areas">
+                                        <i class="fas fa-spinner fa-spin"></i> Cargando áreas...
+                                    </div>
+                                    <!-- Las áreas se cargarán dinámicamente por JavaScript -->
                                 </div>
                                 
                                 <div class="areas-actions">
@@ -313,7 +294,7 @@
                         document.querySelectorAll('input, select').forEach(el => {
                             el.classList.remove('error');
                         });
-                        
+
                         // Función para validar la edad (mínimo 18 años)
                         function validarEdad() {
                             const fechaNacimiento = new Date(fechaNacimientoInput.value);
@@ -517,6 +498,91 @@
                         // Inicializar el contador de convocatorias
                         updateConvocatoriasCount();
                         
+                        // Función para cargar las áreas de una convocatoria mediante AJAX
+                        async function cargarAreasPorConvocatoria(convocatoriaId) {
+                            try {
+                                const response = await fetch(`/api/convocatoria/${convocatoriaId}/areas`);
+                                if (!response.ok) {
+                                    throw new Error('Error al cargar las áreas');
+                                }
+                                const areas = await response.json();
+                                return areas;
+                            } catch (error) {
+                                console.error('Error:', error);
+                                return [];
+                            }
+                        }
+                        
+                        // Función para renderizar las áreas en su contenedor
+                        function renderizarAreas(areas, convocatoriaId) {
+                            const areasContainer = document.getElementById(`areas-container-${convocatoriaId}`);
+                            if (!areasContainer) return;
+                            
+                            if (areas.length === 0) {
+                                areasContainer.innerHTML = '<div class="no-areas">No hay áreas disponibles para esta convocatoria</div>';
+                                return;
+                            }
+                            
+                            let areasHtml = '';
+                            areas.forEach(area => {
+                                areasHtml += `
+                                    <div class="area-option" data-area-name="${area.nombre.toLowerCase()}">
+                                        <input type="checkbox" 
+                                            id="area_${convocatoriaId}_${area.idArea}" 
+                                            name="areas[${convocatoriaId}][]" 
+                                            value="${area.idArea}" 
+                                            class="area-checkbox area-checkbox-${convocatoriaId}"
+                                            data-convocatoria="${convocatoriaId}"
+                                        />
+                                        <label for="area_${convocatoriaId}_${area.idArea}">${area.nombre}</label>
+                                    </div>
+                                `;
+                            });
+                            
+                            areasContainer.innerHTML = areasHtml;
+                            
+                            // Añadir event listeners a los checkboxes de áreas
+                            document.querySelectorAll(`.area-checkbox-${convocatoriaId}`).forEach(checkbox => {
+                                checkbox.addEventListener('change', function() {
+                                    // Actualizar clase selected
+                                    if (this.checked) {
+                                        this.closest('.area-option').classList.add('selected');
+                                    } else {
+                                        this.closest('.area-option').classList.remove('selected');
+                                    }
+                                    
+                                    // Actualizar contador
+                                    const countElement = document.querySelector(`.areas-count-${convocatoriaId}`);
+                                    if (countElement) {
+                                        const selectedCount = document.querySelectorAll(`.area-checkbox-${convocatoriaId}:checked`).length;
+                                        countElement.textContent = selectedCount + ' áreas seleccionadas';
+                                    }
+                                });
+                            });
+                            
+                            // Actualizar el evento del select all
+                            const selectAllCheckbox = document.getElementById(`select_all_areas_${convocatoriaId}`);
+                            if (selectAllCheckbox) {
+                                selectAllCheckbox.addEventListener('change', function() {
+                                    document.querySelectorAll(`.area-checkbox-${convocatoriaId}`).forEach(checkbox => {
+                                        checkbox.checked = this.checked;
+                                        if (this.checked) {
+                                            checkbox.closest('.area-option').classList.add('selected');
+                                        } else {
+                                            checkbox.closest('.area-option').classList.remove('selected');
+                                        }
+                                    });
+                                    
+                                    // Actualizar contador
+                                    const countElement = document.querySelector(`.areas-count-${convocatoriaId}`);
+                                    if (countElement) {
+                                        const selectedCount = this.checked ? document.querySelectorAll(`.area-checkbox-${convocatoriaId}`).length : 0;
+                                        countElement.textContent = selectedCount + ' áreas seleccionadas';
+                                    }
+                                });
+                            }
+                        }
+                        
                         // Función para mostrar/ocultar las secciones de áreas por convocatoria
                         function toggleAreaSections() {
                             document.querySelectorAll('.areas-for-convocatoria').forEach(section => {
@@ -529,7 +595,28 @@
                                     const convocatoriaId = checkbox.value;
                                     const areaSection = document.getElementById(`areas-convocatoria-${convocatoriaId}`);
                                     if (areaSection) {
+                                        // Mostrar sección
                                         areaSection.style.display = 'block';
+                                        
+                                        // Cargar áreas si no se han cargado
+                                        if (areaSection.getAttribute('data-areas-loaded') !== 'true') {
+                                            const areasContainer = document.getElementById(`areas-container-${convocatoriaId}`);
+                                            if (areasContainer) {
+                                                areasContainer.innerHTML = '<div class="loading-areas"><i class="fas fa-spinner fa-spin"></i> Cargando áreas...</div>';
+                                                
+                                                // Cargar áreas mediante AJAX
+                                                cargarAreasPorConvocatoria(convocatoriaId)
+                                                    .then(areas => {
+                                                        renderizarAreas(areas, convocatoriaId);
+                                                        areaSection.setAttribute('data-areas-loaded', 'true');
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Error al cargar áreas:', error);
+                                                        areasContainer.innerHTML = '<div class="error-areas">Error al cargar las áreas. Por favor, intenta nuevamente.</div>';
+                                                    });
+                                            }
+                                        }
+                                        
                                         // Pequeño retraso para la animación
                                         setTimeout(() => {
                                             areaSection.classList.add('show');
@@ -652,26 +739,10 @@
                                     updateAreaCount();
                                 });
                             });
-                            
-                            // Búsqueda de áreas para esta convocatoria
-                            const searchInput = document.getElementById(`areas_search_${convocatoriaId}`);
-                            if (searchInput) {
-                                searchInput.addEventListener('input', function() {
-                                    const searchTerm = this.value.toLowerCase().trim();
-                                    const areaOptions = document.querySelectorAll(`#areas-convocatoria-${convocatoriaId} .area-option`);
-                                    
-                                    areaOptions.forEach(option => {
-                                        const areaName = option.getAttribute('data-area-name');
-                                        if (areaName.includes(searchTerm)) {
-                                            option.style.display = 'flex';
-                                        } else {
-                                            option.style.display = 'none';
-                                        }
-                                    });
-                                    
-                                    // Actualizar estado del checkbox "seleccionar todos"
-                                    let allAreaVisible = true;
-                                    let visibleAreaCount = 0;
+                              // Ya no necesitamos la búsqueda de áreas
+                            // Código para actualizar el estado del checkbox "seleccionar todos"
+                            let allAreaVisible = true;
+                            let visibleAreaCount = 0;
                                     
                                     areaCheckboxes.forEach(areaCb => {
                                         if (areaCb.closest('.area-option').style.display !== 'none') {
@@ -683,9 +754,6 @@
                                     });
                                     
                                     checkbox.checked = allAreaVisible && visibleAreaCount > 0;
-                                });
-                            }
-                            
                             // Hacer que al hacer clic en la opción de área se active/desactive el checkbox
                             document.querySelectorAll(`#areas-convocatoria-${convocatoriaId} .area-option`).forEach(option => {
                                 option.addEventListener('click', function(e) {

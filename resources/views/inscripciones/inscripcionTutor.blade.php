@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionTutor.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionManual.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/mostrarConvocatoriaInfo.css') }}">
+<link rel="stylesheet" href="{{ asset('css/inscripcion/tutorDetails.css') }}">
 <!-- Scripts necesarios para el modal y la previsualización -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
@@ -57,30 +58,35 @@
                         </a>
                     </div>
                     @if($token)
+                    <!-- Sección para información del token -->
                     <div class="token-info">
-                        <h3><i class="fas fa-info-circle"></i> Información del Tutor</h3>
-                        <div class="areas-list">
-                            <h4>Áreas habilitadas:</h4>
-                            <ul>
-                                @foreach($areas as $area)
-                                <li>
-                                    <strong>{{ $area->nombre }}</strong>
-                                    <ul class="categorias-list">
-                                        @php
-                                        $categorias = \App\Models\ConvocatoriaAreaCategoria::where('idArea', $area->idArea)
-                                        ->where('idConvocatoria', $idConvocatoriaResult ?? null)
-                                        ->join('categoria', 'convocatoriaAreaCategoria.idCategoria', '=', 'categoria.idCategoria')
-                                        ->select('categoria.*')
-                                        ->distinct()
-                                        ->get();
-                                        @endphp
-                                        @foreach($categorias as $categoria)
-                                        <li>{{ $categoria->nombre }}</li>
-                                        @endforeach
-                                    </ul>
-                                </li>
+                        <h3><i class="fas fa-key"></i> Información del Token</h3>
+                        <p class="token-description">Use este token para inscribir estudiantes</p>
+                    </div>
+                    
+                    <!-- Nueva sección para información detallada del tutor por convocatoria -->
+                    <div class="tutor-details-info">
+                        <h3><i class="fas fa-chalkboard-teacher"></i> Información del Tutor</h3>
+                        <p class="info-text">Seleccione una convocatoria para ver sus áreas y categorías:</p>
+                          <div class="convocatoria-selector">
+                            <select id="convocatoria-dropdown" class="form-select">
+                                <option value="">Seleccionar convocatoria</option>
+                                @php
+                                    $convocatoriasPublicadas = \App\Models\Convocatoria::where('estado', 'Publicada')->get();
+                                @endphp
+                                @foreach($convocatoriasPublicadas as $convocatoria)
+                                    <option value="{{ $convocatoria->idConvocatoria }}">{{ $convocatoria->nombre }}</option>
                                 @endforeach
-                            </ul>
+                            </select>
+                        </div>
+                        
+                        <div class="convocatoria-details-container">
+                            <div id="convocatoria-details" class="convocatoria-details">
+                                <div class="empty-state">
+                                    <i class="fas fa-tasks"></i>
+                                    <p>Seleccione una convocatoria para ver sus detalles</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     @endif
@@ -288,3 +294,4 @@
     <span id="successText"></span>
 </div>
 <script src="{{ asset('js/inscripcionTutor/inscripcionManual.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/tutorDetails.js') }}"></script>

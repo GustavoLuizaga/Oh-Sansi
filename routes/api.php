@@ -21,6 +21,49 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::middleware('auth:sanctum')->group(function() {
+    // Otras rutas protegidas por auth:sanctum...
+});
+
+// Temporalmente sin middleware para pruebas
+Route::get('/tutor/convocatoria/{idConvocatoria}/details', 
+    [\App\Http\Controllers\Api\TutorConvocatoriaDetallesController::class, 'getDetails']);
+    
+// Ruta de depuración para probar directamente el controlador 
+Route::get('/debug/tutor/convocatoria/{idConvocatoria}', function($idConvocatoria) {
+    // Registrar información de la solicitud
+    \Illuminate\Support\Facades\Log::info("Ruta de depuración accedida para convocatoria ID: " . $idConvocatoria);
+    
+    // Obtener un tutor cualquiera para pruebas
+    $tutor = \App\Models\Tutor::first();
+    
+    if (!$tutor) {
+        \Illuminate\Support\Facades\Log::error("No hay tutores en la base de datos");
+        return response()->json(['error' => 'No hay tutores en la base de datos'], 404);
+    }
+    
+    // Registrar información del tutor encontrado
+    \Illuminate\Support\Facades\Log::info("Tutor encontrado para pruebas: " . $tutor->id);
+    
+    // Guardar el ID en sesión para que el controlador lo use
+    session(['tutor_id' => $tutor->id]);
+    
+    // Llamar al método del controlador directamente
+    $controller = new \App\Http\Controllers\Api\TutorConvocatoriaDetallesController();
+    return $controller->getDetails($idConvocatoria);
+});
+
+// Ruta extra para diagnóstico - puede ser accedida directamente para verificar si la API responde
+Route::get('/api-status', function() {
+    return response()->json([
+        'status' => 'online',
+        'timestamp' => now()->toDateTimeString(),
+        'environment' => app()->environment(),
+        'debug' => config('app.debug'),
+        'server' => request()->server('SERVER_SOFTWARE')
+    ]);
+});
+
 // Remove from the auth:sanctum group for testing
 Route::get('/validate-tutor-token/{token}', [InscripcionEstController::class, 'validateTutorToken']);
 Route::get('/tutor-token/{token}/areas', [InscripcionEstController::class, 'getAreasByTutorToken']);

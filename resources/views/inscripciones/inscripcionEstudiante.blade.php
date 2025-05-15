@@ -95,6 +95,26 @@
                         </div>
                         <div class="seccion-body">
                             <div class="input-grupo">
+                                <label for="NombreContacto">Nombre completo del tutor</label>
+                                <div class="input-with-icon">
+                                    <input type="text" id="NombreContacto" name="NombreContacto" required
+                                        placeholder="Ej: Elian Vazques Ramirez">
+                                </div>
+                                @error('NombreContacto')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="input-grupo">
+                                <label for="EmailContacto">Correo Electronico del tutor</label>
+                                <div class="input-with-icon">
+                                    <input type="email" id="EmailContacto" name="EmailContacto" required
+                                        placeholder="Ej: Elian2018@gmail.com">
+                                </div>
+                                @error('EmailContacto')
+                                <span class="error-message">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="input-grupo">
                                 <label for="numeroContacto">Número de Contacto</label>
                                 <div class="input-with-icon">
                                     <input type="tel" id="numeroContacto" name="numeroContacto" required

@@ -24,30 +24,36 @@ use App\Models\TutorEstudianteInscripcion;
 class InscripcionController extends Controller
 {
     public $conv;
-    public function index()
+    
+    public function listarConvocatorias()
     {
-        // // IGNOREN ESTO, NO AFECTA EN NADA SOLO ESTABA PROBANDO UNAS COSITAS
-        // $user = Auth::user();
-        // if ($user && $user->estudiante) {
-        //     $estaInscrito = TutorEstudianteInscripcion::where('idEstudiante', $user->id)->exists();
-        //     if ($estaInscrito) {
-        //         return redirect()->route('inscripcion.estudiante.informacion');
-        //     }
-        // }
+        // Obtener todas las convocatorias en estado "Publicada"
+        $convocatorias = \App\Models\Convocatoria::where('estado', 'Publicada')
+            ->orderBy('fechaInicio', 'desc')
+            ->get();
+        
+        return view('inscripciones.listaConvocatorias', [
+            'convocatorias' => $convocatorias
+        ]);
+    }
 
-        // Obtener el ID de la convocatoria activa
-        $convocatoria = new VerificarExistenciaConvocatoria();
-        $idConvocatoriaResult = $convocatoria->verificarConvocatoriaActiva();
-
-        // Verificar si hay una convocatoria activa
-        if ($idConvocatoriaResult instanceof \Illuminate\Http\JsonResponse) {
-            // No hay convocatoria activa
-            return view('inscripciones.inscripcionEstudiante', [
-                'convocatoriaActiva' => false
-            ]);
+    public function index($idConvocatoria = null)
+    {
+        // Si no se proporciona un ID de convocatoria, redirigir al listado
+        if (!$idConvocatoria) {
+            return redirect()->route('inscripcion.convocatorias');
         }
 
-        $idConvocatoria = $idConvocatoriaResult;
+        // Verificar si la convocatoria existe y está en estado "Publicada"
+        $convocatoriaInfo = \App\Models\Convocatoria::where('idConvocatoria', $idConvocatoria)
+            ->where('estado', 'Publicada')
+            ->first();
+
+        // Si no se encuentra la convocatoria o no está publicada
+        if (!$convocatoriaInfo) {
+            return redirect()->route('inscripcion.convocatorias')
+                ->with('error', 'La convocatoria solicitada no está disponible');
+        }
         $this->conv = $idConvocatoria;
 
         // Obtener la información de la convocatoria

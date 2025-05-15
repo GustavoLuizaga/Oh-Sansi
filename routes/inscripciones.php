@@ -19,10 +19,12 @@ Route::middleware('auth')->group(function () {
     // Main inscripciones view
     Route::get('/inscripciones', function () {
         return view('inscripciones.inscripciones');
-    })->name('inscripciones');
-
-    // Student registration routes
-    Route::get('/inscripcion/estudiante', [InscripcionController::class, 'index'])
+    })->name('inscripciones');    // Student registration routes
+    Route::get('/inscripcion/convocatorias', [InscripcionController::class, 'listarConvocatorias'])
+        ->name('inscripcion.convocatorias');
+    Route::get('/inscripcion/estudiante/{id}', [InscripcionController::class, 'index'])
+        ->name('inscripcion.estudiante.formulario');
+    Route::get('/inscripcion/estudiante', [InscripcionController::class, 'listarConvocatorias'])
         ->name('inscripcion.estudiante');
     
     // Add this route inside the middleware('auth') group

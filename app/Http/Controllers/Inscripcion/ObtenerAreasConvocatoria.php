@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Inscripcion;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ConvocatoriaAreaCategoria;
+use Illuminate\Support\Facades\Log;
 
 class ObtenerAreasConvocatoria extends Controller
 {
@@ -12,7 +13,7 @@ class ObtenerAreasConvocatoria extends Controller
  * Obtiene las áreas asociadas a una convocatoria específica
  *
  * @param int $idConvocatoria ID de la convocatoria
- * @return \Illuminate\Http\JsonResponse
+ * @return \Illuminate\Support\Collection
  */
 public function obtenerAreasPorConvocatoria($idConvocatoria)
 {
@@ -25,15 +26,12 @@ public function obtenerAreasPorConvocatoria($idConvocatoria)
                     ->unique('idArea')   // Ensure uniqueness among valid Area models
                     ->values();          // Reindex the array
 
-        // Verificar si no hay áreas disponibles (this check is fine, or can be removed as an empty array is valid JSON)
-        if ($areas->isEmpty()) {
-            return response()->json([]);
-        }
-
-        return response()->json($areas);
+        return $areas;
     } catch (\Exception $e) {
-        // Consider logging the error for server-side debugging: \Log::error("Error fetching areas for convocatoria {$idConvocatoria}: " . $e->getMessage());
-        return response()->json(['error' => 'Error al obtener las áreas: ' . $e->getMessage()], 500);
+        // Log the error for server-side debugging
+        \Log::error("Error fetching areas for convocatoria {$idConvocatoria}: " . $e->getMessage());
+        // Return empty collection instead of a JSON response
+        return collect([]);
     }
 }
 }

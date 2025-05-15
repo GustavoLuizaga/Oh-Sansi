@@ -8,6 +8,7 @@ use App\Http\Controllers\Inscripcion\ObtenerGradosdeUnaCategoria;
 use App\Http\Controllers\BoletaPago\BoletaDePago;
 use App\Http\Controllers\BoletaPago\BoletaDePagoDeEstudiante;
 use App\Http\Controllers\BoletaController;
+use App\Http\Controllers\VerificarComprobanteController;
 
 // Add these routes for exports
 Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])->name('inscripcionEstudiante.exportar.pdf');
@@ -83,6 +84,11 @@ Route::middleware('auth')->group(function () {
     ->name('obtener.categorias');
 
 
+
+
+    //Ruta para verificar el comprobante manualmente por el Administrador
+    Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])
+        ->name('verificacionManual.comprobanteDePago');
 
     Route::get('/obtener-grados/{idCategoria}', [ObtenerGradosdeUnaCategoria::class, 'obtenerGradosPorArea2']);
     

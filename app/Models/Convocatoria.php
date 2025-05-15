@@ -24,4 +24,28 @@ class Convocatoria extends Model
     ];
     
     public $timestamps = true;
+      /**
+     * Relación muchos a muchos con tutores a través de tutorAreaDelegacion
+     */
+    public function tutores()
+    {
+        return $this->belongsToMany(Tutor::class, 'tutorAreaDelegacion', 'idConvocatoria', 'id')
+                    ->withPivot('idArea', 'idDelegacion', 'tokenTutor')
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Obtener las áreas relacionadas con esta convocatoria a través de los tutores
+     */
+    public function areas()
+    {
+        return $this->hasManyThrough(
+            Area::class,
+            TutorAreaDelegacion::class,
+            'idConvocatoria', // Clave externa en tutorAreaDelegacion
+            'idArea',         // Clave externa en area
+            'idConvocatoria', // Clave local en convocatoria
+            'idArea'          // Clave local en tutorAreaDelegacion
+        );
+    }
 }

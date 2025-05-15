@@ -218,56 +218,227 @@
 /*Estilos para el input de subir archivo VALIDAR TUTOR*/
 .file-input {
     width: 100%;
-    padding: 2px;
-    border: 1px solid var(--input-border);
-    border-radius: 5px;
-    font-size: 12px;
-    background: var(--surface-primary);
+    padding: 12px 18px;
+    border: 2px dashed var(--blue-500);
+    border-radius: 12px;
+    font-size: 14px;
+    background: rgba(0, 42, 76, 0.02);
     color: var(--input-text);
     cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.file-input::before {
+    content: 'PDF';
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 42, 76, 0.08);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue-700);
+    letter-spacing: 0.8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    animation: pulse-light 2s infinite;
+}
+
+@keyframes pulse-light {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 42, 76, 0.2);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(0, 42, 76, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 42, 76, 0);
+    }
 }
 
 .file-input::-webkit-file-upload-button {
-    background: var(--button-bg);
+    background: var(--blue-700);
+    background-image: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 100%);
     color: white;
-    padding:2px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 5px;
-    margin-right: 1rem;
+    border-radius: 8px;
+    margin-right: 1.5rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 42, 76, 0.2);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-input::-webkit-file-upload-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.file-input::-webkit-file-upload-button:hover::after {
+    transform: translateY(0);
 }
 
 .file-input::-webkit-file-upload-button:hover {
-    background: var(--button-hover);
+    background: var(--blue-800);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 42, 76, 0.3);
 }
 
 .file-input:hover {
-    border-color: var(--blue-800);
+    border-color: var(--blue-600);
+    background: rgba(0, 42, 76, 0.04);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
 }
 
 .file-input:focus {
     outline: none;
-    border-color: var(--blue-800);
-    box-shadow: var(--shadow-focus);
+    border-color: var(--blue-700);
+    box-shadow: var(--shadow-focus), 0 0 0 4px rgba(0, 42, 76, 0.1);
+    background: rgba(0, 42, 76, 0.03);
+}
+
+/* Estilo para cuando se ha seleccionado un archivo */
+.file-input:not([value=""]) {
+    border-style: solid;
+    border-color: var(--blue-600);
+    background: rgba(0, 42, 76, 0.04);
 }
 
 .modo-oscuro .file-input {
     background: var(--surface-secondaryy);
-    border-color: var(--input-border);
+    border-color: var(--blue-500);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .modo-oscuro .file-input::-webkit-file-upload-button {
-    background: var(--button-bg);
+    background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-900) 100%);
     color: white;
+}
+
+/* Estilos para el texto de ayuda */
+.help-text {
+    font-size: 0.95rem;
+    color: var(--input-text);
+    margin-bottom: 1rem;
+    font-style: italic;
+    background-color: rgba(0, 42, 76, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--blue-500);
+    line-height: 1.5;
+}
+
+/* Estilos para el texto de ayuda */
+.help-text {
+    font-size: 0.95rem;
+    color: var(--input-text);
+    margin-bottom: 1rem;
+    font-style: italic;
+    background-color: rgba(0, 42, 76, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--blue-500);
+    line-height: 1.5;
+}
+
+/* Añadir información visual para el usuario */
+.input-with-icon .fas.fa-file-pdf {
+    color: var(--blue-600);
+    font-size: 1.2rem;
+    left: 1.2rem;
 }
 
 /* Estilo para el mensaje de error */
 .error-message {
-    color: var(--burgundy-500);
+    color: #e53e3e;
     font-size: 0.875rem;
     margin-top: 0.5rem;
     display: block;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilo para campos con error - solo se aplica a elementos con clase .error */
+input.error, select.error {
+    border-color: #e53e3e !important;
+    box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.1) !important;
+}
+
+/* Efecto de validación correcta - solo se aplica a elementos con clase .valid */
+input.valid, select.valid {
+    border-color: #38a169 !important;
+    box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.1) !important;
+}
+
+/* Resaltar campo que tiene foco */
+input:focus, select:focus {
+    border-color: var(--blue-500) !important;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
+    outline: none;
+}
+
+/* Estilo para la etiqueta del campo que tiene foco */
+.form-group.has-focus label {
+    color: var(--blue-600);
+    font-weight: 500;
+}
+
+/* Estilos para el selector de colegios */
+.select-container {
+    position: relative;
+    margin-top: 0.5rem;
+}
+
+.select-container select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    padding-right: 2.5rem !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.8rem) center;
+    transition: all 0.3s ease;
+}
+
+.select-container select:focus {
+    border-color: var(--blue-600);
+    box-shadow: 0 0 0 3px rgba(0, 42, 76, 0.1);
+}
+
+.select-container select option {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+}
+
+/* Estilos para el modo oscuro */
+.modo-oscuro .select-container select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d1d5db' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
 }
 
 /* Ajuste del icono para el input file */
@@ -283,104 +454,247 @@
     color: var(--blue-600);
     text-decoration: none;
 }
-/* Estilos para la sección de áreas de tutoría */
-.areas-container {
-    border: 1px solid var(--input-border);
-    border-radius: 5px;
-    padding: 1rem;
-    background: var(--surface-primary);
-    max-height: 250px;
-    overflow-y: auto;
-    margin-bottom: 0.5rem;
-}
-
-.area-option {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.area-option:hover {
-    background-color: rgba(0, 42, 76, 0.05);
-}
-
-.area-option.selected {
-    background-color: rgba(0, 42, 76, 0.1);
-}
-
-.area-option input[type="checkbox"] {
-    margin-right: 0.75rem;
-    width: 1.1rem;
-    height: 1.1rem;
-    cursor: pointer;
-}
-
-.area-option label {
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: var(--input-text);
-    flex: 1;
-    margin-bottom: 0;
-}
-
+/* Estilos para el buscador de áreas */
 .areas-search {
     position: relative;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .areas-search input {
     width: 100%;
-    padding: 0.6rem 2.5rem 0.6rem 2.5rem;
+    padding: 0.7rem 2.5rem;
     border: 1px solid var(--input-border);
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 0.95rem;
     color: var(--input-text);
     background: var(--surface-primary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+}
+
+.areas-search input:focus {
+    outline: none;
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 3px rgba(0, 42, 76, 0.08);
 }
 
 .areas-search i {
     position: absolute;
-    left: 0.75rem;
+    left: 0.9rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--input-icon);
+    font-size: 0.9rem;
+}
+
+/* Estilos para la sección de áreas de tutoría y convocatorias */
+.areas-container, .convocatorias-container {
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    background: var(--surface-primary);
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 0.8rem;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+    scrollbar-width: thin;
+    scrollbar-color: var(--blue-400) transparent;
+}
+
+.areas-container::-webkit-scrollbar, .convocatorias-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.areas-container::-webkit-scrollbar-track, .convocatorias-container::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+.areas-container::-webkit-scrollbar-thumb, .convocatorias-container::-webkit-scrollbar-thumb {
+    background-color: var(--blue-400);
+    border-radius: 10px;
+}
+
+.area-option, .convocatoria-option {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.7rem;
+    border-radius: 6px;
+    border: 1px solid var(--input-border);
+    background-color: #ffffff;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.area-option:hover, .convocatoria-option:hover {
+    background-color: rgba(0, 42, 76, 0.03);
+    border-color: var(--blue-400);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.area-option.selected, .convocatoria-option.selected {
+    background-color: rgba(0, 42, 76, 0.06);
+    border-color: var(--blue-600);
+    box-shadow: 0 2px 5px rgba(0, 42, 76, 0.08);
+}
+
+.area-option input[type="checkbox"], .convocatoria-option input[type="checkbox"] {
+    margin-right: 0.9rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: var(--blue-600);
+}
+
+.area-option label, .convocatoria-option label {
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--input-text);
+    flex: 1;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+.convocatoria-option label {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.areas-for-convocatoria {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    background-color: var(--form-bg);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.areas-for-convocatoria h4 {
+    font-size: 1.15rem;
+    color: var(--blue-800);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--blue-200);
+    position: relative;
+    font-weight: 600;
+}
+
+.areas-for-convocatoria h4::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background-color: var(--blue-600);
+}
+
+.help-text {
+    font-size: 0.95rem;
+    color: var(--input-text);
+    margin-bottom: 1.25rem;
+    font-style: italic;
+    background-color: rgba(0, 42, 76, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--blue-500);
 }
 
 .areas-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--input-border);
 }
 
 .select-all-option {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: 0.6rem;
 }
 
 .select-all-option input[type="checkbox"] {
-    width: var(--checkbox-size);
-    height: var(--checkbox-size);
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--blue-600);
 }
 
 .select-all-option label {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--label-text);
     cursor: pointer;
+    font-weight: 500;
 }
 
 .selected-count {
     font-size: 0.85rem;
-    color: var(--input-text);
-    padding: 0.25rem 0.5rem;
-    background-color: rgba(0, 42, 76, 0.1);
+    color: white;
+    padding: 0.25rem 0.8rem;
+    background-color: var(--blue-700);
     border-radius: 20px;
     display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 42, 76, 0.2);
+    font-weight: 500;
+}
+
+.badge.publicada {
+    background-color: #10b981;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    margin-left: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 158, 96, 0.2);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Animación para la insignia de publicada */
+.badge.publicada::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Estilos para los mensajes de "no hay contenido" */
+.no-convocatorias, .no-areas {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--input-text);
+    font-style: italic;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 6px;
+    border: 1px dashed var(--input-border);
 }
 
 /* Modo oscuro para áreas */

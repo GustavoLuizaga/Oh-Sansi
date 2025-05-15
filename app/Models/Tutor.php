@@ -33,12 +33,10 @@ class Tutor extends Model
     public function tutorAreaDelegacion()
     {
         return $this->hasOne(TutorAreaDelegacion::class, 'id');
-    }
-
-    public function areas()
+    }    public function areas()
     {
         return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')
-            ->withPivot('idDelegacion', 'tokenTutor')
+            ->withPivot('idDelegacion', 'idConvocatoria', 'tokenTutor')
             ->withTimestamps();
     }
 
@@ -46,11 +44,28 @@ class Tutor extends Model
     {
         return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')
             ->select('area.idArea', 'area.nombre');
-    }
-
-    public function delegaciones()
+    }    public function delegaciones()
     {
-        return $this->belongsToMany(Delegacion::class,  'tutorAreaDelegacion', 'id', 'idDelegacion')->withTimestamps();
+        return $this->belongsToMany(Delegacion::class, 'tutorAreaDelegacion', 'id', 'idDelegacion')
+            ->withPivot('idArea', 'idConvocatoria', 'tokenTutor')
+            ->withTimestamps();
+    }
+    
+    public function convocatorias()
+    {
+        return $this->belongsToMany(Convocatoria::class, 'tutorAreaDelegacion', 'id', 'idConvocatoria')
+            ->withPivot('idArea', 'idDelegacion', 'tokenTutor')
+            ->withTimestamps();
+    }
+      /**
+     * Obtener áreas para una convocatoria específica
+     */
+    public function areasPorConvocatoria($idConvocatoria)
+    {
+        return $this->belongsToMany(Area::class, 'tutorAreaDelegacion', 'id', 'idArea')
+            ->wherePivot('idConvocatoria', $idConvocatoria)
+            ->withPivot('idDelegacion', 'tokenTutor')
+            ->withTimestamps();
     }
 
     public function estudiantes()
@@ -62,19 +77,24 @@ class Tutor extends Model
 
 // ...existing code...
 
-public function primerIdDelegacion()
+public function primerIdDelegacion($idConvocatoria = null)
 {
-    return $this->belongsToMany(Delegacion::class, 'tutorAreaDelegacion', 'id', 'idDelegacion')
-        ->select('delegacion.idDelegacion')
-        ->first()
-        ->idDelegacion ?? null;
+    $query = $this->belongsToMany(Delegacion::class, 'tutorAreaDelegacion', 'id', 'idDelegacion')
+        ->select('delegacion.idDelegacion');
+    
+    // Si se proporciona ID de convocatoria, filtrar por esa convocatoria
+    if ($idConvocatoria) {
+        $query->wherePivot('idConvocatoria', $idConvocatoria);
+    }
+    
+    return $query->first()->idDelegacion ?? null;
 }
 
-public function getColegio()
+public function getColegio($idConvocatoria = null)
 {
-   $delegacion = $this->primerIdDelegacion();
+   $delegacion = $this->primerIdDelegacion($idConvocatoria);
    $response = $delegacion = Delegacion::find($delegacion);
-   return $response->nombre;
+   return $response ? $response->nombre : 'No asignado';
 }
 
 }

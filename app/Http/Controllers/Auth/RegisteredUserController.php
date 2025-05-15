@@ -73,30 +73,28 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
-    }
-
-    //Para el registro de tutores//
+    }    //Para el registro de tutores//
     public function createTutor()
     {
-
         $unidades = Delegacion::all();
-        //Logica para obtener las Areas habilitadas de la base de datos
-        $convocatoria = new VerificarExistenciaConvocatoria();
-        $idConvocatoria = $convocatoria->verificarConvocatoriaActiva(); //Esto solo un ID
-        if ($idConvocatoria instanceof \Illuminate\Http\JsonResponse) {
-            return $idConvocatoria; // Retorna la respuesta JSON si no hay convocatoria activa
+        
+        // Obtener todas las convocatorias en estado "Publicada"
+        $convocatorias = \App\Models\Convocatoria::where('estado', 'Publicada')
+            ->orderBy('fechaInicio', 'desc')
+            ->get();
+            
+        if ($convocatorias->count() === 0) {
+            return response()->json([
+                'error' => true,
+                'mensaje' => 'No hay convocatorias publicadas en este momento'
+            ]);
         }
-        //Obtener las areas por el id de la convocatoria
-        $obtenerAreas = new ObtenerAreasConvocatoria();
-        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria); //Una lista de areas
-        if ($areas instanceof \Illuminate\Http\JsonResponse) {
-            return $areas; // Retorna la respuesta JSON si no se obtienen áreas
-        }
-
-        return view('auth.registerTutor', compact('unidades', 'areas'));
-    }
-
-    public function storeTutor(Request $request)
+        
+        // Obtener todas las áreas disponibles en el sistema
+        $areas = \App\Models\Area::all();
+        
+        return view('auth.registerTutor', compact('unidades', 'areas', 'convocatorias'));
+    }    public function storeTutor(Request $request)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -109,8 +107,9 @@ class RegisteredUserController extends Controller
             'profesion' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],  // Validación del email y su unicidad
             'delegacion_tutoria' => ['required', 'exists:delegacion,idDelegacion'],  // Validación de que la delegación existe
-            'area_tutoria' => ['required', 'array'],  // Validación de que se seleccionó al menos un área
-            'area_tutoria.*' => ['exists:area,idArea'],  // Validación de que cada área seleccionada existe
+            'convocatorias' => ['required', 'array'], // Validación de que se seleccionó al menos una convocatoria
+            'convocatorias.*' => ['exists:convocatoria,idConvocatoria'], // Validación de que cada convocatoria existe
+            'areas' => ['required', 'array'], // Array de arrays de áreas por convocatoria
             'password' => ['required', 'confirmed', Rules\Password::defaults()],  // Validación de la contraseña
             'cv' => ['required', 'mimes:pdf', 'max:2048'],  // Validación del archivo PDF
             'terms' => ['required', 'accepted'],  // Validación para aceptar los términos y condiciones
@@ -141,19 +140,26 @@ class RegisteredUserController extends Controller
             $tutor = $user->tutor()->create([
                 'profesion' => $request->profesion,
                 'telefono' => $request->telefono,
-                //aqui poner la loguica para el link de recurso
                 'linkRecurso' => $fileUrl,
                 'tokenTutor' => $tokenTutor,
                 'es_director' => false, // Este tutor no será director por defecto
                 'estado' => 'pendiente'
             ]);
 
-            // Adjuntar cada área seleccionada a la delegación
-            foreach ($request->area_tutoria as $areaId) {
-                $tutor->areas()->attach($areaId, [
-                    'idDelegacion' => $request->delegacion_tutoria,
-                    'tokenTutor' => $tokenTutor // Usar el mismo token generado para el tutor
-                ]);
+            // Procesar cada convocatoria seleccionada
+            foreach ($request->convocatorias as $idConvocatoria) {
+                // Obtener las áreas seleccionadas para esta convocatoria
+                $areasSeleccionadas = $request->input('areas.' . $idConvocatoria, []);
+                
+                if (count($areasSeleccionadas) > 0) {
+                    foreach ($areasSeleccionadas as $areaId) {
+                        $tutor->areas()->attach($areaId, [
+                            'idDelegacion' => $request->delegacion_tutoria,
+                            'tokenTutor' => $tokenTutor,
+                            'idConvocatoria' => $idConvocatoria
+                        ]);
+                    }
+                }
             }
         }
 

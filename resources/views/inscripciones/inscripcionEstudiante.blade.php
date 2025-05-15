@@ -166,13 +166,20 @@
                                         <div class="areas-container">
                                             <div class="area-block">
                                                 <div class="info-row">
-                                                    <div class="info-group">
-                                                        <label>Área</label>
-                                                        <select class="area-select" name="tutor_areas_1_1" required>
+                                                    <div class="info-group">                                                        <label>Área</label>                                                        <select class="area-select" name="tutor_areas_1_1" required>
                                                             <option value="">Seleccione un área</option>
-                                                            @foreach($areas as $area)
-                                                                <option value="{{ $area->idArea }}">{{ $area->nombre }}</option>
-                                                            @endforeach
+                                                            @if(isset($areas) && is_iterable($areas))
+                                                                @foreach($areas as $area)
+                                                                    @php
+                                                                        // Maneja diferentes estructuras de datos (objeto, array, stdClass)
+                                                                        $idArea = is_object($area) ? ($area->idArea ?? null) : ($area['idArea'] ?? null);
+                                                                        $nombre = is_object($area) ? ($area->nombre ?? '') : ($area['nombre'] ?? '');
+                                                                    @endphp
+                                                                    @if($idArea && $nombre)
+                                                                        <option value="{{ $idArea }}">{{ $nombre }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            @endif
                                                         </select>
                                                         <input type="hidden" class="tutor-area-hidden" value="">
                                                     </div>
@@ -224,9 +231,9 @@
                     <i class="fas fa-check"></i> Completar Inscripción
                 </button>
             </div>
-        </form>
-    </div>
+        </form>    </div>
     <script src="{{ asset('js/inscripcionEstudiante.js') }}"></script>
+    <script src="{{ asset('js/inscripcionFormHelper.js') }}"></script>
     @endif
 </x-app-layout>
 

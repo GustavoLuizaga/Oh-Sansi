@@ -62,19 +62,55 @@ class InscripcionController extends Controller
         // Obtener las delegaciones (colegios)
         $colegios = \App\Models\Delegacion::select('idDelegacion as id', 'nombre')
             ->orderBy('nombre')
-            ->get();
-
-        // Obtener las areas por el id de la convocatoria
-        $obtenerAreas = new ObtenerAreasConvocatoria();
-        $areas = $obtenerAreas->obtenerAreasPorConvocatoria($idConvocatoria);
-
+            ->get();        // Obtener las areas directamente del modelo en lugar de usar la clase auxiliar
+        try {
+            $areas = \App\Models\ConvocatoriaAreaCategoria::with('area')
+                ->where('idConvocatoria', $idConvocatoria)
+                ->get()
+                ->pluck('area')
+                ->filter()
+                ->unique('idArea')
+                ->values();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error obteniendo áreas: " . $e->getMessage());
+            $areas = collect([]);
+        }
+        
         // Obtener las categorias por el id de la convocatoria
         $obtenerCategorias = new ObtenerCategoriasArea();
-        $categorias = $obtenerCategorias->categoriasAreas($idConvocatoria);
+        $categoriasResponse = $obtenerCategorias->categoriasAreas($idConvocatoria);
+        
+        // Convertir respuesta JSON a colección si es necesario
+        if ($categoriasResponse instanceof \Illuminate\Http\Response || $categoriasResponse instanceof \Illuminate\Http\JsonResponse) {
+            try {
+                $responseContent = $categoriasResponse->getContent();
+                $decodedContent = json_decode($responseContent);
+                $categorias = collect($decodedContent);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Error decodificando categorías: " . $e->getMessage());
+                $categorias = collect([]);
+            }
+        } else {
+            $categorias = $categoriasResponse;
+        }
 
         // Obtener los grados por las categorias
         $obtenerGrados = new ObtenerGradosArea();
-        $grados = $obtenerGrados->obtenerGradosPorArea($categorias);
+        $gradosResponse = $obtenerGrados->obtenerGradosPorArea($categorias);
+        
+        // Convertir respuesta JSON a colección si es necesario
+        if ($gradosResponse instanceof \Illuminate\Http\Response || $gradosResponse instanceof \Illuminate\Http\JsonResponse) {
+            try {
+                $responseContent = $gradosResponse->getContent();
+                $decodedContent = json_decode($responseContent);
+                $grados = collect($decodedContent);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Error decodificando grados: " . $e->getMessage());
+                $grados = collect([]);
+            }
+        } else {
+            $grados = $gradosResponse;
+        }
 
         return view('inscripciones.inscripcionEstudiante', [
             'convocatoriaActiva' => true,

@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{ asset('css/inscripcion/mostrarConvocatoriaInfo.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/tutorDetails.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/excelUploadInfo.css') }}">
+<link rel="stylesheet" href="{{ asset('css/inscripcion/preview-info.css') }}">
 <!-- Scripts necesarios para el modal y la previsualización -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
@@ -34,7 +35,20 @@
 
 <x-app-layout>
 
-    <body data-convocatoria-id="{{ $idConvocatoriaResult ?? '' }}">
+    @php
+        // Obtener la información del delegado y su colegio
+        $tutor = Auth::user();
+        $delegacion = \App\Models\TutorAreaDelegacion::where('id', $tutor->id)->first();
+        $nombreDelegacion = '';
+        if ($delegacion) {
+            $colegio = \App\Models\Delegacion::find($delegacion->idDelegacion);
+            if ($colegio) {
+                $nombreDelegacion = $colegio->nombre;
+            }
+        }
+    @endphp
+
+    <body data-convocatoria-id="{{ $idConvocatoriaResult ?? '' }}" data-delegacion-nombre="{{ $nombreDelegacion }}">
 
         <!-- Change this part -->
         <div class="tutor-container">
@@ -241,74 +255,7 @@
             </div>
         </div>
         <!-- Modal para previsualización de datos Excel -->
-        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="previewModalLabel">
-                            <i class="fas fa-table"></i> Previsualización de Datos
-                        </h5>
-                        <div class="modal-actions">
-                            <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="toggleColumnsBtn">
-                                <i class="fas fa-columns"></i> Mostrar/Ocultar Columnas
-                            </button>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Revise los datos antes de confirmar. Puede hacer clic en las celdas para editar la información.
-                            <ul class="mt-2 mb-0">
-                                <li>Use el botón "Mostrar/Ocultar Columnas" para gestionar la visibilidad de las columnas</li>
-                                <li>Puede ordenar los datos haciendo clic en los encabezados de las columnas</li>
-                                <li>Use el campo de búsqueda para filtrar registros específicos</li>
-                            </ul>
-                        </div>
-                        <div id="errorCounter" class="alert alert-warning mb-3" style="display: none;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span id="errorCountText">Errores encontrados: 0 filas con errores.</span>
-                        </div>
-                        <div class="table-responsive">
-                            <table id="previewTable" class="table table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Fila</th>
-                                        <th>Nombre</th>
-                                        <th>Apellido Paterno</th>
-                                        <th>Apellido Materno</th>
-                                        <th>CI</th>
-                                        <th>Email</th>
-                                        <th>Fecha Nacimiento</th>
-                                        <th>Género</th>
-                                        <th>Área</th>
-                                        <th>Categoría</th>
-                                        <th>Grado</th>
-                                        <th>Número Contacto</th>
-                                        <th>Delegación</th>
-                                        <th>Nombre Tutor</th>
-                                        <th>Email Tutor</th>
-                                        <th>Modalidad</th>
-                                        <th>Código Invitación</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="previewTableBody">
-                                    <!-- Los datos se cargarán aquí dinámicamente -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times"></i> Cancelar
-                        </button>
-                        <button type="button" id="submitExcelData" class="btn btn-primary">
-                            <i class="fas fa-check"></i> Confirmar Inscripción
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include('inscripciones/modalPrevisualizacionExcel')
 @push('scripts')
 <script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/modalConvocatoria.js') }}"></script>

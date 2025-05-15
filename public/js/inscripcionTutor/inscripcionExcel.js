@@ -145,13 +145,19 @@ $(document).ready(function () {
                     '<span id="errorCountText">Errores encontrados: 0 filas con errores.</span>' +
                     '</div>'
                 );
-            }
-
-            // Llenar tabla con datos
+            }            // Llenar tabla con datos
             jsonData.forEach((row, index) => {
                 let rowHtml = `<tr data-row="${index}">`;
-                rowHtml += `<td>${index + 1}</td>`; // Fila
-
+                
+                // Columna de acciones con botón eliminar
+                rowHtml += `<td>
+                    <button type="button" class="btn btn-sm btn-danger delete-row-btn" title="Eliminar fila">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>`;
+                
+                rowHtml += `<td>${index + 1}</td>`; // Número de fila
+                
                 // Crear un array con 16 elementos (columnas de datos) inicializados como vacíos
                 let rowData = Array(16).fill('');
 
@@ -160,16 +166,38 @@ $(document).ready(function () {
                     if (row[i] !== undefined) {
                         rowData[i] = row[i];
                     }
+                }                // Agregar celdas editables para cada columna de datos
+                // Definir las columnas que queremos mostrar con sus índices correctos, omitiendo la posición 11 (Delegación)
+                const columnMapping = [
+                    { index: 0, name: 'Nombre' },
+                    { index: 1, name: 'Apellido Paterno' },
+                    { index: 2, name: 'Apellido Materno' },
+                    { index: 3, name: 'CI' },
+                    { index: 4, name: 'Email' },
+                    { index: 5, name: 'Fecha Nacimiento' },
+                    { index: 6, name: 'Género' },
+                    { index: 7, name: 'Área' },
+                    { index: 8, name: 'Categoría' },
+                    { index: 9, name: 'Grado' },
+                    { index: 10, name: 'Número Contacto' },
+                    { index: 12, name: 'Nombre Tutor' },
+                    { index: 13, name: 'Email Tutor' },
+                    { index: 14, name: 'Modalidad' },
+                    { index: 15, name: 'Código Invitación' }
+                ];
+                
+                for (let colIndex = 0; colIndex < columnMapping.length; colIndex++) {
+                    const { index, name } = columnMapping[colIndex];
+                    const value = rowData[index] || '';
+                    // Sanitizar el valor para evitar problemas de HTML
+                    const sanitizedValue = String(value)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                    
+                    rowHtml += `<td><div class="editable" contenteditable="true" data-col="${index}" title="${name}">${sanitizedValue}</div></td>`;
                 }
-
-                // Agregar celdas editables para cada columna de datos
-                for (let i = 0; i < 16; i++) {
-                    const value = rowData[i] || '';
-                    rowHtml += `<td><div class="editable" contenteditable="true" data-col="${i}">${value}</div></td>`;
-                }
-
-                // Agregar columna de estado de validación
-                rowHtml += `<td class="validation-status text-muted">Pendiente</td>`;
 
                 rowHtml += `</tr>`;
                 $('#previewTableBody').append(rowHtml);
@@ -182,11 +210,31 @@ $(document).ready(function () {
                 }
             } catch (error) {
                 console.error('Error al verificar o destruir DataTable:', error);
-            }
-
-            // Inicializar DataTable
+            }            // Inicializar DataTable con opciones mínimas para evitar problemas de columnas
             dataTable = $('#previewTable').DataTable({
                 pageLength: 10,
+                searching: false, // Desactivamos búsqueda nativa y usamos nuestro propio buscador
+                ordering: true,
+                paging: true,
+                info: true,
+                autoWidth: false,
+                scrollX: true, // Habilitar desplazamiento horizontal
+                scrollY: '60vh', // Altura fija para el desplazamiento vertical
+                scrollCollapse: true,
+                fixedHeader: false,
+                fixedColumns: false,
+                stateSave: false,
+                responsive: false, // Desactivamos responsive para evitar problemas
+                // Configuración DOM mínima
+                dom: 'lrtip',
+                columnDefs: [
+                    { width: "60px", targets: 0 }, // Columna de acciones
+                    { width: "50px", targets: 1 }, // Número de fila
+                    { width: "150px", targets: [2, 3, 4, 13] }, // Nombres y apellidos
+                    { width: "120px", targets: [5, 12] }, // CI y números
+                    { width: "180px", targets: [6, 14] }, // Emails
+                    { width: "120px", targets: [7, 8, 9, 10, 11, 15, 16] } // Otras columnas
+                ],
                 language: {
                     "sProcessing": "Procesando...",
                     "sLengthMenu": "Mostrar _MENU_ registros",
@@ -214,14 +262,34 @@ $(document).ready(function () {
                         "copy": "Copiar",
                         "colvis": "Visibilidad"
                     }
-                },
-                dom: '<"top"lf>rt<"bottom"ip><"clear">'
-            });
-
-            try {
+                }
+            });            try {
                 // Mostrar modal usando jQuery para evitar problemas con Bootstrap
                 $('#previewModal').modal('show');
                 console.log('Modal mostrado con jQuery');
+                
+                // Agregar un código para ejecutarse después de mostrar el modal
+                $('#previewModal').on('shown.bs.modal', function() {
+                    // Forzar reajuste de la tabla después de que el modal esté visible
+                    setTimeout(function() {
+                        // Verificar y corregir cualquier columna fantasma
+                        $('#previewTable tr').each(function() {
+                            const numHeaderCells = $('#previewTable thead tr:first th').length;
+                            const rowCells = $(this).find('td, th').length;
+                            
+                            if (rowCells > numHeaderCells) {
+                                // Eliminar celdas extras
+                                console.log(`Encontrada fila con ${rowCells} celdas, eliminando las extras`);
+                                $(this).find('td, th').slice(numHeaderCells).remove();
+                            }
+                        });
+                        
+                        // Recalcular anchos de columna
+                        if ($.fn.dataTable.isDataTable('#previewTable')) {
+                            $('#previewTable').DataTable().columns.adjust();
+                        }
+                    }, 300);
+                });
             } catch (error) {
                 console.error('Error al mostrar modal con jQuery:', error);
                 
@@ -290,9 +358,7 @@ $(document).ready(function () {
         const rowIndex = row.data('row');
         const rowData = excelData[rowIndex] || [];
         let isValid = true;
-        let errorMessage = '';
-
-        // Validar campos requeridos
+        let errorMessage = '';        // Validar campos requeridos
         if (!rowData[0]) { // Nombre
             isValid = false;
             errorMessage = 'Falta el nombre';
@@ -308,17 +374,16 @@ $(document).ready(function () {
         } else if (!rowData[9]) { // Grado
             isValid = false;
             errorMessage = 'Falta el grado';
-        } else if (!rowData[11]) { // Delegación
-            isValid = false;
-            errorMessage = 'Falta la delegación';
-        }
-
-        // Validar modalidad y código de invitación
-        if (rowData[15]) {
-            const modalidad = rowData[15].toString().toLowerCase();
-            if ((modalidad === 'duo' || modalidad === 'equipo') && !rowData[16]) {
+        }        // Validar modalidad y código de invitación (ajustando índices por la eliminación de Delegación)
+        // Modalidad ahora está en índice 14 (era 15 antes) y código de invitación en 15 (era 16 antes)
+        const modalidadIndex = 14;
+        const codigoIndex = 15;
+        
+        if (rowData[modalidadIndex]) {
+            const modalidad = rowData[modalidadIndex].toString().toLowerCase();
+            if ((modalidad === 'duo' || modalidad === 'equipo') && !rowData[codigoIndex]) {
                 isValid = false;
-                errorMessage = 'Falta el código de invitación para modalidad ' + rowData[15];
+                errorMessage = 'Falta el código de invitación para modalidad ' + rowData[modalidadIndex];
             }
         }
 
@@ -335,15 +400,11 @@ $(document).ready(function () {
                 isValid = false;
                 errorMessage = `El área "${areaName}" no está habilitada para el tutor actual`;
             }
-        }
-
-        // Actualizar estado visual de la fila
+        }        // Actualizar estado visual de la fila
         if (isValid) {
-            row.removeClass('error-row');
-            row.find('.validation-status').text('Válido').removeClass('text-danger text-muted').addClass('text-success');
+            row.removeClass('error-row').attr('title', 'Fila válida');
         } else {
-            row.addClass('error-row');
-            row.find('.validation-status').text(errorMessage).removeClass('text-success text-muted').addClass('text-danger');
+            row.addClass('error-row').attr('title', errorMessage);
         }
 
         return isValid;
@@ -446,17 +507,28 @@ $(document).ready(function () {
         loadingOverlay.style.display = 'flex';
 
         // Crear un nuevo archivo Excel con los datos editados
-        const wb = XLSX.utils.book_new();
-
-        // Agregar encabezados
+        const wb = XLSX.utils.book_new();        // Agregar encabezados (sin la columna Delegación)
         const headers = [
             'Nombre', 'Apellido Paterno', 'Apellido Materno', 'CI', 'Email',
             'Fecha Nacimiento', 'Género', 'Área', 'Categoría', 'Grado',
-            'Número Contacto', 'Delegación', 'Nombre Tutor', 'Email Tutor',
+            'Número Contacto', 'Nombre Tutor', 'Email Tutor',
             'Modalidad', 'Código Invitación'
         ];
-
-        const wsData = [headers, ...excelData.map(row => row.slice(0, 17))];
+        
+        // Preparar los datos sin la columna Delegación (índice 11)
+        const processedData = excelData.map(row => {
+            // Crear una copia del array para manipular
+            const newRow = [...row];
+            
+            // Si la columna Delegación existe, eliminarla
+            if (newRow.length > 11) {
+                newRow.splice(11, 1);
+            }
+            
+            return newRow.slice(0, 16);
+        });
+        
+        const wsData = [headers, ...processedData];
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         XLSX.utils.book_append_sheet(wb, ws, 'Inscripciones');
 
@@ -544,5 +616,161 @@ $(document).ready(function () {
                 errorModal.show();
             }
         });
+    });
+      // Función para agregar una nueva fila
+    $(document).on('click', '#addRowBtn', function() {
+        const rowCount = $('#previewTableBody tr').length;
+        const newRowIndex = rowCount;
+        
+        // Crear un array vacío para la nueva fila en excelData
+        if (!excelData[newRowIndex]) {
+            excelData[newRowIndex] = Array(16).fill('');
+        }
+        
+        let newRowHtml = `<tr data-row="${newRowIndex}" class="new-row">`;
+        
+        // Columna de acciones con botón eliminar
+        newRowHtml += `<td>
+            <button type="button" class="btn btn-sm btn-danger delete-row-btn" title="Eliminar fila">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </td>`;
+        
+        newRowHtml += `<td>${newRowIndex + 1}</td>`; // Número de fila        // Agregar celdas editables vacías para cada columna
+        // Definir las columnas que queremos mostrar con sus índices correctos, omitiendo la posición 11 (Delegación)
+        const columnMapping = [
+            { index: 0, name: 'Nombre' },
+            { index: 1, name: 'Apellido Paterno' },
+            { index: 2, name: 'Apellido Materno' },
+            { index: 3, name: 'CI' },
+            { index: 4, name: 'Email' },
+            { index: 5, name: 'Fecha Nacimiento' },
+            { index: 6, name: 'Género' },
+            { index: 7, name: 'Área' },
+            { index: 8, name: 'Categoría' },
+            { index: 9, name: 'Grado' },
+            { index: 10, name: 'Número Contacto' },
+            { index: 12, name: 'Nombre Tutor' },
+            { index: 13, name: 'Email Tutor' },
+            { index: 14, name: 'Modalidad' },
+            { index: 15, name: 'Código Invitación' }
+        ];
+        
+        for (let colIndex = 0; colIndex < columnMapping.length; colIndex++) {
+            const { index, name } = columnMapping[colIndex];
+            newRowHtml += `<td><div class="editable" contenteditable="true" data-col="${index}" title="${name}"></div></td>`;
+        }
+        
+        newRowHtml += `</tr>`;
+        $('#previewTableBody').append(newRowHtml);
+        
+        // Validar la nueva fila
+        validateRow($('#previewTableBody tr').last());
+        
+        // Actualizar contador de errores
+        updateErrorCounter();
+        
+        // Actualizar DataTable para incluir la nueva fila
+        try {
+            if ($.fn.DataTable.isDataTable('#previewTable')) {
+                $('#previewTable').DataTable().draw();
+            }
+        } catch (error) {
+            console.error('Error al actualizar DataTable:', error);
+        }
+    });
+    
+    // Función para eliminar una fila
+    $(document).on('click', '.delete-row-btn', function() {
+        if (confirm('¿Está seguro que desea eliminar esta fila?')) {
+            const row = $(this).closest('tr');
+            const rowIndex = row.data('row');
+            
+            // Eliminar fila de la tabla
+            row.remove();
+            
+            // Eliminar datos de la fila en excelData
+            if (excelData[rowIndex]) {
+                excelData.splice(rowIndex, 1);
+                
+                // Actualizar índices de filas restantes
+                $('#previewTableBody tr').each(function(index) {
+                    $(this).attr('data-row', index);
+                    $(this).find('td:nth-child(2)').text(index + 1); // Actualizar número de fila visible
+                });
+            }
+            
+            // Revalidar datos
+            validateExcelData();
+            
+            // Actualizar DataTable
+            try {
+                if ($.fn.DataTable.isDataTable('#previewTable')) {
+                    $('#previewTable').DataTable().draw();
+                }
+            } catch (error) {
+                console.error('Error al actualizar DataTable:', error);
+            }
+        }
+    });    // Implementar búsqueda en la tabla con resaltado de coincidencias
+    $(document).on('keyup', '#table-search', function() {
+        const searchTerm = $(this).val();
+        
+        // Quitar resaltados anteriores
+        try {
+            $('#previewTableBody').unmark();
+        } catch (e) {
+            console.log('Error al quitar resaltados:', e);
+        }
+        
+        // Búsqueda manual para todos los casos
+        if (!searchTerm || searchTerm.length === 0) {
+            // Si no hay término de búsqueda, mostrar todas las filas
+            $('#previewTableBody tr').show();
+        } else {
+            // Buscar en cada fila manualmente
+            $('#previewTableBody tr').each(function() {
+                const row = $(this);
+                const text = row.text().toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    row.show();
+                } else {
+                    row.hide();
+                }
+            });
+            
+            // Resaltar el texto encontrado si hay término de búsqueda
+            if (searchTerm.length > 1) {
+                try {
+                    $('#previewTableBody').mark(searchTerm, {
+                        "element": "span",
+                        "className": "mark",
+                        "separateWordSearch": false
+                    });
+                } catch (e) {
+                    console.log('Error al resaltar texto:', e);
+                }
+            }
+        }
+    });
+      // Limpiar búsqueda cuando se abre el modal
+    $(document).on('shown.bs.modal', '#previewModal', function() {
+        $('#table-search').val('');
+        if ($ && $.fn && $.fn.DataTable && $.fn.DataTable.isDataTable('#previewTable')) {
+            $('#previewTable').DataTable().search('').draw();
+        }
+    });    // Funcionalidad para limpiar la búsqueda con el botón
+    $(document).on('click', '#clear-search', function() {
+        $('#table-search').val('').focus();
+        
+        try {
+            // Quitar resaltados
+            $('#previewTableBody').unmark();
+        } catch (e) {
+            console.log('Error al quitar resaltados:', e);
+        }
+        
+        // Mostrar todas las filas
+        $('#previewTableBody tr').show();
     });
 });

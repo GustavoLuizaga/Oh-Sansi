@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionManual.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/mostrarConvocatoriaInfo.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/tutorDetails.css') }}">
+<link rel="stylesheet" href="{{ asset('css/inscripcion/excelUploadInfo.css') }}">
 <!-- Scripts necesarios para el modal y la previsualización -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
@@ -94,7 +95,24 @@
 
                 <!-- Excel Upload Card -->
                 <div class="card excel-card">
-                    <h2><i class="fas fa-file-excel"></i> Inscripción Masiva</h2>
+                    <h2><i class="fas fa-file-excel"></i> Inscripción Masiva</h2>                    <!-- Información importante para el delegado (colapsable) -->
+                    <div class="excel-info-collapsible">
+                        <div class="collapsible-header" id="excelInfoHeader">
+                            <i class="fas fa-info-circle"></i> Información importante antes de subir el Excel
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="excel-info-box collapsible-content" id="excelInfoContent">
+                            <p>Al subir el Excel, tenga en cuenta lo siguiente:</p>
+                            <ul>
+                                <li>Los estudiantes se inscribirán por defecto a la <strong>delegación/colegio</strong> a la que usted pertenece como delegado.</li>
+                                <li>Escriba las <strong>áreas, categorías y grados</strong> exactamente como aparecen en la convocatoria para evitar errores.</li>
+                                <li>La <strong>modalidad</strong> debe escribirse correctamente (Individual, Dúo, Grupo, etc.).</li>
+                                <li>Para inscripciones en la modalidad <strong>Dúo o Equipo</strong>, debe colocar el <strong>código de grupo</strong> correspondiente.</li>
+                                <li>Asegúrese de que todos los datos obligatorios estén completos antes de subir el archivo.</li>
+                            </ul>
+                            <p class="note">Nota: Puede previsualizar el contenido del Excel antes de cargarlo para verificar que todo esté correcto.</p>
+                        </div>
+                    </div>
 
                     @if(session('success'))
                     <div class="alert alert-success">
@@ -111,9 +129,34 @@
                             @endforeach
                         </ul>
                     </div>
-                    @endif
-                    <form method="POST" action="{{ route('register.lista.store') }}" enctype="multipart/form-data" class="excel-actions">
+                    @endif                    <form method="POST" action="{{ route('register.lista.store') }}" enctype="multipart/form-data" class="excel-actions">
                         @csrf
+                        <!-- Selector de Convocatoria para inscripción -->
+                        <div class="convocatoria-excel-selector">
+                            <label for="excel-convocatoria-dropdown" class="selector-label">
+                                <i class="fas fa-calendar-alt"></i> Seleccione la convocatoria para la inscripción:
+                            </label>
+                            <select id="excel-convocatoria-dropdown" name="idConvocatoria" class="form-select" required>
+                                <option value="">Seleccionar convocatoria</option>
+                                @if(isset($convocatorias_tutor) && $convocatorias_tutor->count() > 0)
+                                    @foreach($convocatorias_tutor as $convocatoria)
+                                        <option value="{{ $convocatoria->idConvocatoria }}" {{ $idConvocatoriaResult == $convocatoria->idConvocatoria ? 'selected' : '' }}>
+                                            {{ $convocatoria->nombre }}
+                                        </option>
+                                    @endforeach
+                                @else
+                                    @php
+                                        $convocatoriasPublicadas = \App\Models\Convocatoria::where('estado', 'Publicada')->get();
+                                    @endphp
+                                    @foreach($convocatoriasPublicadas as $convocatoria)
+                                        <option value="{{ $convocatoria->idConvocatoria }}" {{ $idConvocatoriaResult == $convocatoria->idConvocatoria ? 'selected' : '' }}>
+                                            {{ $convocatoria->nombre }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        
                         <div class="file-upload-container">
                             <input type="file"
                                 id="excelFile"
@@ -142,8 +185,7 @@
                             </button>
                             <a href="{{ asset('plantillasExel/plantilla_inscripcion.xlsx') }}" class="template-link">
                                 <i class="fas fa-download"></i> Descargar plantilla
-                            </a>
-                            <button type="button" class="info-button" onclick="cargarDatosConvocatoria()">
+                            </a>                            <button type="button" class="info-button" onclick="mostrarModal()">
                                 <i class="fas fa-info-circle"></i> Ver información sobre la convocatoria
                             </button>
                         </div>
@@ -165,16 +207,35 @@
             <div class="manual-registration-section">
                 @include('inscripciones/formInscripcionEst')
             </div>
-            
-            <!-- Modal para mostrar datos -->
-            <div id="modalDatos" class="modal">
+              <!-- Modal para mostrar datos -->            <div id="modalDatos" class="modal">
                 <div class="modal-contenido">
                     <div class="modal-header">
                         <h3>Información de la Convocatoria</h3>
                         <button onclick="cerrarModal()" class="modal-cerrar">✖</button>
                     </div>
-                    <div id="contenidoModal" class="modal-cuerpo">
-                        Cargando datos...
+                    <div class="modal-cuerpo">
+                        <div class="convocatoria-info-message">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Seleccione una convocatoria para ver sus áreas, categorías y grados disponibles.</p>
+                        </div>
+                        
+                        <div class="convocatorias-dropdown">
+                            <select id="modal-convocatoria-dropdown" class="form-control">
+                                <option value="">Seleccionar convocatoria</option>
+                                @php
+                                    $convocatorias = \App\Models\Convocatoria::where('estado', 'Publicada')->get();
+                                @endphp
+                                @foreach($convocatorias as $convocatoria)
+                                    <option value="{{ $convocatoria->idConvocatoria }}">{{ $convocatoria->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>                        <div id="modal-convocatoria-details">
+                            <!-- Aquí se cargará la información de la convocatoria seleccionada -->
+                            <div class="empty-state">
+                                <i class="fas fa-list-alt"></i>
+                                <p>Seleccione una convocatoria para ver sus detalles</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -250,6 +311,8 @@
         </div>
 @push('scripts')
 <script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/modalConvocatoria.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/excelUploadInfo.js') }}"></script>
 <script>
     // Asegurarse de que el botón de previsualización funcione correctamente
     document.addEventListener('DOMContentLoaded', function() {

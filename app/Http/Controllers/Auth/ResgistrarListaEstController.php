@@ -55,13 +55,24 @@ class ResgistrarListaEstController extends Controller
         $filePath = $generador->generarPlantilla();
 
         return response()->download($filePath, 'plantilla_inscripcion.xlsx');
-    }
-
-    public function store(Request $request)
+    }    public function store(Request $request)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
+            'idConvocatoria' => 'required|exists:convocatoria,idConvocatoria'
         ]);
+
+        // Usar la convocatoria seleccionada en el formulario
+        $idConvocatoriaSeleccionada = $request->idConvocatoria;
+        
+        // Verificar que la convocatoria esté publicada
+        $convocatoria = \App\Models\Convocatoria::where('idConvocatoria', $idConvocatoriaSeleccionada)
+                         ->where('estado', 'Publicada')
+                         ->first();
+                         
+        if (!$convocatoria) {
+            return back()->with('error', 'La convocatoria seleccionada no está disponible o no está publicada.');
+        }
 
         $array = Excel::toArray([], $request->file('file'));
         $rows = array_slice($array[0], 1); // Omitir la fila de encabezados
@@ -96,8 +107,8 @@ class ResgistrarListaEstController extends Controller
                 continue;
             }
 
-            // Validar existencia de área
-            $idConvocatoriaResult = (new VerificarExistenciaConvocatoria())->verificarConvocatoriaActiva();
+            // Usar el ID de convocatoria seleccionado en el formulario
+            $idConvocatoriaResult = $idConvocatoriaSeleccionada;
             $areasHabilitadas = (new ObtenerAreasConvocatoria())->obtenerAreasPorConvocatoria($idConvocatoriaResult);
 
             if (!$areasHabilitadas->contains('nombre', $area)) {

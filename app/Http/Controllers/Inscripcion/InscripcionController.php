@@ -145,13 +145,12 @@ class InscripcionController extends Controller
             Log::error('Error en inscripción:', ['error' => $e->getMessage()]);
             return back()->with('error', 'Hubo un error al procesar la inscripción. Por favor, intente nuevamente.');
         }
-    }
-
-    public function showTutorProfile()
+    }    public function showTutorProfile()
     {
         $user = Auth::user();
         $token = null;
         $areas = collect();
+        $convocatorias_tutor = collect();
 
         // revisamos si el usuario es un tutor
         if ($user->tutor && $user->tutor->tutorAreaDelegacion) {
@@ -161,6 +160,14 @@ class InscripcionController extends Controller
                         ->select('area.*')
                         ->get();
             $token = $user->tutor->tutorAreaDelegacion->tokenTutor;
+            
+            // Obtenemos las convocatorias a las que está inscrito el tutor
+            $convocatorias_tutor = \App\Models\Convocatoria::join('tutorAreaDelegacion', 'convocatoria.idConvocatoria', '=', 'tutorAreaDelegacion.idConvocatoria')
+                                ->where('tutorAreaDelegacion.id', $user->tutor->id)
+                                ->where('convocatoria.estado', 'Publicada')
+                                ->select('convocatoria.*')
+                                ->distinct()
+                                ->get();
         } else {
             // mostramos las area en la convocatoria activa
             $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')->first();
@@ -179,7 +186,7 @@ class InscripcionController extends Controller
         
         $idConvocatoriaResult = $convocatoria ? $convocatoria->idConvocatoria : null;
         
-        return view('inscripciones.inscripcionTutor', compact('areas', 'token', 'idConvocatoriaResult'));
+        return view('inscripciones.inscripcionTutor', compact('areas', 'token', 'idConvocatoriaResult', 'convocatorias_tutor'));
     }
 /*
 

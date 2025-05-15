@@ -1,10 +1,15 @@
 <link rel="stylesheet" href="{{ asset('css/excel-preview-styles.css') }}">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/preview-info.css') }}">
+<link rel="stylesheet" href="{{ asset('css/excel-validation.css') }}">
 <script src="{{ asset('js/inscripcionTutor/jquery.mark.min.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/excelSearchFix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/tableResponsiveFix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/cellContentFix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/previewInfoUpdate.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-display.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-cell-editing.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/tooltip-fix.js') }}"></script>
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">            <div class="modal-header">

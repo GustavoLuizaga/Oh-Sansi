@@ -24,6 +24,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function() {
     // Otras rutas protegidas por auth:sanctum...
+    
+    // Rutas para validación de inscripciones
+    Route::get('/tutor/areas', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'getAreasTutor']);
+    Route::get('/categorias/por-areas', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'getCategoriasPorAreas']);
+    Route::get('/grados/por-categorias', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'getGradosPorCategorias']);
+    Route::get('/usuarios/verificar-ci', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'verificarCI']);
+    Route::get('/usuarios/verificar-email', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'verificarEmail']);
 });
 
 // Temporalmente sin middleware para pruebas

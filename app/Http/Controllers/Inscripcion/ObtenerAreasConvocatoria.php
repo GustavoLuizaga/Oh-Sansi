@@ -29,7 +29,7 @@ public function obtenerAreasPorConvocatoria($idConvocatoria)
         return $areas;
     } catch (\Exception $e) {
         // Log the error for server-side debugging
-        \Log::error("Error fetching areas for convocatoria {$idConvocatoria}: " . $e->getMessage());
+        Log::error("Error fetching areas for convocatoria {$idConvocatoria}: " . $e->getMessage());
         // Return empty collection instead of a JSON response
         return collect([]);
     }

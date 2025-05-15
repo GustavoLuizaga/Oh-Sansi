@@ -60,6 +60,11 @@ class ResgistrarListaEstController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
             'idConvocatoria' => 'required|exists:convocatoria,idConvocatoria'
+        ], [
+            'idConvocatoria.required' => 'El campo de convocatoria es obligatorio.',
+            'idConvocatoria.exists' => 'La convocatoria seleccionada no existe.',
+            'file.required' => 'Debe seleccionar un archivo Excel.',
+            'file.mimes' => 'El archivo debe ser de formato Excel (.xlsx, .xls).'
         ]);
 
         // Usar la convocatoria seleccionada en el formulario

@@ -9,14 +9,32 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Events\InscripcionAprobadaEstudiante;
+
 class BoletaController extends Controller
 {
+    /**
+     * Verifica si los números de comprobante OCR y usuario son iguales
+     * 
+     * @param string|int $ocrNumber Número detectado por OCR
+     * @param string|int $userNumber Número ingresado por el usuario
+     * @return bool True si son iguales, False si son diferentes
+     */
+    private function verificarNumerosIguales($ocrNumber, $userNumber)
+    {
+        // Convertir a string y eliminar cualquier espacio para comparar
+        $ocrClean = strval($ocrNumber);
+        $userClean = strval($userNumber);
+        
+        return $ocrClean === $userClean;
+    }
+    
     public function procesarBoleta(Request $request)
     {
         // Validación personalizada
         $validator = Validator::make($request->all(), [
             'inscripcion_id' => 'required|integer|exists:verificacioninscripcion,idInscripcion',
-            'codigo_comprobante' => [
+            'ocr_number' => 'required|numeric|digits:7',
+            'user_number' => [
                 'required',
                 'numeric',
                 'digits:7',
@@ -26,7 +44,7 @@ class BoletaController extends Controller
             'comprobantePago' => 'required|file|mimes:jpg,jpeg,png|max:5120',
             'estado_ocr' => 'required|in:1,2'
         ], [
-            'codigo_comprobante.unique' => 'El comprobante ya ha sido registrado. Contacte con soporte técnico si es un error.',
+            'user_number.unique' => 'El comprobante ya ha sido registrado. Contacte con soporte técnico si es un error.',
             'comprobantePago.mimes' => 'Solo se permiten imágenes JPG, JPEG o PNG.',
             'comprobantePago.max' => 'El tamaño máximo permitido es 5MB.',
             'estado_ocr.in' => 'El comprobante no es válido.',
@@ -62,14 +80,23 @@ class BoletaController extends Controller
 
             // Guardar archivo
             $path = $file->storeAs($directory, $filename);
+            
+            // Verificar si los números son iguales
+            $numerosIguales = $this->verificarNumerosIguales(
+                $request->ocr_number, 
+                $request->user_number
+            );
+            
+            // Siempre guardar el número del usuario (user_number) en la base de datos
+            $numeroAGuardar = $request->user_number;
 
             // 2. Actualización en base de datos - tabla verificacioninscripcion
             $affected = DB::table('verificacioninscripcion')
                 ->where('idInscripcion', $inscripcionId)
                 ->update([
-                    'CodigoComprobante' => $request->codigo_comprobante,
+                    'CodigoComprobante' => $numeroAGuardar,
                     'RutaComprobante' => "storage/inscripcionID/{$inscripcionId}/{$filename}",
-                    'Comprobante_valido' => 1, // Agregado: establecer Comprobante_valido a 1
+                    'Comprobante_valido' => 1,
                     'updated_at' => now()
                 ]);
 
@@ -78,15 +105,18 @@ class BoletaController extends Controller
             }
 
             // 3. Actualización del campo status en la tabla inscripcion
-            $statusUpdated = DB::table('inscripcion')
-                ->where('idInscripcion', $inscripcionId)
-                ->update([
-                    'status' => 'aprobado', // Actualizado de "pendiente" a "aprobado"
+            // Solo actualizar el status a "aprobado" si los números coinciden
+            // Si no coinciden, dejar el status como está (pendiente)
+            if ($numerosIguales) {
+                $statusUpdated = DB::table('inscripcion')
+                    ->where('idInscripcion', $inscripcionId)
+                    ->update([
+                        'status' => 'aprobado'
+                    ]);
 
-                ]);
-
-            if ($statusUpdated === 0) {
-                throw new \Exception("No se pudo actualizar el estado en la tabla inscripcion");
+                if ($statusUpdated === 0) {
+                    throw new \Exception("No se pudo actualizar el estado en la tabla inscripcion");
+                }
             }
 
             // Obtener el área de la inscripción
@@ -101,23 +131,33 @@ class BoletaController extends Controller
                 ->where('idInscripcion', $inscripcionId)
                 ->select('idEstudiante')
                 ->first();
-
-            // Disparar el evento
-            event(new InscripcionAprobadaEstudiante(
-                $estudiante->idEstudiante,
-                'Tu inscripción ha sido aprobada exitosamente',
-                'aprobacion',
-                $inscripcion->nombreArea
-            ));
-
+                
+            // Disparar evento de inscripción aprobada solo si los números coinciden
+            if ($numerosIguales && isset($estudiante)) {
+                // Aquí puedes disparar el evento si existe en tu aplicación
+                // Disparar el evento 
+                // GUSTAVO REVISA SI ESTO ESTA BIEN XD
+                
+                // event(new InscripcionAprobadaEstudiante(
+                //     $estudiante->idEstudiante,
+                //     'Tu inscripción ha sido aprobada exitosamente',
+                //     'aprobacion',
+                //     $inscripcion->nombreArea
+                // ));
+            }
 
             DB::commit();
+            
+            // Determinar el mensaje de respuesta 
+            $mensaje = $numerosIguales 
+                ? 'Comprobante registrado exitosamente. Su inscripción ha sido aprobada.' 
+                : 'Comprobante registrado exitosamente. Su inscripción está pendiente de revisión.';
 
             return response()->json([
                 'success' => true,
-                'message' => 'Comprobante registrado exitosamente',
+                'message' => $mensaje,
                 'data' => [
-                    'codigo' => $request->codigo_comprobante,
+                    'codigo' => $numeroAGuardar,
                     'ruta' => Storage::url($path)
                 ]
             ]);
@@ -137,3 +177,5 @@ class BoletaController extends Controller
         }
     }
 }
+                
+

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Inscripcion\InscripcionEstController;
 use App\Http\Controllers\Inscripcion\VerificacionConvocatoriaController;
 use App\Http\Controllers\Inscripcion\ObtenerAreasConvocatoria;
+use App\Http\Controllers\Api\ConvocatoriaDetailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,3 +71,7 @@ Route::get('/tutor-token/{token}/areas', [InscripcionEstController::class, 'getA
 Route::get('/categoria/{id}/grados', [InscripcionEstController::class, 'getGradosByCategoria']);
 Route::get('/convocatoria/{idConvocatoria}/area/{idArea}/categorias', [InscripcionEstController::class, 'getCategoriasByAreaConvocatoria']);
 Route::get('/convocatoria/{id}/areas', [ObtenerAreasConvocatoria::class, 'obtenerAreasPorConvocatoria']);
+
+// Ruta para obtener áreas, categorías y grados por convocatoria
+Route::get('/convocatoria/{idConvocatoria}/areas-categorias-grados', 
+    [\App\Http\Controllers\Api\ConvocatoriaDetailController::class, 'getAreasCategoriasGrados']);

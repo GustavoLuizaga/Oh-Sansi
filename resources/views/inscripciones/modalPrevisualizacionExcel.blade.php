@@ -101,3 +101,17 @@
         </div>
     </div>
 </div>
+
+<!-- Overlay de carga -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span class="loading-text">Procesando inscripción...</span>
+</div>
+<!-- Modal de éxito -->
+<div id="successMessage" style="display: none;">
+    <div class="success-content">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h3 class="success-title">¡Éxito!</h3>
+        <p id="successText" class="success-text">Los estudiantes han sido inscritos correctamente.</p>
+    </div>
+</div>

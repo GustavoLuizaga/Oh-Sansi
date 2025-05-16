@@ -65,49 +65,55 @@
 
     <script>
 function cargarNotificaciones() {
-    fetch('/notificaciones/nuevas')
-        .then(response => response.json())
-        .then(data => {
-            const contenedor = document.getElementById('notificaciones');
-            contenedor.innerHTML = '';
+    const contenedor = document.getElementById('notificaciones'); // 🔧 Mover aquí
 
-            if (!data || data.length === 0) {
-                const mensajeVacio = `
-                    <div class="notificacion-vacia">
-                        <i class="fas fa-bell-slash"></i>
-                        <p>No tienes notificaciones nuevas</p>
-                    </div>
-                `;
-                contenedor.innerHTML = mensajeVacio;
-            } else {
-                data.forEach(notificacion => {
-                    const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
-                    const nuevaNotificacion = `
-                        <div class="notificacion ${notificacion.tipo.toLowerCase()}">
-                            <div class="notificacion-icono">
-                                <i class="fas ${icono}"></i>
-                            </div>
-                            <div class="notificacion-contenido">
-                                <p>${notificacion.mensaje}</p>
-                                <span class="notificacion-tiempo">Hace ${notificacion.tiempo}</span>
-                            </div>
-                        </div>
-                    `;
-                    contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar notificaciones:', error);
-            const mensajeError = `
-                <div class="notificacion-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Error al cargar las notificaciones</p>
+    fetch('/notificaciones/nuevas', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        contenedor.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            const mensajeVacio = `
+                <div class="notificacion-vacia">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>No tienes notificaciones nuevas</p>
                 </div>
             `;
-            contenedor.innerHTML = mensajeError;
-        });
+            contenedor.innerHTML = mensajeVacio;
+        } else {
+            data.forEach(notificacion => {
+                const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
+                const nuevaNotificacion = `
+                    <div class="notificacion ${notificacion.tipo.toLowerCase()}">
+                        <div class="notificacion-icono">
+                            <i class="fas ${icono}"></i>
+                        </div>
+                        <div class="notificacion-contenido">
+                            <p>${notificacion.mensaje}</p>
+                            <span class="notificacion-tiempo">Hace ${notificacion.tiempo}</span>
+                        </div>
+                    </div>
+                `;
+                contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar notificaciones:', error);
+        const mensajeError = `
+            <div class="notificacion-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error al cargar las notificaciones</p>
+            </div>
+        `;
+        contenedor.innerHTML = mensajeError; // ✅ Ya está definida
+    });
 }
+
 
         // Llamar al cargar la página
         cargarNotificaciones();
@@ -115,54 +121,54 @@ function cargarNotificaciones() {
         // Repetir cada 10 segundos
         setInterval(cargarNotificaciones, 10000);
 
-function obtenerIconoNotificacion(tipo) {
-    switch (tipo.toLowerCase()) {
-        case 'mensaje':
-            return 'fa-comment-dots'; // Burbuja de mensaje con puntos
-        case 'denegacion':
-            return 'fa-circle-xmark'; // X en círculo más moderna
-        case 'aprobacion':
-            return 'fa-circle-check'; // Check en círculo más moderno
-        case 'alerta':
-            return 'fa-triangle-exclamation'; // Triángulo de advertencia
-        case 'sistema':
-            return 'fa-gear'; // Engranaje más moderno
-        case 'inscripcion':
-            return 'fa-user-plus'; // Icono de registro
-        case 'recordatorio':
-            return 'fa-bell'; // Campana
-        case 'importante':
-            return 'fa-circle-exclamation'; // Exclamación en círculo
-        default:
-            return 'fa-circle-info'; // Info en círculo más moderna
-    }
-}
+        function obtenerIconoNotificacion(tipo) {
+            switch (tipo.toLowerCase()) {
+                case 'mensaje':
+                    return 'fa-comment-dots'; // Burbuja de mensaje con puntos
+                case 'denegacion':
+                    return 'fa-circle-xmark'; // X en círculo más moderna
+                case 'aprobacion':
+                    return 'fa-circle-check'; // Check en círculo más moderno
+                case 'alerta':
+                    return 'fa-triangle-exclamation'; // Triángulo de advertencia
+                case 'sistema':
+                    return 'fa-gear'; // Engranaje más moderno
+                case 'inscripcion':
+                    return 'fa-user-plus'; // Icono de registro
+                case 'recordatorio':
+                    return 'fa-bell'; // Campana
+                case 'importante':
+                    return 'fa-circle-exclamation'; // Exclamación en círculo
+                default:
+                    return 'fa-circle-info'; // Info en círculo más moderna
+            }
+        }
 
-function verHistorial() {
-    fetch('/notificaciones/todas')
-        .then(response => response.json())
-        .then(data => {
-            const contenedor = document.getElementById('historialNotificaciones');
-            contenedor.innerHTML = '';
+        function verHistorial() {
+            fetch('/notificaciones/todas')
+                .then(response => response.json())
+                .then(data => {
+                    const contenedor = document.getElementById('historialNotificaciones');
+                    contenedor.innerHTML = '';
 
-            if (!data || data.length === 0) {
-                contenedor.innerHTML = `
+                    if (!data || data.length === 0) {
+                        contenedor.innerHTML = `
                     <div class="notificacion-vacia">
                         <i class="fas fa-bell-slash"></i>
                         <p>No tienes historial de notificaciones</p>
                     </div>
                 `;
-            } else {
-                data.forEach(notificacion => {
-                    const notificacionId = notificacion.id || notificacion.idNotificacion;
-                    const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
+                    } else {
+                        data.forEach(notificacion => {
+                            const notificacionId = notificacion.id || notificacion.idNotificacion;
+                            const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
 
-                    if (!notificacionId) {
-                        console.error('Notificación sin ID:', notificacion);
-                        return;
-                    }
+                            if (!notificacionId) {
+                                console.error('Notificación sin ID:', notificacion);
+                                return;
+                            }
 
-                    const nuevaNotificacion = `
+                            const nuevaNotificacion = `
                         <div class="notificacion ${notificacion.tipo.toLowerCase()}">
                             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                                 <div class="notificacion-icono">
@@ -181,16 +187,17 @@ function verHistorial() {
                             </button>
                         </div>
                     `;
-                    contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+                            contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+                        });
+                    }
+                    document.getElementById('modalHistorial').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error al cargar el historial:', error);
+                    alert('Error al cargar el historial de notificaciones');
                 });
-            }
-            document.getElementById('modalHistorial').style.display = 'block';
-        })
-        .catch(error => {
-            console.error('Error al cargar el historial:', error);
-            alert('Error al cargar el historial de notificaciones');
-        });
-}
+        }
+
         function cerrarModalHistorial() {
             document.getElementById('modalHistorial').style.display = 'none';
         }

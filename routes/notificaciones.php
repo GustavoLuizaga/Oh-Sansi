@@ -4,11 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Notificacion\NotificacionController;
 use App\Models\Notificacion;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Http\Middleware\PreventAjaxFromBeingStored;
+use App\Models\Convocatoria;
+use Carbon\Carbon;
 
-Route::get('/notificaciones/nuevas', function () {
+Route::get('/notificaciones/nuevas', function (Request $request) {
     $userId = Auth::user()->id;
 
-    // Retorna las últimas 5 notificaciones del usuario
+    // Obtener las últimas 5 notificaciones del usuario
     $notificaciones = Notificacion::where('user_id', $userId)
         ->latest()
         ->take(5)
@@ -19,10 +23,43 @@ Route::get('/notificaciones/nuevas', function () {
                 'tipo' => $n->tipo,
                 'tiempo' => $n->created_at->diffForHumans()
             ];
-        });
+        })
+        ->toArray();
+
+    // Agregar notificaciones si hay convocatorias publicadas que inician en 2 días
+    $hoy = Carbon::now()->startOfDay();
+    $dosDiasDespues = $hoy->copy()->addDays(1);
+
+    $convocatorias = Convocatoria::whereDate('fechaInicio', $dosDiasDespues)
+        ->where('estado', 'Publicada')
+        ->get();
+        
+
+    foreach ($convocatorias as $conv) {
+        $notificaciones[] = [
+            'mensaje' => "Recordatorio: La convocatoria \"{$conv->nombre}\" inicia en 2 días.",
+            'tipo' => 'recordatorio',
+            'tiempo' => $hoy->diffForHumans()
+        ];
+    }
+    $hoy2=$hoy->copy()->subDays(1);
+
+      $convocatoriasFin = Convocatoria::whereDate('fechaFin', $hoy2)
+        ->where('estado', 'Publicada')
+        ->get();
+
+
+        foreach ($convocatoriasFin as $conv) {
+        $notificaciones[] = [
+            'mensaje' => "Recordatorio: La convocatoria \"{$conv->nombre}\" culmina hoy.",
+            'tipo' => 'recordatorio',
+            'tiempo' => $hoy->diffForHumans()
+        ];
+    }
+
 
     return response()->json($notificaciones);
-})->middleware('auth');
+})->middleware(['auth', PreventAjaxFromBeingStored::class]);
 
 Route::get('/notificaciones/todas', function () {
     $userId = auth()->id();
@@ -41,7 +78,7 @@ Route::get('/notificaciones/todas', function () {
         });
 
     return response()->json($notificaciones);
-})->middleware('auth');
+})->middleware(['auth', PreventAjaxFromBeingStored::class]);
 
 Route::delete('/notificaciones/borrar/{id}', function ($id) {
     $userId = auth()->id();
@@ -53,4 +90,4 @@ Route::delete('/notificaciones/borrar/{id}', function ($id) {
     } else {
         return response()->json(['success' => false, 'message' => 'No encontrada o no autorizada'], 404);
     }
-})->middleware('auth');
+})->middleware(['auth', PreventAjaxFromBeingStored::class]);

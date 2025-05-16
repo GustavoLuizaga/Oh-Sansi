@@ -4,7 +4,7 @@
     <div class="toggle-btn" id="sidebarToggle">
         <i class="fas fa-chevron-left" id="toggleIcon"></i>
     </div>
-    
+
     <div class="menu">
         <div class="menu-seccion">
             <h4 class="titulo-menu"><i class="fas fa-home"></i> <span class="menu-text">INICIO</span></h4>
@@ -50,6 +50,9 @@
                 @endif
                 @if($iusIds->contains(config('ius.USUARIOS')))
                 <li><a href="{{ route('usuarios') }}" class="{{ request()->is('/usuarios') ? 'active' : '' }}" data-title="Usuarios"><i class="fas fa-user-friends"></i> <span class="menu-text">Usuarios</span></a></li>
+                @endif
+                @if($iusIds->contains(config('ius.BACKUP')))
+                <li><a href="{{ route('backup') }}" class="{{ request()->is('/backup') ? 'active' : '' }}" data-title="Backup"><i class="fas fa-database"></i> <span class="menu-text">Respaldo y Logs</span></a></li>
                 @endif
             </ul>
         </div>

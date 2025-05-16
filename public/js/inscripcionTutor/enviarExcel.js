@@ -1,14 +1,42 @@
 // Función principal para enviar datos
 async function enviarDatosExcel(datos, idConvocatoria) {
     try {
-        // Mostrar overlay de carga
-        document.getElementById('loadingOverlay').style.display = 'flex';
+        // Mostrar overlay de carga inmediatamente
+        if (window.ModalOverlay) {
+            window.ModalOverlay.show('Procesando inscripción...');
+        } else {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
 
         // Validar datos antes de enviar
         const validacion = await validarExcel(datos, idConvocatoria);
+        
+        // Verificar si se ha cancelado la operación
+        if (window.ModalOverlay && window.ModalOverlay.checkCancelled()) {
+            console.log('La operación fue cancelada durante la validación');
+            return { success: false, message: 'Operación cancelada por el usuario' };
+        }
+        
         if (!validacion.valido) {
             mostrarErrores(validacion.errores);
-            return false;
+            
+            // Resaltar celdas con errores si existen datos de celdas
+            if (validacion.erroresCeldas && validacion.erroresCeldas.length > 0 && 
+                typeof window.InscripcionValidator !== 'undefined' &&
+                typeof window.InscripcionValidator.highlightErrorCells === 'function') {
+                window.InscripcionValidator.highlightErrorCells(validacion.erroresCeldas);
+            }
+            
+            // Ocultar overlay de carga
+            if (window.ModalOverlay) window.ModalOverlay.hide();
+            else document.getElementById('loadingOverlay').style.display = 'none';
+            
+            return { 
+                success: false, 
+                message: 'La validación no pasó correctamente',
+                errores: validacion.errores,
+                erroresCeldas: validacion.erroresCeldas || []
+            };
         }
 
         // Enviar datos al servidor
@@ -24,96 +52,154 @@ async function enviarDatosExcel(datos, idConvocatoria) {
             })
         });
 
+        // Verificar nuevamente si se ha cancelado la operación
+        if (window.ModalOverlay && window.ModalOverlay.checkCancelled()) {
+            console.log('La operación fue cancelada durante el envío de datos');
+            return { success: false, message: 'Operación cancelada por el usuario' };
+        }
+
         const resultado = await response.json();
 
         if (resultado.success) {
-            // Mostrar mensaje de éxito
-            const successMessage = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            successText.textContent = resultado.message;
-            successMessage.style.display = 'flex';
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-                // Recargar la página después de 2 segundos
-                window.location.reload();
-            }, 2000);
-            return true;        } else {
-            // Si hay errores específicos, mostrarlos
-            if (resultado.errores && Array.isArray(resultado.errores)) {
-                mostrarErrores(resultado.errores);
-            } else {
-                mostrarErrores([resultado.message || 'Ocurrió un error al procesar la inscripción']);
+            // Cerrar modal de previsualización
+            const modal = document.getElementById('previewModal');
+            if (modal) {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
             }
-            return false;
+            
+            // Ocultar overlay
+            if (window.ModalOverlay) window.ModalOverlay.hide();
+            else document.getElementById('loadingOverlay').style.display = 'none';
+            
+            // Mostrar modal de éxito con fade out
+            if (window.ModalExito) window.ModalExito.show(resultado.message);
+            else {
+                const successMessage = document.getElementById('successMessage');
+                const successText = document.getElementById('successText');
+                
+                if (successMessage && successText) {
+                    successText.textContent = resultado.message;
+                    successMessage.style.display = 'flex';
+                    setTimeout(() => {
+                        successMessage.style.opacity = '1';
+                    }, 10);
+                    setTimeout(() => {
+                        successMessage.style.opacity = '0';
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 300);
+                    }, 3000);
+                }
+            }
+            
+            return resultado;
+        } else {
+            // Ocultar overlay
+            if (window.ModalOverlay) window.ModalOverlay.hide();
+            else document.getElementById('loadingOverlay').style.display = 'none';
+            
+            // Procesar errores
+            const erroresProcesados = procesarErroresServidor(resultado);
+            mostrarErrores(erroresProcesados.mensajes);
+            
+            // Resaltar celdas con errores si existen datos de celdas
+            if (erroresProcesados.celdas.length > 0 && 
+                typeof window.InscripcionValidator !== 'undefined' &&
+                typeof window.InscripcionValidator.highlightErrorCells === 'function') {
+                window.InscripcionValidator.highlightErrorCells(erroresProcesados.celdas);
+            }
+            
+            return { 
+                success: false, 
+                message: resultado.message || 'Ocurrió un error al procesar los datos',
+                errores: erroresProcesados.mensajes, 
+                erroresCeldas: erroresProcesados.celdas
+            };
         }
     } catch (error) {
         console.error('Error al enviar datos:', error);
-        mostrarErrores(['Error al procesar la inscripción']);
-        return false;
-    } finally {
-        // Ocultar overlay de carga
-        document.getElementById('loadingOverlay').style.display = 'none';
+        
+        // Ocultar overlay
+        if (window.ModalOverlay) window.ModalOverlay.hide();
+        else document.getElementById('loadingOverlay').style.display = 'none';
+        
+        // Mostrar error genérico
+        mostrarErrores([`Ocurrió un error al enviar los datos: ${error.message}`]);
+        return { 
+            success: false, 
+            message: `Ocurrió un error al enviar los datos: ${error.message}`,
+            errores: [`Error de comunicación: ${error.message}`]
+        };
     }
 }
 
-// Función para mostrar errores
-function mostrarErrores(errores) {
-    const errorContainer = document.getElementById('errorContainer');
-    if (!errorContainer) {
-        console.error('No se encontró el contenedor de errores');
-        // Intentar crear el contenedor si no existe
-        try {
-            const modalBody = document.querySelector('.modal-body');
-            if (modalBody) {
-                const newErrorContainer = document.createElement('div');
-                newErrorContainer.id = 'errorContainer';
-                newErrorContainer.className = 'alert alert-danger mb-3';
-                modalBody.insertBefore(newErrorContainer, modalBody.firstChild);
-                // Ahora usamos el contenedor recién creado
-                mostrarErrores(errores);
-                return;
+// Función para procesar errores del servidor en formato compatible
+function procesarErroresServidor(resultado) {
+    const mensajes = [];
+    const celdas = [];
+    
+    // Si hay un mensaje general de error
+    if (resultado.message) {
+        mensajes.push(resultado.message);
+    }
+    
+    // Procesar errores detallados
+    if (resultado.errores && Array.isArray(resultado.errores)) {
+        resultado.errores.forEach(error => {
+            // Añadir a la lista de mensajes
+            if (typeof error === 'string') {
+                mensajes.push(error);
+            } else if (error.mensaje) {
+                mensajes.push(error.mensaje);
             }
-        } catch (e) {
-            console.error('Error al crear el contenedor de errores:', e);
-            alert('Errores: ' + errores.join(', '));
-            return;
-        }
+            
+            // Si el error tiene información de celda
+            if (error.fila && error.columna) {
+                celdas.push({
+                    fila: error.fila,
+                    columna: error.columna,
+                    mensaje: error.mensaje || 'Error en esta celda',
+                    tipo: error.tipo || 'error_estandar'
+                });
+            }
+        });
+    }
+    
+    return { mensajes, celdas };
+}
+
+// Función para mostrar errores en la interfaz
+function mostrarErrores(errores) {
+    if (!errores || !Array.isArray(errores) || errores.length === 0) {
         return;
     }
-
-    // Limpiar contenedor y establecer estilo
-    errorContainer.innerHTML = '';
-    errorContainer.style.display = 'block';
     
-    // Añadir icono y título
-    const header = document.createElement('div');
-    header.className = 'mb-2';
-    header.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Errores encontrados:</strong>';
-    errorContainer.appendChild(header);
-    
-    // Crear lista de errores
-    const ul = document.createElement('ul');
-    ul.className = 'error-list mb-0';
-
-    errores.forEach(error => {
-        const li = document.createElement('li');
-        // Usar innerHTML en lugar de textContent para manejar posible HTML en mensajes
-        li.innerHTML = error;
-        ul.appendChild(li);
-    });
-
-    errorContainer.appendChild(ul);
-}
-
-// Función para limpiar errores
-function limpiarErrores() {
-    const errorContainer = document.getElementById('errorContainer');
-    if (errorContainer) {
-        errorContainer.innerHTML = '';
-        errorContainer.style.display = 'none';
+    // Mostrar en el modal de previsualización si está disponible
+    if (typeof window.InscripcionValidator !== 'undefined' && 
+        typeof window.InscripcionValidator.showValidationErrors === 'function') {
+        window.InscripcionValidator.showValidationErrors(errores);
+    } else {
+        // Fallback a mostrar errores en un contenedor genérico o alerta
+        const errorContainer = document.getElementById('errorContainer');
+        if (errorContainer) {
+            errorContainer.innerHTML = '';
+            errorContainer.style.display = 'block';
+            
+            const ul = document.createElement('ul');
+            errores.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                ul.appendChild(li);
+            });
+            
+            errorContainer.appendChild(ul);
+        } else {
+            // Último recurso: alerta
+            alert('Errores encontrados:\n\n' + errores.join('\n'));
+        }
     }
 }
 
-// Exportar funciones
+// Exportar función principal
 window.enviarDatosExcel = enviarDatosExcel;
-window.limpiarErrores = limpiarErrores;

@@ -852,4 +852,60 @@ $(document).ready(function () {
         // Mostrar todas las filas
         $('#previewTableBody tr').show();
     });
+    
+    // --- MODAL CONVOCATORIA: Cargar áreas, categorías y grados dinámicamente ---
+    $(document).on('change', '#modal-convocatoria-dropdown', function() {
+        const idConvocatoria = $(this).val();
+        const detailsContainer = $('#modal-convocatoria-details');
+        if (!idConvocatoria) {
+            detailsContainer.html('<div class="empty-state"><i class="fas fa-list-alt"></i><p>Seleccione una convocatoria para ver sus detalles</p></div>');
+            return;
+        }
+        detailsContainer.html('<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Cargando información...</div>');
+        $.ajax({
+            url: `/api/convocatoria/${idConvocatoria}/areas-categorias-grados`,
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                if (!data.areas || data.areas.length === 0) {
+                    detailsContainer.html('<div class="empty-state"><i class="fas fa-list-alt"></i><p>No hay áreas, categorías ni grados para esta convocatoria.</p></div>');
+                    return;
+                }
+                let html = '';
+                data.areas.forEach(area => {
+                    html += `<div class="card-area">
+                        <div class="titulo-area">${area.nombre}</div>`;
+                    area.categorias.forEach(cat => {
+                        html += `<div class="card-categoria">
+                            <div class="titulo-categoria">${cat.nombre}</div>`;
+                        if (cat.grados && cat.grados.length > 0) {
+                            html += '<ul class="lista-grados">';
+                            cat.grados.forEach(grado => {
+                                html += `<li class="card-grado">${grado.nombre || grado.grado}</li>`;
+                            });
+                            html += '</ul>';
+                        } else {
+                            html += '<div class="text-muted" style="padding-left:2rem;">Sin grados asociados</div>';
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                });
+                detailsContainer.html(html);
+            },
+            error: function(xhr) {
+                detailsContainer.html('<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar los datos de la convocatoria.</p></div>');
+            }
+        });
+    });
 });
+
+function mostrarModal() {
+    // Mostrar el modal de información de la convocatoria
+    const modal = document.getElementById('modalDatos');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        console.error('No se encontró el modalDatos');
+    }
+}

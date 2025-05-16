@@ -277,6 +277,11 @@
 <script src="{{ asset('js/inscripcionTutor/convocatoria-fix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/modalConvocatoria.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/excelUploadInfo.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/excelUploadInfoToggle.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/modalOverlay.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/area-validator.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/cell-error-tooltips.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-visualizer.js') }}"></script>
 <script>
     // Asegurarse de que el botón de previsualización funcione correctamente
     document.addEventListener('DOMContentLoaded', function() {
@@ -308,10 +313,14 @@
 
 <!-- Overlay de carga -->
 <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <h3>Procesando inscripciones...</h3>
-    <p>Este proceso puede tardar unos momentos. Por favor, espere mientras guardamos la información.</p>
-    <p><small>No cierre esta ventana hasta que el proceso termine</small></p>
+    <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <h3 class="loading-text">Procesando inscripciones...</h3>
+        <p>Este proceso puede tardar unos momentos. Por favor, espere mientras guardamos la información.</p>
+        <button type="button" id="cancelLoadingBtn" class="cancel-loading-btn">
+            <i class="fas fa-times"></i> Cancelar proceso
+        </button>
+    </div>
 </div>
 
 <!-- Mensaje de éxito -->

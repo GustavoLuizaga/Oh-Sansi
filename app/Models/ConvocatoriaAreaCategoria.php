@@ -9,7 +9,7 @@ class ConvocatoriaAreaCategoria extends Model
 {
     use HasFactory;
 
-    protected $table = 'convocatoriaAreaCategoria';
+    protected $table = 'convocatoriaareacategoria';
     protected $primaryKey = null;
     public $incrementing = false;
 

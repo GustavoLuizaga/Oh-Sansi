@@ -29,6 +29,7 @@ use Illuminate\Support\Str;
 use App\Events\CreacionCuenta;
 use App\Events\InscripcionArea;
 use Illuminate\Support\Facades\Log;
+
 class ResgistrarListaEstController extends Controller
 {
     public function index()
@@ -152,64 +153,216 @@ class ResgistrarListaEstController extends Controller
     public function inscribirEstudiante($datos, $idConvocatoria)
     {
         try {
+            Log::info('inscribirEstudiante invocado.', ['datos_keys' => array_keys($datos), 'idConvocatoria' => $idConvocatoria]);
+            
             DB::beginTransaction();
 
-            // 1. Crear usuario
-            $user = User::create([
-                'name' => $datos['nombre'],
-                'apellidoPaterno' => $datos['apellidoPaterno'],
-                'apellidoMaterno' => $datos['apellidoMaterno'],
-                'email' => $datos['email'] ?? $datos['ci'] . '@temp.com',
-                'password' => Hash::make($datos['ci']),
-                'ci' => $datos['ci'],
-                'fechaNacimiento' => $datos['fechaNacimiento'],
-                'genero' => $datos['genero']
-            ]);
+            // Buscar si el usuario ya existe por CI o email
+            $usuarioExistente = null;
+            if (isset($datos['ci']) && !empty($datos['ci'])) {
+                $usuarioExistente = User::where('ci', $datos['ci'])->first();
+                Log::info('Buscando usuario por CI: ' . $datos['ci'], ['encontrado' => $usuarioExistente ? 'sí' : 'no']);
+            }
+            
+            if (!$usuarioExistente && isset($datos['email']) && !empty($datos['email'])) {
+                $usuarioExistente = User::where('email', $datos['email'])->first();
+                Log::info('Buscando usuario por email: ' . $datos['email'], ['encontrado' => $usuarioExistente ? 'sí' : 'no']);
+            }
+            
+            $user = null;
+            $estudiante = null;
+            
+            // Si el usuario ya existe
+            if ($usuarioExistente) {
+                $user = $usuarioExistente;
+                Log::info('Usuario existente encontrado', ['id' => $user->id]);
+                
+                // Verificar si tiene rol de estudiante
+                $esEstudiante = DB::table('userRol')
+                    ->where('id', $user->id)
+                    ->where('idRol', 3)
+                    ->where('habilitado', true)
+                    ->exists();
+                    
+                // Si no tiene rol de estudiante, asignárselo
+                if (!$esEstudiante) {
+                    Log::info('Asignando rol de estudiante al usuario', ['id' => $user->id]);
+                    DB::table('userRol')->insert([
+                        'id' => $user->id,
+                        'idRol' => 3,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'habilitado' => true,
+                    ]);
+                }
+                
+                // Verificar si tiene registro en la tabla estudiante
+                $estudiante = Estudiante::find($user->id);
+                if (!$estudiante) {
+                    Log::info('Creando registro en tabla estudiante para usuario existente', ['id' => $user->id]);
+                    $estudiante = Estudiante::create([
+                        'id' => $user->id,
+                        'rude' => $datos['rude'] ?? null,
+                        'colegio' => $datos['colegio'] ?? 'No especificado'
+                    ]);
+                }
+                
+                // Verificar si ya tiene una inscripción en esta convocatoria
+                $inscripcionExistente = Inscripcion::whereHas('estudiantes', function($query) use ($user) {
+                    $query->where('estudiante.id', $user->id);
+                })
+                ->where('idConvocatoria', $idConvocatoria)
+                ->first();
+                
+                if ($inscripcionExistente) {
+                    // Verificar cuántas áreas tiene registradas
+                    $areasRegistradas = DetalleInscripcion::where('idInscripcion', $inscripcionExistente->idInscripcion)->count();
+                    
+                    if ($areasRegistradas >= 2) {
+                        throw new \Exception('El estudiante ya está inscrito en el máximo de áreas permitidas (2) para esta convocatoria');
+                    }
+                    
+                    // Verificar si ya está inscrito en esta área
+                    $area = Area::where('nombre', $datos['area'])->first();
+                    if (!$area) {
+                        throw new \Exception('El área especificada no existe');
+                    }
+                    
+                    $areaYaInscrita = DetalleInscripcion::where('idInscripcion', $inscripcionExistente->idInscripcion)
+                        ->where('idArea', $area->idArea)
+                        ->exists();
+                        
+                    if ($areaYaInscrita) {
+                        throw new \Exception('El estudiante ya está inscrito en esta área');
+                    }
+                    
+                    // Si solo tiene un área registrada, agregar una segunda
+                    $categoria = Categoria::where('nombre', $datos['categoria'])->first();
+                    if (!$categoria) {
+                        throw new \Exception('La categoría especificada no existe');
+                    }
+                    
+                    $grado = Grado::where('grado', $datos['grado'])->first();
+                    if (!$grado) {
+                        throw new \Exception('El grado especificado no existe');
+                    }
+                    
+                    Log::info('Agregando segunda área a inscripción existente', [
+                        'idInscripcion' => $inscripcionExistente->idInscripcion, 
+                        'area' => $area->nombre,
+                        'categoria' => $categoria->nombre
+                    ]);
 
-            // Asignar rol de estudiante (ID = 3)
-            $user->roles()->attach(3);
+                    $detalleInscripcion = DetalleInscripcion::create([
+                        'modalidadInscripcion' => $datos['modalidad'] ?? 'individual',
+                        'idInscripcion' => $inscripcionExistente->idInscripcion,
+                        'idArea' => $area->idArea,
+                        'idCategoria' => $categoria->idCategoria,
+                        'idGrado' => $grado->idGrado,
+                        'status' => 'Pendiente',
+                    ]);
+                    
+                    // Si hay grupo, relacionarlo
+                    if (isset($datos['codigoGrupo'])) {
+                        $tutor = Auth::user()->tutor;
+                        $idDelegacion = $tutor->primerIdDelegacion($idConvocatoria);
+                        
+                        $grupo = GrupoInscripcion::where('codigoInvitacion', $datos['codigoGrupo'])
+                            ->where('idDelegacion', $idDelegacion)
+                            ->first();
+                            
+                        if ($grupo) {
+                            $detalleInscripcion->update(['idGrupoInscripcion' => $grupo->id]);
+                        }
+                    }
+                    
+                    DB::commit();
+                    return true;
+                }
+                
+                // Si no tiene inscripción, continuar para crear una nueva
+            } else {
+                // Crear nuevo usuario si no existe
+                $user = User::create([
+                    'name' => $datos['nombre'],
+                    'apellidoPaterno' => $datos['apellidoPaterno'],
+                    'apellidoMaterno' => $datos['apellidoMaterno'],
+                    'email' => $datos['email'] ?? $datos['ci'] . '@temp.com',
+                    'password' => Hash::make($datos['ci']),
+                    'ci' => $datos['ci'],
+                    'fechaNacimiento' => $datos['fechaNacimiento'],
+                    'genero' => $datos['genero'],
+                    'status' => 'Habilitado',
+                ]);
+                
+                // Asignar rol de estudiante (ID = 3)
+                DB::table('userRol')->insert([
+                    'id' => $user->id,
+                    'idRol' => 3,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'habilitado' => true,
+                ]);
+                
+                // Crear estudiante
+                $estudiante = Estudiante::create([
+                    'id' => $user->id,
+                    'rude' => $datos['rude'] ?? null,
+                    'colegio' => $datos['colegio'] ?? 'No especificado'
+                ]);
+            }
 
-            // 2. Crear estudiante
-            $estudiante = Estudiante::create([
-                'id' => $user->id
-            ]);            // 3. Crear inscripción
+            // A partir de aquí, crear una nueva inscripción para el estudiante
             $tutor = Auth::user()->tutor;
-            $idDelegacion = $tutor->primerIdDelegacion($idConvocatoria);            // Obtener el grado del estudiante
+            $idDelegacion = $tutor->primerIdDelegacion($idConvocatoria);            
+            
+            // Obtener el grado del estudiante
             $grado = Grado::where('grado', $datos['grado'])->first();
             if (!$grado) {
                 throw new \Exception('El grado especificado no existe');
             }
+            
+            $area = Area::where('nombre', $datos['area'])->first();
+            if (!$area) {
+                throw new \Exception('El área especificada no existe');
+            }
+            
+            $categoria = Categoria::where('nombre', $datos['categoria'])->first();
+            if (!$categoria) {
+                throw new \Exception('La categoría especificada no existe');
+            }
 
             $inscripcion = Inscripcion::create([
                 'fechaInscripcion' => now(),
-                'status' => 'pendiente', // Cambiado a un valor válido según el enum definido
-                'numeroContacto' => $datos['numeroContacto'] ?? 0, // Valor predeterminado si no está presente
+                'status' => 'Pendiente',
+                'numeroContacto' => $datos['numeroContacto'] ?? 0,
                 'idGrado' => $grado->idGrado,
                 'idConvocatoria' => $idConvocatoria,
                 'idDelegacion' => $idDelegacion,
-                'nombreApellidosTutor' => Auth::user()->name . ' ' . Auth::user()->apellidoPaterno,
+                'nombreApellidosTutor' => Auth::user()->nombre . ' ' . Auth::user()->apellidoPaterno,
                 'correoTutor' => Auth::user()->email
             ]);
+            
+            Log::info('Nueva inscripción creada', ['idInscripcion' => $inscripcion->idInscripcion]);
 
-            // 4. Relacionar tutor y estudiante con la inscripción
+            // Relacionar tutor y estudiante con la inscripción
             TutorEstudianteInscripcion::create([
                 'idEstudiante' => $estudiante->id,
                 'idTutor' => $tutor->id,
                 'idInscripcion' => $inscripcion->idInscripcion
             ]);
 
-            // 5. Crear detalle de inscripción
-            $area = Area::where('nombre', $datos['area'])->first();
-            $categoria = Categoria::where('nombre', $datos['categoria'])->first();
-
+            // Crear detalle de inscripción
             $detalleInscripcion = DetalleInscripcion::create([
                 'modalidadInscripcion' => $datos['modalidad'] ?? 'individual',
                 'idInscripcion' => $inscripcion->idInscripcion,
                 'idArea' => $area->idArea,
-                'idCategoria' => $categoria->idCategoria
+                'idCategoria' => $categoria->idCategoria,
+                'idGrado' => $grado->idGrado,
+                'status' => 'Pendiente',
             ]);
 
-            // 6. Si hay grupo, relacionar con grupo
+            // Si hay grupo, relacionarlo
             if (isset($datos['codigoGrupo'])) {
                 $grupo = GrupoInscripcion::where('codigoInvitacion', $datos['codigoGrupo'])
                     ->where('idDelegacion', $idDelegacion)
@@ -221,7 +374,9 @@ class ResgistrarListaEstController extends Controller
             }
 
             DB::commit();
-            return true;        } catch (\Exception $e) {
+            return true;
+            
+        } catch (\Exception $e) {
             DB::rollBack();
             // Log the detailed error for debugging
             Log::error('Error en inscripción de estudiante', [
@@ -315,6 +470,230 @@ class ResgistrarListaEstController extends Controller
                 'message' => 'Error al procesar las inscripciones: ' . $e->getMessage(),
                 'errores' => ['Error al procesar las inscripciones: ' . $e->getMessage()]
             ]);
+        }
+    }
+    
+    /**
+     * Valida e inscribe un estudiante verificando su existencia previa,
+     * si ya tiene una inscripción en la convocatoria actual y
+     * respetando el límite de áreas por inscripción.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function validarEInscribirEstudiante(Request $request)
+    {
+        try {
+            Log::info('Iniciando validación e inscripción de estudiante', [
+                'request_data' => $request->all()
+            ]);
+
+            // Validar datos requeridos
+            $request->validate([
+                'ci' => 'required_without:email|nullable|string|size:7',
+                'email' => 'required_without:ci|nullable|email',
+                'idConvocatoria' => 'required|exists:convocatoria,idConvocatoria',
+                'idArea' => 'required|exists:area,idArea',
+                'idCategoria' => 'required|exists:categoria,idCategoria',
+                'idGrado' => 'required|exists:grado,idGrado',
+            ]);
+
+            // Obtener datos del request
+            $ci = $request->input('ci');
+            $email = $request->input('email');
+            $idConvocatoria = $request->input('idConvocatoria');
+            $idArea = $request->input('idArea');
+            $idCategoria = $request->input('idCategoria');
+            $idGrado = $request->input('idGrado');
+
+            DB::beginTransaction();
+
+            // 1. Verificar si el usuario existe por CI o email
+            $usuario = null;
+            if ($ci) {
+                $usuario = User::where('ci', $ci)->first();
+            }
+            if (!$usuario && $email) {
+                $usuario = User::where('email', $email)->first();
+            }
+
+            // Usuario no existe, crear nuevo usuario y estudiante
+            if (!$usuario) {
+                // Verificar si hay datos suficientes para crear un nuevo usuario
+                if (!$request->has('nombre') || !$request->has('apellidoPaterno') || !$request->has('fechaNacimiento')) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Se requiere nombre, apellido paterno y fecha de nacimiento para crear un nuevo estudiante'
+                    ], 422);
+                }
+
+                // Crear nuevo usuario
+                $usuario = User::create([
+                    'nombre' => $request->input('nombre'),
+                    'apellidoPaterno' => $request->input('apellidoPaterno'),
+                    'apellidoMaterno' => $request->input('apellidoMaterno', ''),
+                    'ci' => $ci,
+                    'email' => $email,
+                    'password' => Hash::make(Str::random(10)),
+                    'fechaNacimiento' => $request->input('fechaNacimiento'),
+                    'genero' => $request->input('genero'),
+                    'numeroContacto' => $request->input('numeroContacto'),
+                    'status' => 'Habilitado',
+                ]);
+
+                // Asignar rol de estudiante (ID = 3)
+                DB::table('userRol')->insert([
+                    'id' => $usuario->id,
+                    'idRol' => 3,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'habilitado' => true,
+                ]);
+
+                // Crear estudiante
+                $estudiante = Estudiante::create([
+                    'id' => $usuario->id,
+                    'colegio' => $request->input('colegio', 'No especificado'),
+                ]);
+
+                Log::info('Nuevo usuario y estudiante creado', ['idUsuario' => $usuario->id]);
+            } else {
+                // Usuario existe, verificar si es estudiante
+                $esEstudiante = DB::table('userRol')
+                    ->where('id', $usuario->id)
+                    ->where('idRol', 3)
+                    ->where('habilitado', true)
+                    ->exists();
+
+                // Verificar registro en tabla estudiante
+                $estudiante = Estudiante::find($usuario->id);
+
+                if (!$esEstudiante || !$estudiante) {
+                    // Crear registro de estudiante si no existe
+                    if (!$estudiante) {
+                        $estudiante = Estudiante::create([
+                            'id' => $usuario->id,
+                            'colegio' => $request->input('colegio', 'No especificado'),
+                        ]);
+                    }
+
+                    // Asociar rol estudiante si no lo tiene
+                    if (!$esEstudiante) {
+                        DB::table('userRol')->insert([
+                            'id' => $usuario->id,
+                            'idRol' => 3,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'habilitado' => true,
+                        ]);
+                    }
+
+                    Log::info('Usuario existente ahora es estudiante', ['idUsuario' => $usuario->id]);
+                }
+            }
+
+            // 3. Verificar si ya tiene inscripción en esta convocatoria
+            $inscripcionExistente = Inscripcion::whereHas('estudiantes', function ($query) use ($usuario) {
+                $query->where('estudiante.id', $usuario->id);
+            })
+            ->where('idConvocatoria', $idConvocatoria)
+            ->first();
+
+            // 4. Si no tiene inscripción, crear una nueva
+            if (!$inscripcionExistente) {
+                $inscripcion = Inscripcion::create([
+                    'fechaInscripcion' => now(),
+                    'numeroContacto' => $request->input('numeroContacto'),
+                    'status' => 'Pendiente',
+                    'idGrado' => $idGrado,
+                    'idConvocatoria' => $idConvocatoria,
+                    'nombreApellidosTutor' => Auth::user()->nombre . ' ' . Auth::user()->apellidoPaterno,
+                    'correoTutor' => Auth::user()->email,
+                ]);
+
+                // Crear detalle inscripción con el área seleccionada
+                DetalleInscripcion::create([
+                    'idInscripcion' => $inscripcion->idInscripcion,
+                    'idArea' => $idArea,
+                    'idCategoria' => $idCategoria,
+                    'idGrado' => $idGrado,
+                    'status' => 'Pendiente',
+                ]);
+
+                // Relacionar estudiante con tutor e inscripción
+                TutorEstudianteInscripcion::create([
+                    'idEstudiante' => $usuario->id,
+                    'idTutor' => Auth::id(),
+                    'idInscripcion' => $inscripcion->idInscripcion,
+                ]);
+
+                Log::info('Nueva inscripción creada', ['idInscripcion' => $inscripcion->idInscripcion]);
+                
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Inscripción realizada con éxito',
+                    'inscripcion' => $inscripcion->idInscripcion,
+                    'estado' => 'nueva'
+                ]);
+            } else {
+                // 5. Ya tiene inscripción, verificar si puede agregar otra área
+                $areasRegistradas = DetalleInscripcion::where('idInscripcion', $inscripcionExistente->idInscripcion)->count();
+                
+                // 6. Verificar si ya alcanzó el límite de áreas (2)
+                if ($areasRegistradas >= 2) {
+                    DB::rollBack();
+                    Log::info('Estudiante ya tiene 2 áreas inscritas', ['idInscripcion' => $inscripcionExistente->idInscripcion]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El estudiante ya está inscrito en el máximo de áreas permitidas (2) para esta convocatoria'
+                    ], 422);
+                }
+                
+                // 7. Verificar si ya está inscrito en esta área específica
+                $areaExistente = DetalleInscripcion::where('idInscripcion', $inscripcionExistente->idInscripcion)
+                    ->where('idArea', $idArea)
+                    ->exists();
+                    
+                if ($areaExistente) {
+                    DB::rollBack();
+                    Log::info('Estudiante ya está inscrito en esta área', ['idInscripcion' => $inscripcionExistente->idInscripcion, 'idArea' => $idArea]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El estudiante ya está inscrito en esta área para esta convocatoria'
+                    ], 422);
+                }
+                
+                // 8. Agregar nueva área a la inscripción existente
+                DetalleInscripcion::create([
+                    'idInscripcion' => $inscripcionExistente->idInscripcion,
+                    'idArea' => $idArea,
+                    'idCategoria' => $idCategoria,
+                    'idGrado' => $idGrado,
+                    'status' => 'Pendiente',
+                ]);
+                
+                Log::info('Área adicional agregada a inscripción existente', ['idInscripcion' => $inscripcionExistente->idInscripcion, 'idArea' => $idArea]);
+                
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Área adicional agregada con éxito a la inscripción existente',
+                    'inscripcion' => $inscripcionExistente->idInscripcion,
+                    'estado' => 'actualizada'
+                ]);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error en validarEInscribirEstudiante: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la inscripción: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

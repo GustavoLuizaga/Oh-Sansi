@@ -227,13 +227,14 @@
 
             <!-- Botón de Envío -->
             <div class="subir-formulario">
-                <button type="submit" class="btn-subir">
-                    <i class="fas fa-check"></i> Completar Inscripción
+                <button type="button" id="confirmar-inscripcion" class="btn-subir">
+                    <i class="fas fa-check"></i> Confirmar inscripción
                 </button>
             </div>
         </form>    </div>
     <script src="{{ asset('js/inscripcionEstudiante.js') }}"></script>
     <script src="{{ asset('js/inscripcionFormHelper.js') }}"></script>
+    <script src="{{ asset('js/inscripcion/validacion-area-categoria.js') }}"></script>
     @endif
 </x-app-layout>
 

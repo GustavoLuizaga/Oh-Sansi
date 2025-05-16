@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Delegado\DelegadoController;
 use App\Http\Controllers\DelegadoInfoController;
+use App\Http\Controllers\Delegado\ComprobantePagoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/delegado/guardar', [DelegadoController::class, 'guardarTutor'])->name('delegado.guardar');
       // Ruta para actualizar áreas por colegio
     Route::put('/delegado/actualizar-areas/{id}/{idDelegacion}', [DelegadoController::class, 'actualizarAreas'])->name('delegado.actualizar-areas');
+    
+    // Ruta para ver subir comprobante de pago de varios estudiantes
+    Route::post('/delegado/comprobante/procesar-boleta', [ComprobantePagoController::class, 'procesarBoleta'])->name('delegado.subir.comprobantepago');
 });
 
 // Ruta para obtener información de la delegación (colegio) del delegado actual

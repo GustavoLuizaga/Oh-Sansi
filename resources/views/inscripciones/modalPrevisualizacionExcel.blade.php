@@ -14,6 +14,9 @@
 <script src="{{ asset('js/inscripcionTutor/error-display.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/error-cell-editing.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/tooltip-fix.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/area-validator.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/cell-error-tooltips.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-visualizer.js') }}"></script>
 
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">

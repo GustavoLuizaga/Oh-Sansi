@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     // Ruta para procesar el comprobante de pago subido por el estudiante, crear y guardar la ruta de la imagen en la base de datos
     Route::post('/inscripcion/estudiante/comprobante/procesar-boleta', [BoletaController::class, 'procesarBoleta'])
         ->name('inscripcionEstudiante.subirComprobante.pago');
+        
     // Ruta para verificar que el modal de subir comprobante no aparezca almenos que se haya generado una orden de pago primero, ESTO AUN NO SE IMPLEMENTO, NO SIRVE, 
     Route::get('/verificar-inscripcion', [BoletaController::class, 'verificarInscripcion'])
         ->name('inscripcion.verificar');

@@ -41,8 +41,8 @@
                 <span>Generar Orden</span>
             </button>
 
-            <button type="button" class="export-button excel py-1 px-2" id="importComprobante" data-bs-toggle="modal" data-bs-target="#SubirComprobantePago">
-                <i class="fas fa-file-pdf"></i> Subir comprobante de pago
+            <button type="button" class="export-button upload py-1 px-2" id="exportExcel" data-bs-toggle="modal" data-bs-target="#SubirComprobantePago">
+                <i class="fas fa-receipt"></i> Subir comprobante de pago
             </button>
         </div>
     </div>
@@ -257,7 +257,8 @@
         </div>
     </div>
 
-<script>        
+<script> 
+    //EL OCR NO FUNCIONA SI NO ELIMINO ESTE SCRIPT
     document.addEventListener('DOMContentLoaded', function() {
         const filterForm = document.getElementById('filterForm');
         const selectElements = filterForm.querySelectorAll('select');

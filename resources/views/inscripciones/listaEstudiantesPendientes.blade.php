@@ -41,14 +41,8 @@
                 <span>Generar Orden</span>
             </button>
 
-<<<<<<< HEAD
             <button type="button" class="export-button excel py-1 px-2" id="importComprobante" data-bs-toggle="modal" data-bs-target="#SubirComprobantePago">
                 <i class="fas fa-file-pdf"></i> Subir comprobante de pago
-=======
-            <button type="button" class="export-button upload" id="exportExcel">
-                <i class="fas fa-receipt"></i>
-                <span>Subir Comprobante</span>
->>>>>>> 33eef2b0e766675169c765e79a2a7511a861879f
             </button>
         </div>
     </div>
@@ -166,7 +160,6 @@
         {{ $estudiantes->appends(request()->query())->links() }}
     </div>
 
-<<<<<<< HEAD
     <!-- Modal para SUBIR comprobante de Pago -->
     <div class="modal fade" id="SubirComprobantePago" tabindex="-1" aria-labelledby="SubirComprobantePagoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -268,14 +261,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         const filterForm = document.getElementById('filterForm');
         const selectElements = filterForm.querySelectorAll('select');
-=======
-    @push('scripts')
-    <script>
-        // Add event listener for generarOrdenPago button
-        document.getElementById('generarOrdenPago').addEventListener('click', function() {
-            window.location.href = '{{ route("boleta") }}';
-        });
->>>>>>> 33eef2b0e766675169c765e79a2a7511a861879f
 
         function verEstudiante(id) {
             fetch(`/estudiantes/ver/${id}`, {
@@ -505,7 +490,6 @@
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
-<<<<<<< HEAD
         });
     });
 
@@ -788,9 +772,4 @@
 
 </script>
 
-=======
-        }
-    </script>
-    @endpush
->>>>>>> 33eef2b0e766675169c765e79a2a7511a861879f
 </x-app-layout>

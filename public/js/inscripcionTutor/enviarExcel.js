@@ -1,13 +1,19 @@
 // Función principal para enviar datos
 async function enviarDatosExcel(datos, idConvocatoria) {
     try {
-        // Mostrar overlay de carga
-        document.getElementById('loadingOverlay').style.display = 'flex';
+        // Mostrar overlay de carga inmediatamente
+        if (window.ModalOverlay) {
+            window.ModalOverlay.show('Procesando inscripción...');
+        } else {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
 
         // Validar datos antes de enviar
         const validacion = await validarExcel(datos, idConvocatoria);
         if (!validacion.valido) {
             mostrarErrores(validacion.errores);
+            if (window.ModalOverlay) window.ModalOverlay.hide();
+            else document.getElementById('loadingOverlay').style.display = 'none';
             return false;
         }
 
@@ -27,17 +33,32 @@ async function enviarDatosExcel(datos, idConvocatoria) {
         const resultado = await response.json();
 
         if (resultado.success) {
-            // Mostrar mensaje de éxito
-            const successMessage = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            successText.textContent = resultado.message;
-            successMessage.style.display = 'flex';
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-                // Recargar la página después de 2 segundos
-                window.location.reload();
-            }, 2000);
-            return true;        } else {
+            // Cerrar modal de previsualización
+            const modal = document.getElementById('previewModal');
+            if (modal) {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            }
+            // Ocultar overlay
+            if (window.ModalOverlay) window.ModalOverlay.hide();
+            else document.getElementById('loadingOverlay').style.display = 'none';
+            // Mostrar modal de éxito con fade out
+            if (window.ModalExito) window.ModalExito.show(resultado.message);
+            else {
+                const successMessage = document.getElementById('successMessage');
+                const successText = document.getElementById('successText');
+                successText.textContent = resultado.message;
+                successMessage.style.display = 'flex';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 2000);
+            }
+            // Recargar la página después del fade out
+            setTimeout(() => window.location.reload(), 3200);
+            return true;
+        } else {
+            if (window.ModalOverlay) window.ModalOverlay.hide();
+            else document.getElementById('loadingOverlay').style.display = 'none';
             // Si hay errores específicos, mostrarlos
             if (resultado.errores && Array.isArray(resultado.errores)) {
                 mostrarErrores(resultado.errores);
@@ -49,10 +70,9 @@ async function enviarDatosExcel(datos, idConvocatoria) {
     } catch (error) {
         console.error('Error al enviar datos:', error);
         mostrarErrores(['Error al procesar la inscripción']);
+        if (window.ModalOverlay) window.ModalOverlay.hide();
+        else document.getElementById('loadingOverlay').style.display = 'none';
         return false;
-    } finally {
-        // Ocultar overlay de carga
-        document.getElementById('loadingOverlay').style.display = 'none';
     }
 }
 

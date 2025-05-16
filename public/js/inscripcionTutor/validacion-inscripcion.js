@@ -131,6 +131,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = document.getElementById('submitExcelData');
         if (submitButton) {
             submitButton.addEventListener('click', function() {
+                // Mostrar overlay de carga inmediatamente
+                if (window.ModalOverlay) {
+                    window.ModalOverlay.show('Procesando inscripción...');
+                } else {
+                    document.getElementById('loadingOverlay').style.display = 'flex';
+                }
+                // Ejecutar el flujo de inscripción
                 window.InscripcionValidator.handleSubmitExcelData();
             });
         }

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="{{ asset('css/inscripcion/previsualizacion.css') }}">
+<link rel="stylesheet" href="{{ asset('css/excel-validation.css') }}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -38,17 +39,22 @@
     @php
         // Obtener la información del delegado y su colegio
         $tutor = Auth::user();
-        $delegacion = \App\Models\TutorAreaDelegacion::where('id', $tutor->id)->first();
         $nombreDelegacion = '';
-        if ($delegacion) {
-            $colegio = \App\Models\Delegacion::find($delegacion->idDelegacion);
-            if ($colegio) {
-                $nombreDelegacion = $colegio->nombre;
+        
+        // Obtener el tutor y su primera delegación
+        $tutorDelegacion = \App\Models\TutorAreaDelegacion::where('id', $tutor->id)->first();
+        if ($tutorDelegacion) {
+            $delegacion = \App\Models\Delegacion::find($tutorDelegacion->idDelegacion);
+            if ($delegacion) {
+                $nombreDelegacion = $delegacion->nombre;
             }
         }
+        
+        // Log para debugging
+        \Illuminate\Support\Facades\Log::info('Nombre de delegación:', ['nombre' => $nombreDelegacion]);
     @endphp
 
-    <body data-convocatoria-id="{{ $idConvocatoriaResult ?? '' }}" data-delegacion-nombre="{{ $nombreDelegacion }}">
+    <body data-convocatoria-id="{{ $idConvocatoriaResult ?? '' }}" data-delegacion-nombre="{{ $nombreDelegacion }}" data-tutor-id="{{ $tutor->id }}">
 
         <!-- Change this part -->
         <div class="tutor-container">
@@ -258,6 +264,17 @@
         @include('inscripciones/modalPrevisualizacionExcel')
 @push('scripts')
 <script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/validacion-columnas-fix.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/validacion-columnas-extra.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/debug-excel-columns.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/tooltip-fix.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-display.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-counter-enhance.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/error-cell-editing.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/convocatoria-validator-connector.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/convocatoria-fix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/modalConvocatoria.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/excelUploadInfo.js') }}"></script>
 <script>

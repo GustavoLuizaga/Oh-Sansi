@@ -312,7 +312,8 @@
         });
     });
 
-    //JS del modal de editar y todo lo relacionado al OCR, todo lo relacionado a subir imagenes
+    //JS del modal de Subir comprobante y todo lo relacionado al OCR, todo lo relacionado a subir imagenes
+    //CAMBIAR LAS RUTAS
     document.addEventListener('DOMContentLoaded', function() {
         const fileInput = document.getElementById('comprobantePagoFile');
         const dropArea = document.querySelector('.file-drop-area');

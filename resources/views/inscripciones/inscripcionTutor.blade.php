@@ -277,6 +277,7 @@
 <script src="{{ asset('js/inscripcionTutor/convocatoria-fix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/modalConvocatoria.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/excelUploadInfo.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/excelUploadInfoToggle.js') }}"></script>
 <script>
     // Asegurarse de que el botón de previsualización funcione correctamente
     document.addEventListener('DOMContentLoaded', function() {

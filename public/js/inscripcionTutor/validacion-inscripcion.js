@@ -69,12 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
 
-                    // Obtener el ID de la convocatoria
-                    const idConvocatoria = document.body.getAttribute('data-convocatoria-id');
-                    console.log('ID Convocatoria encontrado:', idConvocatoria);
+                    // Obtener el ID de la convocatoria desde el dropdown del formulario de Excel
+                    const idConvocatoria = document.getElementById('excel-convocatoria-dropdown').value;
+                    console.log('ID Convocatoria seleccionado:', idConvocatoria);
 
                     if (!idConvocatoria) {
-                        this.showValidationErrors(['No se pudo determinar la convocatoria actual. Por favor, recargue la página e intente nuevamente.']);
+                        this.showValidationErrors(['Por favor, seleccione una convocatoria antes de continuar.']);
                         return;
                     }
 
@@ -138,4 +138,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Iniciar la verificación de dependencias
     checkDependencies();
-}); 
+});

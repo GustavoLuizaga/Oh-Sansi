@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Convocatoria extends Model
 {
@@ -47,5 +48,10 @@ class Convocatoria extends Model
             'idConvocatoria', // Clave local en convocatoria
             'idArea'          // Clave local en tutorAreaDelegacion
         );
+    }
+
+    public function convocatoriaAreaCategorias()
+    {
+        return $this->hasMany(ConvocatoriaAreaCategoria::class, 'idConvocatoria', 'idConvocatoria');
     }
 }

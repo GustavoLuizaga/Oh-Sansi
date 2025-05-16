@@ -28,433 +28,293 @@ use App\Models\GrupoInscripcion;
 use Illuminate\Support\Str;
 use App\Events\CreacionCuenta;
 use App\Events\InscripcionArea;
-
+use Illuminate\Support\Facades\Log;
 class ResgistrarListaEstController extends Controller
 {
     public function index()
     {
-        // Obtener información de áreas, categorías, etc. para mostrar en la vista
-        $idConvocatoriaResult = (new VerificarExistenciaConvocatoria())->verificarConvocatoriaActiva();
-        $areasHabilitadas = [];
-        $delegaciones = Delegacion::all();
 
-        if ($idConvocatoriaResult) {
-            $areasHabilitadas = (new ObtenerAreasConvocatoria())->obtenerAreasPorConvocatoria($idConvocatoriaResult);
-        }
-
-        return view('inscripcion estudiante.RegistrarListaEst', [
-            'convocatoriaActiva' => $idConvocatoriaResult ? true : false,
-            'areas' => $areasHabilitadas,
-            'delegaciones' => $delegaciones
-        ]);
+        
     }
 
-    public function descargarPlantilla()
+    public function validarDatosInscripcion(Request $request)
     {
-        $generador = new GenerarPlantillaExcelController();
-        $filePath = $generador->generarPlantilla();
-
-        return response()->download($filePath, 'plantilla_inscripcion.xlsx');
-    }    public function store(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
-            'idConvocatoria' => 'required|exists:convocatoria,idConvocatoria'
-        ], [
-            'idConvocatoria.required' => 'El campo de convocatoria es obligatorio.',
-            'idConvocatoria.exists' => 'La convocatoria seleccionada no existe.',
-            'file.required' => 'Debe seleccionar un archivo Excel.',
-            'file.mimes' => 'El archivo debe ser de formato Excel (.xlsx, .xls).'
-        ]);
-
-        // Usar la convocatoria seleccionada en el formulario
-        $idConvocatoriaSeleccionada = $request->idConvocatoria;
-        
-        // Verificar que la convocatoria esté publicada
-        $convocatoria = \App\Models\Convocatoria::where('idConvocatoria', $idConvocatoriaSeleccionada)
-                         ->where('estado', 'Publicada')
-                         ->first();
-                         
-        if (!$convocatoria) {
-            return back()->with('error', 'La convocatoria seleccionada no está disponible o no está publicada.');
-        }
-
-        $array = Excel::toArray([], $request->file('file'));
-        $rows = array_slice($array[0], 1); // Omitir la fila de encabezados
-
-        $errors = [];
-        $usersCreated = 0;
-        $usersUpdated = 0;
-
-        $filaDatos = []; // Aquí vamos a guardar las filas validadas y procesables
-        $gruposInvitacion = []; // Para agrupar estudiantes por código de invitación
-        $estudiantesPorCI = []; // Para agrupar estudiantes por CI y validar el límite de áreas
-
-        // PRIMERA PASADA: Validar datos sin tocar la base de datos
-        foreach ($rows as $key => $row) {
-            $currentRow = $key + 2; // +2 porque Excel empieza en 1 y ya omitimos la fila de encabezados
-
-            if (empty($row[4])) { // Validar si falta email
-                $errors[] = "Fila {$currentRow}: El correo electrónico es obligatorio.";
-                continue;
-            }
-
-            $area = $row[7] ?? null;
-            $categoria = $row[8] ?? null;
-            $grado = $row[9] ?? null;
-            $delegacion = $row[11] ?? null;
-            $modalidad = $row[14] ?? 'Individual';
-            $codigoInvitacion = $row[15] ?? null;
-
-            // Validar modalidad y código de invitación
-            if (in_array(strtolower($modalidad), ['duo', 'equipo']) && empty($codigoInvitacion)) {
-                $errors[] = "Fila {$currentRow}: Para modalidad '{$modalidad}' debe proporcionar un código de invitación.";
-                continue;
-            }
-
-            // Usar el ID de convocatoria seleccionado en el formulario
-            $idConvocatoriaResult = $idConvocatoriaSeleccionada;
-            $areasHabilitadas = (new ObtenerAreasConvocatoria())->obtenerAreasPorConvocatoria($idConvocatoriaResult);
-
-            if (!$areasHabilitadas->contains('nombre', $area)) {
-                $errors[] = "Fila {$currentRow}: El área '{$area}' no está habilitada para esta convocatoria. Por favor revise la información de la convocatoria vigente.";
-                continue;
-            }
-
-            // Agrupar estudiantes por CI para validar el límite de áreas
-            $ci = $row[3] ?? null;
-            if (empty($ci)) {
-                $errors[] = "Fila {$currentRow}: El CI es obligatorio.";
-                continue;
-            }
-
-            if (!isset($estudiantesPorCI[$ci])) {
-                $estudiantesPorCI[$ci] = [
-                    'areas' => [],
-                    'filas' => []
-                ];
-            }
-
-            // Verificar que no se repita la misma área para el mismo estudiante
-            if (in_array($area, $estudiantesPorCI[$ci]['areas'])) {
-                $errors[] = "Fila {$currentRow}: El estudiante con CI '{$ci}' ya tiene una inscripción en el área '{$area}' en este archivo.";
-                continue;
-            }
-
-            // Agregar el área a la lista de áreas del estudiante
-            $estudiantesPorCI[$ci]['areas'][] = $area;
-            $estudiantesPorCI[$ci]['filas'][] = $currentRow;
-
-            // Validar que el área pertenezca al tutor actual
-            $tutorId = Auth::user()->id;
-            $tutorAreas = DB::table('tutorAreaDelegacion')
-                ->join('area', 'tutorAreaDelegacion.idArea', '=', 'area.idArea')
-                ->where('tutorAreaDelegacion.id', $tutorId)
-                ->pluck('area.nombre')
-                ->toArray();
-
-            if (!in_array($area, $tutorAreas)) {
-                $errors[] = "Fila {$currentRow}: El área '{$area}' no está asignada al tutor actual. Solo puede inscribir estudiantes en sus áreas asignadas.";
-                continue;
-            }
-
-            $idArea = Area::where('nombre', $area)->value('idArea');
-
-            // Validar existencia de categoría en el área
-            $categoriasHabilitadas = (new ObtenerCategoriasArea())->categoriasAreas2($idConvocatoriaResult, $idArea);
-            if (!$categoriasHabilitadas->contains('nombre', $categoria)) {
-                $errors[] = "Fila {$currentRow}: La categoría '{$categoria}' no está habilitada para el área '{$area}'. Por favor revise la información de la convocatoria vigente.";
-                continue;
-            }
-
-            $categoriaModel = Categoria::where('nombre', $categoria)->first();
-
-            // Validar existencia de grado en la categoría
-            $gradosHabilitados = (new ObtenerGradosdeUnaCategoria())->obtenerGradosPorArea($categoriaModel);
-            if (!$gradosHabilitados->contains('grado', $grado)) {
-                $errors[] = "Fila {$currentRow}: El grado '{$grado}' no está habilitado para la categoría '{$categoriaModel->nombre}'. Por favor revise la información de la convocatoria vigente.";
-                continue;
-            }
-
-            // Validar existencia de delegación
-            if (!Delegacion::where('nombre', $delegacion)->exists()) {
-                $errors[] = "Fila {$currentRow}: La delegación '{$delegacion}' no existe.";
-                continue;
-            }
-
-            $tutorId = Auth::user()->id;
-            $tutorDelegaciones = DB::table('tutorAreaDelegacion')
-                ->join('delegacion', 'tutorAreaDelegacion.idDelegacion', '=', 'delegacion.idDelegacion')
-                ->where('tutorAreaDelegacion.id', $tutorId)
-                ->pluck('delegacion.nombre')
-                ->toArray();
-
-            if (!in_array($delegacion, $tutorDelegaciones)) {
-                $errors[] = "Fila {$currentRow}: La delegación '{$delegacion}' no está asignada al tutor actual. Solo puede inscribir estudiantes en sus delegaciones asignadas.";
-                continue;
-            }
-
-            // Guardar información para grupos de invitación
-            if (!empty($codigoInvitacion)) {
-                if (!isset($gruposInvitacion[$codigoInvitacion])) {
-                    $gruposInvitacion[$codigoInvitacion] = [
-                        'modalidad' => $modalidad,
-                        'area' => $area,
-                        'categoria' => $categoria,
-                        'miembros' => []
-                    ];
-                }
-
-                $gruposInvitacion[$codigoInvitacion]['miembros'][] = $currentRow;
-
-                // Validar que todos los miembros del grupo tengan la misma área y categoría
-                if (
-                    $gruposInvitacion[$codigoInvitacion]['area'] != $area ||
-                    $gruposInvitacion[$codigoInvitacion]['categoria'] != $categoria
-                ) {
-                    $errors[] = "Fila {$currentRow}: Los estudiantes con el mismo código de invitación deben inscribirse en la misma área y categoría.";
-                    continue;
-                }
-            }
-
-            // Guardamos la fila que sí pasó todas las validaciones
-            $filaDatos[] = [
-                'row' => $row,
-                'currentRow' => $currentRow,
-                'idArea' => $idArea,
-                'idCategoria' => $categoriaModel->idCategoria,
-                'idGrado' => Grado::where('grado', $grado)->value('idGrado'),
-                'idDelegacion' => Delegacion::where('nombre', $delegacion)->value('idDelegacion'),
-                'idConvocatoriaResult' => $idConvocatoriaResult,
-                'modalidad' => $modalidad,
-                'codigoInvitacion' => $codigoInvitacion
-            ];
-        }
-
-        // Validar grupos de invitación
-        foreach ($gruposInvitacion as $codigo => $grupo) {
-            $modalidad = strtolower($grupo['modalidad']);
-            $cantidadMiembros = count($grupo['miembros']);
-
-            // Validar número de miembros según modalidad
-            if ($modalidad == 'duo') {
-                if ($cantidadMiembros != 2) {
-                    $errors[] = "Código de invitación '{$codigo}': La modalidad Dúo requiere exactamente 2 estudiantes (actualmente tiene {$cantidadMiembros}).";
-                }
-            } elseif ($modalidad == 'equipo') {
-                if ($cantidadMiembros < 3) {
-                    $errors[] = "Código de invitación '{$codigo}': La modalidad Equipo requiere al menos 3 estudiantes (actualmente tiene {$cantidadMiembros}).";
-                } elseif ($cantidadMiembros > 10) {
-                    $errors[] = "Código de invitación '{$codigo}': La modalidad Equipo permite máximo 10 estudiantes (actualmente tiene {$cantidadMiembros}).";
-                }
-            }
-        }
-
-        // Validar que ningún estudiante se inscriba en más de 2 áreas
-        foreach ($estudiantesPorCI as $ci => $datos) {
-            if (count($datos['areas']) > 2) {
-                $filasStr = implode(', ', $datos['filas']);
-                $areasStr = implode(', ', $datos['areas']);
-                $errors[] = "El estudiante con CI '{$ci}' (filas {$filasStr}) está intentando inscribirse en más de 2 áreas: {$areasStr}. Solo se permiten máximo 2 áreas por estudiante.";
-            }
-        }
-
-        // SI HUBO ERRORES DE VALIDACIÓN, no hacemos nada
-        if (!empty($errors)) {
-            return back()->with('error_messages', $errors);
-        }
-
-        // SEGUNDA PASADA: Guardar datos ahora sí en base de datos
-        DB::beginTransaction();
-
         try {
-            // Crear un array para almacenar los grupos creados
-            $gruposCreados = [];
+            Log::info('Iniciando validación de datos de inscripción', [
+                'request_data' => $request->all()
+            ]);
 
-            foreach ($filaDatos as $data) {
-                $row = $data['row'];
-                $currentRow = $data['currentRow'];
+            $tutor = Auth::user()->tutor;
+            if (!$tutor) {
+                Log::error('Usuario no tiene tutor asociado');
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'Usuario no tiene permisos de tutor'
+                ]);
+            }
 
-                // Buscar usuario
-                $user = User::where('email', $row[4])->first();
-                $isNewUser = false;
+            $area = Area::where('nombre', $request->area)->first();
+            if (!$area) {
+                Log::error('Área no encontrada', ['area_nombre' => $request->area]);
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'El área especificada no existe'
+                ]);
+            }
 
-                if (!$user) {
-                    $plainPassword = $row[3]; // Usar CI como contraseña inicial
+            $categoria = Categoria::where('nombre', $request->categoria)->first();
+            if (!$categoria) {
+                Log::error('Categoría no encontrada', ['categoria_nombre' => $request->categoria]);
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'La categoría especificada no existe'
+                ]);
+            }
 
-                    $user = User::create([
-                        'name' => $row[0],
-                        'apellidoPaterno' => $row[1],
-                        'apellidoMaterno' => $row[2],
-                        'ci' => $row[3],
-                        'email' => $row[4],
-                        'fechaNacimiento' => is_numeric($row[5])
-                            ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[5])->format('Y-m-d')
-                            : \Carbon\Carbon::parse($row[5])->format('Y-m-d'),
-                        'genero' => $row[6],
-                        'password' => Hash::make($row[3]),
-                    ]);
+            $grado = Grado::where('grado', $request->grado)->first();
+            if (!$grado) {
+                Log::error('Grado no encontrado', ['grado' => $request->grado]);
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'El grado especificado no existe'
+                ]);
+            }
 
-                    event(new CreacionCuenta(
-                        $user->id,
-                        '¡Tu cuenta ha sido creada exitosamente!, Por seguridad te recoendamos cambiar tu contraseña.',
-                        'sistema'
-                    ));
+            // Validar que el área pertenece al delegado
+            $areaPertenece = $tutor->areas()
+                ->where('area.idArea', $area->idArea)
+                ->wherePivot('idConvocatoria', $request->idConvocatoria)
+                ->exists();
 
-                    $rol = Rol::find(3); // Rol de estudiante
-                    if ($rol) {
-                        $user->roles()->attach($rol->idRol, ['habilitado' => true]);
-                        $user->estudiante()->create();
-                    }
+            if (!$areaPertenece) {
+                Log::error('Área no asignada al tutor', [
+                    'tutor_id' => $tutor->id,
+                    'area_id' => $area->idArea,
+                    'convocatoria_id' => $request->idConvocatoria
+                ]);
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'El área seleccionada no está asignada al delegado en esta convocatoria'
+                ]);
+            }
 
-                    $isNewUser = true;
-                    $usersCreated++;
-                } else {
-                    $usersUpdated++;
-                }
+            // Validar que la categoría corresponde al área
+            $categoriaValida = $area->convocatoriaAreaCategorias()
+                ->where('idCategoria', $categoria->idCategoria)
+                ->where('idConvocatoria', $request->idConvocatoria)
+                ->exists();
 
-                // Validar que no esté ya inscrito en el área y que no exceda el límite de 2 áreas
-                $areasInscritas = DetalleInscripcion::join('inscripcion', 'detalle_inscripcion.idInscripcion', '=', 'inscripcion.idInscripcion')
-                    ->join('tutorEstudianteInscripcion', 'inscripcion.idInscripcion', '=', 'tutorEstudianteInscripcion.idInscripcion')
-                    ->join('area', 'detalle_inscripcion.idArea', '=', 'area.idArea')
-                    ->where('tutorEstudianteInscripcion.idEstudiante', $user->id)
-                    ->where('inscripcion.idConvocatoria', $data['idConvocatoriaResult'])
-                    ->pluck('area.nombre')
-                    ->unique()
-                    ->values();
+            if (!$categoriaValida) {
+                Log::error('Categoría no válida para el área', [
+                    'area_id' => $area->idArea,
+                    'categoria_id' => $categoria->idCategoria,
+                    'convocatoria_id' => $request->idConvocatoria
+                ]);
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'La categoría no corresponde al área seleccionada'
+                ]);
+            }
 
-                // Verificar si ya está inscrito en esta área específica
-                if ($areasInscritas->contains($row[7])) {
-                    $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en el área '{$row[7]}'.";
-                    continue;
-                }
+            // Validar que el grado corresponde a la categoría
+            $gradoValido = $categoria->grados()
+                ->where('grado.idGrado', $grado->idGrado)
+                ->exists();
 
-                // Verificar si ya alcanzó el límite de 2 áreas en la base de datos
-                if ($areasInscritas->count() >= 2) {
-                    $areasInscritasStr = $areasInscritas->implode(', ');
-                    $errors[] = "Fila {$currentRow}: El estudiante ya está inscrito en 2 áreas ({$areasInscritasStr}) y no puede inscribirse en más áreas.";
-                    continue;
-                }
+            if (!$gradoValido) {
+                Log::error('Grado no válido para la categoría', [
+                    'categoria_id' => $categoria->idCategoria,
+                    'grado_id' => $grado->idGrado
+                ]);
+                return response()->json([
+                    'valido' => false,
+                    'mensaje' => 'El grado no corresponde a la categoría seleccionada'
+                ]);
+            }
 
-                // Buscar si el estudiante ya tiene una inscripción en la convocatoria actual
-                $inscripcionExistente = Inscripcion::join('tutorEstudianteInscripcion', 'inscripcion.idInscripcion', '=', 'tutorEstudianteInscripcion.idInscripcion')
-                    ->where('tutorEstudianteInscripcion.idEstudiante', $user->id)
-                    ->where('inscripcion.idConvocatoria', $data['idConvocatoriaResult'])
+            Log::info('Validación exitosa');
+            return response()->json([
+                'valido' => true
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en validación de datos', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'valido' => false,
+                'mensaje' => 'Error al validar los datos: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function inscribirEstudiante($datos, $idConvocatoria)
+    {
+        try {
+            DB::beginTransaction();
+
+            // 1. Crear usuario
+            $user = User::create([
+                'name' => $datos['nombre'],
+                'apellidoPaterno' => $datos['apellidoPaterno'],
+                'apellidoMaterno' => $datos['apellidoMaterno'],
+                'email' => $datos['email'] ?? $datos['ci'] . '@temp.com',
+                'password' => Hash::make($datos['ci']),
+                'ci' => $datos['ci'],
+                'fechaNacimiento' => $datos['fechaNacimiento'],
+                'genero' => $datos['genero']
+            ]);
+
+            // Asignar rol de estudiante (ID = 3)
+            $user->roles()->attach(3);
+
+            // 2. Crear estudiante
+            $estudiante = Estudiante::create([
+                'id' => $user->id
+            ]);            // 3. Crear inscripción
+            $tutor = Auth::user()->tutor;
+            $idDelegacion = $tutor->primerIdDelegacion($idConvocatoria);            // Obtener el grado del estudiante
+            $grado = Grado::where('grado', $datos['grado'])->first();
+            if (!$grado) {
+                throw new \Exception('El grado especificado no existe');
+            }
+
+            $inscripcion = Inscripcion::create([
+                'fechaInscripcion' => now(),
+                'status' => 'pendiente', // Cambiado a un valor válido según el enum definido
+                'numeroContacto' => $datos['numeroContacto'] ?? 0, // Valor predeterminado si no está presente
+                'idGrado' => $grado->idGrado,
+                'idConvocatoria' => $idConvocatoria,
+                'idDelegacion' => $idDelegacion,
+                'nombreApellidosTutor' => Auth::user()->name . ' ' . Auth::user()->apellidoPaterno,
+                'correoTutor' => Auth::user()->email
+            ]);
+
+            // 4. Relacionar tutor y estudiante con la inscripción
+            TutorEstudianteInscripcion::create([
+                'idEstudiante' => $estudiante->id,
+                'idTutor' => $tutor->id,
+                'idInscripcion' => $inscripcion->idInscripcion
+            ]);
+
+            // 5. Crear detalle de inscripción
+            $area = Area::where('nombre', $datos['area'])->first();
+            $categoria = Categoria::where('nombre', $datos['categoria'])->first();
+
+            $detalleInscripcion = DetalleInscripcion::create([
+                'modalidadInscripcion' => $datos['modalidad'] ?? 'individual',
+                'idInscripcion' => $inscripcion->idInscripcion,
+                'idArea' => $area->idArea,
+                'idCategoria' => $categoria->idCategoria
+            ]);
+
+            // 6. Si hay grupo, relacionar con grupo
+            if (isset($datos['codigoGrupo'])) {
+                $grupo = GrupoInscripcion::where('codigoInvitacion', $datos['codigoGrupo'])
+                    ->where('idDelegacion', $idDelegacion)
                     ->first();
 
-                if ($inscripcionExistente) {
-                    // Si ya tiene una inscripción, usamos esa
-                    $inscripcion = Inscripcion::find($inscripcionExistente->idInscripcion);
-                } else {
-                    // Si no tiene inscripción, creamos una nueva
-                    $inscripcion = Inscripcion::create([
-                        'fechaInscripcion' => now(),
-                        'numeroContacto' => $row[10],
-                        'idConvocatoria' => $data['idConvocatoriaResult'],
-                        'idDelegacion' => $data['idDelegacion'],
-                        'idGrado' => $data['idGrado'],
-                        'nombreApellidosTutor' => $row[12],
-                        'correoTutor' => $row[13],
-                        'status' => 'pendiente'
-                    ]);
-
-                    // Asociar estudiante con tutor e inscripción
-                    $inscripcion->tutores()->attach(Auth::user()->id, [
-                        'idEstudiante' => $user->id,
-                    ]);
-
-                    event(new InscripcionArea(
-                        $user->id,
-                        'Te has inscrito exitosamente en el área: ' . $row[7] . '.',
-                        'sistema'
-                    ));
-                }
-
-                // Crear detalle de inscripción
-                $modalidadInscripcion = strtolower($data['modalidad']);
-                $idGrupoInscripcion = null;
-
-                // Si tiene código de invitación, asociar al grupo
-                if (!empty($data['codigoInvitacion'])) {
-                    $codigoInvitacion = $data['codigoInvitacion'];
-
-                    // Crear grupo si no existe
-                    if (!isset($gruposCreados[$codigoInvitacion])) {
-                        // Verificar si ya existe un grupo con este código de invitación en la base de datos
-                        $grupoExistente = GrupoInscripcion::where('codigoInvitacion', $codigoInvitacion)->first();
-
-                        if ($grupoExistente) {
-                            // Si el grupo ya existe, usar ese grupo
-                            $gruposCreados[$codigoInvitacion] = $grupoExistente->id;
-                        } else {
-                            // Si no existe, crear un nuevo grupo
-                            $grupoInscripcion = GrupoInscripcion::create([
-                                'codigoInvitacion' => $codigoInvitacion,
-                                'nombreGrupo' => 'Grupo ' . $codigoInvitacion,
-                                'modalidad' => $modalidadInscripcion,
-                                'estado' => 'incompleto',
-                                'idDelegacion' => $data['idDelegacion']
-                            ]);
-
-                            $gruposCreados[$codigoInvitacion] = $grupoInscripcion->id;
-                        }
-                    }
-
-                    $idGrupoInscripcion = $gruposCreados[$codigoInvitacion];
-                }
-
-                // Crear el detalle de inscripción
-                $detalleInscripcion = DetalleInscripcion::create([
-                    'modalidadInscripcion' => $modalidadInscripcion,
-                    'idInscripcion' => $inscripcion->idInscripcion,
-                    'idArea' => $data['idArea'],
-                    'idCategoria' => $data['idCategoria'],
-                    'idGrupoInscripcion' => $idGrupoInscripcion
-                ]);
-
-                // Notificar si es nuevo usuario
-                if ($isNewUser) {
-                    $user->notify(new WelcomeEmailNotification($plainPassword));
-                    event(new Registered($user));
-                }
-                // Notificar al estudiante sobre la inscripción
-            }
-
-            // Si hubo errores de inscripción (como áreas ya inscritas), también rollback
-            if (!empty($errors)) {
-                DB::rollBack();
-                return back()->with('error_messages', $errors);
-            }
-
-            // Actualizar el estado de los grupos según la cantidad de miembros
-            foreach ($gruposCreados as $codigoInvitacion => $grupoId) {
-                $grupo = GrupoInscripcion::find($grupoId);
-                $cantidadMiembros = DetalleInscripcion::where('idGrupoInscripcion', $grupoId)->count();
-
-                // Verificar si el grupo cumple con los requisitos de miembros según su modalidad
-                if ($grupo->modalidad == 'duo' && $cantidadMiembros == 2) {
-                    $grupo->update(['estado' => 'activo']);
-                } elseif ($grupo->modalidad == 'equipo' && $cantidadMiembros >= 3 && $cantidadMiembros <= 10) {
-                    $grupo->update(['estado' => 'activo']);
+                if ($grupo) {
+                    $detalleInscripcion->update(['idGrupoInscripcion' => $grupo->id]);
                 }
             }
 
             DB::commit();
+            return true;        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log the detailed error for debugging
+            Log::error('Error en inscripción de estudiante', [
+                'estudiante' => $datos['nombre'] . ' ' . $datos['apellidoPaterno'],
+                'error' => $e->getMessage(),
+                'datos' => $datos
+            ]);
+            
+            // Re-throw with more descriptive message
+            if (strpos($e->getMessage(), "Field 'numeroContacto' doesn't have a default value") !== false) {
+                throw new \Exception('Falta el número de contacto para el estudiante ' . $datos['nombre'] . ' ' . $datos['apellidoPaterno']);
+            } else if (strpos($e->getMessage(), "Field 'idGrado' doesn't have a default value") !== false) {
+                throw new \Exception('Falta el grado para el estudiante ' . $datos['nombre'] . ' ' . $datos['apellidoPaterno']);
+            } else {
+                throw $e;
+            }
+        }
+    }    public function store(Request $request)
+    {
+        try {
+            // Validar la entrada
+            if (!$request->has('estudiantes') || !is_array($request->input('estudiantes')) || empty($request->input('estudiantes'))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se proporcionaron datos de estudiantes para inscribir',
+                    'errores' => ['No se proporcionaron datos de estudiantes para inscribir']
+                ]);
+            }
+            
+            if (!$request->has('idConvocatoria')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se proporcionó el ID de la convocatoria',
+                    'errores' => ['No se proporcionó el ID de la convocatoria']
+                ]);
+            }
+            
+            $estudiantes = $request->input('estudiantes');
+            $idConvocatoria = $request->input('idConvocatoria');
+            $errores = [];
+            $inscritos = 0;
 
-            $mensaje = "¡Inscripción completada con éxito! ";
-
-            if ($usersCreated > 0 && $usersUpdated > 0) {
-                $mensaje .= "Se crearon {$usersCreated} usuarios nuevos y se actualizaron {$usersUpdated} usuarios existentes.";
-            } elseif ($usersCreated > 0) {
-                $mensaje .= "Se crearon {$usersCreated} usuarios nuevos.";
-            } elseif ($usersUpdated > 0) {
-                $mensaje .= "Se actualizaron {$usersUpdated} usuarios existentes.";
+            foreach ($estudiantes as $index => $estudiante) {
+                try {
+                    // Validar datos mínimos del estudiante
+                    if (!isset($estudiante['nombre']) || !isset($estudiante['apellidoPaterno']) || !isset($estudiante['ci'])) {
+                        $errores[] = "Fila " . ($index + 1) . ": Faltan datos obligatorios del estudiante";
+                        continue;
+                    }
+                    
+                    $this->inscribirEstudiante($estudiante, $idConvocatoria);
+                    $inscritos++;
+                } catch (\Exception $e) {
+                    Log::error("Error al inscribir estudiante", [
+                        'estudiante' => $estudiante['nombre'] ?? 'desconocido',
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    $errores[] = "Error al inscribir a {$estudiante['nombre']} {$estudiante['apellidoPaterno']}: " . $e->getMessage();
+                }
             }
 
-            return back()->with('success', $mensaje);
+            if (count($errores) > 0) {
+                if ($inscritos > 0) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => "Se inscribieron {$inscritos} estudiante(s), pero hubo errores con " . count($errores) . " estudiante(s)",
+                        'errores' => $errores
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se pudo inscribir a ningún estudiante',
+                        'errores' => $errores
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estudiantes inscritos correctamente'
+            ]);
+
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error_messages', [$e->getMessage()]);
+            Log::error("Error general en inscripción", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar las inscripciones: ' . $e->getMessage(),
+                'errores' => ['Error al procesar las inscripciones: ' . $e->getMessage()]
+            ]);
         }
     }
 }

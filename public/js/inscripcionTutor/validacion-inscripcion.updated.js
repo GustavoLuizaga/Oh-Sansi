@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     const modalBody = $('#previewModal .modal-body');
                     if (!modalBody.length) {
                         console.error('No se encontró el modal-body');
+                        // Intentar usar errorContainer directo
+                        const errorContainer = document.getElementById('errorContainer');
+                        if (errorContainer) {
+                            errorContainer.style.display = 'block';
+                            errorContainer.innerHTML = '<strong>Errores encontrados:</strong><ul>' + 
+                                errors.map(error => `<li>${error}</li>`).join('') + '</ul>';
+                            return;
+                        }
+                        alert('Errores encontrados:\n\n' + errors.join('\n'));
                         return;
                     }
 
@@ -62,6 +71,13 @@ document.addEventListener('DOMContentLoaded', function() {
             async handleSubmitExcelData() {
                 console.log('Iniciando validación de datos...');
                 
+                // Mostrar indicador de carga
+                const submitButton = document.getElementById('submitExcelData');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                }
+                
                 try {
                     // Verificar que existan datos para validar
                     if (!window.excelData || window.excelData.length === 0) {
@@ -88,9 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     // Si la validación es exitosa, enviar los datos
+                    console.log('Enviando datos al servidor...');
                     const response = await window.enviarDatosExcel(window.excelData, idConvocatoria);
+                    console.log('Respuesta del servidor:', response);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         // Cerrar el modal
                         const modal = document.getElementById('previewModal');
                         if (modal) {
@@ -110,19 +128,27 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (result.isConfirmed) {
                                 window.location.reload();
                             }
-                        });                    } else {
+                        });
+                    } else {
                         // Manejar diferentes formatos de respuesta de error
-                        if (response.errores && Array.isArray(response.errores)) {
+                        if (response && response.errores && Array.isArray(response.errores)) {
                             this.showValidationErrors(response.errores);
-                        } else if (response.message) {
+                        } else if (response && response.message) {
                             this.showValidationErrors([response.message]);
                         } else {
-                            this.showValidationErrors(['Ocurrió un error al procesar la inscripción']);
+                            this.showValidationErrors(['Ocurrió un error al procesar la inscripción. Verifique los datos e intente nuevamente.']);
                         }
                     }
                 } catch (error) {
                     console.error('Error al procesar la inscripción:', error);
-                    this.showValidationErrors([`Ocurrió un error al procesar la inscripción: ${error.message}`]);
+                    this.showValidationErrors([`Ocurrió un error al procesar la inscripción: ${error.message || 'Error desconocido'}`]);
+                } finally {
+                    // Restaurar el botón
+                    const submitButton = document.getElementById('submitExcelData');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = '<i class="fas fa-check"></i> Confirmar Inscripción';
+                    }
                 }
             }
         };
@@ -138,4 +164,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Iniciar la verificación de dependencias
     checkDependencies();
-}); 
+});

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\Auth\ResgistrarListaEstController;
 
 
 
@@ -110,3 +111,12 @@ Route::prefix('estudiantes')->middleware(['auth'])->group(function () {
     Route::post('/completar/{id}', [EstudianteController::class, 'storeCompletarInscripcion'])->name('estudiantes.completarInscripcion.store');
     Route::put('/update/{id}', [EstudianteController::class, 'update'])->name('estudiantes.update');
 });
+
+// Rutas para inscripción por Excel
+Route::post('/validar-configuracion-inscripcion', [ResgistrarListaEstController::class, 'validarDatosInscripcion'])
+    ->name('validar.configuracion.inscripcion')
+    ->middleware(['auth', 'verified']);
+
+Route::post('/registrar-lista-estudiantes', [ResgistrarListaEstController::class, 'store'])
+    ->name('register.lista.store')
+    ->middleware(['auth', 'verified']);

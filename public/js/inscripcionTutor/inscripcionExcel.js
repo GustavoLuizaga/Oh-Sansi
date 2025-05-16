@@ -58,7 +58,8 @@ function cerrarModal() {
 
 // Código para previsualizar datos del Excel
 $(document).ready(function () {
-    let excelData = [];
+    // Definir excelData en el ámbito global
+    window.excelData = [];
     let dataTable;
     let errorCount = 0;
     
@@ -74,8 +75,8 @@ $(document).ready(function () {
         console.log('Mapa de columnas:', columnMap);
         
         // Verificar primera fila
-        if (excelData && excelData.length > 0) {
-            console.log('Primera fila de datos:', excelData[0]);
+        if (window.excelData && window.excelData.length > 0) {
+            console.log('Primera fila de datos:', window.excelData[0]);
         }
         
         return columnMap;
@@ -157,7 +158,7 @@ $(document).ready(function () {
         reader.onload = function (e) {
             console.log('Archivo Excel cargado correctamente');
             // Reiniciar variables
-            excelData = [];
+            window.excelData = [];
             errorCount = 0;
 
             // Limpiar tabla anterior
@@ -179,39 +180,33 @@ $(document).ready(function () {
 
             // Eliminar la fila de encabezados
             const headers = jsonData.shift();
-            excelData = jsonData;            // Agregar contador de errores antes de la tabla
-            if (!$('#errorCounter').length) {
-                $('.alert.alert-info').after(
-                    '<div id="errorCounter" class="alert alert-warning mb-3" style="display: none;">' +
-                    '<i class="fas fa-exclamation-triangle"></i> ' +
-                    '<span id="errorCountText">Errores encontrados: 0 filas con errores.</span>' +
-                    '</div>'
-                );
-            }
             
-            // Agregar información sobre reglas de validación
-            if (!$('#validationRules').length) {
-                $('.alert.alert-info').after(                    '<div id="validationRules" class="alert alert-info mb-3">' +
-                    '<i class="fas fa-info-circle"></i> ' +
-                    '<strong>Reglas de validación:</strong>' +
-                    '<ul class="mb-0 ps-3 small">' +
-                    '<li>Nombre y apellidos: solo letras (sin números ni caracteres especiales)</li>' +
-                    '<li>CI: exactamente 7 dígitos numéricos</li>' +
-                    '<li>Email: formato válido con dominio @gmail.com</li>' +
-                    '<li>Género: solo "M" o "F"</li>' +
-                    '<li>Número de contacto: exactamente 8 dígitos numéricos</li>' +
-                    '<li>Modalidad: solo "Individual", "Duo" o "Equipo"</li>' +
-                    '</ul>' +
-                    '<button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Cerrar"></button>' +
-                    '</div>'
-                );
-                
-                // Permitir cerrar la información de validación
-                $('#validationRules .btn-close').on('click', function() {
-                    $('#validationRules').slideUp();
-                });
-            }// Llenar tabla con datos
-            jsonData.forEach((row, index) => {
+            // Convertir los datos a un formato más manejable
+            window.excelData = jsonData.filter(row => row.length > 0).map(row => {
+                return {
+                    nombre: String(row[0] || ''),
+                    apellidoPaterno: String(row[1] || ''),
+                    apellidoMaterno: String(row[2] || ''),
+                    ci: String(row[3] || ''),
+                    email: String(row[4] || ''),
+                    fechaNacimiento: String(row[5] || ''),
+                    genero: String(row[6] || ''),
+                    area: String(row[7] || ''),
+                    categoria: String(row[8] || ''),
+                    grado: String(row[9] || ''),
+                    numeroContacto: String(row[10] || ''),
+                    delegacion: String(row[11] || ''),
+                    nombreTutor: String(row[12] || ''),
+                    emailTutor: String(row[13] || ''),
+                    modalidad: String(row[14] || ''),
+                    codigoGrupo: String(row[15] || '')
+                };
+            });
+
+            console.log('Datos procesados:', window.excelData);
+
+            // Llenar tabla con datos
+            window.excelData.forEach((row, index) => {
                 let rowHtml = `<tr data-row="${index}">`;
                 
                 // Columna de acciones con botón eliminar
@@ -223,126 +218,40 @@ $(document).ready(function () {
                 
                 rowHtml += `<td>${index + 1}</td>`; // Número de fila
                 
-                // Crear un array con 16 elementos (columnas de datos) inicializados como vacíos
-                let rowData = Array(16).fill('');
-
-                // Copiar los datos existentes del Excel
-                for (let i = 0; i < Math.min(row.length, 16); i++) {
-                    if (row[i] !== undefined) {
-                        rowData[i] = row[i];
-                    }
-                }                // Agregar celdas editables para cada columna de datos
-                // Definir las columnas base que queremos mostrar
-                let baseColumns = [
-                    { name: 'Nombre' },
-                    { name: 'Apellido Paterno' },
-                    { name: 'Apellido Materno' },
-                    { name: 'CI' },
-                    { name: 'Email' },
-                    { name: 'Fecha Nacimiento' },
-                    { name: 'Género' },
-                    { name: 'Área' },
-                    { name: 'Categoría' },
-                    { name: 'Grado' },
-                    { name: 'Número Contacto' }
+                // Agregar celdas con los datos
+                const campos = [
+                    'nombre', 'apellidoPaterno', 'apellidoMaterno', 'ci', 'email',
+                    'fechaNacimiento', 'genero', 'area', 'categoria', 'grado',
+                    'numeroContacto', 'delegacion', 'nombreTutor', 'emailTutor',
+                    'modalidad', 'codigoGrupo'
                 ];
-                
-                // Verificar si existe la columna Delegación/Colegio en los datos
-                const hasDelegacion = row.length >= 12 && (
-                    typeof row[11] !== 'undefined' && 
-                    row[11] !== null && 
-                    row[11] !== ''
-                );
-                
-                // Si existe la columna Delegación, agregarla a las columnas base
-                if (hasDelegacion) {
-                    baseColumns.push({ name: 'Delegación/Colegio' });
-                }
-                
-                // Agregar el resto de las columnas
-                baseColumns = baseColumns.concat([
-                    { name: 'Nombre Tutor' },
-                    { name: 'Email Tutor' },
-                    { name: 'Modalidad' },
-                    { name: 'Código Invitación' }
-                ]);
-                
-                // Crear el mapeo de columnas dinámicamente con los índices correctos
-                const columnMapping = baseColumns.map((col, idx) => {
-                    return {
-                        index: idx,
-                        name: col.name
-                    };
-                });
-                
-                for (let colIndex = 0; colIndex < columnMapping.length; colIndex++) {
-                    const { index, name } = columnMapping[colIndex];
-                    const value = rowData[index] || '';
-                    // Sanitizar el valor para evitar problemas de HTML
+
+                campos.forEach((campo, idx) => {
+                    const value = row[campo] || '';
                     const sanitizedValue = String(value)
                         .replace(/&/g, '&amp;')
                         .replace(/</g, '&lt;')
                         .replace(/>/g, '&gt;')
                         .replace(/"/g, '&quot;');
                     
-                    rowHtml += `<td><div class="editable" contenteditable="true" data-col="${index}" title="${name}">${sanitizedValue}</div></td>`;
-                }
+                    rowHtml += `<td><div class="editable" contenteditable="true" data-col="${idx}" data-field="${campo}">${sanitizedValue}</div></td>`;
+                });
 
                 rowHtml += `</tr>`;
                 $('#previewTableBody').append(rowHtml);
             });
 
-            // Destruir DataTable si ya existe
-            try {
-                if ($ && $.fn && $.fn.DataTable && typeof $.fn.DataTable.isDataTable === 'function' && $.fn.DataTable.isDataTable('#previewTable')) {
-                    $('#previewTable').DataTable().clear().destroy();
-                }
-            } catch (error) {
-                console.error('Error al verificar o destruir DataTable:', error);
-            }            // Inicializar DataTable con opciones mínimas para evitar problemas de columnas
+            // Inicializar DataTable
             dataTable = $('#previewTable').DataTable({
                 pageLength: 10,
-                searching: false, // Desactivamos búsqueda nativa y usamos nuestro propio buscador
+                searching: false,
                 ordering: true,
                 paging: true,
                 info: true,
                 autoWidth: false,
-                scrollX: true, // Habilitar desplazamiento horizontal
-                scrollY: '60vh', // Altura fija para el desplazamiento vertical
+                scrollX: true,
+                scrollY: '60vh',
                 scrollCollapse: true,
-                fixedHeader: false,
-                fixedColumns: false,
-                stateSave: false,
-                responsive: false, // Desactivamos responsive para evitar problemas
-                // Configuración DOM mínima
-                dom: 'lrtip',
-                drawCallback: function() {
-                    // Depurar columnas después de dibujar la tabla
-                    setTimeout(function() {
-                        if (typeof window.debugExcelColumns === 'function') {
-                            console.log('Verificando columnas después de inicializar DataTable');
-                            window.debugExcelColumns();
-                        }
-                    }, 500);
-                },
-                columnDefs: [
-                    { width: "60px", targets: 0 }, // Columna de acciones
-                    { width: "50px", targets: 1 }, // Número de fila
-                    { width: "150px", targets: [2, 3, 4] }, // Nombre y apellidos
-                    { width: "120px", targets: [5] }, // CI
-                    { width: "180px", targets: [6] }, // Email estudiante
-                    { width: "180px", targets: _getColumnIndex('Email Tutor') }, // Email tutor
-                    { width: "120px", targets: _getColumnIndex('Modalidad') }, // Modalidad
-                    { width: "120px", targets: _getColumnIndex('Código Invitación') } // Código
-                ],
-                
-                // Función auxiliar para obtener índice de columna por nombre
-                initComplete: function(settings, json) {
-                    console.log('DataTable inicializada completamente');
-                },
-                
-                // Nota: La función _getColumnIndex está definida más abajo
-                
                 language: {
                     "sProcessing": "Procesando...",
                     "sLengthMenu": "Mostrar _MENU_ registros",
@@ -351,104 +260,36 @@ $(document).ready(function () {
                     "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
                     "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
                     "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-                    "sInfoPostFix": "",
-                    "sSearch": "Buscar:",
-                    "sUrl": "",
-                    "sInfoThousands": ",",
-                    "sLoadingRecords": "Cargando...",
                     "oPaginate": {
                         "sFirst": "Primero",
                         "sLast": "Último",
                         "sNext": "Siguiente",
                         "sPrevious": "Anterior"
-                    },
-                    "oAria": {
-                        "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-                    },
-                    "buttons": {
-                        "copy": "Copiar",
-                        "colvis": "Visibilidad"
                     }
                 }
-            });            try {
-            // Mostrar modal usando jQuery para evitar problemas con Bootstrap
-                $('#previewModal').modal('show');
-                console.log('Modal mostrado con jQuery');
-                
-                // Agregar un código para ejecutarse después de mostrar el modal
-                $('#previewModal').on('shown.bs.modal', function() {
-                    // Forzar reajuste de la tabla después de que el modal esté visible
-                    setTimeout(function() {
-                        // Verificar y corregir cualquier columna fantasma
-                        $('#previewTable tr').each(function() {
-                            const numHeaderCells = $('#previewTable thead tr:first th').length;
-                            const rowCells = $(this).find('td, th').length;
-                            
-                            if (rowCells > numHeaderCells) {
-                                // Eliminar celdas extras
-                                console.log(`Encontrada fila con ${rowCells} celdas, eliminando las extras`);
-                                $(this).find('td, th').slice(numHeaderCells).remove();
-                            }
-                        });
-                        
-                        // Recalcular anchos de columna
-                        if ($.fn.dataTable.isDataTable('#previewTable')) {
-                            $('#previewTable').DataTable().columns.adjust();
-                        }
-                        
-                        // Inicializar tooltips para mensajes de error
-                        try {
-                            // Remover cualquier tooltip existente
-                            $('[data-bs-toggle="tooltip"]').tooltip('dispose');
-                            
-                            // Agregar atributo para activar tooltips en celdas con errores
-                            $('.invalid-cell').attr('data-bs-toggle', 'tooltip');
-                            
-                            // Inicializar tooltips de Bootstrap
-                            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                                return new bootstrap.Tooltip(tooltipTriggerEl, {
-                                    placement: 'top',
-                                    trigger: 'hover focus',
-                                    container: '#previewModal'
-                                });
-                            });
-                        } catch (tooltipError) {
-                            console.error('Error al inicializar tooltips:', tooltipError);
-                        }
-                    }, 300);
-                });
-            } catch (error) {
-                console.error('Error al mostrar modal con jQuery:', error);
-                
-                try {
-                    // Intentar con Bootstrap como respaldo
-                    const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-                    previewModal.show();
-                    console.log('Modal mostrado con Bootstrap');
-                } catch (bootstrapError) {
-                    console.error('Error al mostrar modal con Bootstrap:', bootstrapError);
-                    alert('Hubo un problema al mostrar la previsualización. Por favor, intente de nuevo.');
-                }
-            }
+            });
+
+            // Mostrar modal
+            $('#previewModal').modal('show');
 
             // Validar datos
             validateExcelData();
         };
 
         reader.readAsArrayBuffer(file);
-    }    // Actualizar datos cuando se edita una celda
+    }
+
+    // Actualizar datos cuando se edita una celda
     $(document).on('blur', '.editable', function () {
         const row = $(this).closest('tr').data('row');
-        const col = $(this).data('col');
+        const field = $(this).data('field');
         const value = $(this).text().trim();
 
         // Actualizar el valor en excelData
-        if (!excelData[row]) {
-            excelData[row] = [];
+        if (!window.excelData[row]) {
+            window.excelData[row] = {};
         }
-        excelData[row][col] = value;
+        window.excelData[row][field] = value;
 
         // Revalidar la fila
         validateRow($(this).closest('tr'));
@@ -504,27 +345,29 @@ $(document).ready(function () {
         } else {
             $('#errorCounter').hide();
         }
-    }    // Función para validar una fila
+    }
+
+    // Función para validar una fila
     function validateRow(row) {
         const rowIndex = row.data('row');
-        const rowData = excelData[rowIndex] || [];
+        const rowData = window.excelData[rowIndex] || {};
         let isValid = true;
         let errorMessage = '';
         
         // Validar campos requeridos
-        if (!rowData[0]) { // Nombre
+        if (!rowData.nombre) { // Nombre
             isValid = false;
             errorMessage = 'Falta el nombre';
-        } else if (!rowData[4]) { // Email
+        } else if (!rowData.email) { // Email
             isValid = false;
             errorMessage = 'Falta el email';
-        } else if (!rowData[7]) { // Área
+        } else if (!rowData.area) { // Área
             isValid = false;
             errorMessage = 'Falta el área';
-        } else if (!rowData[8]) { // Categoría
+        } else if (!rowData.categoria) { // Categoría
             isValid = false;
             errorMessage = 'Falta la categoría';
-        } else if (!rowData[9]) { // Grado
+        } else if (!rowData.grado) { // Grado
             isValid = false;
             errorMessage = 'Falta el grado';
         } else {            // Validar nombre (solo letras)
@@ -538,7 +381,7 @@ $(document).ready(function () {
             }
             
             // Validar apellido materno (solo letras) - si está presente
-            if (rowData[2] && !validateCell(2, /^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]+$/, 'El apellido materno debe contener solo letras')) {
+            if (rowData.apellidoMaterno && !validateCell(2, /^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]+$/, 'El apellido materno debe contener solo letras')) {
                 // Ya se ha marcado el error en validateCell
             }
             
@@ -553,7 +396,7 @@ $(document).ready(function () {
             }
             
             // Validar género (solo 'M' o 'F')
-            if (rowData[6] && !['M', 'F'].includes(rowData[6].toString().toUpperCase())) {
+            if (rowData.genero && !['M', 'F'].includes(rowData.genero.toUpperCase())) {
                 isValid = false;
                 errorMessage = 'El género debe ser "M" o "F"';
                 row.find(`[data-col="6"]`)
@@ -589,10 +432,10 @@ $(document).ready(function () {
             // Usar índices de respaldo si no se pudieron determinar dinámicamente
             if (tutorEmailIndex === -1) {
                 // Método anterior como respaldo
-                const hasDelegacionValidation = rowData.length >= 12 && 
-                    typeof rowData[11] !== 'undefined' && 
-                    rowData[11] !== null && 
-                    rowData[11] !== '';
+                const hasDelegacionValidation = Object.keys(rowData).length >= 12 && 
+                    typeof rowData.delegacion !== 'undefined' && 
+                    rowData.delegacion !== null && 
+                    rowData.delegacion !== '';
                     
                 tutorEmailIndex = hasDelegacionValidation ? 13 : 12;
                 modalidadIndex = hasDelegacionValidation ? 14 : 13;
@@ -604,12 +447,12 @@ $(document).ready(function () {
             }
             
             // Validar email del tutor (debe ser una dirección @gmail.com)
-            if (rowData[tutorEmailIndex] && !validateCell(tutorEmailIndex, /^[a-zA-Z0-9._%+-]+@gmail\.com$/, 'El email del tutor debe tener formato válido y ser @gmail.com')) {
+            if (rowData.emailTutor && !validateCell(tutorEmailIndex, /^[a-zA-Z0-9._%+-]+@gmail\.com$/, 'El email del tutor debe tener formato válido y ser @gmail.com')) {
                 // Ya se ha marcado el error en validateCell
             }
             
             // Validar modalidad (si existe)
-            if (rowData[modalidadIndex] && !['individual', 'duo', 'equipo'].includes(rowData[modalidadIndex].toString().toLowerCase())) {
+            if (rowData.modalidad && !['individual', 'duo', 'equipo'].includes(rowData.modalidad.toLowerCase())) {
                 isValid = false;
                 errorMessage = 'La modalidad debe ser "Individual", "Duo" o "Equipo"';
                 row.find(`[data-col="${modalidadIndex}"]`)
@@ -641,10 +484,10 @@ $(document).ready(function () {
             
             // Si no se encontraron en los encabezados, usar el método de respaldo
             if (!foundModalidad || !foundCodigo) {
-                const hasDelegacion = rowData.length >= 12 && 
-                    typeof rowData[11] !== 'undefined' && 
-                    rowData[11] !== null && 
-                    rowData[11] !== '';
+                const hasDelegacion = Object.keys(rowData).length >= 12 && 
+                    typeof rowData.delegacion !== 'undefined' && 
+                    rowData.delegacion !== null && 
+                    rowData.delegacion !== '';
                 
                 modalidadIndex = hasDelegacion ? 14 : 13;
                 codigoIndex = hasDelegacion ? 15 : 14;
@@ -662,8 +505,8 @@ $(document).ready(function () {
         }
 
         // Validar que el área pertenezca al tutor actual
-        if (isValid && rowData[7]) {
-            const areaName = rowData[7].toString();
+        if (isValid && rowData.area) {
+            const areaName = rowData.area.toString();
             // Verificar si el área está en la lista de áreas habilitadas para el tutor
             const areasHabilitadas = [];
             $('.areas-list li strong').each(function () {
@@ -705,7 +548,9 @@ $(document).ready(function () {
         }
 
         return isValid;
-    }    // Validar grupos de invitación
+    }
+
+    // Validar grupos de invitación
     function validateGroups() {
         const groups = {};
         let groupErrors = [];
@@ -729,17 +574,17 @@ $(document).ready(function () {
         // Agrupar por código de invitación
         $('#previewTableBody tr').each(function () {
             const rowIndex = $(this).data('row');
-            const rowData = excelData[rowIndex] || [];
+            const rowData = window.excelData[rowIndex] || {};
             
             // Si no se encontraron en los encabezados, usar el método de respaldo
             let modalidadIndex = groupModalidadIndex;
             let codigoIndex = groupCodigoIndex;
             
             if (modalidadIndex === -1 || codigoIndex === -1) {
-                const hasDelegacion = rowData.length >= 12 && 
-                    typeof rowData[11] !== 'undefined' && 
-                    rowData[11] !== null && 
-                    rowData[11] !== '';
+                const hasDelegacion = Object.keys(rowData).length >= 12 && 
+                    typeof rowData.delegacion !== 'undefined' && 
+                    rowData.delegacion !== null && 
+                    rowData.delegacion !== '';
                 
                 modalidadIndex = hasDelegacion ? 14 : 13;
                 codigoIndex = hasDelegacion ? 15 : 14;
@@ -752,8 +597,8 @@ $(document).ready(function () {
                 if (!groups[codigo]) {
                     groups[codigo] = {
                         modalidad: modalidad,
-                        area: rowData[7],
-                        categoria: rowData[8],
+                        area: rowData.area,
+                        categoria: rowData.categoria,
                         miembros: []
                     };
                 }
@@ -812,168 +657,23 @@ $(document).ready(function () {
     // Enviar datos al servidor
     $('#submitExcelData').click(async function () {
         try {
-            // La lógica de validación y envío ahora se maneja a través del validador
-            // Esto está definido en validacion-inscripcion.js
-            
-            // El método handleSubmitExcelData ya está asociado al botón en validacion-inscripcion.js
-            // Esto es solo una capa de protección adicional
-            if (typeof InscripcionValidator !== 'undefined' && InscripcionValidator.handleSubmitExcelData) {
-                // La función se encargará de todo el proceso de validación y envío
-                console.log('Procesando inscripción con sistema de validación avanzado...');
-            } else {
-                console.error('Sistema de validación no inicializado correctamente');
-                alert('Error: El sistema de validación no está disponible. Por favor, recargue la página.');
+            if (typeof InscripcionValidator === 'undefined') {
+                throw new Error('El sistema de validación no está inicializado correctamente');
             }
+            await InscripcionValidator.handleSubmitExcelData();
         } catch (error) {
             console.error('Error al procesar inscripción:', error);
             alert('Ocurrió un error al procesar la inscripción: ' + error.message);
         }
-        loadingOverlay.style.display = 'flex';
-
-        // Crear un nuevo archivo Excel con los datos editados
-        const wb = XLSX.utils.book_new();        // Determinar si hay datos de Delegación/Colegio en alguna fila
-        let hasDelegacion = false;
-        for (let i = 0; i < excelData.length; i++) {
-            if (excelData[i] && excelData[i].length >= 12 && 
-                typeof excelData[i][11] !== 'undefined' && 
-                excelData[i][11] !== null && 
-                excelData[i][11] !== '') {
-                hasDelegacion = true;
-                break;
-            }
-        }
-        
-        // Definir encabezados basados en la presencia de la columna Delegación
-        let headers = [
-            'Nombre', 'Apellido Paterno', 'Apellido Materno', 'CI', 'Email',
-            'Fecha Nacimiento', 'Género', 'Área', 'Categoría', 'Grado',
-            'Número Contacto'
-        ];
-        
-        // Agregar la columna de Delegación si existe
-        if (hasDelegacion) {
-            headers.push('Delegación/Colegio');
-        }
-        
-        // Agregar el resto de los encabezados
-        headers = headers.concat([
-            'Nombre Tutor', 'Email Tutor', 'Modalidad', 'Código Invitación'
-        ]);
-        
-        // Prepara los datos para el archivo final
-        const processedData = excelData.map(row => {
-            // Solo necesitamos procesar si hay una columna de delegación pero está vacía
-            // En caso contrario, usamos los datos tal como están
-            if (!hasDelegacion && row.length > 11) {
-                // Si no estamos incluyendo delegación pero hay datos en esa posición,
-                // debemos eliminar ese índice para que los datos posteriores se alineen correctamente
-                const newRow = [...row];
-                newRow.splice(11, 1);
-                return newRow.slice(0, 16);
-            } else {
-                // Si estamos incluyendo delegación o no hay datos en esa posición,
-                // simplemente tomamos los datos tal como están
-                return row.slice(0, hasDelegacion ? 17 : 16);
-            }
-        });
-        
-        const wsData = [headers, ...processedData];
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Inscripciones');
-
-        // Convertir a blob
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/octet-stream' });
-
-        // Crear FormData y enviar
-        const formData = new FormData();
-        formData.append('file', new File([blob], 'inscripciones_editadas.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-        formData.append('_token', $('input[name="_token"]').val());
-
-        $.ajax({
-            url: $('form.excel-actions').attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                // Ocultar overlay de carga
-                loadingOverlay.style.display = 'none';
-
-                // Mostrar mensaje de éxito
-                const successMessage = document.getElementById('successMessage');
-                const successText = document.getElementById('successText');
-                successText.textContent = response.success || "La inscripción se ha completado con éxito.";
-                
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                    window.location.reload();
-                }, 3000);
-            },
-            error: function (xhr) {
-                // Ocultar overlay de carga
-                loadingOverlay.style.display = 'none';
-
-                let errorMsg = 'Ocurrió un error al procesar la inscripción.';
-
-                if (xhr.responseJSON) {
-                    if (xhr.responseJSON.error_messages) {
-                        errorMsg = xhr.responseJSON.error_messages.join('\n');
-                    } else if (xhr.responseJSON.errors) {
-                        errorMsg = 'Se encontraron los siguientes errores:\n';
-                        for (const error in xhr.responseJSON.errors) {
-                            errorMsg += xhr.responseJSON.errors[error].join('\n') + '\n';
-                        }
-                    } else if (xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    }
-                }
-
-                // Crear y mostrar el modal de error
-                const errorModalHTML = `
-                    <div class="modal fade error-modal" id="errorModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">
-                                        <i class="fas fa-exclamation-circle"></i> Error en la inscripción
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>${errorMsg.replace(/\n/g, '<br>')}</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-
-                // Remover modal anterior si existe
-                const existingModal = document.getElementById('errorModal');
-                if (existingModal) {
-                    existingModal.remove();
-                }
-
-                // Agregar nuevo modal al DOM
-                document.body.insertAdjacentHTML('beforeend', errorModalHTML);
-
-                // Mostrar el modal
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModal.show();
-            }
-        });
     });
       // Función para agregar una nueva fila
     $(document).on('click', '#addRowBtn', function() {
         const rowCount = $('#previewTableBody tr').length;
         const newRowIndex = rowCount;
         
-        // Crear un array vacío para la nueva fila en excelData
-        if (!excelData[newRowIndex]) {
-            excelData[newRowIndex] = Array(16).fill('');
+        // Crear un objeto vacío para la nueva fila en excelData
+        if (!window.excelData[newRowIndex]) {
+            window.excelData[newRowIndex] = {};
         }
         
         let newRowHtml = `<tr data-row="${newRowIndex}" class="new-row">`;
@@ -989,11 +689,11 @@ $(document).ready(function () {
         // Determinar si se debe incluir la columna de Delegación
         // Verificamos si hay alguna fila existente con delegación
         let includeDelegacion = false;
-        for (let i = 0; i < excelData.length; i++) {
-            if (excelData[i] && excelData[i].length >= 12 && 
-                typeof excelData[i][11] !== 'undefined' && 
-                excelData[i][11] !== null && 
-                excelData[i][11] !== '') {
+        for (let i = 0; i < window.excelData.length; i++) {
+            if (window.excelData[i] && Object.keys(window.excelData[i]).length >= 12 && 
+                typeof window.excelData[i].delegacion !== 'undefined' && 
+                window.excelData[i].delegacion !== null && 
+                window.excelData[i].delegacion !== '') {
                 includeDelegacion = true;
                 break;
             }
@@ -1069,8 +769,8 @@ $(document).ready(function () {
             row.remove();
             
             // Eliminar datos de la fila en excelData
-            if (excelData[rowIndex]) {
-                excelData.splice(rowIndex, 1);
+            if (window.excelData[rowIndex]) {
+                delete window.excelData[rowIndex];
                 
                 // Actualizar índices de filas restantes
                 $('#previewTableBody tr').each(function(index) {

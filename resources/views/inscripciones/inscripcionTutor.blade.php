@@ -39,14 +39,19 @@
     @php
         // Obtener la información del delegado y su colegio
         $tutor = Auth::user();
-        $delegacion = \App\Models\TutorAreaDelegacion::where('id', $tutor->id)->first();
         $nombreDelegacion = '';
-        if ($delegacion) {
-            $colegio = \App\Models\Delegacion::find($delegacion->idDelegacion);
-            if ($colegio) {
-                $nombreDelegacion = $colegio->nombre;
+        
+        // Obtener el tutor y su primera delegación
+        $tutorDelegacion = \App\Models\TutorAreaDelegacion::where('id', $tutor->id)->first();
+        if ($tutorDelegacion) {
+            $delegacion = \App\Models\Delegacion::find($tutorDelegacion->idDelegacion);
+            if ($delegacion) {
+                $nombreDelegacion = $delegacion->nombre;
             }
         }
+        
+        // Log para debugging
+        \Illuminate\Support\Facades\Log::info('Nombre de delegación:', ['nombre' => $nombreDelegacion]);
     @endphp
 
     <body data-convocatoria-id="{{ $idConvocatoriaResult ?? '' }}" data-delegacion-nombre="{{ $nombreDelegacion }}" data-tutor-id="{{ $tutor->id }}">
@@ -259,6 +264,7 @@
         @include('inscripciones/modalPrevisualizacionExcel')
 @push('scripts')
 <script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/validacion-columnas-fix.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/validacion-columnas-extra.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/debug-excel-columns.js') }}"></script>

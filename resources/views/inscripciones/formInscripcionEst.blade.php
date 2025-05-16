@@ -61,27 +61,50 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label>Nombres</label>
-                        <input type="text" name="nombres" required>
+                        <input type="text" 
+                               name="nombres" 
+                               required 
+                               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" 
+                               minlength="3"
+                               title="Solo letras, mínimo 3 caracteres">
                     </div>
                 </div>
                 <div class="input-row">
                     <div class="input-group">
                         <label>Apellido Paterno</label>
-                        <input type="text" name="apellidoPaterno" required>
+                        <input type="text" 
+                               name="apellidoPaterno" 
+                               required 
+                               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" 
+                               minlength="3"
+                               title="Solo letras, mínimo 3 caracteres">
                     </div>
                     <div class="input-group">
                         <label>Apellido Materno</label>
-                        <input type="text" name="apellidoMaterno" required>
+                        <input type="text" 
+                               name="apellidoMaterno" 
+                               required 
+                               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" 
+                               minlength="3"
+                               title="Solo letras, mínimo 3 caracteres">
                     </div>
                 </div>
                 <div class="input-row">
                     <div class="input-group">
                         <label>CI</label>
-                        <input type="text" name="ci" required>
+                        <input type="text" 
+                               name="ci" 
+                               required 
+                               pattern="[0-9]{7}"
+                               title="El CI debe tener exactamente 7 dígitos">
                     </div>
                     <div class="input-group">
                         <label>Fecha de Nacimiento</label>
-                        <input type="date" name="fechaNacimiento" required>
+                        <input type="date" 
+                               name="fechaNacimiento" 
+                               required 
+                               max="{{ date('Y-m-d', strtotime('-5 years')) }}"
+                               title="La edad mínima es 5 años">
                     </div>
                 </div>
                 <div class="input-row">
@@ -95,7 +118,11 @@
                     </div>
                     <div class="input-group">
                         <label>Email</label>
-                        <input type="email" name="email" required>
+                        <input type="email" 
+                               name="email" 
+                               required 
+                               pattern="[a-zA-Z0-9._%+-]+@gmail\.com$"
+                               title="Solo se permiten correos de @gmail.com">
                     </div>
                 </div>
             </div>
@@ -185,17 +212,30 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label>Nombre Completo del Tutor</label>
-                        <input type="text" name="nombreCompletoTutor" required>
+                        <input type="text" 
+                               name="nombreCompletoTutor" 
+                               required 
+                               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" 
+                               minlength="3"
+                               title="Solo letras, mínimo 3 caracteres">
                     </div>
                     <div class="input-group">
                         <label>Correo del Tutor</label>
-                        <input type="email" name="correoTutor" required>
+                        <input type="email" 
+                               name="correoTutor" 
+                               required 
+                               pattern="[a-zA-Z0-9._%+-]+@gmail\.com$"
+                               title="Solo se permiten correos de @gmail.com">
                     </div>
                 </div>
                 <div class="input-row">
                     <div class="input-group">
                         <label>Número de Contacto</label>
-                        <input type="text" name="numeroContacto" required 
+                        <input type="text" 
+                               name="numeroContacto" 
+                               required 
+                               pattern="[0-9]{8}"
+                               title="El número debe tener exactamente 8 dígitos"
                                placeholder="Ingrese número telefónico">
                     </div>
                 </div>
@@ -211,6 +251,10 @@
 </div>
 
 <!-- Add at the bottom of the file -->
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/inscripcion/formStyles.css') }}">
+@endpush
+
 @push('scripts')
 <script>
     // Function to display errors

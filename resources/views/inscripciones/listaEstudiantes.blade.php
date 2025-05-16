@@ -19,32 +19,38 @@
         <h1><i class="fas fa-user-graduate"></i> {{ __('Administrar Estudiantes') }}</h1>
     </div>
 
-    <!-- Actions Container (Add and Export buttons in the same row) -->
-    <div class="actions-container mb-1">
+    <!-- Actions Container -->
+    <div class="actions-container">
         <div class="button-group">
-            <a href="{{ route('estudiantes.agregar') }}" class="add-button py-1 px-2">
-                <i class="fas fa-plus"></i> Agregar Estudiante
+            <a href="{{ route('estudiantes.agregar') }}" class="add-button">
+                <i class="fas fa-plus"></i>
+                <span>Agregar Estudiante</span>
             </a>
-            <a href="{{ route('estudiantes.pendientes') }}" class="pending-button py-1 px-2">
-                <i class="fas fa-clock"></i> Estudiantes Pendientes
+            <a href="{{ route('estudiantes.pendientes') }}" class="pending-button">
+                <i class="fas fa-clock"></i>
+                <span>Estudiantes Pendientes</span>
             </a>
         </div>
-        <div class="search-filter-container mb-1">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Nombre o CI" value="{{ request('search') }}" class="py-1">
-                <button type="submit" class="search-button py-1 px-2">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-            </div>
-        </div>
-        <div class="export-buttons">
-            <button type="button" class="export-button pdf py-1 px-2" id="exportPdf">
-                <i class="fas fa-file-pdf"></i> PDF
-            </button>
 
-            <button type="button" class="export-button excel py-1 px-2" id="exportExcel">
-                <i class="fas fa-file-excel"></i> Excel
+        <div class="search-filter-container">
+            <form action="{{ route('estudiantes.lista') }}" method="GET" class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Buscar por nombre o CI..." value="{{ request('search') }}">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="export-buttons">
+            <button type="button" class="export-button pdf" id="exportPdf">
+                <i class="fas fa-file-pdf"></i>
+                <span>PDF</span>
+            </button>
+            <button type="button" class="export-button excel" id="exportExcel">
+                <i class="fas fa-file-excel"></i>
+                <span>Excel</span>
             </button>
         </div>
     </div>

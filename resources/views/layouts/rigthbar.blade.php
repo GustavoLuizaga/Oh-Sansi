@@ -1,4 +1,8 @@
 <!-- Right Sidebar -->
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
 <div class="sidebar-derecho">
     <div class="sidebar-derecho-calendario">
         <h3><i class="fas fa-calendar-alt"></i> Calendario</h3>
@@ -60,44 +64,85 @@
     @endpush
 
     <script>
-        function cargarNotificaciones() {
-            fetch('/notificaciones/nuevas')
-                .then(response => response.json())
-                .then(data => {
-                    const contenedor = document.getElementById('notificaciones');
-                    contenedor.innerHTML = '';
+function cargarNotificaciones() {
+    const contenedor = document.getElementById('notificaciones'); // 🔧 Mover aquí
 
-                    if (!data || data.length === 0) {
-                        const mensajeVacio = `
-                    <div class="notificacion-vacia">
-                        <i class="fas fa-bell-slash"></i>
-                        <p>No tienes notificaciones nuevas</p>
+    fetch('/notificaciones/nuevas', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        contenedor.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            const mensajeVacio = `
+                <div class="notificacion-vacia">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>No tienes notificaciones nuevas</p>
+                </div>
+            `;
+            contenedor.innerHTML = mensajeVacio;
+        } else {
+            data.forEach(notificacion => {
+                const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
+                const nuevaNotificacion = `
+                    <div class="notificacion ${notificacion.tipo.toLowerCase()}">
+                        <div class="notificacion-icono">
+                            <i class="fas ${icono}"></i>
+                        </div>
+                        <div class="notificacion-contenido">
+                            <p>${notificacion.mensaje}</p>
+                            <span class="notificacion-tiempo">Hace ${notificacion.tiempo}</span>
+                        </div>
                     </div>
                 `;
-                        contenedor.innerHTML = mensajeVacio;
-                    } else {
-                        data.forEach(notificacion => {
-                            const nuevaNotificacion = `
-                        <div class="notificacion">
-                            <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
-                            <div class="notificacion-contenido">
-                                <p>${notificacion.mensaje}</p>
-                                <span class="notificacion-tiempo">${notificacion.tiempo}</span>
-                            </div>
-                        </div>
-                    `;
-                            contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
-                        });
-                    }
-                })
-                .catch(error => console.error('Error al cargar notificaciones:', error));
+                contenedor.insertAdjacentHTML('beforeend', nuevaNotificacion);
+            });
         }
+    })
+    .catch(error => {
+        console.error('Error al cargar notificaciones:', error);
+        const mensajeError = `
+            <div class="notificacion-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error al cargar las notificaciones</p>
+            </div>
+        `;
+        contenedor.innerHTML = mensajeError; // ✅ Ya está definida
+    });
+}
+
 
         // Llamar al cargar la página
         cargarNotificaciones();
 
         // Repetir cada 10 segundos
         setInterval(cargarNotificaciones, 10000);
+
+        function obtenerIconoNotificacion(tipo) {
+            switch (tipo.toLowerCase()) {
+                case 'mensaje':
+                    return 'fa-comment-dots'; // Burbuja de mensaje con puntos
+                case 'denegacion':
+                    return 'fa-circle-xmark'; // X en círculo más moderna
+                case 'aprobacion':
+                    return 'fa-circle-check'; // Check en círculo más moderno
+                case 'alerta':
+                    return 'fa-triangle-exclamation'; // Triángulo de advertencia
+                case 'sistema':
+                    return 'fa-gear'; // Engranaje más moderno
+                case 'inscripcion':
+                    return 'fa-user-plus'; // Icono de registro
+                case 'recordatorio':
+                    return 'fa-bell'; // Campana
+                case 'importante':
+                    return 'fa-circle-exclamation'; // Exclamación en círculo
+                default:
+                    return 'fa-circle-info'; // Info en círculo más moderna
+            }
+        }
 
         function verHistorial() {
             fetch('/notificaciones/todas')
@@ -115,16 +160,29 @@
                 `;
                     } else {
                         data.forEach(notificacion => {
+                            const notificacionId = notificacion.id || notificacion.idNotificacion;
+                            const icono = obtenerIconoNotificacion(notificacion.tipo || 'default');
+
+                            if (!notificacionId) {
+                                console.error('Notificación sin ID:', notificacion);
+                                return;
+                            }
+
                             const nuevaNotificacion = `
-                        <div class="notificacion" style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center;">
-                                <div class="notificacion-icono"><i class="fas fa-info-circle"></i></div>
+                        <div class="notificacion ${notificacion.tipo.toLowerCase()}">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                <div class="notificacion-icono">
+                                    <i class="fas ${icono}"></i>
+                                </div>
                                 <div class="notificacion-contenido">
                                     <p>${notificacion.mensaje}</p>
-                                    <span class="notificacion-tiempo">${notificacion.tiempo}</span>
+                                    <span class="notificacion-tiempo">Hace ${notificacion.tiempo}</span>
                                 </div>
                             </div>
-                            <button class="btn-borrar-notificacion" title="Eliminar" onclick="borrarNotificacion('${notificacion.id}')">
+                            <button class="btn-borrar-notificacion" 
+                                title="Eliminar" 
+                                data-id="${notificacionId}"
+                                onclick="borrarNotificacion('${notificacionId}')">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
@@ -134,7 +192,10 @@
                     }
                     document.getElementById('modalHistorial').style.display = 'block';
                 })
-                .catch(error => console.error('Error al cargar el historial:', error));
+                .catch(error => {
+                    console.error('Error al cargar el historial:', error);
+                    alert('Error al cargar el historial de notificaciones');
+                });
         }
 
         function cerrarModalHistorial() {
@@ -150,19 +211,31 @@
         }
 
         function borrarNotificacion(id) {
-    if (confirm('¿Seguro que deseas eliminar esta notificación?')) {
-        fetch(`/notificaciones/borrar/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            if (confirm('¿Seguro que deseas eliminar esta notificación?')) {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch(`/notificaciones/borrar/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Recargar solo si la eliminación fue exitosa
+                            verHistorial();
+                            cargarNotificaciones(); // También actualizar las notificaciones nuevas
+                        } else {
+                            alert(data.message || 'No se pudo eliminar la notificación');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al eliminar la notificación');
+                    });
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Recargar historial después de borrar
-            verHistorial();
-        })
-        .catch(error => console.error('Error al borrar notificación:', error));
-    }
-}
+        }
     </script>

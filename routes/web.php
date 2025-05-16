@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\EstudianteController;
 
 
 
@@ -62,12 +64,12 @@ Route::get('/descargar-plantilla-excel', [\App\Http\Controllers\Auth\ResgistrarL
 Route::get('/boleta/preview', [
     App\Http\Controllers\BoletaPago\BoletaDePago::class,
     'generarOrdenPago'
-])->name('boleta.preview');
+])->middleware(['auth'])->name('boleta.preview');
 
 Route::get('/boleta', [
     App\Http\Controllers\BoletaPago\BoletaDePago::class,
     'generarOrdenPago'
-])->name('boleta');;
+])->middleware(['auth'])->name('boleta');
 
 
 
@@ -85,3 +87,26 @@ require __DIR__ . '/grados.php';
 require __DIR__ . '/estudiantes.php';
 require __DIR__ . '/perfil.php';
 require __DIR__ . '/notificaciones.php';
+require __DIR__ . '/backup.php';
+
+// Rutas para grupos
+Route::prefix('inscripcion/grupos')->middleware(['auth'])->group(function () {
+    Route::get('/', [GrupoController::class, 'index'])->name('inscripcion.grupos');
+    Route::post('/', [GrupoController::class, 'store'])->name('inscripcion.grupos.store');
+    Route::get('/{id}', [GrupoController::class, 'show'])->name('inscripcion.grupos.show');
+    Route::put('/{id}', [GrupoController::class, 'update'])->name('inscripcion.grupos.update');
+    Route::delete('/{id}', [GrupoController::class, 'destroy'])->name('inscripcion.grupos.destroy');
+});
+
+Route::prefix('inscripcion/estudiantes')->middleware(['auth'])->group(function () {
+    Route::get('/', [EstudianteController::class, 'index'])->name('inscripcion.estudiantes');
+    Route::get('/{id}', [EstudianteController::class, 'show'])->name('inscripcion.estudiantes.show');
+    Route::put('/{id}', [EstudianteController::class, 'update'])->name('inscripcion.estudiantes.update');
+});
+
+Route::prefix('estudiantes')->middleware(['auth'])->group(function () {
+    Route::get('/ver/{id}', [EstudianteController::class, 'show'])->name('estudiantes.ver');
+    Route::get('/completar/{id}', [EstudianteController::class, 'completarInscripcion'])->name('estudiantes.completar');
+    Route::post('/completar/{id}', [EstudianteController::class, 'storeCompletarInscripcion'])->name('estudiantes.completarInscripcion.store');
+    Route::put('/update/{id}', [EstudianteController::class, 'update'])->name('estudiantes.update');
+});

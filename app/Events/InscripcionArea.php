@@ -23,7 +23,7 @@ class InscripcionArea
      *
      * @return void
      */
-    public function __construct($userId, $mensaje, $tipo = 'sistema')
+    public function __construct($userId, $mensaje, $tipo = 'mensaje')//sistema
     {
         $this->userId = $userId;
         $this->mensaje = $mensaje;

@@ -113,24 +113,102 @@ class GrupoController extends Controller
     }
     
     /**
+     * Obtiene los detalles de un grupo incluyendo sus miembros
+     */
+    public function show($id)
+    {
+        try {
+            $grupo = GrupoInscripcion::with([
+                'delegacion',
+                'detallesInscripcion.inscripcion.estudiantes' => function($query) {
+                    $query->select('estudiante.*', 'users.name', 'users.apellidoPaterno', 'users.apellidoMaterno')
+                          ->join('users', 'estudiante.id', '=', 'users.id');
+                }
+            ])->findOrFail($id);
+
+            // Contar miembros
+            $cantidadMiembros = $grupo->detallesInscripcion->count();
+
+            return response()->json([
+                'success' => true,
+                'grupo' => $grupo,
+                'cantidadMiembros' => $cantidadMiembros
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los detalles del grupo'
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualiza la información de un grupo
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'nombreGrupo' => 'required|string|max:100',
+                'modalidad' => 'required|in:duo,equipo'
+            ]);
+
+            $grupo = GrupoInscripcion::with('detallesInscripcion')->findOrFail($id);
+            $cantidadMiembros = $grupo->detallesInscripcion->count();
+
+            // Verificar si se puede cambiar la modalidad
+            if ($grupo->modalidad !== $request->modalidad && $cantidadMiembros > 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede cambiar la modalidad porque el grupo tiene más de 2 miembros'
+                ], 422);
+            }
+
+            $grupo->nombreGrupo = $request->nombreGrupo;
+            $grupo->modalidad = $request->modalidad;
+            $grupo->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Grupo actualizado correctamente',
+                'grupo' => $grupo
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el grupo'
+            ], 500);
+        }
+    }
+
+    /**
      * Elimina un grupo
      */
     public function destroy($id)
     {
-        $grupo = GrupoInscripcion::findOrFail($id);
-        
-        // Verificar si hay detalles de inscripción asociados
-        $detallesCount = DetalleInscripcion::where('idGrupoInscripcion', $id)->count();
-        
-        if ($detallesCount > 0) {
-            return redirect()->route('inscripcion.grupos')
-                             ->with('error', 'No se puede eliminar el grupo porque tiene inscripciones asociadas');
+        try {
+            $grupo = GrupoInscripcion::with('detallesInscripcion')->findOrFail($id);
+            
+            // Verificar si el grupo tiene miembros
+            if ($grupo->detallesInscripcion->count() > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se puede eliminar el grupo porque tiene miembros'
+                ], 422);
+            }
+
+            $grupo->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Grupo eliminado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el grupo'
+            ], 500);
         }
-        
-        $grupo->delete();
-        
-        return redirect()->route('inscripcion.grupos')
-                         ->with('success', 'Grupo eliminado correctamente');
     }
     
     public function obtenerGruposPorModalidad($modalidad)

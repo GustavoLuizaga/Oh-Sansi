@@ -56,95 +56,50 @@
         </form>
 
         <!-- Table -->
-        <table class="convocatoria-table">
-            <thead>
-                <tr>
-                    <th>NOMBRE DEL GRUPO</th>
-                    <th>MODALIDAD</th>
-                    <th>DELEGACIÓN</th>
-                    <th>CÓDIGO DE INVITACIÓN</th>
-                    <th>ESTADO</th>
-                    <th>ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($grupos as $grupo)
-                <tr>
-                    <td>{{ $grupo->nombreGrupo }}</td>
-                    <td>{{ ucfirst($grupo->modalidad) }}</td>
-                    <td>{{ $grupo->delegacion->nombre }}</td>
-                    <td><span class="codigo-invitacion">{{ $grupo->codigoInvitacion }}</span></td>
-                    <td>
-                        <span class="estado-badge estado-{{ strtolower($grupo->estado) }}">
-                            <i class="fas fa-circle"></i> {{ strtoupper($grupo->estado) }}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            @if($grupo->estado == 'incompleto')
-                            <!-- Activar grupo -->
-                            <a href="#" class="btn-action btn-approve" title="Activar"
-                                onclick="event.preventDefault(); if(confirm('¿Está seguro de activar este grupo?')) document.getElementById('activate-form-{{ $grupo->id }}').submit();">
-                                <i class="fas fa-check"></i>
-                            </a>
-                            <form id="activate-form-{{ $grupo->id }}" action="{{ route('inscripcion.grupos.update-status', $grupo->id) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="estado" value="activo">
-                            </form>
-                            
-                            <!-- Eliminar grupo -->
-                            <a href="#" class="btn-action btn-delete" title="Eliminar"
-                                onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar este grupo?')) document.getElementById('delete-form-{{ $grupo->id }}').submit();">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                            <form id="delete-form-{{ $grupo->id }}" action="{{ route('inscripcion.grupos.destroy', $grupo->id) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                            @elseif($grupo->estado == 'activo')
-                            <!-- Cancelar grupo -->
-                            <a href="#" class="btn-action btn-cancel" title="Cancelar"
-                                onclick="event.preventDefault(); if(confirm('¿Está seguro de cancelar este grupo?')) document.getElementById('cancel-form-{{ $grupo->id }}').submit();">
-                                <i class="fas fa-ban"></i>
-                            </a>
-                            <form id="cancel-form-{{ $grupo->id }}" action="{{ route('inscripcion.grupos.update-status', $grupo->id) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="estado" value="cancelado">
-                            </form>
-                            @elseif($grupo->estado == 'cancelado')
-                            <!-- Reactivar grupo -->
-                            <a href="#" class="btn-action btn-recover" title="Reactivar"
-                                onclick="event.preventDefault(); if(confirm('¿Está seguro de reactivar este grupo?')) document.getElementById('reactivate-form-{{ $grupo->id }}').submit();">
-                                <i class="fas fa-undo"></i>
-                            </a>
-                            <form id="reactivate-form-{{ $grupo->id }}" action="{{ route('inscripcion.grupos.update-status', $grupo->id) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="estado" value="activo">
-                            </form>
-                            
-                            <!-- Eliminar grupo -->
-                            <a href="#" class="btn-action btn-delete" title="Eliminar"
-                                onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar este grupo?')) document.getElementById('delete-form-{{ $grupo->id }}').submit();">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                            <form id="delete-form-{{ $grupo->id }}" action="{{ route('inscripcion.grupos.destroy', $grupo->id) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
-                            @endif
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="text-center">No hay grupos disponibles</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre del Grupo</th>
+                        <th>Modalidad</th>
+                        <th>Delegación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($grupos as $grupo)
+                    <tr>
+                        <td>{{ $grupo->nombreGrupo }}</td>
+                        <td>{{ ucfirst($grupo->modalidad) }}</td>
+                        <td>{{ $grupo->delegacion->nombre }}</td>
+                        <td>
+                            <span class="estado-{{ strtolower($grupo->estado) }}">
+                                {{ strtoupper($grupo->estado) }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button type="button" class="btn-action btn-view" onclick="verGrupo({{ $grupo->id }})" title="Visualizar">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn-action btn-edit" onclick="editarGrupo({{ $grupo->id }})" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn-action btn-delete" onclick="confirmarEliminar({{ $grupo->id }})" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No hay grupos disponibles</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination -->
         <div class="paginacion">
@@ -196,9 +151,63 @@
                 </form>
             </div>
         </div>
+
+        <!-- Modal para ver grupo -->
+        <div id="modalVerGrupo" class="modal">
+            <div class="modal-contenido">
+                <span class="modal-cerrar" onclick="cerrarModalVerGrupo()">&times;</span>
+                <h2>Detalles del Grupo</h2>
+                <div class="grupo-detalles">
+                    <div class="info-section">
+                        <p><strong>Nombre:</strong> <span id="verNombreGrupo"></span></p>
+                        <p><strong>Modalidad:</strong> <span id="verModalidad"></span></p>
+                        <p><strong>Delegación:</strong> <span id="verDelegacion"></span></p>
+                        <p><strong>Código de Invitación:</strong> <span id="verCodigo"></span></p>
+                        <p><strong>Estado:</strong> <span id="verEstado"></span></p>
+                    </div>
+                    <div class="miembros-section">
+                        <h3>Miembros del Grupo</h3>
+                        <div id="listaMiembros" class="lista-miembros">
+                            <!-- Los miembros se agregarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para editar grupo -->
+        <div id="modalEditarGrupo" class="modal">
+            <div class="modal-contenido">
+                <span class="modal-cerrar" onclick="cerrarModalEditarGrupo()">&times;</span>
+                <h2>Editar Grupo</h2>
+                <form id="formEditarGrupo" class="modal-form">
+                    <input type="hidden" id="editGrupoId" name="id">
+                    <div class="input-group">
+                        <label for="editNombreGrupo">Nombre del Grupo:</label>
+                        <input type="text" id="editNombreGrupo" name="nombreGrupo" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="editModalidad">Modalidad:</label>
+                        <select id="editModalidad" name="modalidad" required>
+                            <option value="duo">Dúo</option>
+                            <option value="equipo">Equipo</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancelar" onclick="cerrarModalEditarGrupo()">Cancelar</button>
+                        <button type="submit" class="btn-guardar">
+                            <i class="fas fa-save"></i>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
+    @push('scripts')
     <script>
+        // Funciones para el modal de crear grupo
         function abrirModalCrearGrupo() {
             document.getElementById('modalCrearGrupo').style.display = 'flex';
         }
@@ -206,13 +215,170 @@
         function cerrarModalCrearGrupo() {
             document.getElementById('modalCrearGrupo').style.display = 'none';
         }
+
+        // Funciones para el modal de ver grupo
+        function verGrupo(id) {
+            fetch(`/inscripcion/grupos/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const grupo = data.grupo;
+                    document.getElementById('verNombreGrupo').textContent = grupo.nombreGrupo;
+                    document.getElementById('verModalidad').textContent = grupo.modalidad.charAt(0).toUpperCase() + grupo.modalidad.slice(1);
+                    document.getElementById('verDelegacion').textContent = grupo.delegacion.nombre;
+                    document.getElementById('verCodigo').textContent = grupo.codigoInvitacion;
+                    document.getElementById('verEstado').textContent = grupo.estado.toUpperCase();
+
+                    // Limpiar y llenar la lista de miembros
+                    const listaMiembros = document.getElementById('listaMiembros');
+                    listaMiembros.innerHTML = '';
+                    
+                    if (grupo.detalles_inscripcion && grupo.detalles_inscripcion.length > 0) {
+                        grupo.detalles_inscripcion.forEach(detalle => {
+                            if (detalle.inscripcion && detalle.inscripcion.estudiantes && detalle.inscripcion.estudiantes.length > 0) {
+                                const estudiante = detalle.inscripcion.estudiantes[0];
+                                const nombreCompleto = `${estudiante.name} ${estudiante.apellidoPaterno} ${estudiante.apellidoMaterno}`;
+                                const miembroDiv = document.createElement('div');
+                                miembroDiv.className = 'miembro-item';
+                                miembroDiv.innerHTML = `<i class="fas fa-user"></i> ${nombreCompleto}`;
+                                listaMiembros.appendChild(miembroDiv);
+                            }
+                        });
+                    } else {
+                        listaMiembros.innerHTML = '<p class="no-miembros">No hay miembros en este grupo</p>';
+                    }
+
+                    document.getElementById('modalVerGrupo').style.display = 'flex';
+                } else {
+                    alert('Error al cargar los detalles del grupo');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del grupo');
+            });
+        }
         
-        // Cerrar modal al hacer clic fuera de él
+        function cerrarModalVerGrupo() {
+            document.getElementById('modalVerGrupo').style.display = 'none';
+        }
+
+        // Funciones para el modal de editar grupo
+        function editarGrupo(id) {
+            fetch(`/inscripcion/grupos/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const grupo = data.grupo;
+                    document.getElementById('editGrupoId').value = grupo.id;
+                    document.getElementById('editNombreGrupo').value = grupo.nombreGrupo;
+                    document.getElementById('editModalidad').value = grupo.modalidad;
+
+                    // Deshabilitar cambio de modalidad si hay más de 2 miembros
+                    const cantidadMiembros = data.cantidadMiembros;
+                    const modalidadSelect = document.getElementById('editModalidad');
+                    modalidadSelect.disabled = cantidadMiembros > 2;
+                    
+                    if (cantidadMiembros > 2) {
+                        modalidadSelect.title = 'No se puede cambiar la modalidad porque el grupo tiene más de 2 miembros';
+                    }
+
+                    document.getElementById('modalEditarGrupo').style.display = 'flex';
+                } else {
+                    alert('Error al cargar los datos del grupo');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del grupo');
+            });
+        }
+        
+        function cerrarModalEditarGrupo() {
+            document.getElementById('modalEditarGrupo').style.display = 'none';
+        }
+
+        // Event listener para el formulario de edición
+        document.getElementById('formEditarGrupo').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editGrupoId').value;
+            const formData = new FormData(this);
+
+            fetch(`/inscripcion/grupos/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombreGrupo: formData.get('nombreGrupo'),
+                    modalidad: formData.get('modalidad'),
+                    _method: 'PUT'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al actualizar el grupo');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al actualizar el grupo');
+            });
+        });
+
+        // Función para confirmar eliminación
+        function confirmarEliminar(id) {
+            if (confirm('¿Está seguro de que desea eliminar este grupo?')) {
+                fetch(`/inscripcion/grupos/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'No se puede eliminar el grupo');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el grupo');
+                });
+            }
+        }
+
+        // Cerrar modales al hacer clic fuera de ellos
         window.onclick = function(event) {
-            const modal = document.getElementById('modalCrearGrupo');
-            if (event.target == modal) {
-                modal.style.display = 'none';
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
         }
     </script>
+    @endpush
 </x-app-layout>
+
+@section('meta')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection

@@ -8,7 +8,7 @@
 
     <!-- Form Container -->
     <div class="bg-white p-4 rounded-lg shadow-md">
-        <form action="{{ route('estudiantes.completarInscripcion', $estudiante->id) }}" method="POST">
+        <form action="{{ route('estudiantes.completarInscripcion.store', $estudiante->id) }}" method="POST">
             @csrf
             
             <div class="mb-4">

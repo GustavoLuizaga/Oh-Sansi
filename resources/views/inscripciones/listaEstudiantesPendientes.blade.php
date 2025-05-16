@@ -16,28 +16,39 @@
     </div>
 
     <!-- Actions Container -->
-    <div class="actions-container mb-1">
+    <div class="actions-container">
         <div class="button-group">
-            <a href="{{ route('estudiantes.lista') }}" class="add-button py-1 px-2">
-                <i class="fas fa-arrow-left"></i> Volver a Lista de Estudiantes
+            <a href="{{ route('estudiantes.lista') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver a Lista</span>
             </a>
         </div>
-        <div class="search-filter-container mb-1">
-            <div class="search-box">
+
+        <div class="search-filter-container">
+            <form action="{{ route('estudiantes.pendientes') }}" method="GET" class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" name="search" placeholder="Nombre o CI" value="{{ request('search') }}" class="py-1">
-                <button type="submit" class="search-button py-1 px-2">
-                    <i class="fas fa-search"></i> Buscar
+                <input type="text" name="search" placeholder="Buscar por nombre o CI..." value="{{ request('search') }}">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                    <span>Buscar</span>
                 </button>
-            </div>
+            </form>
         </div>
+
         <div class="export-buttons">
-            <button type="button" class="export-button pdf py-1 px-2" id="generarOrdenPago">
-                <i class="fas fa-file-pdf"></i> Generar orden de pago
+            <button type="button" class="export-button payment" id="generarOrdenPago">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Generar Orden</span>
             </button>
 
+<<<<<<< HEAD
             <button type="button" class="export-button excel py-1 px-2" id="importComprobante" data-bs-toggle="modal" data-bs-target="#SubirComprobantePago">
                 <i class="fas fa-file-pdf"></i> Subir comprobante de pago
+=======
+            <button type="button" class="export-button upload" id="exportExcel">
+                <i class="fas fa-receipt"></i>
+                <span>Subir Comprobante</span>
+>>>>>>> 33eef2b0e766675169c765e79a2a7511a861879f
             </button>
         </div>
     </div>
@@ -120,12 +131,17 @@
                 </td>
                 <td>{{ $estudiante->user->created_at->format('d/m/Y') }}</td>
                 <td class="actions">
-                    <div class="flex space-x-1">
-                        <a href="{{ route('estudiantes.ver', $estudiante->id) }}" class="action-button view w-5 h-5">
-                            <i class="fas fa-eye text-xs"></i>
+                    <div class="action-buttons">
+                        <!-- Change this line 
+                        <a href="javascript:void(0)" onclick="verEstudiante({{ $estudiante->id }})" class="action-button view" title="Visualizar">
+                        -->
+                        <!-- To this -->                        <a href="#" onclick="verEstudiante('{{ $estudiante->id }}'); return false;" class="action-button view" title="Visualizar">
+                            <i class="fas fa-eye"></i>
+                        </a>                        <a href="#" onclick="editarEstudiante('{{ $estudiante->id }}'); return false;" class="action-button edit" title="Editar">
+                            <i class="fas fa-edit"></i>
                         </a>
-                        <a href="{{ route('estudiantes.completar', $estudiante->id) }}" class="action-button edit w-5 h-5">
-                            <i class="fas fa-check text-xs"></i>
+                        <a href="#" onclick="return false;" class="action-button delete-button" title="Eliminar">
+                            <i class="fas fa-trash-alt"></i>
                         </a>
                     </div>
                 </td>
@@ -138,11 +154,19 @@
         </tbody>
     </table>
 
+    <!-- Modal de Visualización -->
+     @include('inscripciones.modalPendienteVer')
+   
+
+    <!-- Modal de Edición -->
+    @include('inscripciones.modalPendienteEditar')
+
     <!-- Pagination -->
     <div class="pagination">
         {{ $estudiantes->appends(request()->query())->links() }}
     </div>
 
+<<<<<<< HEAD
     <!-- Modal para SUBIR comprobante de Pago -->
     <div class="modal fade" id="SubirComprobantePago" tabindex="-1" aria-labelledby="SubirComprobantePagoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -244,71 +268,244 @@
     document.addEventListener('DOMContentLoaded', function() {
         const filterForm = document.getElementById('filterForm');
         const selectElements = filterForm.querySelectorAll('select');
+=======
+    @push('scripts')
+    <script>
+        // Add event listener for generarOrdenPago button
+        document.getElementById('generarOrdenPago').addEventListener('click', function() {
+            window.location.href = '{{ route("boleta") }}';
+        });
+>>>>>>> 33eef2b0e766675169c765e79a2a7511a861879f
 
-        // Actualizar filtros cuando cambian los selects
-        selectElements.forEach(select => {
-            select.addEventListener('change', function() {
-                filterForm.submit();
+        function verEstudiante(id) {
+            fetch(`/estudiantes/ver/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const estudiante = data.estudiante;
+                    document.getElementById('verCI').textContent = estudiante.ci;
+                    document.getElementById('verNombre').textContent = estudiante.nombre;
+                    document.getElementById('verApellidos').textContent = `${estudiante.apellidoPaterno} ${estudiante.apellidoMaterno}`;
+                    document.getElementById('verFechaRegistro').textContent = estudiante.fechaNacimiento ? new Date(estudiante.fechaNacimiento).toLocaleDateString() : 'No disponible';
+                    
+                    // Actualizar información académica si existe
+                    if (estudiante.area) {
+                        document.getElementById('verArea').textContent = estudiante.area.nombre;
+                    } else {
+                        document.getElementById('verArea').textContent = 'No asignada';
+                    }
+                    
+                    if (estudiante.categoria) {
+                        document.getElementById('verCategoria').textContent = estudiante.categoria.nombre;
+                    } else {
+                        document.getElementById('verCategoria').textContent = 'No asignada';
+                    }
+                    
+                    if (estudiante.delegacion) {
+                        document.getElementById('verDelegacion').textContent = estudiante.delegacion.nombre;
+                    } else {
+                        document.getElementById('verDelegacion').textContent = 'No asignada';
+                    }
+                    
+                    document.getElementById('verModalidad').textContent = estudiante.modalidad || 'No definida';
+
+                    // Mostrar información del grupo si existe y la modalidad es duo o equipo
+                    const infoGrupo = document.getElementById('infoGrupo');
+                    if (estudiante.grupo && (estudiante.modalidad === 'duo' || estudiante.modalidad === 'equipo')) {
+                        document.getElementById('verNombreGrupo').textContent = estudiante.grupo.nombre || 'Sin nombre';
+                        document.getElementById('verCodigoGrupo').textContent = estudiante.grupo.codigo;
+                        document.getElementById('verEstadoGrupo').textContent = estudiante.grupo.estado;
+                        infoGrupo.style.display = 'block';
+                    } else {
+                        infoGrupo.style.display = 'none';
+                    }
+
+                    document.getElementById('modalVerEstudiante').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del estudiante');
+            });
+        }        // Variable global para almacenar el ID de delegación y modalidad actual
+        let currentDelegacionId = null;
+        let currentModalidad = null;
+        
+        function editarEstudiante(id) {
+            fetch(`/estudiantes/ver/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const estudiante = data.estudiante;
+                    document.getElementById('editEstudianteId').value = estudiante.id;
+                    
+                    // Guardar el ID de la delegación
+                    if (estudiante.delegacion && estudiante.delegacion.id) {
+                        currentDelegacionId = estudiante.delegacion.id;
+                    } else if (estudiante.delegacion && estudiante.delegacion.idDelegacion) {
+                        currentDelegacionId = estudiante.delegacion.idDelegacion;
+                    }
+                      // Llenar el formulario con los datos actuales
+                    if (estudiante.area) {
+                        document.getElementById('editArea').value = estudiante.area.id || estudiante.area.idArea;
+                    }
+                    if (estudiante.categoria) {
+                        document.getElementById('editCategoria').value = estudiante.categoria.id || estudiante.categoria.idCategoria;
+                    }                    if (estudiante.modalidad) {
+                        document.getElementById('editModalidad').value = estudiante.modalidad;
+                        currentModalidad = estudiante.modalidad;
+                        
+                        // Si es duo o equipo, mostrar el selector de grupos y cargarlos
+                        if (estudiante.modalidad === 'duo' || estudiante.modalidad === 'equipo') {
+                            const grupoContainer = document.getElementById('grupoContainer');
+                            grupoContainer.style.display = 'block';
+                            
+                            // Cargar los grupos si tenemos el ID de la delegación
+                            if (currentDelegacionId) {
+                                cargarGrupos(currentDelegacionId, estudiante.modalidad);
+                                
+                                // Si el estudiante ya tiene un grupo, seleccionarlo después de un pequeño retraso
+                                if (estudiante.grupo && estudiante.grupo.id) {
+                                    setTimeout(() => {
+                                        document.getElementById('editGrupo').value = estudiante.grupo.id;
+                                    }, 500);
+                                }
+                            }
+                        } else {
+                            // Ocultar selector de grupos para modalidad individual
+                            document.getElementById('grupoContainer').style.display = 'none';
+                        }
+                    }
+
+                    document.getElementById('modalEditarEstudiante').style.display = 'flex';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del estudiante');
+            });
+        }
+
+        // Función para manejar el cambio de modalidad
+        function handleModalidadChange() {
+            const modalidadSelect = document.getElementById('editModalidad');
+            const grupoContainer = document.getElementById('grupoContainer');
+            const grupoSelect = document.getElementById('editGrupo');
+            
+            // Guardar la modalidad actual seleccionada
+            currentModalidad = modalidadSelect.value;
+            
+            // Limpiar el selector de grupos
+            grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+            
+            // Mostrar u ocultar el selector de grupos según la modalidad
+            if (modalidadSelect.value === 'duo' || modalidadSelect.value === 'equipo') {
+                grupoContainer.style.display = 'block';
+                
+                // Cargar grupos si tenemos el ID de la delegación
+                if (currentDelegacionId) {
+                    cargarGrupos(currentDelegacionId, modalidadSelect.value);
+                } else {
+                    console.error('No se pudo obtener el ID de delegación');
+                }
+            } else {
+                grupoContainer.style.display = 'none';
+            }
+        }
+        
+        // Función para cargar los grupos según delegación y modalidad
+        function cargarGrupos(idDelegacion, modalidad) {
+            fetch(`/estudiantes/grupos/${idDelegacion}/${modalidad}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const grupoSelect = document.getElementById('editGrupo');
+                    
+                    // Limpiar opciones actuales
+                    grupoSelect.innerHTML = '<option value="">Seleccione un grupo</option>';
+                      // Añadir los nuevos grupos
+                    data.grupos.forEach(grupo => {
+                        const option = document.createElement('option');
+                        option.value = grupo.id;
+                        option.textContent = `${grupo.nombreGrupo || 'Grupo'} (${grupo.codigoInvitacion})`;
+                        grupoSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('Error al cargar grupos:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener los grupos:', error);
+            });
+        }
+
+        function cerrarModalVer() {
+            document.getElementById('modalVerEstudiante').style.display = 'none';
+        }
+
+        function cerrarModalEditar() {
+            document.getElementById('modalEditarEstudiante').style.display = 'none';
+        }
+
+        document.getElementById('formEditarEstudiante').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editEstudianteId').value;
+            const formData = new FormData(this);            // Convertir FormData a un objeto para enviar como JSON            // Crear objeto para enviar como JSON
+            const formObject = {
+                area_id: formData.get('idArea'),
+                categoria_id: formData.get('idCategoria'),
+                modalidad: formData.get('modalidad')
+            };
+            
+            // Si la modalidad es duo o equipo y hay un grupo seleccionado, incluirlo
+            if ((formData.get('modalidad') === 'duo' || formData.get('modalidad') === 'equipo') && formData.get('idGrupoInscripcion')) {
+                formObject.idGrupoInscripcion = formData.get('idGrupoInscripcion');
+            }
+            
+            fetch(`/estudiantes/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formObject)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al actualizar el estudiante');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al actualizar el estudiante');
             });
         });
 
-        // Exportar a PDF (Generar orden de pago)
-        document.getElementById('generarOrdenPago').addEventListener('click', function() {
-            try {
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-
-                // Realizar la solicitud usando fetch
-                fetch('{{ route("boleta") }}', {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/pdf'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
-                    return response.blob();
-                })
-                .then(blob => {
-                    // Crear un objeto URL para el blob
-                    const url = window.URL.createObjectURL(blob);
-                    // Crear un enlace temporal
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'orden-de-pago.pdf';
-
-                    // Agregar al documento y hacer clic
-                    document.body.appendChild(a);
-                    a.click();
-
-                    // Limpiar
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-
-                    // Restaurar el botón
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('mensajeError').style.display = 'block';
-                    document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
-                });
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('mensajeError').style.display = 'block';
-                document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
+<<<<<<< HEAD
         });
     });
 
@@ -591,4 +788,9 @@
 
 </script>
 
+=======
+        }
+    </script>
+    @endpush
+>>>>>>> 33eef2b0e766675169c765e79a2a7511a861879f
 </x-app-layout>

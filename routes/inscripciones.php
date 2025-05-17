@@ -38,7 +38,13 @@ Route::middleware('auth')->group(function () {
         ->name('inscripcion.estudiante.manual.store-new');
 
     Route::post('/inscripcion/estudiante/store', [InscripcionEstController::class, 'store'])
-        ->name('inscripcion.store');
+        ->name('inscripcion.store');    // Ruta para validar e inscribir estudiante verificando existencia y límites de áreas
+    Route::post('/inscripcion/estudiante/validar-inscribir', [\App\Http\Controllers\Auth\ResgistrarListaEstController::class, 'validarEInscribirEstudiante'])
+        ->name('inscripcion.estudiante.validar-inscribir');
+        
+    // Ruta para verificar si un estudiante existe por CI o email
+    Route::post('/api/verificar-estudiante', [\App\Http\Controllers\Api\VerificarEstudianteController::class, 'verificarEstudiante'])
+        ->name('api.verificar.estudiante');
 
     //Ruta para mostrar los datos de inscripcion del estudiante y EDITAR SU INFORMACION DE AREAS,CATEGORIAS, INCLUSO CAMBIAR TUTORES
     Route::get('/inscripcion/estudiante/informacion', [BoletaDePagoDeEstudiante::class, 'index'])

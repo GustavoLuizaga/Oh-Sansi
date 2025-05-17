@@ -15,12 +15,12 @@ class PermisoIUSeeder extends Seeder
     public function run()
     {
         // Insertar funciones
-        $funciones = ['Dashboard', 'Notificaciones', 'Delegaciones', 'Convocatoria', 'Registro', 'AreasCategorias', 'Perfil', 'Seguridad', 'InscripcionEstudiante', 'InscripcionTutor', 'Estudiantes', 'Delegados', 'Usuarios', 'Backup'];
+        $funciones = ['Dashboard', 'Notificaciones', 'Delegaciones', 'Convocatoria', 'Registro', 'AreasCategorias', 'Perfil', 'Seguridad', 'InscripcionEstudiante', 'InscripcionTutor', 'Estudiantes', 'Delegados', 'Usuarios', 'Backup', 'VerificacionManual'];
         foreach ($funciones as $funcion) {
             DB::table('funcion')->updateOrInsert(['nombre' => $funcion]);
         }
         // Insertar interfaces de usuario (IU)
-        $ius = ['Dashboard', 'Notificaciones', 'Delegaciones', 'Convocatoria', 'Registro', 'AreaCategoria', 'Perfil', 'Seguridad', 'InscripcionEstudiante', 'InscripcionTutor', 'Estudiantes', 'Delegados', 'Usuarios', 'Backup'];
+        $ius = ['Dashboard', 'Notificaciones', 'Delegaciones', 'Convocatoria', 'Registro', 'AreaCategoria', 'Perfil', 'Seguridad', 'InscripcionEstudiante', 'InscripcionTutor', 'Estudiantes', 'Delegados', 'Usuarios', 'Backup', 'VerificacionManual'];
         foreach ($ius as $iu) {
             DB::table('iu')->updateOrInsert(['nombreIu' => $iu]);
         }
@@ -52,7 +52,8 @@ class PermisoIUSeeder extends Seeder
                 'Seguridad',
                 'Delegados',
                 'Usuarios',
-                'Backup'
+                'Backup',
+                'VerificacionManual'
             ])
             ->get();
 

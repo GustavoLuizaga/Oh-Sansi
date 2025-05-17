@@ -15,5 +15,6 @@ return [
     'DELEGADOS' => 12,
     'USUARIOS'=> 13,
     'BACKUP'=> 14,
+    'VERIFICACIONMANUAL'=> 15,
 
 ];

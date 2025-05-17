@@ -51,6 +51,9 @@
                 @if($iusIds->contains(config('ius.USUARIOS')))
                 <li><a href="{{ route('usuarios') }}" class="{{ request()->is('/usuarios') ? 'active' : '' }}" data-title="Usuarios"><i class="fas fa-user-friends"></i> <span class="menu-text">Usuarios</span></a></li>
                 @endif
+                @if($iusIds->contains(config('ius.VERIFICACIONMANUAL')))
+                <li><a href="{{ route('verificacionManual.comprobanteDePago') }}" class="{{ request()->is('/VerificacionManual/ComprobanteDePago') ? 'active' : '' }}" data-title="VerificacionManual"><i class="fas fa-tasks"></i> <span class="menu-text">Verificacion Manual</span></a></li>
+                @endif
                 @if($iusIds->contains(config('ius.BACKUP')))
                 <li><a href="{{ route('backup') }}" class="{{ request()->is('/backup') ? 'active' : '' }}" data-title="Backup"><i class="fas fa-database"></i> <span class="menu-text">Respaldo y Logs</span></a></li>
                 @endif

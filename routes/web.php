@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\Auth\ResgistrarListaEstController;
-
+use App\Http\Controllers\VerificarComprobanteController;
 
 
 /*
@@ -43,6 +43,11 @@ Route::get('/dashboard', function () {
     }
     //return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+    //Ruta para verificar el comprobante manualmente por el Administrador
+    Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])
+        ->name('verificacionManual.comprobanteDePago');
+
 
 Route::get('/servicios', [\App\Http\Controllers\ServiceController::class, 'index'])->middleware(['auth'])->name('servicios');
 Route::get('/servicios/obtener-funciones-rol/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerFuncionesRol'])->middleware(['auth'])->name('servicios.obtenerFuncionesRol');

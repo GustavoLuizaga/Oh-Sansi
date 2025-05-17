@@ -132,10 +132,20 @@ class ComprobantePagoController extends Controller
             
             $inscripcionId = $inscripcionResponse->original['inscripcion_id'];
             
-            // Verificar si este comprobante ya está registrado para otra inscripción
+            // Obtener el idBoleta asociado a esta inscripción
+            $boletaInfo = DB::table('verificacioninscripcion')
+                ->where('idInscripcion', $inscripcionId)
+                ->select('idBoleta')
+                ->first();
+            
+            $idBoleta = $boletaInfo ? $boletaInfo->idBoleta : null;
+
+            // Verificar si este comprobante ya está registrado para otra inscripción con DIFERENTE idBoleta
             $comprobanteExistente = DB::table('verificacioninscripcion')
                 ->where('CodigoComprobante', $request->user_number)
-                ->where('idInscripcion', '!=', $inscripcionId)
+                ->when($idBoleta, function($query) use ($idBoleta) {
+                    return $query->where('idBoleta', '!=', $idBoleta);
+                })
                 ->exists();
                 
             if ($comprobanteExistente) {
@@ -255,3 +265,4 @@ class ComprobantePagoController extends Controller
         }
     }
 }
+        

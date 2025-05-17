@@ -281,19 +281,26 @@ class ResgistrarListaEstController extends Controller
                 }
                 
                 // Si no tiene inscripción, continuar para crear una nueva
-            } else {
-                // Crear nuevo usuario si no existe
+            } else {                // Crear nuevo usuario si no existe
+                $plainPassword = $datos['ci']; // Guardar la contraseña original para el email
                 $user = User::create([
                     'name' => $datos['nombre'],
                     'apellidoPaterno' => $datos['apellidoPaterno'],
                     'apellidoMaterno' => $datos['apellidoMaterno'],
                     'email' => $datos['email'] ?? $datos['ci'] . '@temp.com',
-                    'password' => Hash::make($datos['ci']),
+                    'password' => Hash::make($plainPassword),
                     'ci' => $datos['ci'],
                     'fechaNacimiento' => $datos['fechaNacimiento'],
                     'genero' => $datos['genero'],
                     'status' => 'Habilitado',
                 ]);
+                
+                // Enviar correo de bienvenida y activar evento de registro
+                $isNewUser = true;
+                if ($isNewUser) {
+                    $user->notify(new WelcomeEmailNotification($plainPassword));
+                    event(new Registered($user));
+                }
                 
                 // Asignar rol de estudiante (ID = 3)
                 DB::table('userRol')->insert([

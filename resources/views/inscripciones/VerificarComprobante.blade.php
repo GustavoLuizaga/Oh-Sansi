@@ -1,219 +1,28 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Verificación de Comprobantes') }}
-        </h2>
+        <div class="Comprobante-header">
+            <h1><i class="fas fa-file-alt"></i> &nbsp; {{ __('Verificación de Comprobantes') }}</h1>
+        </div>
     </x-slot>
-    
     <style>
-        /* Estilos personalizados para complementar Tailwind */
-        .active {
-            border-bottom: 2px solid #4f46e5;
-            color: #4f46e5;
-        }
-        
-        .tab-transition {
-            transition: all 0.3s ease-in-out;
-        }
-        
-        .modal-fade {
-            transition: opacity 0.3s ease-in-out;
-        }
-        
-        .hover-zoom:hover {
-            transform: scale(1.05);
-            transition: transform 0.3s ease;
-        }
-        
-        .img-preview {
-            cursor: pointer;
-        }
-        
-        .img-preview:hover {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-primary {
-            background-color: #4f46e5;
-            color: white;
-            padding: 0.5rem 1rem;
+        .Comprobante-header {
+            background-color: #1a365d; /* Color de fondo */
+            color: white; /* Texto en blanco */
+            padding: 0.5rem 2rem;
             border-radius: 0.375rem;
-            font-weight: 500;
-            transition: background-color 0.2s;
         }
-        
-        .btn-primary:hover {
-            background-color: #4338ca;
-        }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: 1;
-        }
-        
-        .badge-pendiente {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-        
-        .badge-aprobado {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .badge-rechazado {
-            background-color: #fee2e2;
-            color: #b91c1c;
-        }
-        
-        .badge-dudoso {
-            background-color: #ffedd5;
-            color: #9a3412;
-        }
-        
-        .table-hover tr:hover {
-            background-color: #f9fafb;
-        }
-        
-        .table-striped tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border-radius: 0.5rem;
-        }
-        
-        .form-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
-        
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(2px);
-        }
-        
-        .modal-content {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-radius: 0.5rem;
-            animation: modal-pop 0.3s ease-out forwards;
-        }
-        
-        @keyframes modal-pop {
-            0% {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn-icon svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-right: 0.5rem;
-        }
-        
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 120px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -60px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        /* Estados de aprobación con mejor visibilidad */
-        .estado-pendiente {
-            background-color: #fef3c7;
-            color: #92400e;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            border: 1px solid #f59e0b;
-        }
-        
-        .estado-aprobado {
-            background-color: #dcfce7;
-            color: #166534;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            border: 1px solid #10b981;
-        }
-        
-        .estado-rechazado {
-            background-color: #fee2e2;
-            color: #b91c1c;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            border: 1px solid #ef4444;
-        }
-        
-        .estado-dudoso {
-            background-color: #ffedd5;
-            color: #9a3412;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            border: 1px solid #f97316;
-        }
-        
-        /* Animaciones suaves para los botones */
-        .btn {
-            transition: all 0.2s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+        .Comprobante-header h1 {
+            font-size: 1rem; /* H1 pequeño */
+            margin: 0;
         }
     </style>
-
-<main class="py-4">
+    <div class="py-4">
         <div class="container">
             <div class="card mb-4">
                 <div class="card-body">
                     <!-- Resumen de estadísticas -->
-                    <div class="row g-4 mb-4">
+                    {{-- <div class="row g-4 mb-4">
                         <div class="col-md-6 col-lg-3">
                             <div class="card h-100 border-0 shadow-sm">
                                 <div class="card-body">
@@ -274,15 +83,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="estudiantes-tab" data-bs-toggle="tab" data-bs-target="#estudiantes" type="button" role="tab" aria-controls="estudiantes" aria-selected="true">Comprobantes de Estudiantes</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tutores-tab" data-bs-toggle="tab" data-bs-target="#tutores" type="button" role="tab" aria-controls="tutores" aria-selected="false">Comprobantes de Tutores</button>
                         </li>
                     </ul>
 
@@ -304,7 +110,6 @@
                                         <option value="pendiente">Pendientes</option>
                                         <option value="aprobado">Aprobados</option>
                                         <option value="rechazado">Rechazados</option>
-                                        
                                     </select>
                                 </div>
                             </div>
@@ -313,168 +118,82 @@
                                 <table class="table table-hover table-bordered">
                                     <thead class="table-light">
                                         <tr>
-                                            <th scope="col">ID</th>
+                                            <th scope="col">IDBoleta OrdenPago</th>
                                             <th scope="col">Estudiante</th>
                                             <th scope="col">Nombre del Archivo</th>
                                             <th scope="col">Fecha de Subida</th>
                                             <th scope="col">Estado</th>
-                                            <th scope="col">Nro. Comprobante</th>
+                                            <th scope="col">Nro. Comprobante Subido</th>
                                             <th scope="col">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Estudiante 1 - Pendiente -->
-                                        <tr>
-                                            <td>001</td>
-                                            <td>Carlos Martínez</td>
-                                            <td>comprobante_001.jpg</td>
-                                            <td>12/05/2025</td>
-                                            <td>
-                                                <span class="badge badge-pendiente">Pendiente</span>
-                                            </td>
-                                            <td>1234567</td>
-                                            <td>
-                                                <button class="btn btn-primary btn-sm btn-revisar" data-bs-toggle="modal" data-bs-target="#revisar-modal" data-id="001" data-tipo="estudiante">
-                                                    <i class="fas fa-eye me-1"></i> Revisar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <!-- Estudiante 2 - Pendiente (Lectura dudosa OCR) -->
-                                        <tr>
-                                            <td>002</td>
-                                            <td>Ana López</td>
-                                            <td>pago_ana.pdf</td>
-                                            <td>12/05/2025</td>
-                                            <td>
-                                                <span class="badge badge-dudoso">Pendiente</span>
-                                            </td>
-                                            <td>¿7854321?</td>
-                                            <td>
-                                                <button class="btn btn-primary btn-sm btn-revisar" data-bs-toggle="modal" data-bs-target="#revisar-modal" data-id="002" data-tipo="estudiante">
-                                                    <i class="fas fa-eye me-1"></i> Revisar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <!-- Estudiante 3 - Aprobado -->
-                                        <tr>
-                                            <td>003</td>
-                                            <td>María Sánchez</td>
-                                            <td>comprobante_maria.png</td>
-                                            <td>11/05/2025</td>
-                                            <td>
-                                                <span class="badge badge-aprobado">Aprobado</span>
-                                            </td>
-                                            <td>5467890</td>
-                                            <td>
-                                                <button class="btn btn-secondary btn-sm btn-revisar" data-bs-toggle="modal" data-bs-target="#revisar-modal" data-id="003" data-tipo="estudiante">
-                                                    <i class="fas fa-eye me-1"></i> Ver detalle
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <!-- Estudiante 4 - Rechazado -->
-                                        <tr>
-                                            <td>004</td>
-                                            <td>Pablo Gómez</td>
-                                            <td>recibo_pago.jpg</td>
-                                            <td>10/05/2025</td>
-                                            <td>
-                                                <span class="badge badge-rechazado">Rechazado</span>
-                                            </td>
-                                            <td>9876543</td>
-                                            <td>
-                                                <button class="btn btn-secondary btn-sm btn-revisar" data-bs-toggle="modal" data-bs-target="#revisar-modal" data-id="004" data-tipo="estudiante">
-                                                    <i class="fas fa-eye me-1"></i> Ver detalle
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Paginación -->
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <p class="text-muted small">Mostrando <span class="fw-medium">1</span> a <span class="fw-medium">4</span> de <span class="fw-medium">4</span> resultados</p>
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination pagination-sm">
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
-                                        </li>
-                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#">Siguiente</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Tab Tutores -->
-                        <div class="tab-pane fade" id="tutores" role="tabpanel" aria-labelledby="tutores-tab">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="fs-5 fw-semibold">Verificar Comprobantes de Tutores</h3>
-                                <select id="filtro-estado-tutores" class="form-select" style="width: auto;">
-                                    <option value="todos">Todos los estados</option>
-                                    <option value="pendiente">Pendientes</option>
-                                    <option value="aprobado">Aprobados</option>
-                                    <option value="rechazado">Rechazados</option>
-                                </select>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-hover table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col">ID</th>
-                                            <th scope="col">Tutor</th>
-                                            <th scope="col">Nombre del Archivo</th>
-                                            <th scope="col">Fecha de Subida</th>
-                                            <th scope="col">Estado</th>
-                                            <th scope="col">Nro. Comprobante</th>
-                                            <th scope="col">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Tutor 1 - Pendiente -->
-                                        <tr>
-                                            <td>T001</td>
-                                            <td>Prof. Laura Ramírez</td>
-                                            <td>comprobante_laura.pdf</td>
-                                            <td>13/05/2025</td>
-                                            <td>
-                                                <span class="badge badge-pendiente">Pendiente</span>
-                                            </td>
-                                            <td>8765432</td>
-                                            <td>
-                                                <button class="btn btn-primary btn-sm btn-revisar" data-bs-toggle="modal" data-bs-target="#revisar-modal" data-id="T001" data-tipo="tutor">
-                                                    <i class="fas fa-eye me-1"></i> Revisar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <!-- Tutor 2 - Aprobado -->
-                                        <tr>
-                                            <td>T002</td>
-                                            <td>Prof. Roberto Méndez</td>
-                                            <td>pago_roberto.jpg</td>
-                                            <td>10/05/2025</td>
-                                            <td>
-                                                <span class="badge badge-aprobado">Aprobado</span>
-                                            </td>
-                                            <td>2345678</td>
-                                            <td>
-                                                <button class="btn btn-secondary btn-sm btn-revisar" data-bs-toggle="modal" data-bs-target="#revisar-modal" data-id="T002" data-tipo="tutor">
-                                                    <i class="fas fa-eye me-1"></i> Ver detalle
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        @foreach ($boletas as $idBoleta => $grupo)
+                                            <tr>
+                                                <td>{{ $idBoleta }}</td>
+                                                <td>
+                                                    {{ $grupo->pluck('nombre_completo')->unique()->implode(', ') }}
+                                                </td>
+                                                <!-- Nombre del archivo sin la ruta -->
+                                                <td>{{ basename($grupo->first()->RutaComprobante) }}</td>
+                                                <td>
+                                                    @if ($grupo->first()->fecha_actualizacion_verificacion)
+                                                        {{ \Carbon\Carbon::parse($grupo->first()->fecha_actualizacion_verificacion)->format('d/m/Y') }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @php
+                                                        $status = $grupo->first()->status;
+                                                        switch (strtolower($status)) {
+                                                            case 'pendiente':
+                                                                $badgeClass = 'bg-warning text-dark';
+                                                                $statusText = 'Pendiente';
+                                                                break;
+                                                            case 'aprobado':
+                                                                $badgeClass = 'bg-success';
+                                                                $statusText = 'Aprobado';
+                                                                break;
+                                                            case 'rechazado':
+                                                                $badgeClass = 'bg-danger';
+                                                                $statusText = 'Rechazado';
+                                                                break;
+                                                            default:
+                                                                $badgeClass = 'bg-secondary';
+                                                                $statusText = 'Desconocido';
+                                                        }
+                                                    @endphp
+                                                    <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
+                                                </td>
+                                                <td>{{ $grupo->first()->CodigoComprobante }}</td>
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm btn-revisar" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#revisar-modal" 
+                                                            data-id="{{ $idBoleta }}"
+                                                            data-estudiantes="{{ $grupo->pluck('nombre_completo')->unique()->implode(', ') }}"
+                                                            data-archivo="{{ basename($grupo->first()->RutaComprobante) }}"
+                                                            data-fecha="{{ $grupo->first()->fecha_actualizacion_verificacion ? \Carbon\Carbon::parse($grupo->first()->fecha_actualizacion_verificacion)->format('d/m/Y') : 'N/A' }}"
+                                                            data-estado="{{ strtolower($grupo->first()->status) }}"
+                                                            data-nro-comprobante="{{ $grupo->first()->CodigoComprobante }}"
+                                                            data-imagen="{{ Storage::url(str_replace('public/', '', $grupo->first()->RutaComprobante)) }}">
+                                                        <i class="fas fa-eye me-1"></i> Revisar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+
+                        
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- Modal para revisar comprobante -->
     <div class="modal fade" id="revisar-modal" tabindex="-1" aria-labelledby="revisar-modal-label" aria-hidden="true">
@@ -485,8 +204,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
+                    <!-- Primera sección: Datos del comprobante -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label text-muted small">ID:</label>
                                 <p class="fw-medium" id="modal-id">001</p>
@@ -499,6 +219,8 @@
                                 <label class="form-label text-muted small">Tipo de Usuario:</label>
                                 <p class="fw-medium" id="modal-tipo">Estudiante</p>
                             </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label text-muted small">Archivo:</label>
                                 <p class="fw-medium" id="modal-archivo">comprobante_001.jpg</p>
@@ -510,18 +232,24 @@
                             <div class="mb-3">
                                 <label class="form-label text-muted small">Estado Actual:</label>
                                 <p class="fw-medium" id="modal-estado">
-                                    <span class="badge badge-pendiente">Pendiente</span>
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
                                 </p>
                             </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label text-muted small">Nro. Comprobante Detectado (OCR):</label>
+                                <label class="form-label text-muted small">Nro. Comprobante subido:</label>
                                 <p class="fw-medium" id="modal-nro-comprobante">1234567</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                    </div>
+
+                    <!-- Segunda sección: Imagen del comprobante -->
+                    <div class="row mb-4">
+                        <div class="col-12">
                             <label class="form-label text-muted small">Vista previa del comprobante:</label>
-                            <div class="preview-container">
-                                <img id="preview-comprobante" src="/api/placeholder/400/320" alt="Vista previa del comprobante" />
+                            <div class="preview-container border rounded p-2 bg-light">
+                                <img id="preview-comprobante" src="https://via.placeholder.com/400x320" alt="Vista previa del comprobante" class="img-fluid mx-auto d-block">
                             </div>
                             <p class="text-muted small mt-2">* Recuerda verificar que el número de comprobante (7 dígitos) sea claramente visible en la esquina superior derecha.</p>
                         </div>
@@ -558,7 +286,7 @@
                     <div id="area-procesado" class="d-none border-top pt-3 mt-3">
                         <h5 class="fw-semibold mb-3">Estado del comprobante:</h5>
                         <div id="estado-procesado" class="mb-3">
-                            <span class="badge badge-aprobado px-3 py-2">Aprobado el 11/05/2025</span>
+                            <span class="badge bg-success px-3 py-2">Aprobado el 11/05/2025</span>
                         </div>
                         <div id="motivo-procesado" class="mb-3 d-none">
                             <h6 class="fw-medium mb-2">Motivo del rechazo:</h6>
@@ -569,4 +297,258 @@
             </div>
         </div>
     </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('revisar-modal');
+    let idBoletaActual = null;
+    
+    // Token CSRF para las solicitudes AJAX
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    
+    modal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Botón que disparó el modal
+        idBoletaActual = button.getAttribute('data-id');
+        
+        // Obtener datos de los atributos data-*
+        const estudiantes = button.getAttribute('data-estudiantes');
+        const archivo = button.getAttribute('data-archivo');
+        const fecha = button.getAttribute('data-fecha');
+        const estado = button.getAttribute('data-estado');
+        const nroComprobante = button.getAttribute('data-nro-comprobante');
+        const imagenSrc = button.getAttribute('data-imagen');
+        
+        // Actualizar contenido del modal
+        modal.querySelector('#modal-id').textContent = idBoletaActual;
+        modal.querySelector('#modal-usuario').textContent = estudiantes;
+        modal.querySelector('#modal-tipo').textContent = 'Estudiante';
+        modal.querySelector('#modal-archivo').textContent = archivo;
+        modal.querySelector('#modal-fecha').textContent = fecha;
+        modal.querySelector('#modal-nro-comprobante').textContent = nroComprobante;
+        modal.querySelector('#preview-comprobante').src = imagenSrc;
+        
+        // Actualizar estado (badge)
+        const estadoBadge = modal.querySelector('#modal-estado .badge');
+        estadoBadge.className = 'badge ' + getBadgeClass(estado);
+        estadoBadge.textContent = getEstadoText(estado);
+        
+        // Mostrar u ocultar las áreas de decisión según el estado
+        const areaDecision = document.getElementById('area-decision');
+        const areaProcesado = document.getElementById('area-procesado');
+        const motivoProcesado = document.getElementById('motivo-procesado');
+        const estadoProcesado = document.getElementById('estado-procesado');
+        
+        if (estado === 'pendiente') {
+            areaDecision.classList.remove('d-none');
+            areaProcesado.classList.add('d-none');
+        } else {
+            areaDecision.classList.add('d-none');
+            areaProcesado.classList.remove('d-none');
+            
+            // Configurar el área de procesado según el estado
+            const fechaTexto = fecha !== 'N/A' ? ` el ${fecha}` : '';
+            if (estado === 'aprobado') {
+                estadoProcesado.innerHTML = `<span class="badge bg-success px-3 py-2">Aprobado${fechaTexto}</span>`;
+                motivoProcesado.classList.add('d-none');
+            } else if (estado === 'rechazado') {
+                estadoProcesado.innerHTML = `<span class="badge bg-danger px-3 py-2">Rechazado${fechaTexto}</span>`;
+                // Ocultamos la sección de motivo ya que no se implementará
+                motivoProcesado.classList.add('d-none');
+            }
+        }
+    });
+    
+    // Evento para el botón de aceptar comprobante
+    document.getElementById('aceptar-btn').addEventListener('click', function() {
+        if (!idBoletaActual) return;
+        
+        // Mostrar confirmación mediante SweetAlert2 si está disponible
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '¿Confirmar aprobación?',
+                text: "Esta acción aprobará el comprobante para todos los estudiantes asociados.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, aprobar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    aprobarComprobante(idBoletaActual);
+                }
+            });
+        } else {
+            // Si SweetAlert2 no está disponible, usar confirm nativo
+            if (confirm('¿Está seguro de aprobar este comprobante?')) {
+                aprobarComprobante(idBoletaActual);
+            }
+        }
+    });
+    
+    // Evento para el botón de rechazar comprobante
+    document.getElementById('rechazar-btn').addEventListener('click', function() {
+        if (!idBoletaActual) return;
+        
+        // Mostrar confirmación mediante SweetAlert2 si está disponible
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '¿Confirmar rechazo?',
+                text: "Esta acción rechazará el comprobante para todos los estudiantes asociados.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, rechazar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    rechazarComprobante(idBoletaActual);
+                }
+            });
+        } else {
+            // Si SweetAlert2 no está disponible, usar confirm nativo
+            if (confirm('¿Está seguro de rechazar este comprobante?')) {
+                rechazarComprobante(idBoletaActual);
+            }
+        }
+    });
+    
+    // Función para aprobar comprobante mediante AJAX
+    function aprobarComprobante(idBoleta) {
+        fetch(`/aprobar-comprobante/${idBoleta}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cerrar modal
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                modalInstance.hide();
+                
+                // Mostrar mensaje de éxito
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: '¡Comprobante aprobado!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        // Recargar página para ver cambios
+                        window.location.reload();
+                    });
+                } else {
+                    alert(data.message);
+                    window.location.reload();
+                }
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ha ocurrido un error al procesar la solicitud.');
+        });
+    }
+    
+    // Función para rechazar comprobante mediante AJAX
+    function rechazarComprobante(idBoleta) {
+        fetch(`/rechazar-comprobante/${idBoleta}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cerrar modal
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                modalInstance.hide();
+                
+                // Mostrar mensaje de éxito
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: '¡Comprobante rechazado!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        // Recargar página para ver cambios
+                        window.location.reload();
+                    });
+                } else {
+                    alert(data.message);
+                    window.location.reload();
+                }
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ha ocurrido un error al procesar la solicitud.');
+        });
+    }
+    
+    // Funciones auxiliares para manejo de clases de estado
+    function getBadgeClass(estado) {
+        switch (estado) {
+            case 'pendiente': return 'bg-warning text-dark';
+            case 'aprobado': return 'bg-success';
+            case 'rechazado': return 'bg-danger';
+            default: return 'bg-secondary';
+        }
+    }
+    
+    function getEstadoText(estado) {
+        return estado.charAt(0).toUpperCase() + estado.slice(1);
+    }
+    
+    // Filtro de búsqueda en la tabla
+    const filtroInput = document.querySelector('input[placeholder="Buscar estudiante..."]');
+    if (filtroInput) {
+        filtroInput.addEventListener('keyup', function() {
+            const texto = this.value.toLowerCase();
+            const tabla = document.querySelector('table');
+            const filas = tabla.querySelectorAll('tbody tr');
+            
+            filas.forEach(fila => {
+                const nombreEstudiante = fila.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                if (nombreEstudiante.includes(texto)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Filtro por estado
+    const filtroEstado = document.getElementById('filtro-estado-estudiantes');
+    if (filtroEstado) {
+        filtroEstado.addEventListener('change', function() {
+            const valor = this.value;
+            const tabla = document.querySelector('table');
+            const filas = tabla.querySelectorAll('tbody tr');
+            
+            filas.forEach(fila => {
+                const estadoTexto = fila.querySelector('td:nth-child(5) .badge').textContent.toLowerCase();
+                
+                if (valor === 'todos' || estadoTexto === valor) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 </x-app-layout>

@@ -48,6 +48,11 @@ Route::get('/dashboard', function () {
     Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])
         ->name('verificacionManual.comprobanteDePago');
 
+    // Rutas para verificación de comprobantes
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/aprobar-comprobante/{idBoleta}', [VerificarComprobanteController::class, 'aprobarComprobante'])->name('aprobar.comprobante');
+        Route::post('/rechazar-comprobante/{idBoleta}', [VerificarComprobanteController::class, 'rechazarComprobante'])->name('rechazar.comprobante');
+    });
 
 Route::get('/servicios', [\App\Http\Controllers\ServiceController::class, 'index'])->middleware(['auth'])->name('servicios');
 Route::get('/servicios/obtener-funciones-rol/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerFuncionesRol'])->middleware(['auth'])->name('servicios.obtenerFuncionesRol');

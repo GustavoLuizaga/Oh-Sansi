@@ -23,7 +23,7 @@
             <p class="convocatoria-info">Convocatoria: <span>{{ $convocatoria->nombre }}</span></p>
             @endif
             <a href="{{ route('inscripcion.estudiante.informacion') }}" class="info-button">
-                <i class="fas fa-arrow-right"></i> <u>Ver Información de Inscripción</u> 
+                <i class="fas fa-arrow-right"></i> <u>Ver Información de Inscripción</u>
             </a>
         </div>
 
@@ -38,6 +38,10 @@
             <div class="form-instructions">
                 <h2>Complete todos los campos del formulario</h2>
             </div>
+            <input type="hidden" name="ci" value="{{ auth()->user()->ci }}">
+            <input type="hidden" name="email" value="{{ auth()->user()->email }}">
+            <input type="hidden" id="idArea" name="idArea">
+            <input type="hidden" id="idCategoria" name="idCategoria">
 
             <div class="form-content">
                 <!-- Información Personal -->
@@ -161,31 +165,31 @@
                                                 <input type="hidden" class="idDelegacion-input" name="tutor_delegaciones[]">
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Áreas y Categorías -->
                                         <div class="areas-container">
                                             <div class="area-block">
                                                 <div class="info-row">
-                                                    <div class="info-group">                                                        <label>Área</label>                                                        <select class="area-select" name="tutor_areas_1_1" required>
+                                                    <div class="info-group"> <label>Área</label> <select class="area-select" name="tutor_areas[]" required>
                                                             <option value="">Seleccione un área</option>
                                                             @if(isset($areas) && is_iterable($areas))
-                                                                @foreach($areas as $area)
-                                                                    @php
-                                                                        // Maneja diferentes estructuras de datos (objeto, array, stdClass)
-                                                                        $idArea = is_object($area) ? ($area->idArea ?? null) : ($area['idArea'] ?? null);
-                                                                        $nombre = is_object($area) ? ($area->nombre ?? '') : ($area['nombre'] ?? '');
-                                                                    @endphp
-                                                                    @if($idArea && $nombre)
-                                                                        <option value="{{ $idArea }}">{{ $nombre }}</option>
-                                                                    @endif
-                                                                @endforeach
+                                                            @foreach($areas as $area)
+                                                            @php
+                                                            // Maneja diferentes estructuras de datos (objeto, array, stdClass)
+                                                            $idArea = is_object($area) ? ($area->idArea ?? null) : ($area['idArea'] ?? null);
+                                                            $nombre = is_object($area) ? ($area->nombre ?? '') : ($area['nombre'] ?? '');
+                                                            @endphp
+                                                            @if($idArea && $nombre)
+                                                            <option value="{{ $idArea }}">{{ $nombre }}</option>
+                                                            @endif
+                                                            @endforeach
                                                             @endif
                                                         </select>
                                                         <input type="hidden" class="tutor-area-hidden" value="">
                                                     </div>
                                                     <div class="input-grupo">
                                                         <label>Categoría</label>
-                                                        <select class="categoria-select" name="tutor_categorias_1_1" required>
+                                                        <select class="categoria-select" name="tutor_categorias[]" required>
                                                             <option value="">Seleccione una categoría</option>
                                                         </select>
                                                     </div>
@@ -227,31 +231,49 @@
 
             <!-- Botón de Envío -->
             <div class="subir-formulario">
-                <button type="button" id="confirmar-inscripcion" class="btn-subir">
+                <button type="submit" class="btn-subir">
                     <i class="fas fa-check"></i> Confirmar inscripción
                 </button>
+
             </div>
-        </form>    </div>
+        </form>
+    </div>
     <script src="{{ asset('js/inscripcionEstudiante.js') }}"></script>
     <script src="{{ asset('js/inscripcionFormHelper.js') }}"></script>
-    <script src="{{ asset('js/inscripcion/validacion-area-categoria.js') }}"></script>
+    <script src="{{ asset('js/inscripcion/validacion-area-categoria copy.js') }}"></script>
     @endif
 </x-app-layout>
 
 <script>
-function validateForm(event) {
-    const tutorBlocks = document.querySelectorAll('.tutor-block');
-    const validTutors = Array.from(tutorBlocks).filter(block => {
-        const tokenInput = block.querySelector('.tutor-token');
-        const tutorInfo = block.querySelector('.tutor-info');
-        return tokenInput.value.trim() !== '' && tutorInfo.style.display !== 'none';
-    });
+    function validateForm(event) {
+        const tutorBlocks = document.querySelectorAll('.tutor-block');
+        const validTutors = Array.from(tutorBlocks).filter(block => {
+            const tokenInput = block.querySelector('.tutor-token');
+            const tutorInfo = block.querySelector('.tutor-info');
+            return tokenInput.value.trim() !== '' && tutorInfo.style.display !== 'none';
+        });
 
-    if (validTutors.length === 0) {
-        alert('Debe tener al menos un tutor válido para continuar');
-        event.preventDefault();
-        return false;
+        if (validTutors.length === 0) {
+            alert('Debe tener al menos un tutor válido para continuar');
+            event.preventDefault();
+            return false;
+        }
+        return true;
     }
-    return true;
-}
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const areaSelect = document.querySelector('select[name="tutor_areas_1_1"]');
+        const categoriaSelect = document.querySelector('select[name="tutor_categorias_1_1"]');
+
+        if (areaSelect && categoriaSelect) {
+            areaSelect.addEventListener('change', function() {
+                document.getElementById('idArea').value = this.value;
+            });
+
+            categoriaSelect.addEventListener('change', function() {
+                document.getElementById('idCategoria').value = this.value;
+            });
+        }
+    });
 </script>

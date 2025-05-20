@@ -136,4 +136,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/inscripcion/estudiante/manual/store', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'store'])
         ->name('inscripcion.estudiante.manual.store');
+
+    Route::post('/rutaInscripcion', [App\Http\Controllers\InscripcionNueva\InsEstTokkenDelegadoController::class, 'store'])->name('rutaInscripcion');
 });

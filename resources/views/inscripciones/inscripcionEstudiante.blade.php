@@ -221,7 +221,7 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="addTutorBtn" class="btn-add-tutor">
+                            <button type="button" id="addTutorBtn" class="btn-add-tutor" style="display: none;">
                                 <i class="fas fa-plus"></i> Agregar otro tutor
                             </button>
                         </div>

@@ -81,7 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
             addTutorBtn.style.display = 'none';
         } else if (tutorCount < 2) {
             // Mostrar el botón solo si hay menos de 2 tutores
-            addTutorBtn.style.display = 'block';
+            if (addTutorBtn) addTutorBtn.style.display = 'none';
+
         }
     }
 
@@ -143,7 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Mostrar el botón de agregar tutor si hay menos de 2 tutores
         if (tutorCount < 2) {
-            addTutorBtn.style.display = 'block';
+            if (addTutorBtn) addTutorBtn.style.display = 'none';
+
         }
     }
     
@@ -236,7 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Asegurarse de que el botón de agregar tutor se muestre correctamente
         if (tutorCount < 2) {
-            addTutorBtn.style.display = 'block';
+            if (addTutorBtn) addTutorBtn.style.display = 'none';
+
         } else {
             addTutorBtn.style.display = 'none';
         }

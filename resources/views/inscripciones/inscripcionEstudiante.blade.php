@@ -34,6 +34,24 @@
             <input type="hidden" name="idConvocatoria" value="{{ $convocatoria->idConvocatoria }}">
             @endif
 
+            @if ($errors->any())
+            <div class="alert alert-danger" style="margin: 1rem 0;">
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                    @foreach ($errors->all() as $error)
+                    <li><i class="fas fa-exclamation-circle"></i> {{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            @if (session('success'))
+            <div class="alert alert-success" style="margin: 1rem 0;">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+            @endif
+
+
+
             <!-- Instrucciones del Formulario -->
             <div class="form-instructions">
                 <h2>Complete todos los campos del formulario</h2>

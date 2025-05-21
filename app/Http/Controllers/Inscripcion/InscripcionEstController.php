@@ -200,8 +200,7 @@ public function store(Request $request)
             ));
         }
 
-        return redirect('/inscripcion/estudiante/informacion')
-            ->with('success', 'Inscripción actualizada correctamente');
+        return back()->with('success', 'Inscripción actualizada correctamente');
 
     } catch (\Exception $e) {
         Log::error('Error en inscripción: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);

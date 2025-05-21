@@ -162,7 +162,7 @@
                             <div id="tutorContainer">
                                 <div class="tutor-block">
                                     <div class="tutor-header">
-                                        <h3>Tutor 1</h3>
+                                        <h3 data-index="1">Delegado</h3>
                                     </div>
                                     <div class="input-grupo">
                                         <label>Token del Tutor</label>

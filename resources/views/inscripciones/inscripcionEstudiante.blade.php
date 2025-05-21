@@ -155,8 +155,8 @@
                 <div class="formulario-seccion" id="tutor-info">
                     <div class="seccion-card">
                         <div class="seccion-header">
-                            <h2><i class="fas fa-chalkboard-teacher"></i> Información de Tutores</h2>
-                            <p class="section-subtitle">Puede agregar hasta 2 tutores</p>
+                            <h2><i class="fas fa-chalkboard-teacher"></i> Información de Delegado</h2>
+                            <p class="section-subtitle">Debe verificar el token proporcionado por su Delegado</p>
                         </div>
                         <div class="seccion-body">
                             <div id="tutorContainer">

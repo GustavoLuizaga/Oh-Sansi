@@ -9,9 +9,6 @@ use App\Http\Controllers\BoletaPago\BoletaDePago;
 use App\Http\Controllers\BoletaPago\BoletaDePagoDeEstudiante;
 use App\Http\Controllers\BoletaController;
 
-// Add these routes for exports
-Route::get('/inscripciones/estudiante/informacion/exportar/pdf', [BoletaDePagoDeEstudiante::class, 'exportPdf'])->name('inscripcionEstudiante.exportar.pdf');
-
 // Ruta para previsualizar la boleta de pago
 Route::get('/boleta/preview', [BoletaDePagoDeEstudiante::class, 'exportPdf'])->name('boleta.preview');
 
@@ -22,8 +19,7 @@ Route::middleware('auth')->group(function () {
     })->name('inscripciones');    // Student registration routes
     Route::get('/inscripcion/convocatorias', [InscripcionController::class, 'listarConvocatorias'])
         ->name('inscripcion.convocatorias');
-    Route::get('/inscripcion/estudiante/{id}', [InscripcionController::class, 'index'])
-        ->name('inscripcion.estudiante.formulario');
+
     Route::get('/inscripcion/estudiante', [InscripcionController::class, 'listarConvocatorias'])
         ->name('inscripcion.estudiante');
     
@@ -136,6 +132,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/inscripcion/estudiante/manual/store', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'store'])
         ->name('inscripcion.estudiante.manual.store');
+
+    Route::get('/inscripcion/estudiante/{id}', [InscripcionController::class, 'index'])
+    ->name('inscripcion.estudiante.formulario');
 
     Route::post('/rutaInscripcion', [App\Http\Controllers\InscripcionNueva\InsEstTokkenDelegadoController::class, 'store'])->name('rutaInscripcion');
 });

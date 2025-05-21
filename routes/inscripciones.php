@@ -121,11 +121,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/inscripcion/estudiante/areas-por-convocatoria-tutor', 
         [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerAreasPorConvocatoriaTutor'])
-        ->name('inscripcion.estudiante.areas-por-convocatoria-tutor');
-
-    Route::post('/inscripcion/estudiante/categorias-por-area-convocatoria', 
+        ->name('inscripcion.estudiante.areas-por-convocatoria-tutor');    Route::post('/inscripcion/estudiante/categorias-por-area-convocatoria', 
         [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerCategoriasPorAreaConvocatoria'])
         ->name('inscripcion.estudiante.categorias-por-area-convocatoria');
+        
+    Route::post('/inscripcion/estudiante/modalidades-por-area-categoria', 
+        [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'obtenerModalidadesPorAreaCategoria'])
+        ->name('inscripcion.estudiante.modalidades-por-area-categoria');
 
     Route::post('/inscripcion/estudiante/verificar-modalidad',
         [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'verificarModalidadDisponible'])
@@ -134,6 +136,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/inscripcion/estudiante/buscar', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'buscarEstudiante'])
         ->name('inscripcion.estudiante.buscar');
 
-    Route::post('/inscripcion/estudiante/manual/store', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'store'])
+    Route::post('/inscripcion/estudiante/buscar', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'buscarEstudiante'])
+        ->name('inscripcion.estudiante.buscar.post');    Route::post('/inscripcion/estudiante/manual/store', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'store'])
         ->name('inscripcion.estudiante.manual.store');
+        
+    // Añadir ruta para el método inscribirEstudiante
+    Route::post('/inscripcion/estudiante/inscribir', [App\Http\Controllers\Inscripcion\InscripcionManualController::class, 'inscribirEstudiante'])
+        ->name('inscripcion.estudiante.inscribir');
+        
+    // Endpoints para obtener áreas específicas del tutor para una convocatoria
+    Route::get('/inscripcion/estudiante/tutor-areas-convocatoria/{idConvocatoria}',
+        [App\Http\Controllers\Api\TutorConvocatoriaDetallesController::class, 'getDetails'])
+        ->name('inscripcion.estudiante.tutor-areas-convocatoria');
+        
+    // Endpoint para obtener los grados por categoría para validación
+    Route::post('/inscripcion/estudiante/grados-por-categoria', 
+        [\App\Http\Controllers\Inscripcion\GradosController::class, 'gradosPorCategoria'])
+        ->name('inscripcion.estudiante.grados-por-categoria');
 });

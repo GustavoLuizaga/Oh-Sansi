@@ -225,7 +225,11 @@
             
             
             <div class="manual-registration-section">
-                @include('inscripciones/formInscripcionEst')
+                @include('inscripciones.formInscripcionEst', [
+                    'convocatorias' => isset($convocatorias) ? $convocatorias : (isset($convocatorias_tutor) ? $convocatorias_tutor : collect([])),
+                    'delegacion' => $delegacion ?? null,
+                    'tutor' => $tutor ?? null
+                ])
             </div>
               <!-- Modal para mostrar datos -->            <div id="modalDatos" class="modal">
                 <div class="modal-contenido">
@@ -330,4 +334,12 @@
     <span id="successText"></span>
 </div>
 <script src="{{ asset('js/inscripcionTutor/inscripcionManual.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/inscripcionSubmitHandler.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/inscripcionExistenteHandler.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/gradosCompartidosHandler.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/categoriaHandler.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/modalidadHandler.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/grupoHandler.js') }}"></script>
 <script src="{{ asset('js/inscripcionTutor/tutorDetails.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/debugTutorFields.js') }}"></script>
+<script src="{{ asset('js/inscripcionTutor/tutorFieldDirectFix.js') }}"></script>

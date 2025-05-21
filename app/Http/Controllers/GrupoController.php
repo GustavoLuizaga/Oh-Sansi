@@ -258,7 +258,8 @@ class GrupoController extends Controller
             // Modificado para incluir grupos independientemente de su estado
             $grupos = GrupoInscripcion::where('modalidad', $modalidad)
                 ->where('idDelegacion', $idDelegacion)
-                ->select('idGrupoInscripcion as id', 'nombreGrupo', 'codigoInvitacion', 'estado')
+                ->where('estado', 'incompleto') // Added this line to filter by estado
+                ->select('id', 'nombreGrupo', 'codigoInvitacion', 'estado') // Corrected id selection
                 ->get();
             
             // Registrar los datos que se devuelven

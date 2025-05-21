@@ -60,15 +60,17 @@ class InscripcionController extends Controller
 
         // Verificar si el estudiante ya tiene una inscripción en esta convocatoria usando SQL puro
         $estudianteId = Auth::id();
-        $inscripcionExistente = \DB::select("
-            SELECT COUNT(*) as count 
+        $detallesInscripcion = \DB::select("
+            SELECT 
+                COUNT(di.idInscripcion) as total_detalles
             FROM inscripcion i
             INNER JOIN tutorestudianteinscripcion tei ON i.idInscripcion = tei.idInscripcion
+            INNER JOIN detalle_inscripcion di ON i.idInscripcion = di.idInscripcion
             WHERE tei.idEstudiante = ? AND i.idConvocatoria = ?
         ", [$estudianteId, $idConvocatoria]);
 
-        if ($inscripcionExistente[0]->count > 0) {
-            // Si ya tiene una inscripción, redirigir al formulario de información
+        // Solo redirigir si hay más de 1 detalle asociado
+        if (!empty($detallesInscripcion) && $detallesInscripcion[0]->total_detalles > 1) {
             return redirect()->route('inscripcion.estudiante.informacion');
         }
 

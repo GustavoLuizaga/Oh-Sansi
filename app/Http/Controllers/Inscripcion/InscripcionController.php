@@ -60,7 +60,7 @@ class InscripcionController extends Controller
 
         // Verificar si el estudiante ya tiene una inscripción en esta convocatoria usando SQL puro
         $estudianteId = Auth::id();
-        $inscripcionExistente = \DB::select("
+        $inscripcionExistente = DB::select("
             SELECT COUNT(*) as count 
             FROM inscripcion i
             INNER JOIN tutorestudianteinscripcion tei ON i.idInscripcion = tei.idInscripcion

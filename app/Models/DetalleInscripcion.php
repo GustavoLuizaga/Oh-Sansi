@@ -9,9 +9,7 @@ class DetalleInscripcion extends Model
 {
     use HasFactory;
     protected $table = 'detalle_inscripcion';
-    protected $primaryKey = 'idDetalleInscripcion';
-
-    protected $fillable = [
+    protected $primaryKey = 'idDetalleInscripcion';    protected $fillable = [
         'modalidadInscripcion',
         'idInscripcion',
         'idArea',

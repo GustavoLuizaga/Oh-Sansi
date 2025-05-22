@@ -23,11 +23,11 @@
     <div class="estudiantes-header py-2">
         <h1><i class="fas fa-user-plus"></i> Datos de Inscripción del Postulante</h1>
     </div>
-
     <!-- Actions Container -->
     <div class="actions-container mb-1">
+        
         <div class="button-group">
-            <a href="#" class="add-button py-1 px-2"><!-- Cambiar el enlace a la ruta correcta {{ route('inscripcion.estudiante') }}-->
+            <a href="#" class="add-button py-1 px-2"><!-- Cambiar el enlace a la ruta correcta -->
                 <i class="fas fa-info-circle"></i> Importante: Una vez subido el comprobante, la información ya no se podra modificar
             </a>
         </div>
@@ -40,7 +40,12 @@
                 <i class="fas fa-file-pdf"></i> Subir comprobante de pago
             </button>
         </div>
+        
     </div>
+    <span>
+        <a href="{{ route('inscripcion.estudiante') }}">
+            <i class="fas fa-arrow-left"></i> Volver a inscripciones</a>
+    </span>
 
         <!-- IDs ocultos para uso en JS -->
         <div id="data-ids" 

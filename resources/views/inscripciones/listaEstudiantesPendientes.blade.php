@@ -130,6 +130,7 @@
             <td>{{ $estudiante->categoria }}</td>
             <td>{{ $estudiante->convocatoria }}</td>
             <td>{{ \Carbon\Carbon::parse($estudiante->fechaInscripcion)->format('d/m/Y') }}</td>
+            <input type="hidden" class="estudiante-id" value="{{ $estudiante->id }}">
             <td class="actions">
                 <div class="action-buttons">
                     <a href="#" onclick="verEstudiante('{{ $estudiante->ci }}'); return false;" class="action-button view" title="Visualizar">
@@ -697,23 +698,23 @@
         }
 
         // Función para obtener todos los IDs de estudiantes en la tabla
-        function obtenerIdsEstudiantes() {
-            const filas = document.querySelectorAll('tbody tr');
-            const ids = [];
-            
-            filas.forEach(fila => {
-                // Obtener el ID del atributo onclick del botón de ver
-                const botonVer = fila.querySelector('.action-button.view');
-                if (botonVer) {
-                    const onclick = botonVer.getAttribute('onclick');
-                    // Extraer el ID del string "verEstudiante('ID')"
-                    const id = onclick.match(/verEstudiante\('([^']+)'\)/)[1];
-                    ids.push(id);
-                }
-            });
-            
-            return ids;
+function obtenerIdsEstudiantes() {
+    const inputs = document.querySelectorAll('input.estudiante-id');
+    const ids = [];
+
+    inputs.forEach(input => {
+        if (input.value) {
+            ids.push(input.value);
         }
+    });
+
+    // Eliminar duplicados usando Set
+    const idsUnicos = [...new Set(ids)];
+
+    return idsUnicos;
+}
+
+
         
         // Función para cargar los estudiantes a procesar
         function cargarEstudiantesAProcesar() {

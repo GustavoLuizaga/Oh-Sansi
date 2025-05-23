@@ -81,10 +81,10 @@ class DelegadoController extends Controller
     public function solicitudes(Request $request)
     {
         // Consulta base para obtener tutores pendientes con sus relaciones
-        $query = Tutor::with(['user', 'delegaciones', 'areas', 'tutorAreaDelegacion'])
+        $query = Tutor::with(['user', 'delegaciones', 'areas', 'tutorareadelegacion'])
             ->join('users', 'tutor.id', '=', 'users.id')
-            ->select('tutor.*')
-            ->where('tutor.estado', 'pendiente'); // Solo mostrar tutores pendientes
+            ->select('tutor.*', 'users.name as user_name', 'users.ci', 'users.email') // Añade las columnas necesarias
+            ->where('tutor.estado', 'pendiente');
 
         // Aplicar búsqueda si existe
         if ($request->has('search') && !empty($request->search)) {
@@ -114,25 +114,21 @@ class DelegadoController extends Controller
 
         switch ($sort) {
             case 'ci':
-                $query->join('users as u', 'tutor.id', '=', 'u.id')
-                      ->orderBy('u.ci', $direction);
+                $query->orderBy('users.ci', $direction);
                 break;
             case 'name':
-                $query->join('users as u', 'tutor.id', '=', 'u.id')
-                      ->orderBy('u.name', $direction);
+                $query->orderBy('users.name', $direction);
                 break;
             case 'email':
-                $query->join('users as u', 'tutor.id', '=', 'u.id')
-                      ->orderBy('u.email', $direction);
+                $query->orderBy('users.email', $direction);
                 break;
             case 'colegio':
-                $query->join('tutorAreaDelegacion as tad', 'tutor.id', '=', 'tad.id')
-                      ->join('delegacion as d', 'tad.idDelegacion', '=', 'd.idDelegacion')
-                      ->orderBy('d.nombre', $direction);
+                $query->join('tutorareadelegacion as tad', 'tutor.id', '=', 'tad.id')
+                    ->join('delegacion as d', 'tad.idDelegacion', '=', 'd.idDelegacion')
+                    ->orderBy('d.nombre', $direction);
                 break;
             default:
-                $query->join('users as u', 'tutor.id', '=', 'u.id')
-                      ->orderBy('u.name', $direction);
+                $query->orderBy('users.name', $direction);
                 break;
         }
 

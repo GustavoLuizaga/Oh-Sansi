@@ -151,7 +151,14 @@
     color: var(--text-color);
     margin-bottom: 0.25rem;
 }
-
+/*Icono del calendario*/
+#fechaNacimiento::-webkit-calendar-picker-indicator {
+    filter:invert(10%) sepia(10%) saturate(0%) hue-rotate(0deg) brightness(50%) contrast(100%);
+    opacity: 0.8;
+    cursor: pointer;
+    padding: 2px;
+    transition: filter 0.3s ease; /* Transición suave al cambiar tema */
+  }
 /* Buttons */
 .edit-btn,
 .cancel-btn,

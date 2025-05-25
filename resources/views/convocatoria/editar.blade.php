@@ -135,8 +135,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    
-                                    <div class="precio-container">
+                                      <div class="precio-container">
                                         @php
                                             $precios = DB::table('convocatoriaAreaCategoria')
                                                 ->where('idConvocatoria', $convocatoria->idConvocatoria)
@@ -144,31 +143,39 @@
                                                 ->where('idCategoria', $categoria->idCategoria)
                                                 ->first(['precioIndividual', 'precioDuo', 'precioEquipo']);
                                         @endphp
-                                        <div class="precio-item">
-                                            <label for="precioIndividual-{{ $index }}-{{ $catIndex }}">Precio Individual (Bs.):</label>
-                                            <input type="number" id="precioIndividual-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioIndividual]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioIndividual ?? '0.00' }}" placeholder="0.00">
+                                        <div class="precio-item {{ isset($precios->precioIndividual) ? 'precio-activo' : '' }}">
+                                            <label>
+                                                <input type="checkbox" class="precio-checkbox" data-target="precioIndividual-{{ $index }}-{{ $catIndex }}" {{ isset($precios->precioIndividual) ? 'checked' : '' }}>
+                                                Precio Individual (Bs.):
+                                            </label>
+                                            <input type="number" id="precioIndividual-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioIndividual]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioIndividual ?? '' }}" placeholder="0.00" {{ isset($precios->precioIndividual) ? '' : 'disabled' }}>
                                         </div>
-                                        <div class="precio-item">
-                                            <label for="precioDuo-{{ $index }}-{{ $catIndex }}">Precio Dúo (Bs.):</label>
-                                            <input type="number" id="precioDuo-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioDuo ?? '0.00' }}" placeholder="0.00">
+                                        <div class="precio-item {{ isset($precios->precioDuo) ? 'precio-activo' : '' }}">
+                                            <label>
+                                                <input type="checkbox" class="precio-checkbox" data-target="precioDuo-{{ $index }}-{{ $catIndex }}" {{ isset($precios->precioDuo) ? 'checked' : '' }}>
+                                                Precio Dúo (Bs.):
+                                            </label>
+                                            <input type="number" id="precioDuo-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioDuo ?? '' }}" placeholder="0.00" {{ isset($precios->precioDuo) ? '' : 'disabled' }}>
                                         </div>
-                                        <div class="precio-item">
-                                            <label for="precioEquipo-{{ $index }}-{{ $catIndex }}">Precio Equipo (Bs.):</label>
-                                            <input type="number" id="precioEquipo-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioEquipo ?? '0.00' }}" placeholder="0.00">
+                                        <div class="precio-item {{ isset($precios->precioEquipo) ? 'precio-activo' : '' }}">
+                                            <label>
+                                                <input type="checkbox" class="precio-checkbox" data-target="precioEquipo-{{ $index }}-{{ $catIndex }}" {{ isset($precios->precioEquipo) ? 'checked' : '' }}>
+                                                Precio Equipo (Bs.):
+                                            </label>
+                                            <input type="number" id="precioEquipo-{{ $index }}-{{ $catIndex }}" name="areas[{{ $index }}][categorias][{{ $catIndex }}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="{{ $precios->precioEquipo ?? '' }}" placeholder="0.00" {{ isset($precios->precioEquipo) ? '' : 'disabled' }}>
                                         </div>
-                                    </div>
-
-                                    <div class="grade-options">
-                                        @foreach($gradosPorCategoria[$categoria->idCategoria] as $grado)
-                                        <div class="grade-option">
-                                            <input type="checkbox"
-                                                name="areas[{{ $index }}][categorias][{{ $catIndex }}][grados][]"
-                                                value="{{ $grado['idGrado'] }}"
-                                                id="grado-{{ $index }}-{{ $catIndex }}-{{ $grado['idGrado'] }}"
-                                                {{ in_array($grado['idGrado'], $categoria->grados->pluck('idGrado')->toArray()) ? 'checked' : '' }}>
-                                            <label for="grado-{{ $index }}-{{ $catIndex }}-{{ $grado['idGrado'] }}">{{ $grado['grado'] }}</label>
+                                    </div><div class="grade-options">
+                                        <h3 class="grades-title">Grados asignados:</h3>
+                                        <div class="grades-display">
+                                            @foreach($categoria->grados as $grado)
+                                            <div class="grade-badge">
+                                                {{ $grado->nombre }}
+                                                <input type="hidden" 
+                                                    name="areas[{{ $index }}][categorias][{{ $catIndex }}][grados][]"
+                                                    value="{{ $grado->idGrado }}">
+                                            </div>
+                                            @endforeach
                                         </div>
-                                        @endforeach
                                     </div>
                                 </div>
                                 @endforeach
@@ -410,37 +417,68 @@
                 <i class="fas fa-times"></i>
                 </button>
                 </div>
-                </div>
-                
-                <div class="precio-container">
-                    <div class="precio-item">
-                        <label for="precioIndividual-${areaId}-${categoriaId}">Precio Individual (Bs.):</label>
+                </div>                <div class="precio-container">
+                    <div class="precio-item precio-activo">
+                        <label>
+                            <input type="checkbox" class="precio-checkbox" data-target="precioIndividual-${areaId}-${categoriaId}" checked>
+                            Precio Individual (Bs.):
+                        </label>
                         <input type="number" id="precioIndividual-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioIndividual]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00">
                     </div>
                     <div class="precio-item">
-                        <label for="precioDuo-${areaId}-${categoriaId}">Precio Dúo (Bs.):</label>
-                        <input type="number" id="precioDuo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00">
+                        <label>
+                            <input type="checkbox" class="precio-checkbox" data-target="precioDuo-${areaId}-${categoriaId}">
+                            Precio Dúo (Bs.):
+                        </label>
+                        <input type="number" id="precioDuo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioDuo]" class="form-control precio-input" min="0" step="0.01" value="" placeholder="0.00" disabled>
                     </div>
                     <div class="precio-item">
-                        <label for="precioEquipo-${areaId}-${categoriaId}">Precio Equipo (Bs.):</label>
-                        <input type="number" id="precioEquipo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="0.00" placeholder="0.00">
+                        <label>
+                            <input type="checkbox" class="precio-checkbox" data-target="precioEquipo-${areaId}-${categoriaId}">
+                            Precio Equipo (Bs.):
+                        </label>
+                        <input type="number" id="precioEquipo-${areaId}-${categoriaId}" name="areas[${areaId}][categorias][${categoriaId}][precioEquipo]" class="form-control precio-input" min="0" step="0.01" value="" placeholder="0.00" disabled>
                     </div>
                 </div>
 
                 <div class="grade-options">
                 <!-- Los grados se agregarán dinámicamente -->
                 </div>
-                `;
-
-                categoriasContainer.appendChild(categoriaContainer);
+                `;                categoriasContainer.appendChild(categoriaContainer);
 
                 // Agregar evento para eliminar categoría
                 categoriaContainer.querySelector('.btn-remove').addEventListener('click', function() {
-                const categoriaSelect = categoriaContainer.querySelector('.categoria-select');
-                if (categoriaSelect.value) {
-                categoriasPorArea[areaId].delete(categoriaSelect.value);
-                }
-                categoriasContainer.removeChild(categoriaContainer);
+                    const categoriaSelect = categoriaContainer.querySelector('.categoria-select');
+                    if (categoriaSelect.value) {
+                        categoriasPorArea[areaId].delete(categoriaSelect.value);
+                    }
+                    categoriasContainer.removeChild(categoriaContainer);
+                });
+                
+                // Agregar eventos para los checkboxes de precios
+                categoriaContainer.querySelectorAll('.precio-checkbox').forEach(function(checkbox) {
+                    checkbox.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-target');
+                        const inputField = document.getElementById(targetId);
+                        if (inputField) {
+                            inputField.disabled = !this.checked;
+                            const precioItem = this.closest('.precio-item');
+                            
+                            if (this.checked) {
+                                inputField.focus();
+                                if (inputField.value === '') {
+                                    inputField.value = '0.00';
+                                }
+                                precioItem.classList.add('precio-activo');
+                                // Asegurarse de que el campo se envíe normalmente
+                                inputField.name = inputField.name.replace('.disabled', '');
+                            } else {
+                                // Al desmarcar, vaciar el valor para que se envíe como null a la BD
+                                inputField.value = '';
+                                precioItem.classList.remove('precio-activo');
+                            }
+                        }
+                    });
                 });
 
                 // Controlar selección de categoría
@@ -460,23 +498,33 @@
 
                 if (selectedCategoriaId) {
                 categoriasPorArea[areaId].add(selectedCategoriaId);
-                this.dataset.previousValue = selectedCategoriaId;
-
-                // Cargar grados
+                this.dataset.previousValue = selectedCategoriaId;                // Cargar grados
                 const gradeOptions = categoriaContainer.querySelector('.grade-options');
                 gradeOptions.innerHTML = '';
 
                 if (gradosPorCategoriaData[selectedCategoriaId]) {
-                gradosPorCategoriaData[selectedCategoriaId].forEach(function(grado) {
-                const gradeOption = document.createElement('div');
-                gradeOption.className = 'grade-option';
-                gradeOption.innerHTML = `
-                <input type="checkbox" name="areas[${areaId}][categorias][${categoriaId}][grados][]" 
-                value="${grado.idGrado}" id="grado-${areaId}-${categoriaId}-${grado.idGrado}">
-                <label for="grado-${areaId}-${categoriaId}-${grado.idGrado}">${grado.nombre}</label>
-                `;
-                gradeOptions.appendChild(gradeOption);
-                });
+                    // Agregar título
+                    const gradesTitle = document.createElement('h3');
+                    gradesTitle.className = 'grades-title';
+                    gradesTitle.textContent = 'Grados asignados:';
+                    gradeOptions.appendChild(gradesTitle);
+                    
+                    // Crear contenedor de grados
+                    const gradesDisplay = document.createElement('div');
+                    gradesDisplay.className = 'grades-display';
+                    
+                    gradosPorCategoriaData[selectedCategoriaId].forEach(function(grado) {
+                        const gradeBadge = document.createElement('div');
+                        gradeBadge.className = 'grade-badge';
+                        gradeBadge.innerHTML = `
+                        ${grado.grado || grado.nombre}
+                        <input type="hidden" name="areas[${areaId}][categorias][${categoriaId}][grados][]" 
+                        value="${grado.idGrado}">
+                        `;
+                        gradesDisplay.appendChild(gradeBadge);
+                    });
+                    
+                    gradeOptions.appendChild(gradesDisplay);
                 }
                 } else {
                 categoriaContainer.querySelector('.grade-options').innerHTML = '';
@@ -589,6 +637,75 @@
             });
             } // Cierre del if para estado Borrador
 
+            // Inicializar eventos para checkboxes de precios
+            document.querySelectorAll('.precio-checkbox').forEach(function(checkbox) {
+                // Cuando la página carga, asegurarnos de que los inputs estén correctamente habilitados/deshabilitados
+                const targetId = checkbox.getAttribute('data-target');
+                const inputField = document.getElementById(targetId);
+                if (inputField) {
+                    inputField.disabled = !checkbox.checked;
+                    const precioItem = checkbox.closest('.precio-item');
+                    if (checkbox.checked) {
+                        precioItem.classList.add('precio-activo');
+                    } else {
+                        precioItem.classList.remove('precio-activo');
+                    }
+                }
+                
+                // Agregar evento de click
+                checkbox.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const inputField = document.getElementById(targetId);
+                    if (inputField) {
+                        inputField.disabled = !this.checked;
+                        const precioItem = this.closest('.precio-item');
+                        
+                        if (this.checked) {
+                            inputField.focus();
+                            if (inputField.value === '') {
+                                inputField.value = '0.00';
+                            }
+                            precioItem.classList.add('precio-activo');
+                            // Asegurarse de que el campo se envíe normalmente
+                            inputField.name = inputField.name.replace('.disabled', '');
+                        } else {
+                            // Al desmarcar, vaciar el valor para que se envíe como null a la BD
+                            inputField.value = '';
+                            precioItem.classList.remove('precio-activo');
+                        }
+                    }
+                });
+            });
+
+            // Manejar el envío de formulario para procesar correctamente los precios nulos
+            document.getElementById('convocatoriaForm').addEventListener('submit', function(e) {
+                // No interferir con otras validaciones
+                if (!this.checkValidity()) {
+                    return;
+                }
+                
+                // Procesar todos los checkboxes de precios
+                document.querySelectorAll('.precio-checkbox').forEach(function(checkbox) {
+                    const targetId = checkbox.getAttribute('data-target');
+                    const inputField = document.getElementById(targetId);
+                    if (inputField) {
+                        if (!checkbox.checked) {
+                            // Si el checkbox no está marcado, el precio debe ser nulo en la BD
+                            // Crear un input oculto con el mismo nombre pero sin valor
+                            const hiddenField = document.createElement('input');
+                            hiddenField.type = 'hidden';
+                            hiddenField.name = inputField.name;
+                            hiddenField.value = '';
+                            inputField.parentNode.appendChild(hiddenField);
+                            
+                            // Cambiar el nombre del input original para que no se envíe 
+                            // (evita conflictos de nombres duplicados)
+                            inputField.name = inputField.name + '.disabled';
+                        }
+                    }
+                });
+            }, true); // true para ejecutarse antes que otras validaciones
+
             // Validar el formulario antes de enviar
             document.getElementById('convocatoriaForm').addEventListener('submit', function(e) {
                 let isValid = true;
@@ -617,14 +734,15 @@
                             if (categorias.length === 0) {
                                 isValid = false;
                                 alert(`El área "${areaSelect.options[areaSelect.selectedIndex].text}" debe tener al menos una categoría.`);
-                            } else {
-                                categorias.forEach(function(categoria) {
+                            } else {                                categorias.forEach(function(categoria) {
                                     const categoriaSelect = categoria.querySelector('.categoria-select');
-                                    const gradosSeleccionados = categoria.querySelectorAll('input[type="checkbox"]:checked').length;
-
-                                    if (gradosSeleccionados === 0) {
+                                    const tieneGrados = categoria.querySelectorAll('.grade-badge').length;
+                                    
+                                    // Ya no validamos los grados seleccionados porque no son seleccionables,
+                                    // pero podemos verificar que haya al menos un grado disponible
+                                    if (tieneGrados === 0) {
                                         isValid = false;
-                                        alert(`La categoría "${categoriaSelect.options[categoriaSelect.selectedIndex].text}" debe tener al menos un grado seleccionado.`);
+                                        alert(`La categoría "${categoriaSelect.options[categoriaSelect.selectedIndex].text}" no tiene grados asignados.`);
                                     }
                                 });
                             }

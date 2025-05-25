@@ -4,11 +4,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <div class="p-6">
-        <!-- Back Button -->
-        <a href="{{ route('convocatoria') }}" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Volver a Convocatorias
-        </a>
-        
         <div class="convocatoria-detail-container">
             <div class="detail-header">
                 <h1><i class="fas fa-clipboard-list"></i> {{ $convocatoria->nombre }}</h1>

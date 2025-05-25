@@ -248,28 +248,131 @@
                         categoriasPorArea[index].add(categoria.idCategoria);
                     });
                 }
-            });
-
-            // Validación de fechas
+            });            // Validación de fechas
             const fechaInicioInput = document.getElementById('fechaInicio');
             if (fechaInicioInput && !fechaInicioInput.readOnly) {
                 fechaInicioInput.addEventListener('change', function() {
                     const fechaInicio = new Date(this.value);
-                    const fechaFin = new Date(document.getElementById('fechaFin').value);
-
+                    const fechaFin = document.getElementById('fechaFin').value ? new Date(document.getElementById('fechaFin').value) : null;
+                    const hoy = new Date();
+                    
+                    // Eliminar la parte horaria para comparar solo fechas
+                    hoy.setHours(0, 0, 0, 0);                    // Verificar si la fecha inicio es anterior a la fecha actual
+                    // Convertimos ambas fechas a YYYY-MM-DD para comparar solo fechas
+                    const fechaInicioStr = fechaInicio.toISOString().split('T')[0];
+                    const hoyStr = hoy.toISOString().split('T')[0];
+                    
+                    if (fechaInicioStr < hoyStr) {
+                        this.value = '';
+                        
+                        // Mostrar mensaje de error
+                        let errorMsg = document.createElement('span');
+                        errorMsg.classList.add('text-danger', 'fecha-inicio-error');
+                        errorMsg.textContent = 'La fecha de inicio no puede ser anterior a la fecha actual';
+                        
+                        // Eliminar mensaje de error existente si hay alguno
+                        const existingError = this.parentNode.querySelector('.fecha-inicio-error');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                        
+                        this.parentNode.appendChild(errorMsg);
+                        return;
+                    }else {
+                        // Eliminar mensaje de error si existe y la fecha es válida
+                        const existingError = this.parentNode.querySelector('.fecha-inicio-error');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                    }
+                    
                     // Establecer fecha mínima para fecha fin
                     document.getElementById('fechaFin').min = this.value;
-
-                    // Si la fecha fin es anterior a la fecha inicio, resetearla
-                    if (fechaFin < fechaInicio) {
+                    
+                    // Verificar la relación con fecha fin si existe
+                    if (fechaInicio && fechaFin && fechaFin < fechaInicio) {
                         document.getElementById('fechaFin').value = '';
+                        
+                        // Mostrar mensaje de error
+                        let errorMsg = document.createElement('span');
+                        errorMsg.classList.add('text-danger', 'fecha-fin-error');
+                        errorMsg.textContent = 'La fecha de finalización debe ser mayor o igual a la fecha de inicio';
+                        
+                        // Eliminar mensaje de error existente si hay alguno
+                        const existingError = document.getElementById('fechaFin').parentNode.querySelector('.fecha-fin-error');
+                        if (existingError) {
+                            existingError.remove();
+                        }
+                        
+                        document.getElementById('fechaFin').parentNode.appendChild(errorMsg);
                     }
-                });
-
-                // Establecer fecha mínima como hoy para la fecha de inicio
+                });                // Establecer fecha mínima como hoy para la fecha de inicio
                 const today = new Date();
                 const formattedDate = today.toISOString().split('T')[0];
                 fechaInicioInput.min = formattedDate;
+                
+                // Validación para fecha de fin
+                const fechaFinInput = document.getElementById('fechaFin');
+                if (fechaFinInput && !fechaFinInput.readOnly) {
+                    fechaFinInput.min = formattedDate; // También establecer fecha mínima para fecha fin
+                    
+                    fechaFinInput.addEventListener('change', function() {
+                        const fechaInicio = document.getElementById('fechaInicio').value ? new Date(document.getElementById('fechaInicio').value) : null;
+                        const fechaFin = new Date(this.value);
+                        const hoy = new Date();
+                        
+                        // Eliminar la parte horaria para comparar solo fechas
+                        hoy.setHours(0, 0, 0, 0);                        // Verificar si la fecha fin es anterior a la fecha actual
+                        // Convertimos ambas fechas a YYYY-MM-DD para comparar solo fechas
+                        const fechaFinStr = fechaFin.toISOString().split('T')[0];
+                        const hoyStr = hoy.toISOString().split('T')[0];
+                        
+                        if (fechaFinStr < hoyStr) {
+                            this.value = '';
+                            
+                            // Mostrar mensaje de error
+                            let errorMsg = document.createElement('span');
+                            errorMsg.classList.add('text-danger', 'fecha-fin-error');
+                            errorMsg.textContent = 'La fecha de finalización no puede ser anterior a la fecha actual';
+                            
+                            // Eliminar mensaje de error existente si hay alguno
+                            const existingError = this.parentNode.querySelector('.fecha-fin-error');
+                            if (existingError) {
+                                existingError.remove();
+                            }
+                            
+                            this.parentNode.appendChild(errorMsg);
+                            return;
+                        }else {
+                            // Eliminar mensaje de error si existe y la fecha es válida
+                            const existingError = this.parentNode.querySelector('.fecha-fin-error');
+                            if (existingError) {
+                                existingError.remove();
+                            }
+                        }
+                                  // Verificar si la fecha fin es anterior a la fecha inicio (si hay fecha inicio)
+                        if (fechaInicio) {
+                            const fechaInicioStr = fechaInicio.toISOString().split('T')[0];
+                            const fechaFinStr = fechaFin.toISOString().split('T')[0];
+                            
+                            if (fechaFinStr < fechaInicioStr) {
+                                this.value = '';
+                                
+                                // Mostrar mensaje de error
+                                let errorMsg = document.createElement('span');
+                                errorMsg.classList.add('text-danger', 'fecha-fin-error');
+                                errorMsg.textContent = 'La fecha de finalización debe ser mayor o igual a la fecha de inicio';
+                              // Eliminar mensaje de error existente si hay alguno
+                            const existingError = this.parentNode.querySelector('.fecha-fin-error');
+                            if (existingError) {
+                                existingError.remove();
+                            }
+                            
+                            this.parentNode.appendChild(errorMsg);
+                            }
+                        }
+                    });
+                }
             }
 
             // Validación para método de pago

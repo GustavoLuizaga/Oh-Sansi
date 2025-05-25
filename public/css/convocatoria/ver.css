@@ -125,6 +125,11 @@
     color: #991b1b;
 }
 
+.estado-finalizado {
+    background-color: #e0f2fe;
+    color: #075985;
+}
+
 /* Botones de acción */
 .action-buttons {
     display: flex;

@@ -823,9 +823,16 @@ public function exportExcel()
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     */    /**
+     * @deprecated Este método está obsoleto ya que la publicación ahora es automática por fechas.
      */
     public function publicar($id)
     {
+        // Redirigir con un mensaje informativo sobre el nuevo proceso automático
+        return redirect()->route('convocatorias.ver', $id)
+            ->with('info', 'La publicación de convocatorias ahora es automática según la fecha de inicio.');
+        
+        /* Código anterior comentado
         try {
             // Obtener la convocatoria para verificar su estado y fechas
             $convocatoria = DB::table('convocatoria')
@@ -878,6 +885,7 @@ public function exportExcel()
             return redirect()->route('convocatorias.ver', $id)
                 ->with('error', 'Error al publicar la convocatoria.');
         }
+        */
     }
     
     /**
@@ -1035,28 +1043,48 @@ public function exportExcel()
     /**
      * Verificar y actualizar el estado de las convocatorias según sus fechas.
      * - Cambia a 'Borrador' las convocatorias publicadas cuya fecha fin ya pasó
-     */
-    private function verificarEstadoConvocatorias()
+     */    private function verificarEstadoConvocatorias()
     {
         try {
             $hoy = \Carbon\Carbon::now();
+            $fechaHoy = $hoy->format('Y-m-d');
             
-            // Buscar convocatorias publicadas con fecha fin pasada
-            $convocatoriasVencidas = DB::table('convocatoria')
-                ->where('estado', 'Publicada')
-                ->where('fechaFin', '<', $hoy->format('Y-m-d'))
+            // 1. Buscar convocatorias en Borrador que hayan alcanzado su fecha de inicio
+            // Solo las convocatorias en Borrador pasan a Publicada
+            $convocatoriasIniciadas = DB::table('convocatoria')
+                ->where('estado', 'Borrador')
+                ->where('fechaInicio', '<=', $fechaHoy)
                 ->get();
             
-            // Actualizar el estado de las convocatorias vencidas a 'Borrador'
+            // Actualizar el estado de las convocatorias iniciadas a 'Publicada'
+            foreach ($convocatoriasIniciadas as $convocatoria) {
+                DB::table('convocatoria')
+                    ->where('idConvocatoria', $convocatoria->idConvocatoria)
+                    ->update([
+                        'estado' => 'Publicada',
+                        'updated_at' => now()
+                    ]);
+                
+                Log::info("Convocatoria {$convocatoria->idConvocatoria} cambió automáticamente a estado Publicada por fecha de inicio");
+            }
+            
+            // 2. Buscar convocatorias SOLO en estado Publicada con fecha fin pasada
+            // Solo las convocatorias Publicadas pueden pasar a Finalizado
+            $convocatoriasVencidas = DB::table('convocatoria')
+                ->where('estado', 'Publicada')
+                ->where('fechaFin', '<', $fechaHoy)
+                ->get();
+            
+            // Actualizar el estado de las convocatorias vencidas a 'Finalizado'
             foreach ($convocatoriasVencidas as $convocatoria) {
                 DB::table('convocatoria')
                     ->where('idConvocatoria', $convocatoria->idConvocatoria)
                     ->update([
-                        'estado' => 'Borrador',
+                        'estado' => 'Finalizado',
                         'updated_at' => now()
                     ]);
                 
-                Log::info("Convocatoria {$convocatoria->idConvocatoria} cambió automáticamente a estado Borrador por fecha vencida");
+                Log::info("Convocatoria {$convocatoria->idConvocatoria} cambió automáticamente a estado Finalizado por fecha vencida");
             }
         } catch (\Exception $e) {
             Log::error('Error al verificar estado de convocatorias: ' . $e->getMessage(), [

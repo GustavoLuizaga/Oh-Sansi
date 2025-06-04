@@ -16,3 +16,4 @@ storage/framework/views/*
 docker-compose.yml
 Dockerfile
 .dockerignore
+public/storage

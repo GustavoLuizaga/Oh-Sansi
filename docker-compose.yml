@@ -40,9 +40,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_USER: laravel_user
-      MYSQL_PASSWORD: laravel_password
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3306:3306"
     volumes:

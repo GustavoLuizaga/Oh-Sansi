@@ -107,7 +107,7 @@
                             <h4 class="categoria-title">{{ $categoria->nombre }}</h4>
                             
                             @php
-                                $precios = DB::table('convocatoriaAreaCategoria')
+                                $precios = DB::table('convocatoriaareacategoria')
                                     ->where('idConvocatoria', $convocatoria->idConvocatoria)
                                     ->where('idArea', $area->idArea)
                                     ->where('idCategoria', $categoria->idCategoria)

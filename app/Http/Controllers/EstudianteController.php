@@ -23,8 +23,13 @@ class EstudianteController extends Controller
      */
     public function index(Request $request)
     {
+        // Obtener el usuario actual
         $user = auth()->user();
+        
+        // Verificar si el usuario es tutor
         $esTutor = $user->roles->contains('idRol', 2);
+    
+        // Log para debug
         Log::info('Verificando rol de usuario:', ['esTutor' => $esTutor]);
 
         $sql = "

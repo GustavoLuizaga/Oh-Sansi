@@ -1,10 +1,10 @@
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/inscripcion/FormularioDatosInscripcionEst.css') }}">
-@endpush
+    <link rel="stylesheet" href="/css/inscripcion/FormularioDatosInscripcionEst.css">
+    @endpush
 @push('scripts')
     <!-- Carga Tesseract.js y PDF.js -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="{{ asset('js/FormularioDatosInscripcionEst.js') }}"></script>
+    <script src="/js/FormularioDatosInscripcionEst.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <script>
         // Configurar PDF.js worker
@@ -29,9 +29,9 @@
     <div class="estudiantes-header py-2">
         <h1><i class="fas fa-user-plus"></i> Datos de Inscripción del Postulante</h1>
     </div>
+
     <!-- Actions Container -->
     <div class="actions-container mb-1">
-        
         <div class="button-group">
             <a href="#" class="add-button py-1 px-2"><!-- Cambiar el enlace a la ruta correcta -->
                 <i class="fas fa-info-circle"></i> Importante: Una vez subido el comprobante, la información ya no se podra modificar

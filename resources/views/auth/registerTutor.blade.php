@@ -277,7 +277,7 @@
                         Crear Cuenta de Delegado
                     </button>
                     <p class="login">¿Ya tienes una cuenta? <a href="{{ route('login') }}">Inicia Sesión aquí</a></p>                </div>
-                <script src="{{ asset('js/validacion-delegado.js') }}"></script>
+                <script src="/js/validacion-delegado.js"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {// Validación de campos del formulario
                         const nameInput = document.getElementById('name');

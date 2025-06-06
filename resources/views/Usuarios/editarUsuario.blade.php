@@ -1,6 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/usuarios/editarUsuario.css') }}">
-
+    <link rel="stylesheet" href="/css/usuarios/editarUsuario.css">
     <!-- Header Section -->
     <div class="editar-usuario-header py-2">
         <h1><i class="fas fa-user-edit"></i> {{ __('Editar Usuario') }}</h1>

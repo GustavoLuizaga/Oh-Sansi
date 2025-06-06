@@ -1,5 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/servicio.css') }}">
+    <link rel="stylesheet" href="/css/servicio.css">
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Mensajes de alerta -->

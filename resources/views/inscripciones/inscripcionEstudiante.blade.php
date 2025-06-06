@@ -1,6 +1,6 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionEstudiante.css') }}">
-
+    <link rel="stylesheet" href="/css/inscripcion/inscripcionEstudiante.css">
+    
     <!-- Modal for No Active Convocatoria -->
     @if(!$convocatoriaActiva)
     <div id="noConvocatoriaModal" class="modal-overlay" style="display: flex;">
@@ -256,9 +256,10 @@
             </div>
         </form>
     </div>
-    <script src="{{ asset('js/inscripcionEstudiante.js') }}"></script>
-    <script src="{{ asset('js/inscripcionFormHelper.js') }}"></script>
-    <script src="{{ asset('js/inscripcion/validacion-area-categoria copy.js') }}"></script>
+
+    <script src="/js/inscripcionEstudiante.js"></script>
+    <script src="/js/inscripcionFormHelper.js"></script>
+    <script src="/js/inscripcion/validacion-area-categoria.js"></script>
     @endif
 </x-app-layout>
 

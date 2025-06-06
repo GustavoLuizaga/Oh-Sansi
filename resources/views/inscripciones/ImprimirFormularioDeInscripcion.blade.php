@@ -1,9 +1,9 @@
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/inscripcion/ImprimirFormularioDeInscripcion.css') }}">
+    <link rel="stylesheet" href="/css/inscripcion/ImprimirFormularioDeInscripcion.css">
 @endpush
 @push('scripts')
-    <script src="{{ asset('js/ImprimirFormularioDeInscripcion.js') }}"></script>
-@endpush
+    <script src="/js/ImprimirFormularioDeInscripcion.js"></script>
+    @endpush
 
 <x-app-layout>
     <!-- Success Message -->

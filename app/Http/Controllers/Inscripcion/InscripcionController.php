@@ -211,15 +211,15 @@ class InscripcionController extends Controller
         // revisamos si el usuario es un tutor
         if ($user->tutor && $user->tutor->tutorAreaDelegacion) {
             // obtenemos las areas y el token del tutor
-            $areas = Area::join('tutorAreaDelegacion', 'area.idArea', '=', 'tutorAreaDelegacion.idArea')
-                        ->where('tutorAreaDelegacion.id', $user->tutor->id)
+            $areas = Area::join('tutorareadelegacion', 'area.idArea', '=', 'tutorareadelegacion.idArea')
+                        ->where('tutorareadelegacion.id', $user->tutor->id)
                         ->select('area.*')
                         ->get();
             $token = $user->tutor->tutorAreaDelegacion->tokenTutor;
             
             // Obtenemos las convocatorias a las que está inscrito el tutor
-            $convocatorias_tutor = \App\Models\Convocatoria::join('tutorAreaDelegacion', 'convocatoria.idConvocatoria', '=', 'tutorAreaDelegacion.idConvocatoria')
-                                ->where('tutorAreaDelegacion.id', $user->tutor->id)
+            $convocatorias_tutor = \App\Models\Convocatoria::join('tutorareadelegacion', 'convocatoria.idConvocatoria', '=', 'tutorareadelegacion.idConvocatoria')
+                                ->where('tutorareadelegacion.id', $user->tutor->id)
                                 ->where('convocatoria.estado', 'Publicada')
                                 ->select('convocatoria.*')
                                 ->distinct()
@@ -228,8 +228,8 @@ class InscripcionController extends Controller
             // mostramos las area en la convocatoria activa
             $convocatoria = \App\Models\Convocatoria::where('estado', 'Publicada')->first();
             if ($convocatoria) {
-                $areas = Area::join('convocatoriaAreaCategoria', 'area.idArea', '=', 'convocatoriaAreaCategoria.idArea')
-                            ->where('convocatoriaAreaCategoria.idConvocatoria', $convocatoria->idConvocatoria)
+                $areas = Area::join('convocatoriaareacategoria', 'area.idArea', '=', 'convocatoriaareacategoria.idArea')
+                            ->where('convocatoriaareacategoria.idConvocatoria', $convocatoria->idConvocatoria)
                             ->select('area.*')
                             ->distinct()
                             ->get();

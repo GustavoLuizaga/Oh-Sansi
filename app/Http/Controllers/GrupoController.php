@@ -246,6 +246,9 @@ class GrupoController extends Controller
             }
             
             $idDelegacion = $tutorAreaDelegacion->idDelegacion;
+            if (!$idDelegacion) {
+                return response()->json([], 200);
+            }
             
             // Registrar para depuración
             Log::info('Buscando grupos para delegación', [

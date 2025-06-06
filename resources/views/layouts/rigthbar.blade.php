@@ -60,7 +60,7 @@
     </div>
 
     @push('scripts')
-    <script src="{{ asset('js/calendario.js') }}"></script>
+    <script src="/js/calendario.js"></script>
     @endpush
 
     <script>

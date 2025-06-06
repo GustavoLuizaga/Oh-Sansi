@@ -1,6 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/delegado/ver-solicitud.css') }}">
-
+    <link rel="stylesheet" href="/css/delegado/ver-solicitud.css">
     <!-- Header Section -->
     <div class="solicitudes-header py-2">
         <h1><i class="fas fa-user-check"></i> {{ __('Detalles de Solicitud') }}</h1>

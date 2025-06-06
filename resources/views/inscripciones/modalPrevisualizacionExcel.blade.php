@@ -1,22 +1,22 @@
-<link rel="stylesheet" href="{{ asset('css/excel-preview-styles.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/preview-info.css') }}">
-<link rel="stylesheet" href="{{ asset('css/excel-validation.css') }}">
+<link rel="stylesheet" href="/css/excel-preview-styles.css">
+<link rel="stylesheet" href="/css/inscripcion/preview-info.css">
+<link rel="stylesheet" href="/css/excel-validation.css">
 
 <!-- Scripts necesarios en orden correcto -->
-<script src="{{ asset('js/inscripcionTutor/jquery.mark.min.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/validarExcel.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/enviarExcel.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/excelSearchFix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/tableResponsiveFix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/cellContentFix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/previewInfoUpdate.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-display.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-cell-editing.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/tooltip-fix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/area-validator.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/cell-error-tooltips.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-visualizer.js') }}"></script>
+<script src="/js/inscripcionTutor/jquery.mark.min.js"></script>
+<script src="/js/inscripcionTutor/validarExcel.js"></script>
+<script src="/js/inscripcionTutor/enviarExcel.js"></script>
+<script src="/js/inscripcionTutor/excelSearchFix.js"></script>
+<script src="/js/inscripcionTutor/tableResponsiveFix.js"></script>
+<script src="/js/inscripcionTutor/cellContentFix.js"></script>
+<script src="/js/inscripcionTutor/previewInfoUpdate.js"></script>
+<script src="/js/inscripcionTutor/validacion-inscripcion.js"></script>
+<script src="/js/inscripcionTutor/error-display.js"></script>
+<script src="/js/inscripcionTutor/error-cell-editing.js"></script>
+<script src="/js/inscripcionTutor/tooltip-fix.js"></script>
+<script src="/js/inscripcionTutor/area-validator.js"></script>
+<script src="/js/inscripcionTutor/cell-error-tooltips.js"></script>
+<script src="/js/inscripcionTutor/error-visualizer.js"></script>
 
 <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">

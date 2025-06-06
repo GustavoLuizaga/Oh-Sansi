@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="centered-logo">
-        <img src="{{ asset('img/images/logoOhSansi.png') }}" alt="SanSi Logo">
+        <img src="/img/images/logoOhSansi.png" alt="SanSi Logo">
     </div>
 
     <div class="forgot-password-container">

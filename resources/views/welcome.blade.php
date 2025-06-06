@@ -30,11 +30,12 @@
             }
         </script>
     <title>Oh! Sansi</title>
-    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/barraNavegacionPrincipal.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/contentFooter.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/registerModal.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="/css/welcome.css">
+    <link rel="stylesheet" href="/css/barraNavegacionPrincipal.css">
+    <link rel="stylesheet" href="/css/contentFooter.css">
+    <link rel="stylesheet" href="/css/registerModal.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -45,7 +46,7 @@
     <div class="relative">
         <main class="contenedor">
             <section class="hero">
-                 <!-- <div class="wave-top">
+                <!-- <div class="wave-top">
                     <img src="{{ asset('img/superior.svg') }}">
                 </div> -->
                 
@@ -181,12 +182,12 @@
 
     @include('layouts/contentFooter')
 
-    <script src="{{ asset('js/home.js') }}"></script>
-    <script src="{{ asset('js/themeToggle.js') }}"></script>
-    <script src="{{ asset('js/registerModal.js') }}"></script>
-    <script src="{{ asset('js/mobileMenu.js') }}"></script>
-    <script src="{{ asset('js/areasCarousel.js') }}"></script>
-    <script src="{{ asset('js/contentFooter.js') }}"></script>
+    <script src="/js/home.js"></script>
+    <script src="/js/themeToggle.js"></script>
+    <script src="/js/registerModal.js"></script>
+    <script src="/js/mobileMenu.js"></script>
+    <script src="/js/areasCarousel.js"></script>
+    <script src="/js/contentFooter.js"></script>
 
 </body>
 </html>

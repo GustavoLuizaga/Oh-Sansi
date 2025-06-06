@@ -17,7 +17,9 @@ use App\Http\Controllers\VerificarComprobanteController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok'], 200);
+});
 // Incluir rutas de usuarios
 require __DIR__ . '/usuarios.php';
 

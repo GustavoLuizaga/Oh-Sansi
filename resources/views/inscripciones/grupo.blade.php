@@ -1,7 +1,7 @@
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-<link rel="stylesheet" href="{{ asset('css/convocatoria/convocatoria.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/grupo.css') }}">
+<link rel="stylesheet" href="/css/custom.css">
+<link rel="stylesheet" href="/css/convocatoria/convocatoria.css">
+<link rel="stylesheet" href="/css/inscripcion/grupo.css">
 @endpush
 
 <x-app-layout>

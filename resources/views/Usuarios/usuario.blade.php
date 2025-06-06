@@ -1,6 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/usuarios/usuario.css') }}">
-
+    <link rel="stylesheet" href="/css/usuarios/usuario.css">
     <!-- Messages -->
     @if(session('success'))
     <div class="alert alert-success py-1 px-2 mb-1">

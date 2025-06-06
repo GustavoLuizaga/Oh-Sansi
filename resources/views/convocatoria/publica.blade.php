@@ -4,13 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Convocatorias - Oh! Sansi</title>
-    <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/barraNavegacionPrincipal.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/contentFooter.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/convocatoria/convocatoria.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/convocatoria/publica.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/welcome.css">
+    <link rel="stylesheet" href="/css/barraNavegacionPrincipal.css">
+    <link rel="stylesheet" href="/css/contentFooter.css">
+    <link rel="stylesheet" href="/css/convocatoria/convocatoria.css">
+    <link rel="stylesheet" href="/css/convocatoria/publica.css">
 </head>
 
 <body class="antialiased">
@@ -137,8 +138,8 @@
 
     @include('layouts/contentFooter')
 
-    <script src="{{ asset('js/themeToggle.js') }}"></script>
-    <script src="{{ asset('js/mobileMenu.js') }}"></script>
-    <script src="{{ asset('js/contentFooter.js') }}"></script>
+    <script src="/js/themeToggle.js"></script>
+    <script src="/js/mobileMenu.js"></script>
+    <script src="/js/contentFooter.js"></script>
 </body>
 </html>

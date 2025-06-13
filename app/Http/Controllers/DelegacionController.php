@@ -8,44 +8,44 @@ use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade as PDF;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
+use Illuminate\Support\Facades\Auth;
 class DelegacionController extends Controller
 {
     public function index(Request $request)
     {
         $query = DB::table('delegacion');
         
-        // Search by name or SIE code
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('codigo_sie', 'like', '%' . $search . '%');
+        // Search functionality
+        if ($request->has('search')) {
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('nombre', 'like', $searchTerm)
+                  ->orWhere('codigo_sie', 'like', $searchTerm);
             });
         }
         
-        // Filter by department
-        if ($request->has('departamento') && !empty($request->departamento)) {
-            $query->where('departamento', $request->departamento);
-        }
-        
-        // Filter by province
-        if ($request->has('provincia') && !empty($request->provincia)) {
-            $query->where('provincia', $request->provincia);
-        }
-        
-        // Filter by municipality
-        if ($request->has('municipio') && !empty($request->municipio)) {
-            $query->where('municipio', $request->municipio);
-        }
-        
-        // Filter by dependencia
-        if ($request->has('dependencia') && !empty($request->dependencia)) {
+        // Apply filters
+        if ($request->filled('dependencia')) {
             $query->where('dependencia', $request->dependencia);
         }
-        
-        $delegaciones = $query->paginate(10);
-        
+
+        if ($request->filled('departamento')) {
+            $query->where('departamento', $request->departamento);
+        }
+
+        if ($request->filled('provincia')) {
+            $query->where('provincia', $request->provincia);
+        }
+
+        if ($request->filled('municipio')) {
+            $query->where('municipio', $request->municipio);
+        }
+
+        // Get paginated results with all current query parameters
+        $delegaciones = $query->orderBy('nombre')
+                            ->paginate(10)
+                            ->appends($request->all());
+
         return view('delegaciones.delegaciones', compact('delegaciones'));
     }
 
@@ -78,6 +78,7 @@ class DelegacionController extends Controller
         }
 
         // Insertar en la base de datos
+        DB::statement('SET @current_user_id = ' . Auth::id());
         DB::table('delegacion')->insert([
             'codigo_sie' => $request->codigo_sie,
             'nombre' => $request->nombre,
@@ -143,6 +144,7 @@ class DelegacionController extends Controller
         }
 
         // Actualizar en la base de datos
+        DB::statement('SET @current_user_id = ' . Auth::id());
         DB::table('delegacion')
             ->where('codigo_sie', $codigo_sie)
             ->update([
@@ -165,103 +167,45 @@ class DelegacionController extends Controller
 
     public function destroy($codigo_sie)
     {
-        $deleted = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->delete();
-        
-        return response()->json(['success' => true]);
+        try {
+            DB::statement('SET @current_user_id = ' . Auth::id());
+            $deleted = DB::table('delegacion')->where('codigo_sie', $codigo_sie)->delete();
+            
+            if ($deleted) {
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'No se encontró el colegio'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al eliminar el colegio'], 500);
+        }
     }
 
-    // Add these new methods for exports
-    public function exportPdf(Request $request)
+    public function exportPdf()
     {
-        $query = DB::table('delegacion');
+        $delegaciones = DB::table('delegacion')->get();
         
-        // Apply the same filters as in the index method
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('codigo_sie', 'like', '%' . $search . '%');
-            });
-        }
-        
-        if ($request->has('departamento') && !empty($request->departamento)) {
-            $query->where('departamento', $request->departamento);
-        }
-        
-        if ($request->has('provincia') && !empty($request->provincia)) {
-            $query->where('provincia', $request->provincia);
-        }
-        
-        if ($request->has('municipio') && !empty($request->municipio)) {
-            $query->where('municipio', $request->municipio);
-        }
-        
-        if ($request->has('dependencia') && !empty($request->dependencia)) {
-            $query->where('dependencia', $request->dependencia);
-        }
-        
-        $delegaciones = $query->get();
-        
-        // Prepare filter information for the title
-        $filterInfo = $this->getFilterInfo($request);
-        
-        // Generate PDF
-        $pdf = PDF::loadView('delegaciones.pdf', compact('delegaciones', 'filterInfo'));
-        $pdf->setPaper('a4', 'landscape');
+        $pdf = PDF::loadView('delegaciones.pdf', compact('delegaciones'));
         
         return $pdf->download('delegaciones.pdf');
     }
-    
-    public function exportExcel(Request $request)
+
+    public function exportExcel()
     {
-        $query = DB::table('delegacion');
+        $delegaciones = DB::table('delegacion')->get();
         
-        // Apply the same filters as in the index method
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('codigo_sie', 'like', '%' . $search . '%');
-            });
-        }
-        
-        if ($request->has('departamento') && !empty($request->departamento)) {
-            $query->where('departamento', $request->departamento);
-        }
-        
-        if ($request->has('provincia') && !empty($request->provincia)) {
-            $query->where('provincia', $request->provincia);
-        }
-        
-        if ($request->has('municipio') && !empty($request->municipio)) {
-            $query->where('municipio', $request->municipio);
-        }
-        
-        if ($request->has('dependencia') && !empty($request->dependencia)) {
-            $query->where('dependencia', $request->dependencia);
-        }
-        
-        $delegaciones = $query->get();
-        
-        // Create a new Spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         
-        // Set headers
+        // Headers
         $sheet->setCellValue('A1', 'Código SIE');
-        $sheet->setCellValue('B1', 'Nombre de Colegio');
+        $sheet->setCellValue('B1', 'Nombre');
         $sheet->setCellValue('C1', 'Departamento');
         $sheet->setCellValue('D1', 'Provincia');
         $sheet->setCellValue('E1', 'Municipio');
         $sheet->setCellValue('F1', 'Dependencia');
         
-        // Style headers
-        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:F1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-        $sheet->getStyle('A1:F1')->getFill()->getStartColor()->setARGB('FF0086CE'); // Primary color
-        $sheet->getStyle('A1:F1')->getFont()->getColor()->setARGB('FFFFFFFF'); // White text
-        
-        // Add data
+        // Data
         $row = 2;
         foreach ($delegaciones as $delegacion) {
             $sheet->setCellValue('A' . $row, $delegacion->codigo_sie);
@@ -270,33 +214,17 @@ class DelegacionController extends Controller
             $sheet->setCellValue('D' . $row, $delegacion->provincia);
             $sheet->setCellValue('E' . $row, $delegacion->municipio);
             $sheet->setCellValue('F' . $row, $delegacion->dependencia);
-            
-            // Alternate row colors
-            if ($row % 2 == 0) {
-                $sheet->getStyle('A' . $row . ':F' . $row)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                $sheet->getStyle('A' . $row . ':F' . $row)->getFill()->getStartColor()->setARGB('FFF8F9FA'); // Light gray
-            }
-            
             $row++;
         }
         
-        // Auto size columns
-        foreach (range('A', 'F') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-        
-        // Create the Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'delegaciones.xlsx';
         
-        // Save to temp file
-        $temp_file = tempnam(sys_get_temp_dir(), $filename);
-        $writer->save($temp_file);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="delegaciones.xlsx"');
+        header('Cache-Control: max-age=0');
         
-        // Return the file for download
-        return response()->download($temp_file, $filename, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ])->deleteFileAfterSend(true);
+        $writer->save('php://output');
+        exit;
     }
     
     // Helper method to get filter information for the title

@@ -1,258 +1,531 @@
 /* Estilos para la página de delegaciones */
 :root {
     /* Colores principales - Paleta corporativa */
-    --primary-color: #0086CE; /* Azul principal */
-    --primary-dark: #002A4C; /* Azul oscuro */
+    --primary-color: #1a365d; /* Azul principal */
+    --secondary-color: #2c5282; /* Azul secundario */
+    --text-color: #333;
+    --border-color: #e2e8f0;
+    --hover-color: #f7fafc;
+    --button-text: #fff;
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #fa5252;
+    /* Colores adicionales para compatibilidad */
     --primary-light: #20BBFF; /* Azul claro */
-    --secondary-color: #B30D1F; /* Rojo */
+    --primary-dark: #002A4C; /* Azul oscuro */
     --secondary-dark: #631A33; /* Burdeos */
     --accent-color: #FF9E1B; /* Naranja complementario */
 }
 
+/* Contenedor principal */
 .delegaciones-container {
-    background-color: #fff;
+    background-color: var(--fondo-claro);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin: 20px;
     overflow: hidden;
     width: calc(100% - 40px);
+    transition: box-shadow 0.3s ease;
 }
 
+.delegaciones-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Header y título */
 .delegaciones-header {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--azul-oscuro-estatico);
+    color: var(--texto-estatico);
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    border-radius: 0.375rem;
 }
 
 .delegaciones-header h1 {
-    font-size: 24px;
+    color: var(--texto-estatico);
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #1a2942;
     margin: 0;
-}
-
-.delegaciones-search-bar {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
+    align-items: center;
 }
 
-.search-input {
-    flex: 1;
-    min-width: 250px;
+.delegaciones-header h1 i {
+    margin-right: 0.3rem;
+    font-size: 0.85rem;
+}
+
+/* Contenedor de acciones */
+.actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-wrap: nowrap;
+}
+
+/* Botón de agregar */
+.add-button {
+    background-color: var(--primary-color);
+    color: var(--texto-estatico);
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+
+.add-button:hover {
+    background-color: var(--secondary-color);
+    color: var(--texto-estatico);
+}
+
+.add-button:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.add-button i {
+    font-size: 1rem;
+}
+
+/* Búsqueda y filtros */
+.search-filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    background-color: var(--fondo-contraste-claro);
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.search-filter-container {
+    margin-bottom: 1rem;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     position: relative;
+    width: 100%;
+    max-width: 100%;
 }
 
-.search-input input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
+.search-box input {
+    flex: 1;
+    padding: 0.4rem 0.6rem 0.4rem 2rem;
+    border: 1px solid var(--input-borde);
+    background-color: var(--input-fondo);
+    color: var(--texto-principal);
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.2);
+}
+
+.search-box i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--input-icon);
+    font-size: 0.875rem;
 }
 
 .search-button {
     background-color: var(--primary-color);
-    color: white;
+    color: var(--texto-estatico);
     border: none;
-    border-radius: 4px;
-    padding: 8px 15px;
+    border-radius: 0.25rem;
+    padding: 0.3rem 0.6rem;
+    font-weight: 500;
+    font-size: 0.7rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
 }
 
 .search-button:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--secondary-color);
+}
+
+.search-button:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones de exportación */
+.export-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0;
 }
 
 .export-button {
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 15px;
+    background-color: var(--div-claro);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: background-color 0.3s;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .export-button:hover {
-    background-color: var(--secondary-dark);
+    background-color: var(--div-medio);
 }
 
 .export-button.pdf {
-    background-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.export-button.pdf:hover {
+    background-color: rgba(61, 114, 180, 0.1);
 }
 
 .export-button.excel {
-    background-color: var(--primary-color);
+    color: #00A389;
+}
+
+.export-button.excel:hover {
+    background-color: rgba(5, 173, 145, 0.1);
+}
+
+/* Contenedor de filtros */
+.filter-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    background-color: var(--fondo-secundario-claro);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    flex: 1;
+}
+
+.filter-group label {
+    margin-bottom: 0.2rem;
+    color: var(--etiqueta-texto);
+    font-size: 0.65rem;
+    font-weight: 500;
 }
 
 .filter-select {
-    min-width: 180px;
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: white;
+    padding: 0.4rem 1.5rem 0.4rem 0.5rem;
+    border: 1px solid var(--input-borde);
+    border-radius: 0.25rem;
+    background-color: var(--input-fondo);
+    font-size: 0.7rem;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.4rem center;
+    background-size: 0.8rem;
+    color: var(--texto-principal);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.filter-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.2);
 }
 
 /* Tabla de delegaciones */
 .delegaciones-table {
     width: 100%;
     border-collapse: collapse;
+    background-color: var(--fondo-claro);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    border-spacing: 0;  /* Añadido para controlar el espaciado */
 }
 
 .delegaciones-table th {
-    background-color: #f8f9fa;
-    color: #495057;
+    background-color: var(--fondo-secundario-claro);
+    color: var(--texto-secundario);
     font-weight: 600;
     text-align: left;
-    padding: 12px 15px;
-    border-bottom: 2px solid #e0e0e0;
+    padding: 8px 12px;  /* Aumentado el padding */
+    border-bottom: 1px solid var(--input-borde);
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    height: 35px;  /* Altura fija para los encabezados */
+    vertical-align: middle;
 }
 
 .delegaciones-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
-    color: #333;
+    padding: 10px 12px;  /* Aumentado el padding */
+    border-bottom: 1px solid var(--input-borde);
+    color: var(--texto-principal);
+    transition: background-color 0.2s;
+    height: 35px;  /* Altura fija para las celdas */
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+.delegaciones-table tr {
+    transition: background-color 0.2s ease;
 }
 
 .delegaciones-table tr:hover {
-    background-color: #f5f9fc;
+    background-color: var(--fondo-secundario-claro);
+}
+
+.delegaciones-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Ajuste de espaciado entre columnas */
+.delegaciones-table th:not(:last-child),
+.delegaciones-table td:not(:last-child) {
+    padding-right: 16px; /* Más espacio entre columnas */
+}
+
+/* Espaciado adicional para la columna de acciones */
+.delegaciones-table .actions {
+    padding: 6px 12px;
+    min-width: 100px; /* Ancho mínimo para botones de acción */
+}
+
+/* Ajustes responsivos */
+@media (max-width: 992px) {
+    .delegaciones-table th,
+    .delegaciones-table td {
+        padding: 8px 10px; /* Reducir un poco en pantallas más pequeñas */
+        height: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .delegaciones-table th,
+    .delegaciones-table td {
+        padding: 6px 8px;
+        height: 30px;
+    }
 }
 
 /* Botones de acción */
 .actions {
     display: flex;
-    gap: 10px;
-    justify-content: center;
+    gap: 3px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    min-width: 80px;
 }
 
 .action-button {
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    display: flex;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    border-radius: 4px;
+    color: var(--texto-estatico);
     cursor: pointer;
-    transition: opacity 0.3s;
+    transition: background-color 0.2s;
     text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 0.75rem;
+    margin: 0 1px;
 }
 
 .action-button:hover {
-    opacity: 0.8;
+    background-color: var(--secondary-color);
+}
+
+.action-button:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .action-button.view {
     background-color: var(--primary-color);
 }
 
-.action-button.edit {
-    background-color: var(--accent-color);
-}
-
-.action-button.delete, .action-button.delete-button {
+.action-button.view:hover {
     background-color: var(--secondary-color);
 }
 
-/* Update Excel button color */
-.export-button.excel {
-    background-color: #00A389; /* Green color for Excel button */
+.action-button.edit {
+    background-color: var(--secondary-color);
 }
 
-.filter-select {
-    min-width: 180px;
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: white;
+.action-button.edit:hover {
+    background-color: var(--primary-color);
 }
 
-/* Tabla de delegaciones */
-.delegaciones-table {
-    width: 100%;
-    border-collapse: collapse;
+.action-button.delete, .action-button.delete-button {
+    background-color: var(--danger-color);
 }
 
-.delegaciones-table th {
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    text-align: left;
-    padding: 12px 15px;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.delegaciones-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
-    color: #333;
-}
-
-.delegaciones-table tr:hover {
-    background-color: #f5f9fc;
+.action-button.delete:hover, .action-button.delete-button:hover {
+    background-color: #c82333;
 }
 
 /* Paginación */
 .pagination {
     display: flex;
     justify-content: center;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
     padding: 20px;
     gap: 5px;
     flex-wrap: wrap;
 }
 
-.pagination-item {
+.pagination nav {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.pagination ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 5px;
+}
+
+.pagination li {
+    margin: 0;
+}
+
+.pagination a, .pagination span {
     width: 35px;
     height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     font-size: 14px;
+    text-decoration: none;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
-.pagination-item:hover {
-    background-color: #e9ecef;
+.pagination a:hover {
+    background-color: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
-.pagination-item.active {
+.pagination .active span {
     background-color: var(--primary-color);
     color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 134, 206, 0.3);
 }
 
-.pagination-arrow {
-    width: 35px;
-    height: 35px;
+.pagination .disabled span {
+    color: #a0aec0;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+}
+
+/* Alertas */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 6px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.5s ease-in-out;
 }
 
-.pagination-arrow:hover {
-    background-color: #e9ecef;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive Styles - Enhanced */
+.alert-success {
+    color: var(--color-exito);
+    background-color: var(--fondo-exito);
+    border-color: var(--borde-exito);
+}
+
+.alert-success::before {
+    content: '\f058'; /* Icono de check-circle */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 10px;
+    color: #28a745;
+}
+
+.alert-danger {
+    color: var(--color-peligro);
+    background-color: var(--fondo-peligro);
+    border-color: var(--borde-peligro);
+}
+
+.alert-danger::before {
+    content: '\f057'; /* Icono de times-circle */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 10px;
+    color: var(--secondary-color);
+}
+
+.alert ul {
+    margin: 5px 0 0 0;
+    padding-left: 25px;
+}
+
+/* Responsive Styles */
 @media (max-width: 1200px) {
     .delegaciones-search-bar {
         gap: 8px;
     }
     
     .filter-select {
-        min-width: 150px;
+        min-width: 120px;
+    }
+    
+    .filter-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
     }
 }
 
@@ -277,38 +550,66 @@
     
     .delegaciones-table th,
     .delegaciones-table td {
-        padding: 10px 12px;
+        padding: 8px 10px;
+        height: 32px;
     }
 }
 
 @media (max-width: 768px) {
+    
     .delegaciones-container {
         margin: 10px;
         width: calc(100% - 20px);
     }
     
     .delegaciones-header {
-        padding: 12px;
+        padding: 10px;
     }
     
-    .delegaciones-header h1 {
-        font-size: 20px;
-        margin-bottom: 12px;
-    }
-    
-    .delegaciones-search-bar {
+    .header-top-row {
         flex-direction: column;
+        align-items: flex-start;
         gap: 10px;
     }
     
-    .search-input {
-        min-width: 100%;
+    .add-button,
+    .export-buttons {
         width: 100%;
     }
     
-    .filter-select {
+    .export-buttons {
+        display: flex;
+        justify-content: stretch;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-md);
+        flex-direction: row;
+    }
+    
+    .export-button {
+        flex: 1;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+    }
+    
+    .export-buttons-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .search-filter {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    .search-box {
         width: 100%;
-        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .search-button {
+        width: 100%;
+        justify-content: center;
     }
     
     .delegaciones-table {
@@ -317,13 +618,19 @@
         white-space: nowrap;
     }
     
+    .delegaciones-table th,
+    .delegaciones-table td {
+        padding: 6px 8px;
+        height: 30px;
+    }
+    
     .action-buttons {
-        gap: 5px;
+        gap: 2px;
     }
     
     .action-button {
-        width: 28px;
-        height: 28px;
+        width: 22px;
+        height: 22px;
     }
 }
 
@@ -335,18 +642,51 @@
     }
     
     .delegaciones-header {
-        padding: 10px;
+        padding: 8px;
     }
     
     .delegaciones-header h1 {
-        font-size: 18px;
-        margin-bottom: 10px;
+        font-size: 16px;
+        margin-bottom: 8px;
     }
     
     .search-button,
     .export-button {
-        padding: 6px 10px;
-        font-size: 13px;
+        padding: 0.75rem;
+        font-size: 12px;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+    }
+    
+    .export-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .export-button i {
+        margin-right: var(--spacing-sm);
+    }
+    
+    .filter-container {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .actions {
+        gap: 2px;
+        justify-content: flex-start;
+    }
+    
+    .action-button {
+        width: 1.3rem;
+        height: 1.3rem;
+        font-size: 0.6rem;
     }
     
     .export-button {
@@ -359,8 +699,8 @@
         gap: 3px;
     }
     
-    .pagination-item,
-    .pagination-arrow {
+    .pagination a, 
+    .pagination span {
         width: 30px;
         height: 30px;
         font-size: 12px;
@@ -382,7 +722,7 @@
     }
 }
 
-/* Add a class for mobile card view as an alternative to tables on very small screens */
+/* Mobile card view para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .mobile-card-view .delegaciones-table {
         display: none;
@@ -396,7 +736,7 @@
     }
     
     .mobile-card {
-        background-color: white;
+        background-color: var(--fondo-claro);
         border-radius: 6px;
         padding: 12px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -412,11 +752,11 @@
     
     .mobile-card-title {
         font-weight: 600;
-        color: #1a2942;
+        color: var(--texto-principal);
     }
     
     .mobile-card-code {
-        color: #666;
+        color: var(--texto-secundario);
         font-size: 13px;
     }
     
@@ -434,13 +774,14 @@
     .mobile-card-label {
         font-weight: 500;
         width: 100px;
-        color: #555;
+        color: var(--texto-secundario);
         font-size: 13px;
     }
     
     .mobile-card-value {
         flex: 1;
         font-size: 13px;
+        color: var(--texto-principal);
     }
     
     .mobile-card-actions {
@@ -450,88 +791,57 @@
         margin-top: 5px;
     }
 }
-
-/* Add these styles to your existing CSS file */
-
-.header-top-row {
+/* Pagination Styles */
+.paginacion {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
 
-.add-button {
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0.5rem;
+}
+
+.pagination-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.pagination-link:hover {
+    background-color: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pagination-link.active {
     background-color: var(--primary-color);
     color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    font-weight: 500;
+    border-color: var(--primary-color);
 }
 
-.add-button:hover {
-    background-color: var(--primary-dark);
-}
-
-.add-button i {
-    font-size: 14px;
-}
-
-/* Update this existing style to remove the bottom margin since it's now in the header-top-row */
-.delegaciones-header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1a2942;
-    margin: 0;
-}
-
-/* Add responsive styles for the button */
-@media (max-width: 768px) {
-    .header-top-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    
-    .add-button {
-        align-self: flex-start;
-    }
-}
-
-@media (max-width: 576px) {
-    .add-button {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* Add this to your existing CSS file */
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-}
-
-.alert-success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.alert-danger {
-    color: var(--secondary-color);
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-}
-
-.alert ul {
-    margin: 0;
-    padding-left: 20px;
+.pagination-info {
+    font-size: 0.875rem;
+    color: var(--text-color);
 }

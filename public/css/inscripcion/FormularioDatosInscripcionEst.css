@@ -1,0 +1,741 @@
+/* Variables - Modo claro */
+:root {
+    /* Colores base */
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
+    --text-color: #333;
+    --border-color: #e2e8f0;
+    --hover-color: #f7fafc;
+    --button-text: #fff;
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #fa5252;
+    --primary-light: #20BBFF;
+    --primary-dark: #002A4C;
+    --secondary-dark: #631A33;
+    --accent-color: #FF9E1B;
+    
+    /* Fondos */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-header: #1a365d;
+    
+    /* Textos */
+    --text-muted: #718096;
+    --text-header: #4a5568;
+    --text-label: #4a5568;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Variables - Modo oscuro */
+body.dark-theme {
+    /* Colores base */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    
+    /* Estados */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-card: #1e293b;
+    --bg-input: #2D3748;
+    --bg-header: #2d3748;
+    
+    /* Textos */
+    --text-muted: #a0aec0;
+    --text-header: #e2e8f0;
+    --text-label: #e2e8f0;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+
+/* Header Styles */
+.estudiantes-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.estudiantes-header h1 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.estudiantes-header h1 i {
+    margin-right: 0.3rem;
+    font-size: 0.85rem;
+}
+
+/* Actions Container */
+.actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.add-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.add-button:hover {
+    background-color: none;
+    color: white;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-close {
+    position: absolute;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.alert-close:hover { opacity: 1; }
+
+.alert-success {
+    background-color: rgba(12, 166, 120, 0.2);
+    color: var(--success-color);
+    border: 1px solid rgba(12, 166, 120, 0.3);
+}
+
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: var(--warning-color);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.alert-danger {
+    background-color: rgba(250, 82, 82, 0.2);
+    color: var(--danger-color);
+    border: 1px solid rgba(250, 82, 82, 0.3);
+}
+
+/* Export Buttons */
+.export-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0;
+}
+
+.export-button {
+    background-color: white;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+    background-color: var(--hover-color);
+}
+
+.export-button.pdf {
+    color: var(--secondary-color);
+}
+
+.export-button.pdf:hover {
+    background-color: rgba(44, 82, 130, 0.1);
+}
+
+.export-button.excel {
+    color: var(--primary-color);
+}
+
+.export-button.excel:hover {
+    background-color: rgba(44, 82, 130, 0.1);
+}
+
+
+/* Modal Styles */
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#icon-dollar {
+    color: var(--primary-color);
+}
+
+/* File Drop Area Styles */
+.file-drop-area {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-drop-area:hover, .file-drop-area.is-active {
+    background-color: var(--hover-color);
+    border-color: var(--secondary-color);
+}
+
+.file-drop-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Estilos para los botones del modal de subir archivo */
+.modal-footer .btn-cancel {
+    padding: 0.625rem 1.25rem;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.modal-footer .btn-cancel:hover {
+    background-color: var(--hover-color);
+}
+
+.modal-footer .btn-cancel:active {
+    background-color: var(--border-color);
+    transform: translateY(1px);
+}
+
+.modal-footer .btn-save {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.modal-footer .btn-save:hover {
+    background-color: var(--secondary-color);
+}
+
+.modal-footer .btn-save:active {
+    background-color: var(--secondary-color);
+    transform: translateY(1px);
+}
+
+/* Estilos para botón deshabilitado */
+.btn-save:disabled,
+.btn-save[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    border-color: #b3b3b3 !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+/* Añadir una línea diagonal para indicar claramente que está deshabilitado */
+.btn-save:disabled::before,
+.btn-save[disabled]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.1) 10px,
+        rgba(0, 0, 0, 0.05) 10px,
+        rgba(0, 0, 0, 0.05) 20px
+    );
+    border-radius: inherit;
+}
+
+/* Estilos para el ícono dentro del botón deshabilitado */
+.btn-save:disabled i,
+.btn-save[disabled] i {
+    opacity: 0.6;
+}
+
+/* Efecto hover eliminado para botones deshabilitados */
+.btn-save:disabled:hover,
+.btn-save[disabled]:hover {
+    transform: none;
+    transition: none;
+}
+
+/* File Preview Styles */
+.file-preview {
+    background-color: var(--hover-color);
+    transition: all 0.3s ease;
+}
+
+.image-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-preview img {
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
+}
+
+.pdf-preview {
+    color: var(--danger-color);
+    padding: 1rem;
+}
+
+.btn-remove-file {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-remove-file:hover {
+    background-color: var(--danger-color) !important;
+    color: white !important;
+}
+
+.file-name {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Estilos específicos para el formulario de inscripción */
+.inscription-form-custom .form-instructions {
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1.5rem;
+}
+
+.inscription-form-custom .form-instructions h2 {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.inscription-form-custom .formulario-seccion {
+    margin-bottom: 1.5rem;
+}
+
+.inscription-form-custom .seccion-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.inscription-form-custom .seccion-header {
+    background-color: var(--bg-secondary);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inscription-form-custom .seccion-header h2 {
+    font-size: 0.9rem;
+    color: var(--text-header);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .section-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.inscription-form-custom .seccion-body {
+    padding: 1rem;
+}
+
+.inscription-form-custom .info-group {
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .info-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-label);
+    margin-bottom: 0.25rem;
+}
+
+.inscription-form-custom .info-value {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    padding: 0.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 0.25rem;
+}
+
+.inscription-form-custom .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .input-grupo {
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .input-grupo label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-label);
+    margin-bottom: 0.25rem;
+}
+
+.inscription-form-custom .input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inscription-form-custom .input-with-icon input,
+.inscription-form-custom .input-with-icon select {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.inscription-form-custom .input-with-icon input:focus,
+.inscription-form-custom .input-with-icon select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+}
+
+.inscription-form-custom .token-verification-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .btn-verificar-token {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.inscription-form-custom .btn-verificar-token:hover {
+    background-color: var(--secondary-color);
+}
+
+.inscription-form-custom .tutor-block {
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+.inscription-form-custom .tutor-header {
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .tutor-header h3 {
+    font-size: 0.9rem;
+    color: var(--text-header);
+    margin: 0;
+}
+
+.inscription-form-custom .btn-add-tutor,
+.inscription-form-custom .btn-add-area {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px dashed var(--primary-color);
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.inscription-form-custom .btn-add-tutor:hover,
+.inscription-form-custom .btn-add-area:hover {
+    background-color: var(--hover-color);
+}
+
+.inscription-form-custom .token-status {
+    display: block;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.inscription-form-custom .error-message {
+    color: var(--danger-color);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+/* Estilos mejorados para la zona de botones */
+.inscription-form-custom .subir-formulario {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Estilos mejorados para los botones */
+.inscription-form-custom .btn-subir {
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-width: 140px;
+    justify-content: center;
+}
+
+/* Botón Restaurar */
+.inscription-form-custom .btn-subir[type="reset"] {
+    background-color: white;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.inscription-form-custom .btn-subir[type="reset"]:hover {
+    background-color: var(--hover-color);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+}
+
+.inscription-form-custom .btn-subir[type="reset"]:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Botón Guardar cambios */
+.inscription-form-custom .btn-subir[type="submit"] {
+    background-color: var(--primary-color);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.inscription-form-custom .btn-subir[type="submit"]:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.inscription-form-custom .btn-subir[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Efecto de onda al hacer clic */
+.inscription-form-custom .btn-subir[type="submit"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.inscription-form-custom .btn-subir[type="submit"]:focus:not(:active)::after {
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Select Styles específicos para este formulario */
+.inscription-form-custom select {
+    appearance: none;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    width: 100%;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    padding-right: 2.5rem;
+}
+
+.inscription-form-custom select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+}
+
+.inscription-form-custom select:disabled {
+    background-color: var(--bg-disabled);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.inscription-form-custom select option {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+}
+
+.inscription-form-custom select option:hover {
+    background-color: var(--hover-color);
+}
+
+.inscription-form-custom .select-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.inscription-form-custom .select-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+}
+
+.inscription-form-custom .select-group .error-message {
+    position: absolute;
+    bottom: -1.25rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: var(--danger-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .file-drop-area {
+        padding: 2rem 1rem !important;
+    }
+    
+    .actions-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .export-buttons {
+        margin-top: 0.5rem;
+    }
+    
+    /* Responsive para botones del formulario */
+    .inscription-form-custom .subir-formulario {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .inscription-form-custom .btn-subir {
+        width: 100%;
+    }
+}

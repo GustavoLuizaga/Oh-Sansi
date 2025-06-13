@@ -1,0 +1,467 @@
+/* ==========================================================================
+   Variables - Modo Claro (todas las variables)
+   ========================================================================== */
+   :root {
+    /* Colores base */
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
+    --text-color: #333;
+    --border-color: #e2e8f0;
+    --hover-color: #f7fafc;
+    --button-text: #fff;
+
+    /* Estados */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #fa5252;
+    --danger-hover-color: #e05462;
+
+    /* Variaciones */
+    --primary-light: #20BBFF;
+    --primary-dark: #002A4C;
+    --secondary-dark: #631A33;
+    --accent-color: #FF9E1B;
+
+    /* Fondos */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-card: #ffffff;
+
+    /* Bordes y Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    /* Variables de Modo Oscuro también disponibles */
+    --dark-primary-color: #3182ce;
+    --dark-secondary-color: #4299e1;
+    --dark-text-color: #e2e8f0;
+    --dark-border-color: #2d3748;
+    --dark-hover-color: #2d3748;
+    --dark-button-text: #ffffff;
+    --dark-danger-color: #f87171;
+
+    --dark-primary-light: #63B3ED;
+    --dark-primary-dark: #2C5282;
+    --dark-secondary-dark: #9B2C2C;
+    --dark-accent-color: #ED8936;
+
+    --dark-bg-main: #1a202c;
+    --dark-bg-secondary: #2d3748;
+    --dark-bg-card: #1e293b;
+
+    --alert-success-bg: rgba(12, 166, 120, 0.2);
+    --alert-success-text: #31c48d;
+    --alert-danger-bg: rgba(248, 113, 113, 0.2);
+    --alert-danger-text: #f87171;
+}
+
+/* ==========================================================================
+   Variables - Modo Oscuro (todas las variables)
+   ========================================================================== */
+:root.modo-oscuro {
+    /* Colores base */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+
+    /* Estados */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    --danger-hover-color: #e05462;
+
+    /* Variaciones */
+    --primary-light: #63B3ED;
+    --primary-dark: #2C5282;
+    --secondary-dark: #9B2C2C;
+    --accent-color: #ED8936;
+
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-card: #1e293b;
+
+    /* Bordes y Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    /* Variables de Modo Claro también disponibles */
+    --light-primary-color: #1a365d;
+    --light-secondary-color: #2c5282;
+    --light-text-color: #333;
+    --light-border-color: #e2e8f0;
+    --light-hover-color: #f7fafc;
+    --light-button-text: #fff;
+    --light-danger-color: #fa5252;
+
+    --light-primary-light: #20BBFF;
+    --light-primary-dark: #002A4C;
+    --light-secondary-dark: #631A33;
+    --light-accent-color: #FF9E1B;
+
+    --light-bg-main: #ffffff;
+    --light-bg-secondary: #f8fafc;
+    --light-bg-card: #ffffff;
+}
+/* ==========================================================================
+   Layout Principal
+   ========================================================================== */
+.servicios-container {
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    margin: 20px;
+    overflow: hidden;
+    width: calc(100% - 40px);
+    transition: box-shadow 0.3s ease;
+}
+
+.roles-permisos-container {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.servicios-header {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.servicios-header h1 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.servicios-header h1 i {
+    margin-right: 0.3rem;
+    font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   Secciones
+   ========================================================================== */
+.roles-section,
+.permisos-section {
+    flex: 1;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.section-header {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==========================================================================
+   Listas y Items
+   ========================================================================== */
+.roles-list,
+.permisos-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rol-item,
+.permiso-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.rol-item:hover,
+.permiso-item:hover {
+    background-color: var(--hover-color);
+}
+
+.rol-item.active {
+    background-color: var(--primary-dark);
+    color: var(--button-text);
+}
+
+/* ==========================================================================
+   Botones de Acción
+   ========================================================================== */
+.item-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.action-button {
+    padding: 4px 8px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.action-button.edit:hover {
+    background-color: var(--secondary-color);
+}
+
+.action-button.delete {
+    background-color: var(--danger-color);
+}
+
+.action-button.delete:hover {
+    background-color: var(--danger-hover-color);
+}
+
+/* ==========================================================================
+   Botones de Agregar
+   ========================================================================== */
+.add-button {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.add-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.add-button i {
+    font-size: 0.9rem;
+}
+
+/* Versión pequeña del botón agregar */
+.add-button.small {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+}
+
+.add-button.small i {
+    font-size: 0.8rem;
+}
+
+/* Versión del botón agregar en modo oscuro */
+:root[data-theme="dark"] .add-button {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .add-button:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Modal
+   ========================================================================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: var(--bg-card);
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    width: 90%;
+    max-width: 500px;
+    animation: modalFadeIn 0.3s;
+}
+
+.modal-header {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    padding: 15px 20px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Estilos para el botón de cerrar del modal */
+.close {
+    color: var(--button-text);
+    font-size: 1.8rem; /* Aumentar tamaño */
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: var(--hover-color);
+}
+
+/* Alineación de los botones del modal */
+.modal-footer,
+.form-actions,
+.modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Alinear a la derecha */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* ==========================================================================
+   Formularios
+   ========================================================================== */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Botones
+   ========================================================================== */
+.btn-submit,
+.btn-danger,
+.btn-cancel {
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-submit {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border: none;
+}
+
+.btn-cancel {
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: var(--button-text);
+    border: none;
+}
+
+/* ==========================================================================
+   Alertas
+   ========================================================================== */
+.alert {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.alert-success {
+    color: var(--alert-success-text);
+    background-color: var(--alert-success-bg);
+    border-color: var(--success-color);
+}
+
+.alert-danger {
+    color: var(--alert-danger-text);
+    background-color: var(--alert-danger-bg);
+    border-color: var(--danger-color);
+}
+
+/* ==========================================================================
+   Animaciones
+   ========================================================================== */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+@media (max-width: 768px) {
+    .roles-permisos-container {
+        flex-direction: column;
+    }
+    
+    .roles-section,
+    .permisos-section {
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 20% auto;
+    }
+}

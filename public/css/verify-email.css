@@ -1,0 +1,112 @@
+.centered-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 3rem auto;
+}
+
+.centered-logo img {
+    max-width: 150px;
+    height: auto;
+    display: block;
+}
+
+.verify-email-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.verify-email-text {
+    color: #666;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.success-message {
+    background-color: #def7ec;
+    color: #03543f;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    border: 1px solid #84e1bc;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.verify-button {
+    width: 100%;
+    background: #002A4C;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 1rem;
+}
+
+.verify-button:hover {
+    background: #003a6b;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.logout-button {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.logout-button:hover {
+    color: #002A4C;
+}
+
+@media (max-width: 640px) {
+    .verify-email-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .centered-logo {
+        margin: 1rem auto;
+    }
+
+    .buttons-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .verify-button, .logout-button {
+        width: 100%;
+    }
+}

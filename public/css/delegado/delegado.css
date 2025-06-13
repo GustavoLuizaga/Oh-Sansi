@@ -1,0 +1,550 @@
+/* ==========================================================================
+   Variables y Configuración Base
+   ========================================================================== */
+
+/* Variables del tema - Modo claro */
+:root {
+    /* Colores base */
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
+    --text-color: #333;
+    --border-color: #e2e8f0;
+    --hover-color: #f7fafc;
+    --button-text: #fff;
+    
+    /* Colores de estado */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #fa5252;
+    --danger-color-hover: #e46e6e;
+    
+    /* Variaciones de color */
+    --primary-light: #20BBFF;
+    --primary-dark: #002A4C;
+    --secondary-dark: #631A33;
+    --accent-color: #FF9E1B;
+    
+    /* Fondos */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-table: #ffffff;
+    --bg-table-header: #f8fafc;
+    --bg-input: #ffffff;
+    --bg-modal: #ffffff;
+    
+    /* Textos */
+    --text-muted: #718096;
+    --text-header: #4a5568;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Variables del tema - Modo oscuro */
+:root.modo-oscuro  {
+    /* Colores base */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #374257;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    
+    /* Colores de estado */
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    --danger-color-hover: #f87171;
+    
+    /* Variaciones de color */
+    --primary-light: #63B3ED;
+    --primary-dark: #2C5282;
+    --secondary-dark: #9B2C2C;
+    --accent-color: #ED8936;
+    
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-table: #1e293b;
+    --bg-table-header: #2d3748;
+    --bg-input: #2D3748;
+    --bg-modal: #1e293b;
+    
+    /* Textos */
+    --text-muted: #a0aec0;
+    --text-header: #e2e8f0;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   Estilos Globales
+   ========================================================================== */
+
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease;
+}
+
+/* ==========================================================================
+   Layout y Contenedores
+   ========================================================================== */
+
+/* Header */
+.delegaciones-header {
+    background-color: var(--azul-oscuro-estatico);
+    color: var(--button-text);
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.delegaciones-header h1 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Contenedor principal responsive */
+.actions-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Contenedor de búsqueda y filtros */
+.search-filter-container {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.search-form {
+    width: 100%;
+}
+
+.search-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    min-width: 200px;
+    flex: 1;
+    position: relative;
+}
+
+.search-input-group input {
+    width: 100%;
+    padding: 0.5rem 2.25rem;
+    height: 35px;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+}
+
+.search-input-group i {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-muted);
+}
+
+.search-button {
+    height: 35px;
+    padding: 0 1rem;
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group {
+    min-width: 200px;
+    flex: 0.5;
+}
+
+.filter-select {
+    width: 100%;
+    height: 35px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+    font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   Componentes
+   ========================================================================== */
+
+/* Botones */
+.btn-nuevo-tutor,
+.btn-solicitudes,
+.search-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.btn-nuevo-tutor {
+    background-color: var(--primary-color);
+    color: var(--texto-estatico);
+}
+.btn-nuevo-tutor:hover {
+    background-color: var(--secondary-color);
+    color: var(--texto-estatico);
+}
+
+.add-button.py-1.px-2{
+background-color: var(--primary-color);
+}
+.add-button.py-1.px-2:hover {
+    background-color: var(--secondary-color);
+    color: var(--texto-estatico);
+}
+/* Búsqueda y Filtros */
+.search-filter-container {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 300px;
+}
+
+/* Input y Select */
+.search-input-group input,
+.filter-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+}
+
+.search-input-group input {
+    width: 100%;
+    padding-left: 2.25rem;
+}
+
+.filter-select {
+    min-width: 200px;
+    padding-right: 2rem;
+}
+
+
+
+/* Tabla */
+.delegaciones-table {
+    width: 100%;
+    min-width: 800px; /* Ancho mínimo para asegurar scroll en móviles */
+    margin-bottom: 0;
+    background-color: var(--bg-table);
+    color: var(--text-color);
+    border-radius: 0.375rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.delegaciones-table th,
+.delegaciones-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.delegaciones-table th {
+    background-color: var(--bg-table-header);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-header);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Aseguramos que los encabezados no se rompan */
+.delegaciones-table th {
+    white-space: nowrap;
+}
+
+/* Mantenemos los botones de acción juntos */
+.actions {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* ==========================================================================
+   Modales
+   ========================================================================== */
+
+/* Modal de Eliminación */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: var(--bg-modal);
+    color: var(--text-color);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-md);
+    max-width: 400px;
+    width: 90%;
+    animation: modalAppear 0.3s ease;
+}
+
+.modal-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.modal-content p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+
+.modal-actions form {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.cancel-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    color: var(--text-color);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+    background-color: var(--hover-color);
+}
+
+.delete-button {
+    padding: 0.5rem 1.25rem;
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: var(--danger-color-hover);
+}
+
+/* ==========================================================================
+   Formularios
+   ========================================================================== */
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+}
+
+/* ==========================================================================
+   Utilidades
+   ========================================================================== */
+
+.text-primary-color {
+    color: var(--primary-color);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.submit-button {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.submit-button:hover {
+    background-color: var(--secondary-color);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+    .actions-container {
+        flex-wrap: wrap;
+    }
+
+    .btn-nuevo-tutor,
+    .add-button {
+        width: auto;
+        flex: 0 0 auto;
+    }
+
+    .search-filter-container {
+        flex-basis: 100%;
+        order: 2;
+    }
+}
+
+@media (max-width: 1024px) {
+    .actions-container {
+        flex-wrap: wrap;
+    }
+
+    .action-item,
+    .search-input-group,
+    .filter-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .actions-container,
+    .search-filter-container {
+        flex-direction: column;
+    }
+
+    .search-box,
+    .filter-group {
+        width: 100%;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-input-group {
+        width: 100%;
+    }
+
+    .search-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .delegaciones-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .actions-container {
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .btn-nuevo-tutor,
+    .add-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+}
+
+/* Transiciones suaves */
+.search-input-group input,
+.search-button,
+.filter-select,
+.btn-nuevo-tutor,
+.add-button {
+    transition: all 0.3s ease;
+}

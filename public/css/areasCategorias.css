@@ -1,53 +1,102 @@
-
-/* Area Management Styles */
+/* Variables del tema */
 :root {
+    /* Colores base - Modo claro */
     --primary-color: #1a365d;
     --secondary-color: #2c5282;
     --text-color: #333;
     --border-color: #e2e8f0;
     --hover-color: #f7fafc;
     --button-text: #fff;
-  }
-  
-  /* Header Section */
-  .area-header {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 1rem 2rem;
+    --danger-color: #fa5252;
+
+    /* Fondos - Modo claro */
+    --bg-main: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-table: #ffffff;
+    --bg-table-header: #f8fafc;
+    --bg-pill: #e2e8f0;
+    
+    /* Textos - Modo claro */
+    --text-muted: #718096;
+    --text-header: #4a5568;
+    --text-pill: #4a5568;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Variables modo oscuro */
+:root.modo-oscuro {
+    /* Colores base - Modo oscuro */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    --danger-color: #f87171;
+
+    /* Fondos - Modo oscuro */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-table: #1e293b;
+    --bg-table-header: #2d3748;
+    --bg-pill: #4a5568;
+    
+    /* Textos - Modo oscuro */
+    --text-muted: #a0aec0;
+    --text-header: #e2e8f0;
+    --text-pill: #e2e8f0;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.bg-white{
+    background-color: var(--bg-main)!important; ;
+}
+/* Header Section */
+.area-header {
+    background-color: var(--azul-oscuro-estatico);
+    color: var(--button-text);
+    padding: 0.5rem 2rem;
     display: flex;
     align-items: center;
     margin-bottom: 1.5rem;
     border-radius: 0.375rem;
-  }
-  
-  .area-header h1 {
-    font-size: 1.5rem;
+}
+
+.area-header h1 {
+    font-size: 1rem;
     font-weight: 600;
     margin: 0;
     display: flex;
     align-items: center;
-  }
-  
-  .area-header h1 i {
+}
+
+.area-header h1 i {
     margin-right: 0.75rem;
     font-size: 1.75rem;
-  }
-  
-  /* Action Buttons */
-  .action-buttons {
+}
+
+/* Action Buttons */
+.action-buttons {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.5rem;
-  }
-  
-  .action-buttons > div:first-child {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+.action-buttons > div:first-child {
     display: flex;
     gap: 0.75rem;
-  }
-  
-  .action-btn {
+}
+
+.action-btn {
     background-color: var(--primary-color);
-    color: var(--button-text);
+    color: var(--texto-estatico);
     border: none;
     border-radius: 0.25rem;
     padding: 0.5rem 1rem;
@@ -57,24 +106,26 @@
     align-items: center;
     gap: 0.5rem;
     transition: background-color 0.2s;
-  }
-  
-  .action-btn:hover {
+}
+
+.action-btn:hover {
     background-color: var(--secondary-color);
-  }
-  
-  .action-btn i {
+    color: var(--texto-estatico);
+}
+
+.action-btn i {
     font-size: 1rem;
-  }
-  
-  /* Export Buttons */
-  .export-buttons {
+}
+
+/* Export Buttons */
+.export-buttons {
     display: flex;
     gap: 0.75rem;
-  }
-  
-  .export-btn {
-    background-color: white;
+    margin-bottom: 0; /* Similar to convocatoria.css */
+}
+
+.export-button {
+    background-color: var(--bg-main);
     color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
@@ -84,145 +135,195 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-  
-  .export-btn:hover {
+    transition: background-color 0.2s;
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.export-button:hover {
     background-color: var(--hover-color);
-  }
-  
-  /* Search and Filter */
-  .search-filter {
+}
+
+.export-button.pdf {
+    color: var(--secondary-color);
+    /* color: var(--danger-color); */
+}
+
+.export-button.pdf:hover {
+    background-color: rgba(44, 82, 130, 0.1);
+}
+
+.export-button.excel {
+    color: #00A389; /* Green color for Excel button text */
+}
+
+.export-button.excel:hover {
+    background-color: rgba(0, 163, 137, 0.1);
+}
+
+/* Search and Filter */
+.search-filter {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.5rem;
-    background-color: white;
+    background-color: var(--bg-main);
     border-radius: 0.375rem;
     padding: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
-  }
-  
-  .search-box {
+}
+
+.search-box {
     position: relative;
     width: 100%;
     max-width: 500px;
-  }
-  
-  .search-box input {
+}
+
+.search-box input {
     width: 100%;
     padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    background-color: var(--bg-main);
+    color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
     font-size: 0.875rem;
-  }
-  
-  .search-box i {
+}
+
+.search-box i {
     position: absolute;
     left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #718096;
-  }
-  
-  .filter-dropdown {
+    color: var(--text-muted);
+}
+
+.filter-dropdown {
     display: flex;
     align-items: center;
-  }
-  
-  .filter-dropdown label {
+}
+
+.filter-dropdown label {
     margin-right: 0.5rem;
-    color: #4a5568;
+    color: var(--text-header);
     font-size: 0.875rem;
-  }
-  
-  .filter-dropdown select {
+}
+
+.filter-dropdown select {
     padding: 0.5rem 2rem 0.5rem 0.75rem;
+    background-color: var(--bg-main);
+    color: var(--text-color);
     border: 1px solid var(--border-color);
     border-radius: 0.25rem;
-    background-color: white;
     font-size: 0.875rem;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23718096'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.5rem center;
     background-size: 1rem;
-  }
-  
-  /* Table Styles */
-  .area-table {
+}
+
+/* Table Styles */
+.area-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--bg-table);
     border-radius: 0.375rem;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 1.5rem;
-  }
-  
-  .area-table th {
-    background-color: #f8fafc;
+}
+
+.area-table th {
+    background-color: var(--bg-table-header);
     text-align: left;
     padding: 0.75rem 1rem;
     font-weight: 600;
-    color: #4a5568;
+    color: var(--text-header);
     border-bottom: 1px solid var(--border-color);
     text-transform: uppercase;
     font-size: 0.75rem;
-  }
-  
-  .area-table td {
-    padding: 1rem;
+}
+
+.area-table td {
+    padding: 0.3rem 1rem; /* ← Esto controla el espacio interno de las celdas */
     border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
-  }
-  
-  .area-table tr:hover {
+}
+
+.area-table tr:hover {
     background-color: var(--hover-color);
-  }
-  
-  .area-table tr:last-child td {
+}
+
+.area-table tr:last-child td {
     border-bottom: none;
-  }
-  
-  /* Grade Pills */
-  .grades-list {
+}
+
+/* Grade Pills */
+.grades-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-  }
-  
-  .grade-pill {
-    background-color: #e2e8f0;
-    color: #4a5568;
+}
+
+.grade-pill {
+    background-color: var(--bg-pill);
+    color: var(--text-pill);
     padding: 0.25rem 0.5rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     white-space: nowrap;
-  }
-  
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
+}
+
+/* Convocatoria Header Styles */
+.convocatoria-header {
+    background-color: var(--bg-secondary);
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0px;
+}
+
+.convocatoria-header h5 {
+    margin: 0rem;
+    color: var(--text-color);
+}
+
+.convocatoria-label {
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+/* Transiciones suaves */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease, 
+                box-shadow 0.3s ease;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
     .action-buttons {
-      flex-direction: column;
-      gap: 1rem;
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .export-buttons {
-      margin-left: 0;
-      margin-top: 1rem;
+        margin-left: 0;
+        margin-top: 1rem;
     }
     
     .search-filter {
-      flex-direction: column;
-      gap: 1rem;
+        flex-direction: column;
+        gap: 1rem;
     }
     
     .search-box {
-      max-width: 100%;
+        max-width: 100%;
     }
     
     .area-table {
-      display: block;
-      overflow-x: auto;
+        display: block;
+        overflow-x: auto;
     }
-  }
+}

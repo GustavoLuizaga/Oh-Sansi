@@ -1,9 +1,34 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
+{{-- ESTE ES EL CODIGO DE LA VISTA APP.BLADE.PHP --}}
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        :root[class='modo-oscuro'] {
+            color-scheme: dark;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+            }
+        }
+    </style>
+    <script>
+        // Aplicar tema antes de que se cargue la página
+        const tema = (() => {
+            const guardado = localStorage.getItem('tema');
+            if (guardado) return guardado;
+            
+            return window.matchMedia('(prefers-color-scheme: dark)').matches 
+                ? 'oscuro' 
+                : 'claro';
+        })();
+        
+        if (tema === 'oscuro') {
+            document.documentElement.classList.add('modo-oscuro');
+        }
+    </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Oh! Sansi') }}</title>
@@ -17,11 +42,16 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
+        <!-- Styles -->
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="/css/custom/footer.css">
+    <link rel="stylesheet" href="/css/custom/navegation.css">
+    <link rel="stylesheet" href="/css/custom/rigbar.css">
+    <link rel="stylesheet" href="/css/custom/sidebar.css">
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="/js/app.js" defer></script>
+    <script src="/js/themeToggle.js"></script>
 
     @stack('styles')
 
@@ -29,14 +59,14 @@
 
 <body class="font-sans antialiased">
     <!-- Navigation -->
-    @include('layouts.navigation')
+    @include('layouts/navigation')
     
     <!-- Contenedor principal flex -->
     <div class="min-h-screen bg-gray-100 flex flex-col">
         <!-- Contenido principal + sidebars -->
         <div class="flex flex-1">
             <!-- Sidebar izquierdo -->
-            @include('layouts.sidebar')
+            @include('layouts/sidebar')
             
             <!-- Contenido principal que se expande -->
             <main class="flex-1 p-4 overflow-auto">
@@ -50,11 +80,11 @@
             </main>
             
             <!-- Right Sidebar -->
-            @include('layouts.rigthbar')
+            @include('layouts/rigthbar')
         </div>
         
         <!-- Footer -->
-        @include('layouts.footer')
+        @include('layouts/footer')
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -64,30 +94,3 @@
 </body>
 
 </html>
-
-
-{{-- Codigo anterior del body, porsiacaso, eliminar el Title header si les da error--}}
-
-{{-- <body class="font-sans antialiased">
-    <!-- Navigation -->
-    @include('layouts.navigation')
-    <!-- Contenido principal -->
-    <div class="min-h-screen bg-gray-100 main-content">
-        <!-- Sidebar first to ensure it's below other elements -->
-        @include('layouts.sidebar')
-        <!-- Page Content -->
-        <main>
-            <!-- Header del contenido -->
-            @if (isset($header))
-            <header class="area-header">
-                {{ $header }}
-            </header>
-            @endif
-            {{ $slot }}
-        </main>
-        <!-- Right Sidebar -->
-        @include('layouts.rigthbar')
-    </div>
-    <!-- Footer -->
-    @include('layouts.footer')
-</body> --}}

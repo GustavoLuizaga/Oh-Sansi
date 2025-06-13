@@ -19,5 +19,10 @@ class Categoria extends Model
     public function grados(){
         return $this->belongsToMany(Grado::class, 'gradocategoria', 'idCategoria', 'idGrado');
     }
+    
+    public function convocatoriaAreaCategorias()
+    {
+        return $this->hasMany(ConvocatoriaAreaCategoria::class, 'idCategoria', 'idCategoria');
+    }
 
 }

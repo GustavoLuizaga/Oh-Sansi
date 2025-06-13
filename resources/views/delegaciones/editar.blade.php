@@ -1,7 +1,5 @@
 <x-app-layout>
-
-    <link rel="stylesheet" href="{{ asset('css/delegacion/informacion.css') }}">
-
+    <link rel="stylesheet" href="/css/delegacion/informacion.css">
     <div class="delegacion-info-container">
         <div class="delegacion-info-header">
             <h1>Editar Colegio: {{ $delegacion->nombre }}</h1>

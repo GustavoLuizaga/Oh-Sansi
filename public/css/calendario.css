@@ -1,0 +1,128 @@
+/**
+ * Estilos para el calendario de convocatorias
+ */
+
+.sidebar-derecho-calendario {
+    margin-bottom: 1.25rem;
+}
+
+.calendario {
+    background-color: var(--bg-color-secondary);
+    border-radius: 0.5rem;
+    padding: 0.625rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.625rem;
+    padding-bottom: 0.3125rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.calendar-header span {
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 0.875rem;
+}
+
+.calendar-nav button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 0.3125rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.calendar-nav button:hover {
+    background-color: var(--hover-color);
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.125rem;
+    margin-bottom: 0.3125rem;
+}
+
+.day-name {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--text-color-secondary);
+    padding: 0.3125rem 0;
+}
+
+.calendar-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.125rem;
+}
+
+.date {
+    text-align: center;
+    padding: 0.3125rem 0;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.date:hover {
+    background-color: var(--hover-color);
+}
+
+.prev-month, .next-month {
+    color: var(--text-color-muted);
+    opacity: 0.5;
+}
+
+.current-date {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-dark);
+    font-weight: bold;
+}
+
+.event {
+    background-color: var(--success-color-light);
+    color: var(--success-color-dark);
+    font-weight: bold;
+    position: relative;
+}
+
+.event::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--success-color);
+}
+
+/* Estilos para el tooltip */
+.tooltip-inner {
+    max-width: 200px;
+    padding: 8px 10px;
+    color: #fff;
+    text-align: left;
+    background-color: #333;
+    border-radius: 4px;
+}
+
+/* Modo oscuro */
+[data-bs-theme="dark"] .event {
+    background-color: var(--success-color-dark);
+    color: var(--light-color);
+}
+
+[data-bs-theme="dark"] .current-date {
+    background-color: var(--primary-color-dark);
+    color: var(--light-color);
+}

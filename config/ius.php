@@ -9,5 +9,12 @@ return [
     'AREA_CATEGORIA' => 6,
     'PERFIL' => 7,
     'SEGURIDAD' => 8,
-    
+    'INSCRIPCION_ESTUDIANTE' => 9,
+    'INSCRIPCION_TUTOR' => 10,
+    'ESTUDIANTES' => 11,
+    'DELEGADOS' => 12,
+    'USUARIOS'=> 13,
+    'BACKUP'=> 14,
+    'VERIFICACIONMANUAL'=> 15,
+
 ];

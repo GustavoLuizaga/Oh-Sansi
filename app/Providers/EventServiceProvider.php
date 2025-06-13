@@ -6,6 +6,15 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Events\CreacionCuenta;
+use App\Listeners\CrearNotificacion;
+use App\Events\InscripcionArea;
+use App\Listeners\CrearNotificacionInscripcionArea;
+use App\Events\InscripcionAprobadaEstudiante;
+use App\Listeners\NotificarInscripcionAprobada;
+use App\Events\InscripcionEstTokenDelegado;
+use App\Listeners\NotificarTutorInscEst;
+
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -17,6 +26,18 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        CreacionCuenta::class => [
+            CrearNotificacion::class,
+        ],
+        InscripcionArea::class => [
+            CrearNotificacionInscripcionArea::class,
+        ],
+        InscripcionAprobadaEstudiante::class => [
+            NotificarInscripcionAprobada::class,
+
+        ],InscripcionEstTokenDelegado::class =>[
+            NotificarTutorInscEst::class
         ],
     ];
 

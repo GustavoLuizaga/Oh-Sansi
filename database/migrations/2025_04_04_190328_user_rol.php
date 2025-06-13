@@ -8,11 +8,12 @@ class UserRol extends Migration
 {
     public function up()
     {
-        Schema::create('userRol', function (Blueprint $table) {
+        Schema::create('userrol', function (Blueprint $table) {
 
             $table->unsignedBigInteger('id');
             $table->unsignedBigInteger('idRol');
             $table->timestamps();
+            $table->boolean('habilitado')->default(false);
 
             $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('idRol')->references('idRol')->on('rol')->onDelete('cascade');
@@ -23,6 +24,6 @@ class UserRol extends Migration
 
     public function down()
     {
-        Schema::drop('userRol');
+        Schema::drop('userrol');
     }
 }

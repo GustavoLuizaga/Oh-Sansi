@@ -1,0 +1,171 @@
+/* Variables */
+:root {
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
+    --text-color: #333;
+    --border-color: #e2e8f0;
+    --bg-card: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --bg-card: #1e293b;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.modal-cuerpo {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.convocatorias-dropdown {
+    margin-bottom: 1rem;
+}
+
+.convocatoria-info-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    background-color: #f0f4f8;
+    border-left: 4px solid var(--secondary-color, #2c5282);
+    padding: 0.75rem;
+    border-radius: 4px;
+}
+
+.convocatoria-info-message i {
+    color: var(--secondary-color, #2c5282);
+    font-size: 1.25rem;
+    margin-top: 2px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+    margin: 1rem 0;
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.modal-cuerpo h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+.card-area {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.titulo-area {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.titulo-area::before {
+    content: '📚';
+    font-size: 1.1rem;
+}
+
+.card-categoria {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.titulo-categoria {
+    color: var(--secondary-color);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 1rem;
+}
+
+.titulo-categoria::before {
+    content: '📝';
+    font-size: 0.9rem;
+}
+
+.lista-grados {
+    list-style: none;
+    padding-left: 2rem;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.card-grado {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    background-color: var(--bg-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-cuerpo {
+        padding: 1rem;
+    }
+
+    .titulo-area {
+        font-size: 1rem;
+    }
+
+    .titulo-categoria {
+        font-size: 0.95rem;
+    }
+
+    .lista-grados {
+        padding-left: 1.5rem;
+    }
+
+    .card-grado {
+        font-size: 0.85rem;
+    }
+}

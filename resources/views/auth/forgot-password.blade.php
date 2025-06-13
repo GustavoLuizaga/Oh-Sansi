@@ -1,36 +1,44 @@
 <x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </x-slot>
+    <div class="centered-logo">
+        <img src="/img/images/logoOhSansi.png" alt="SanSi Logo">
+    </div>
 
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+    <div class="forgot-password-container">
+        <div class="forgot-password-text">
+            ¿Olvidaste tu contraseña? No hay problema. Simplemente háganós saber su dirección de correo electrónico y le enviaremos un enlace de restablecimiento de contraseña que le permitirá elegir una nueva.
         </div>
 
         <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
+        <x-auth-session-status class="success-message" :status="session('status')" />
 
         <!-- Validation Errors -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+        <x-auth-validation-errors class="error-message" :errors="$errors" />
 
         <form method="POST" action="{{ route('password.email') }}">
             @csrf
-
-            <!-- Email Address -->
-            <div>
-                <x-label for="email" :value="__('Email')" />
-
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+            <div class="input-wrapper">
+                <label class="input-label">Correo Electrónico</label>
+                <div class="input-icon-group">
+                    <i class="fas fa-envelope"></i>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        class="email-input"
+                        value="{{ old('email') }}" 
+                        required 
+                        autofocus
+                        placeholder="ohsansi@gmail.com"
+                    >
+                </div>
             </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Email Password Reset Link') }}
-                </x-button>
+            <button class="reset-button">
+            ENLACE DE RESTABLECIMIENTO DE CONTRASEÑA DE CORREO ELECTRÓNICO
+            </button>
+            <div class="back-to-login">
+                <a href="{{ route('login') }}">
+                    <i class="fas fa-arrow-left"></i> Volver a inicio de sesión
+                </a>
             </div>
         </form>
-    </x-auth-card>
+    </div>
 </x-guest-layout>

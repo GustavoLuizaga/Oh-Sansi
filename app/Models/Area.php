@@ -14,4 +14,14 @@ class Area extends Model
     protected $fillable = [
         'nombre',
     ];
+
+    public function tutores()
+    {
+        return $this->belongsToMany(Tutor::class, 'tutorareadelegacion', 'idArea', 'id');
+    }
+
+    public function convocatoriaAreaCategorias()
+    {
+        return $this->hasMany(ConvocatoriaAreaCategoria::class, 'idArea', 'idArea');
+    }
 }

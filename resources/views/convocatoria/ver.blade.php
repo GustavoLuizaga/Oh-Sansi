@@ -1,13 +1,9 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/convocatoria/ver.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <link rel="stylesheet" href="/css/convocatoria/ver.css">
+    <link rel="stylesheet" href="/css/custom.css">
     <div class="p-6">
-        <!-- Back Button -->
-        <a href="{{ route('convocatoria') }}" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Volver a Convocatorias
-        </a>
-        
         <div class="convocatoria-detail-container">
             <div class="detail-header">
                 <h1><i class="fas fa-clipboard-list"></i> {{ $convocatoria->nombre }}</h1>
@@ -18,23 +14,16 @@
             
             <!-- Action Buttons -->
             <div class="action-buttons">
-                @if($convocatoria->estado != 'Cancelada')
+                <!-- Botón de Descargar PDF siempre visible -->
+                <a href="{{ route('convocatorias.exportarPdf', $convocatoria->idConvocatoria) }}" class="btn-action btn-pdf">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </a>
+                  @if($convocatoria->estado != 'Cancelada' && $convocatoria->estado != 'Finalizado')
                     <a href="{{ route('convocatorias.editar', $convocatoria->idConvocatoria) }}" class="btn-action">
                         <i class="fas fa-edit"></i> Editar
                     </a>
                 @endif
-                
-                @if($convocatoria->estado == 'Borrador')
-                    @if(\Carbon\Carbon::parse($convocatoria->fechaFin)->gt(\Carbon\Carbon::now()))
-                    <a href="#" class="btn-action btn-publish" onclick="event.preventDefault(); if(confirm('¿Está seguro de publicar esta convocatoria?')) document.getElementById('publish-form').submit();">
-                        <i class="fas fa-check-circle"></i> Publicar
-                    </a>
-                    <form id="publish-form" action="{{ route('convocatorias.publicar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
-                        @csrf
-                        @method('PUT')
-                    </form>
-                    @endif
-                    
+                  @if($convocatoria->estado == 'Borrador')
                     <!-- Botón de Eliminar para convocatorias en borrador -->
                     <a href="#" class="btn-action btn-delete" onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-borrador').submit();">
                         <i class="fas fa-trash"></i> Eliminar
@@ -118,15 +107,33 @@
                             <h4 class="categoria-title">{{ $categoria->nombre }}</h4>
                             
                             @php
-                                $precio = DB::table('convocatoriaAreaCategoria')
+                                $precios = DB::table('convocatoriaareacategoria')
                                     ->where('idConvocatoria', $convocatoria->idConvocatoria)
                                     ->where('idArea', $area->idArea)
                                     ->where('idCategoria', $categoria->idCategoria)
-                                    ->value('precio');
+                                    ->first(['precioIndividual', 'precioDuo', 'precioEquipo']);
                             @endphp
                             <div class="precio-info">
-                                <span class="precio-label">Precio:</span>
-                                <span class="precio-value">{{ number_format($precio ?? 0, 2) }} Bs.</span>
+                                @if($precios->precioIndividual)
+                                <div class="precio-item">
+                                    <span class="precio-label">Precio Individual:</span>
+                                    <span class="precio-value">{{ number_format($precios->precioIndividual, 2) }} Bs.</span>
+                                </div>
+                                @endif
+                                
+                                @if($precios->precioDuo)
+                                <div class="precio-item">
+                                    <span class="precio-label">Precio Dúo:</span>
+                                    <span class="precio-value">{{ number_format($precios->precioDuo, 2) }} Bs.</span>
+                                </div>
+                                @endif
+                                
+                                @if($precios->precioEquipo)
+                                <div class="precio-item">
+                                    <span class="precio-label">Precio Equipo:</span>
+                                    <span class="precio-value">{{ number_format($precios->precioEquipo, 2) }} Bs.</span>
+                                </div>
+                                @endif
                             </div>
                             
                             <div class="grados-list">

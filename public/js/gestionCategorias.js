@@ -1,149 +1,83 @@
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(() => {
+    'use strict'
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    const forms = document.querySelectorAll('.needs-validation')
+    // Loop over them and prevent submission
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
 /**
- * Gestiona la funcionalidad del modal de nueva categoría
- * Permite agregar y eliminar múltiples selecciones de grado
- * - Siempre mantiene al menos un select visible
- * - Solo muestra botón eliminar en selects agregados (no en el primero)
+ * GESTIÓN COMPLETA DE CATEGORÍAS
+ * Todos los event listeners en un solo bloque para evitar conflictos
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Constantes y elementos del DOM
+    
+    // ==================== CREAR NUEVA CATEGORÍA ====================
     const GRADOS_CONTAINER = document.getElementById('gradosContainer');
     const AGREGAR_GRADO_BTN = document.getElementById('agregarGradoBtn');
     const FORMULARIO_PRINCIPAL = document.getElementById('formNuevaCategoria');
     
-    // Clonar el primer elemento como plantilla (sin botón de eliminar)
-    const GRADO_TEMPLATE = GRADOS_CONTAINER.querySelector('.grado-item').cloneNode(true);
-    
-    /**
-     * Agrega un nuevo campo de selección de grado
-     * - Crea un clon de la plantilla
-     * - Configura el nuevo elemento
-     */
-    function agregarGrado() {
-        // Crear clon y configurar select
-        const nuevoGrado = GRADO_TEMPLATE.cloneNode(true);
-        const select = nuevoGrado.querySelector('select');
-        select.value = '';
-        select.required = true;
+    if (GRADOS_CONTAINER && AGREGAR_GRADO_BTN && FORMULARIO_PRINCIPAL) {
+        // Clonar el primer elemento como plantilla
+        const GRADO_TEMPLATE = GRADOS_CONTAINER.querySelector('.grado-item').cloneNode(true);
         
-        // Crear y configurar botón de eliminar
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'btn-remove btn btn-outline-danger btn-sm ms-2';
-        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        removeBtn.title = 'Eliminar este grado';
-        
-        // Evento para eliminar el grado
-        removeBtn.addEventListener('click', function() {
-            nuevoGrado.remove();
-            actualizarEstados();
-        });
-        
-        // Insertar botón después del select
-        select.insertAdjacentElement('afterend', removeBtn);
-        
-        // Agregar al contenedor
-        GRADOS_CONTAINER.appendChild(nuevoGrado);
-        
-        // Actualizar estados y enfocar
-        actualizarEstados();
-        select.focus();
-    }
-    
-    /**
-     * Actualiza los estados de los elementos
-     * - Asegura que el primer select nunca tenga botón de eliminar
-     * - Muestra botones en los demás elementos
-     */
-    function actualizarEstados() {
-        const todosGrados = GRADOS_CONTAINER.querySelectorAll('.grado-item');
-        
-        todosGrados.forEach((grado, index) => {
-            const removeBtn = grado.querySelector('.btn-remove');
+        function agregarGrado() {
+            const nuevoGrado = GRADO_TEMPLATE.cloneNode(true);
+            const select = nuevoGrado.querySelector('select');
+            select.value = '';
+            select.required = true;
             
-            // Solo mostramos botón en elementos agregados (índice > 0)
-            if (removeBtn) {
-                removeBtn.style.display = index === 0 ? 'none' : 'block';
-            }
-        });
-    }
-    
-    /**
-     * Valida el formulario antes de enviar
-     * - Verifica que al menos un grado esté seleccionado
-     */
-    function validarFormulario(e) {
-        e.preventDefault();
-        
-        const gradosValidos = Array.from(document.querySelectorAll('select[name="grados[]"]'))
-            .filter(select => select.value.trim() !== '');
-        
-        if (gradosValidos.length === 0) {
-            mostrarError('Por favor selecciona al menos un grado');
-            return;
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-remove btn btn-outline-danger btn-sm ms-2';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.title = 'Eliminar este grado';
+            
+            removeBtn.addEventListener('click', function() {
+                nuevoGrado.remove();
+                actualizarEstados();
+            });
+            
+            select.insertAdjacentElement('afterend', removeBtn);
+            GRADOS_CONTAINER.appendChild(nuevoGrado);
+            actualizarEstados();
+            select.focus();
         }
         
-        // Recopilar datos
-        const formData = new FormData(FORMULARIO_PRINCIPAL);
+        function actualizarEstados() {
+            const todosGrados = GRADOS_CONTAINER.querySelectorAll('.grado-item');
+            todosGrados.forEach((grado, index) => {
+                const removeBtn = grado.querySelector('.btn-remove');
+                if (removeBtn) {
+                    removeBtn.style.display = index === 0 ? 'none' : 'block';
+                }
+            });
+        }
         
-        // Realizar la solicitud AJAX
-        fetch('/gestionCategorias/', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Cerrar modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaCategoriaModal'));
-                modal.hide();
-                window.location.reload();
-                
-                // Aquí puedes hacer lo que necesites después de crear la categoría
-            } else {
-                mostrarError('Hubo un error al crear la categoría');
+        function validarFormulario(e) {
+            e.preventDefault();
+            
+            const gradosValidos = Array.from(document.querySelectorAll('#formNuevaCategoria select[name="grados[]"]'))
+                .filter(select => select.value.trim() !== '');
+            
+            if (gradosValidos.length === 0) {
+                return; // Solo no enviar, sin alert
             }
-        })
-        .catch(error => {
-            mostrarError('Error en la conexión');
-        });
-    }
-    
-    /**
-     * Muestra mensajes de error al usuario
-     * @param {string} mensaje - Texto del error a mostrar
-     */
-    function mostrarError(mensaje) {
-        // Implementación mejorable con Toast de Bootstrap
-        alert(mensaje);
-    }
-    
-    // Event listeners
-    AGREGAR_GRADO_BTN.addEventListener('click', agregarGrado);
-    FORMULARIO_PRINCIPAL.addEventListener('submit', validarFormulario);
-    
-    // Estado inicial
-    actualizarEstados();
-    
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const confirmDeleteModal = document.getElementById('ConfirmarBorradoModal');
-    let categoriaIdEliminar = null;
-
-    // Manejar la apertura del modal y establecer el nombre de la categoría
-    document.querySelectorAll('.btn-delete').forEach(button => {
-        button.addEventListener('click', function() {
-            const categoriaNombre = this.getAttribute('data-categoria-nombre');
-            categoriaIdEliminar = this.getAttribute('data-categoria-id');
-            document.getElementById('nombreCategoriaEliminar').textContent = categoriaNombre;
-        });
-    });
-
-    // Manejar la confirmación de eliminación
-    document.getElementById('confirmarEliminar').addEventListener('click', function() {
-        if (categoriaIdEliminar) {
-            fetch(`/gestionCategorias/${categoriaIdEliminar}`, {
-                method: 'DELETE',
+            
+            const formData = new FormData(FORMULARIO_PRINCIPAL);
+            
+            fetch('/gestionCategorias/', {
+                method: 'POST',
+                body: formData,
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Accept': 'application/json',
@@ -153,85 +87,212 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Cerrar el modal
-                    const modalInstance = bootstrap.Modal.getInstance(confirmDeleteModal);
-                    modalInstance.hide();
-
-                    // Eliminar la fila de la tabla
-                    document.querySelector(`tr[data-categoria-id="${categoriaIdEliminar}"]`).remove();
-                } else {
-                    alert('Hubo un error al eliminar la categoría.');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaCategoriaModal'));
+                    modal.hide();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 300);
                 }
+                // Si hay error, simplemente no hacer nada
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Hubo un error al eliminar la categoría.');
+                // Silenciar errores, solo console.log para debugging si es necesario
+                console.log('Error:', error);
             });
         }
-    });
-});
+        
+        // Event listeners para crear categoría
+        AGREGAR_GRADO_BTN.addEventListener('click', agregarGrado);
+        FORMULARIO_PRINCIPAL.addEventListener('submit', validarFormulario);
+        actualizarEstados();
+    }
+    
+    // ==================== ELIMINAR CATEGORÍA ====================
+    const confirmDeleteModal = document.getElementById('ConfirmarBorradoModal');
+    let categoriaIdEliminar = null;
 
-//Buscador de gestios de categotrias
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchCategoria');
-    const tableRows = document.querySelectorAll('.areas-table tbody tr');
-
-    searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-
-        tableRows.forEach(row => {
-            const categoriaName = row.querySelector('td:first-child').textContent.toLowerCase();
-            
-            if (categoriaName.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
+    if (confirmDeleteModal) {
+        // Manejar botones de eliminar
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-delete')) {
+                const button = e.target.closest('.btn-delete');
+                const categoriaNombre = button.getAttribute('data-categoria-nombre');
+                categoriaIdEliminar = button.getAttribute('data-categoria-id');
+                document.getElementById('nombreCategoriaEliminar').textContent = categoriaNombre;
             }
         });
 
-        // Mostrar mensaje cuando no hay resultados
-        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
-        const tbody = document.querySelector('.areas-table tbody');
-        const noResultsRow = tbody.querySelector('.no-results');
-
-        if (visibleRows.length === 0) {
-            if (!noResultsRow) {
-                const tr = document.createElement('tr');
-                tr.className = 'no-results';
-                tr.innerHTML = '<td colspan="3" class="text-center text-danger">No se encontraron categorías con ese nombre</td>';
-                tbody.appendChild(tr);
-            }
-        } else if (noResultsRow) {
-            noResultsRow.remove();
+        // Confirmar eliminación
+        const confirmarEliminarBtn = document.getElementById('confirmarEliminar');
+        if (confirmarEliminarBtn) {
+            confirmarEliminarBtn.addEventListener('click', function() {
+                if (categoriaIdEliminar) {
+                    fetch(`/gestionCategorias/${categoriaIdEliminar}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const modalInstance = bootstrap.Modal.getInstance(confirmDeleteModal);
+                            modalInstance.hide();
+                            document.querySelector(`tr[data-categoria-id="${categoriaIdEliminar}"]`).remove();
+                        }
+                        // Si hay error, simplemente no hacer nada
+                    })
+                    .catch(error => {
+                        // Silenciar errores
+                        console.log('Error:', error);
+                    });
+                }
+            });
         }
-    });
-});
-
-
-// Ordenamiento de categorías
-document.addEventListener('DOMContentLoaded', function() {
-    // Manejador para el select de ordenamiento
-    const orderSelect = document.getElementById('orderBy');
-    if (orderSelect) {
-        orderSelect.addEventListener('change', function() {
-            // Obtener los parámetros actuales de la URL
-            const urlParams = new URLSearchParams(window.location.search);
+    }
+    
+    // ==================== EDITAR CATEGORÍA ====================
+    const editarModal = document.getElementById('EditarCategoriaModal');
+    
+    if (editarModal) {
+        let formSubmitHandler = null; // Para guardar referencia del handler
+        
+        editarModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const categoriaId = button.getAttribute('data-categoria-id');
+            const categoriaNombre = button.getAttribute('data-categoria-nombre');
+            const gradosData = JSON.parse(button.getAttribute('data-grados'));
             
-            // Actualizar o agregar el parámetro de ordenamiento
-            if (this.value) {
-                urlParams.set('orderBy', this.value);
-            } else {
-                urlParams.delete('orderBy');
+            const form = editarModal.querySelector('form');
+            const nombreInput = editarModal.querySelector('input[name="nombreCategoria"]');
+            const gradosContainer = editarModal.querySelector('#gradosContainer');
+            
+            nombreInput.value = categoriaNombre;
+            gradosContainer.innerHTML = '';
+            
+            // Agregar cada grado
+            gradosData.forEach((grado, index) => {
+                const gradoItem = document.createElement('div');
+                gradoItem.className = 'grado-item mb-3 d-flex align-items-center gap-2';
+                
+                const select = document.createElement('select');
+                select.className = 'form-select flex-grow-1';
+                select.name = 'grados[]';
+                select.required = true;
+                
+                const selectOriginal = document.querySelector('#nuevaCategoriaModal select[name="grados[]"]');
+                if (selectOriginal) {
+                    select.innerHTML = selectOriginal.innerHTML;
+                }
+                
+                // Seleccionar el grado correcto
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value == grado.id) {
+                        select.options[i].selected = true;
+                        break;
+                    }
+                }
+                
+                gradoItem.appendChild(select);
+                
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove btn btn-outline-danger btn-sm';
+                btnRemove.innerHTML = '<i class="fas fa-times"></i>';
+                btnRemove.style.display = index === 0 ? 'none' : 'block';
+                
+                btnRemove.addEventListener('click', function() {
+                    gradoItem.remove();
+                    const remainingGrados = gradosContainer.querySelectorAll('.grado-item');
+                    if (remainingGrados.length === 1) {
+                        remainingGrados[0].querySelector('.btn-remove').style.display = 'none';
+                    }
+                });
+                
+                gradoItem.appendChild(btnRemove);
+                gradosContainer.appendChild(gradoItem);
+            });
+            
+            form.action = `/gestionCategorias/${categoriaId}`;
+            
+            let methodField = form.querySelector('input[name="_method"]');
+            if (!methodField) {
+                methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                form.appendChild(methodField);
+            }
+            methodField.value = 'PUT';
+            
+            // IMPORTANTE: Remover event listener anterior si existe
+            if (formSubmitHandler) {
+                form.removeEventListener('submit', formSubmitHandler);
             }
             
-            // Mantener el término de búsqueda si existe
-            const searchTerm = document.getElementById('searchCategoria').value;
-            if (searchTerm) {
-                urlParams.set('search', searchTerm);
-            }
+            // Crear nuevo handler
+            formSubmitHandler = function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(editarModal);
+                        modal.hide();
+                        location.reload();
+                    }
+                    // Si hay error, simplemente no hacer nada
+                })
+                .catch(error => {
+                    // Silenciar errores
+                    console.log('Error:', error);
+                });
+            };
             
-            // Recargar la página con los nuevos parámetros
-            window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+            // Agregar el nuevo handler
+            form.addEventListener('submit', formSubmitHandler);
         });
+        
+        // Botón agregar grado en modal de edición
+        const agregarGradoEditarBtn = editarModal.querySelector('#agregarGradoBtn');
+        if (agregarGradoEditarBtn) {
+            agregarGradoEditarBtn.addEventListener('click', function() {
+                const gradosContainer = editarModal.querySelector('#gradosContainer');
+                
+                const gradoItem = document.createElement('div');
+                gradoItem.className = 'grado-item mb-3 d-flex align-items-center gap-2';
+                
+                const selectOriginal = document.querySelector('#nuevaCategoriaModal select[name="grados[]"]');
+                const select = selectOriginal.cloneNode(true);
+                select.value = '';
+                
+                gradoItem.appendChild(select);
+                
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.className = 'btn-remove btn btn-outline-danger btn-sm';
+                btnRemove.innerHTML = '<i class="fas fa-times"></i>';
+                btnRemove.style.display = 'block';
+                
+                btnRemove.addEventListener('click', function() {
+                    gradoItem.remove();
+                });
+                
+                gradoItem.appendChild(btnRemove);
+                gradosContainer.appendChild(gradoItem);
+                select.focus();
+            });
+        }
     }
 });

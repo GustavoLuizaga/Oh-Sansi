@@ -4,7 +4,7 @@
 
 ## 🚀 Descripción del Proyecto
 
-Este sistema permite gestionar el proceso de inscripción de estudiantes a las Olimpiadas Oh! SanSi. Incluye funcionalidades para que los administradores, tutores y estudiantes realicen sus tareas de manera eficiente y organizada.
+Sistema permite gestionar el proceso de inscripción de estudiantes a las Olimpiadas Oh! SanSi.
 
 ---
 
@@ -25,55 +25,75 @@ Este sistema permite gestionar el proceso de inscripción de estudiantes a las O
 
 1. **Clonar el repositorio:**
 ```bash
-    git clone https://github.com/KleberVM/sansi-system.git
+git clone https://github.com/KleberVM/sansi-system.git
 ```
 
 2. **Instalar dependencias (Recomendable estar dentro de la carpeta del proyecto):**
 ```bash
-    composer install
-    npm install
+composer install
+```
+```bash
+npm install
 ```
 
 3. **Configurar el archivo .env:**
 ```bash
-    cp .env.example .env
-    php artisan key:generate
+cp .env.example .env
+php artisan key:generate
 ```
 
 4. **Configurar la base de datos (Puedes saltarte al paso 5):**
 ```bash
-    php artisan migrate --seed
+php artisan migrate --seed
 ```
 
 5. **Levantar el servidor local:**
 ```bash
-    php artisan serve
+php artisan serve
+```
+
+6. **Repositorio del deploy** (Colaboradores)
+```bash
+git remote add deploy https://github.com/KleberVM/sansi-system.git
 ```
 
 ---
 
 ## Comandos útiles para el proyecto
 
-- Refresca la base de datos (Ten en cuenta que se perderan los datos que estan guardados en la base de datos.)
-```bash
-php artisan migrate:fresh --seed 
-```
-
-- Ejecuta el seeder que tenemos (llena la base de datos con datos escenciales como roles , funciones ,ui).
-```bash
-php artisan db:seed --class=DefaultDataSeeder 
-```
-
 - Para los que tienen php superior a 7.4.22 
 ```bash
 composer remove phpoffice/phpspreadsheet
 ```
 
-- para actualizar composer
+- Actualizar composer
 ```bash
 composer update
 ```
-
+- Ejecuta nuevas migraciones
+```bash
+php artisan migrate
+```
+- Borra todo y vuelve a migrar (sin seeders)
+```bash
+php artisan migrate:refresh
+```
+- Borra todo y vuelve a migrar (sin seeders)
+```bash
+php artisan migrate:fresh
+```
+- Borra todo , migra y tambien ejecuta seeders
+```bash
+php artisan migrate:fresh --seed
+```
+- Ejecuta seeders sin migrar
+```bash
+php artisan db:seed
+```
+- Ejecutar un seeder en especifico
+```bash
+php artisan db:seed --class=NombreDelSeeder
+```
 ---
 
 ## 🧙‍♂️ Datos de acceso
@@ -82,7 +102,15 @@ Cuando ejcutas el seeder tendras al admin por defecto
     - **Usuario:** admin
     - **email:** admin@gmail.com
     - **Contraseña:** 12345678
-
+- **Estudiante:**
+    - **Usuario:** Estudiante
+    - **email:** estudiante@gmail.com
+    - **Contraseña:** 12345678
+- **Tutor:**
+    - **Usuario:** Tutor
+    - **email:** tutor@gmail.com
+    - **Contraseña:** 12345678
+    
 ---
 
 ## 📝 PHP INI

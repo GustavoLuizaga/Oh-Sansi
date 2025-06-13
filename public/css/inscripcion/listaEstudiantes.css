@@ -1,0 +1,1108 @@
+/* Estilos para la página de lista de estudiantes */
+:root {
+    /* Colores principales - Paleta corporativa */
+    --primary-color: #1a365d; /* Azul principal */
+    --secondary-color: #2c5282; /* Azul secundario */
+    --text-color: #333;
+    --border-color: #e2e8f0;
+    --hover-color: #f7fafc;
+    --button-text: #fff;
+    --success-color: #1a365d;
+    --warning-color: #f59f00;
+    --danger-color: #fa5252;
+    --pending-color: #2c5282; /* Color para estudiantes pendientes */
+}
+
+:root.modo-oscuro {
+    /* Colores principales - Paleta corporativa */
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #ffffff;
+    --success-color: #0ca678;
+    --warning-color: #f59f00;
+    --danger-color: #f87171;
+    --pending-color: #f59e0b;
+
+    /* Fondos */
+    --bg-main: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-card: #1e293b;
+    --bg-table: #1e293b;
+    --bg-table-even: #2d3748;
+    --bg-input: #2d3748;
+
+    /* Estados y Alertas */
+    --alert-success-bg: rgba(12, 166, 120, 0.2);
+    --alert-success-text: #31c48d;
+    --alert-warning-bg: rgba(245, 158, 11, 0.2);
+    --alert-warning-text: #f59e0b;
+    --alert-danger-bg: rgba(248, 113, 113, 0.2);
+    --alert-danger-text: #f87171;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.estudiantes-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.estudiantes-header h1 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.estudiantes-header h1 i {
+    margin-right: 0.3rem;
+    font-size: 0.85rem;
+}
+
+/* Actions Container */
+.actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.add-button, .pending-button {
+    height: 36px;
+    padding: 0 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-button {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.add-button:hover {
+    background-color: #2c5282;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.pending-button {
+    background-color: var(--pending-color);
+    color: white;
+}
+
+.pending-button:hover {
+    background-color: #2c6282;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.add-button i, .pending-button i {
+    font-size: 0.9rem;
+}
+
+/* Search and Filter */
+.search-filter-container {
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    width: 100%;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 0.4rem 0.6rem 0.4rem 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+}
+
+.search-box input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.2);
+}
+
+.search-box i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #718096;
+    font-size: 0.875rem;
+}
+
+.search-button {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.3rem 0.6rem;
+    font-weight: 500;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.search-button:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Export Buttons */
+.export-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.export-button {
+    background-color: var(--bg-card);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    padding: 0.35rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:hover {
+    background-color: var(--hover-color);
+}
+
+.export-button.pdf {
+    color: var(--secondary-color);
+}
+
+.export-button.pdf:hover {
+    background-color: rgba(44, 82, 130, 0.1);
+}
+
+
+/* Filter Container */
+.filter-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    background-color: var(--bg-card);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    flex: 1;
+}
+
+.filter-group label {
+    margin-bottom: 0.2rem;
+    color: var(--text-color);
+    font-size: 0.65rem;
+    font-weight: 500;
+}
+
+.filter-select {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    background-color: var(--bg-input);
+    color: var(--text-color);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.filter-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 134, 206, 0.2);
+}
+
+/* Table Styles */
+.estudiantes-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.estudiantes-table thead {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.estudiantes-table th {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.7rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.estudiantes-table tbody tr {
+    background-color: var(--bg-card);
+    color: var(--text-color);
+    transition: background-color 0.2s;
+}
+
+.estudiantes-table tbody tr:nth-child(even) {
+    background-color: var(--bg-table-even);
+}
+
+.estudiantes-table tbody tr:hover {
+    background-color: var(--hover-color);
+}
+
+.estudiantes-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.7rem;
+}
+
+.estudiantes-table .actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.action-button.view {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.action-button.view:hover {
+    background-color: var(--secondary-color);
+}
+
+.action-button.edit {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.action-button.edit:hover {
+    background-color: #e69500;
+}
+
+.action-button.delete-button {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.action-button.delete-button:hover {
+    background-color: #e03131;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.pagination nav {
+    display: inline-block;
+}
+
+.pagination .flex.justify-between {
+    display: none;
+}
+
+.pagination .hidden {
+    display: none;
+}
+
+.pagination .relative {
+    position: relative;
+}
+
+.pagination .inline-flex {
+    display: inline-flex;
+}
+
+.pagination .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.pagination .rounded-md {
+    border-radius: 0.375rem;
+}
+
+.pagination .items-center {
+    align-items: center;
+}
+
+.pagination .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.pagination .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.pagination .text-sm {
+    font-size: 0.875rem;
+}
+
+.pagination .font-medium {
+    font-weight: 500;
+}
+
+.pagination .text-gray-700 {
+    color: var(--text-color);
+}
+
+.pagination .bg-white {
+    background-color: var(--bg-card);
+}
+
+.pagination .hover\:bg-gray-50:hover {
+    background-color: #f9fafb;
+}
+
+.pagination .border {
+    border-width: 1px;
+}
+
+.pagination .border-gray-300 {
+    border-color: #e2e8f0;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.status-badge.active {
+    background-color: rgba(12, 166, 120, 0.2);
+    color: var(--success-color);
+}
+
+.status-badge.pending {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: var(--pending-color);
+}
+
+/* Alert Messages */
+.alert {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-success {
+    background-color: rgba(12, 166, 120, 0.2);
+    color: var(--success-color);
+    border: 1px solid rgba(12, 166, 120, 0.3);
+}
+
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: var(--warning-color);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.alert-danger {
+    background-color: rgba(250, 82, 82, 0.2);
+    color: var(--danger-color);
+    border: 1px solid rgba(250, 82, 82, 0.3);
+}
+/* Estilos específicos para el modal de subir comprobante */
+#SubirComprobantePago .modal-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#SubirComprobantePago #icon-dollar {
+    color: var(--primary-color);
+}
+
+/* File Drop Area Styles */
+#SubirComprobantePago .file-drop-area {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#SubirComprobantePago .file-drop-area:hover, 
+#SubirComprobantePago .file-drop-area.is-active {
+    background-color: var(--hover-color);
+    border-color: var(--secondary-color);
+}
+
+#SubirComprobantePago .file-drop-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Estilos para los botones del modal de subir archivo */
+#SubirComprobantePago .modal-footer .btn-cancel {
+    padding: 0.625rem 1.25rem;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+#SubirComprobantePago .modal-footer .btn-cancel:hover {
+    background-color: var(--hover-color);
+}
+
+#SubirComprobantePago .modal-footer .btn-cancel:active {
+    background-color: var(--border-color);
+    transform: translateY(1px);
+}
+
+#SubirComprobantePago .modal-footer .btn-save {
+    padding: 0.625rem 1.25rem;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+#SubirComprobantePago .modal-footer .btn-save:hover {
+    background-color: var(--secondary-color);
+}
+
+#SubirComprobantePago .modal-footer .btn-save:active {
+    background-color: var(--secondary-color);
+    transform: translateY(1px);
+}
+
+/* Estilos para botón deshabilitado */
+#SubirComprobantePago .btn-save:disabled,
+#SubirComprobantePago .btn-save[disabled] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    border-color: #b3b3b3 !important;
+    box-shadow: none !important;
+    position: relative;
+}
+
+/* Añadir una línea diagonal para indicar claramente que está deshabilitado */
+#SubirComprobantePago .btn-save:disabled::before,
+#SubirComprobantePago .btn-save[disabled]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.1) 10px,
+        rgba(0, 0, 0, 0.05) 10px,
+        rgba(0, 0, 0, 0.05) 20px
+    );
+    border-radius: inherit;
+}
+
+/* Estilos para el ícono dentro del botón deshabilitado */
+#SubirComprobantePago .btn-save:disabled i,
+#SubirComprobantePago .btn-save[disabled] i {
+    opacity: 0.6;
+}
+
+/* Efecto hover eliminado para botones deshabilitados */
+#SubirComprobantePago .btn-save:disabled:hover,
+#SubirComprobantePago .btn-save[disabled]:hover {
+    transform: none;
+    transition: none;
+}
+
+/* File Preview Styles */
+#SubirComprobantePago .file-preview {
+    background-color: var(--hover-color);
+    transition: all 0.3s ease;
+}
+
+#SubirComprobantePago .image-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#SubirComprobantePago .image-preview img {
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
+}
+
+#SubirComprobantePago .pdf-preview {
+    color: var(--danger-color);
+    padding: 1rem;
+}
+
+#SubirComprobantePago .btn-remove-file {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#SubirComprobantePago .btn-remove-file:hover {
+    background-color: var(--danger-color) !important;
+    color: white !important;
+}
+
+#SubirComprobantePago .file-name {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #SubirComprobantePago .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    #SubirComprobantePago .file-drop-area {
+        padding: 2rem 1rem !important;
+    }
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .actions-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .button-group {
+        justify-content: center;
+    }
+    
+    .search-filter-container {
+        max-width: 100%;
+    }
+    
+    .export-buttons {
+        justify-content: center;
+    }
+    
+    .estudiantes-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+/* Asegurar que los inputs mantengan su color en modo oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-color);
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-input) inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Agregar transición suave entre modos */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+/* Botón de volver */
+.back-button {
+    height: 36px;
+    padding: 0 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.back-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+/* Botones de exportación personalizados */
+.export-button.payment,
+.export-button.upload {
+    height: 36px;
+    padding: 0 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+}
+
+.export-button.payment {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.export-button.payment:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.export-button.upload {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.export-button.upload:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+/* Botones de acción en la tabla */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.action-button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    text-decoration: none;
+}
+
+.action-button i {
+    font-size: 0.9rem;
+}
+
+.action-button.view {
+    background-color: var(--primary-color);
+}
+
+.action-button.view:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+.action-button.edit {
+    background-color: var(--warning-color);
+}
+
+.action-button.edit:hover {
+    background-color: #e69500;
+    transform: scale(1.1);
+}
+
+/* Mejoras responsivas */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .action-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .action-button i {
+        font-size: 1rem;
+    }
+}
+
+/* Estilos para los modales */
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-contenido {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: modalEntrada 0.3s ease-out;
+}
+
+@keyframes modalEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-cerrar {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.modal-cerrar:hover {
+    background-color: #e2e8f0;
+    color: var(--primary-color);
+    transform: rotate(90deg);
+}
+
+.modal-titulo {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Estilos para el modal de visualización */
+.estudiante-detalles {
+    margin-top: 1rem;
+}
+
+.info-section {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.info-grupo {
+    margin-bottom: 1.5rem;
+}
+
+.info-grupo:last-child {
+    margin-bottom: 0;
+}
+
+.info-grupo h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.info-grupo p {
+    margin: 0.5rem 0;
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+}
+
+.info-grupo strong {
+    min-width: 120px;
+    color: #475569;
+}
+
+/* Estilos para el modal de edición */
+.form-editar {
+    margin-top: 1rem;
+}
+
+.form-grupo {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input-group label {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.input-group select {
+    padding: 0.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background-color: white;
+    color: #1a365d;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.input-group select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 54, 93, 0.1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-cancelar,
+.btn-guardar {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-cancelar {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border: none;
+}
+
+.btn-guardar {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.btn-cancelar:hover {
+    background-color: #e2e8f0;
+}
+
+.btn-guardar:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.modalPDF {
+  position: fixed; 
+  z-index: 1000; 
+  left: 0; 
+  top: 0; 
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.4); /* fondo semitransparente */
+}
+
+.modal-contentPDF {
+  background-color: #fff;
+  margin: 15% auto; 
+  padding: 0; /* quitamos padding para que la franja se integre bien */
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.modal-contentPDF h2 {
+  background-color: #0a2540; /* franja azul oscura */
+  color: white;
+  margin: 0; 
+  padding: 12px 20px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.modal-contentPDF p {
+  padding: 20px;
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Botón cerrar */
+.close {
+  color: #aaa;
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.close:hover, .close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-contenido {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .info-grupo p {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-grupo strong {
+        min-width: auto;
+    }
+
+    .form-grupo {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    .btn-cancelar,
+    .btn-guardar {
+        width: 100%;
+        justify-content: center;
+    }
+}

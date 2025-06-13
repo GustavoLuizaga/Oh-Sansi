@@ -2,8 +2,9 @@
     <script src="{{ asset('js/convocatoria.js') }}"></script>
 @endpush
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/convocatoria/convocatoria.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/convocatoria/convocatoria.css">
 
     <div class="p-6">
         <!-- Success Message -->
@@ -12,14 +13,14 @@
             <i class="fas fa-check-circle"></i> {{ session('success') }}
         </div>
         @endif
-        
+
         <!-- Error Message -->
         @if(session('error'))
         <div class="alert alert-danger">
             <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
         </div>
         @endif
-        
+
         <!-- Header Section -->
         <div class="convocatoria-header">
             <h1><i class="fas fa-clipboard-list"></i> Gestión de Convocatorias</h1>
@@ -31,35 +32,37 @@
             <a href="{{ route('convocatorias.crear') }}" class="btn-nueva-convocatoria">
                 <i class="fas fa-plus-circle"></i> Nueva Convocatoria
             </a>
-            
             <div class="export-buttons">
-                <a href="#" class="btn-export" id="exportPdf">
+                <button type="button" class="export-button pdf" id="exportPdf">
                     <i class="fas fa-file-pdf"></i> Descargar PDF
-                </a>
-                <a href="#" class="btn-export" id="exportExcel">
+                </button>
+
+                <button type="button" class="export-button excel" id="exportExcel">
                     <i class="fas fa-file-excel"></i> Descargar Excel
-                </a>
+                </button>
             </div>
         </div>
 
         <!-- Search and Filter -->
-        <form action="{{ route('convocatoria') }}" method="GET" class="search-filter-container">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" 
-                       id="searchConvocatoria" 
-                       name="search" 
-                       placeholder="Buscar convocatoria..."
-                       value="{{ request('search') }}">
-            </div>
-            <div class="filter-dropdown">
-                <label for="estado">Estado:</label>
-                <select id="estado" name="estado">
-                    <option value="">Todos</option>
-                    <option value="publicada" {{ request('estado') == 'publicada' ? 'selected' : '' }}>Publicada</option>
-                    <option value="borrador" {{ request('estado') == 'borrador' ? 'selected' : '' }}>Borrador</option>
-                    <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
-                </select>
+        <form action="{{ route('convocatoria') }}" method="GET" id="searchForm">
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" placeholder="Buscar convocatoria..." value="{{ request('search') }}">
+                    <button type="submit" class="search-button py-1 px-2">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+
+                <div class="filter-dropdown">
+                    <label for="estado">Estado:</label>                    <select id="estado" name="estado" onchange="document.getElementById('searchForm').submit();">
+                        <option value="">Todos</option>
+                        <option value="Publicada" {{ request('estado') == 'Publicada' ? 'selected' : '' }}>Publicada</option>
+                        <option value="Borrador" {{ request('estado') == 'Borrador' ? 'selected' : '' }}>Borrador</option>
+                        <option value="Cancelada" {{ request('estado') == 'Cancelada' ? 'selected' : '' }}>Cancelada</option>
+                        <option value="Finalizado" {{ request('estado') == 'Finalizado' ? 'selected' : '' }}>Finalizado</option>
+                    </select>
+                </div>
             </div>
         </form>
 
@@ -96,24 +99,11 @@
                             <a href="{{ route('convocatorias.editar', $convocatoria->idConvocatoria) }}" class="btn-action btn-edit" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            @endif
-                            
-                            @if($convocatoria->estado == 'Borrador')
-                            @if(\Carbon\Carbon::parse($convocatoria->fechaFin)->gt(\Carbon\Carbon::now()))
-                            <!-- Botón de Publicar para convocatorias en borrador con fecha fin válida -->
-                            <a href="#" class="btn-action btn-approve" title="Publicar" 
-                               onclick="event.preventDefault(); if(confirm('¿Está seguro de publicar esta convocatoria?')) document.getElementById('publish-form-{{ $convocatoria->idConvocatoria }}').submit();">
-                                <i class="fas fa-check"></i>
-                            </a>
-                            <form id="publish-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.publicar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('PUT')
-                            </form>
-                            @endif
-                            
+                            @endif                            @if($convocatoria->estado == 'Borrador')
+
                             <!-- Botón de Eliminar para convocatorias en borrador -->
-                            <a href="#" class="btn-action btn-delete" title="Eliminar" 
-                               onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                            <a href="#" class="btn-action btn-delete" title="Eliminar"
+                                onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-trash"></i>
                             </a>
                             <form id="delete-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
@@ -122,8 +112,8 @@
                             </form>
                             @elseif($convocatoria->estado == 'Publicada')
                             <!-- Botón de Cancelar para convocatorias publicadas (no se pueden eliminar) -->
-                            <a href="#" class="btn-action btn-cancel" title="Cancelar" 
-                               onclick="event.preventDefault(); if(confirm('¿Está seguro de cancelar esta convocatoria?')) document.getElementById('cancel-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                            <a href="#" class="btn-action btn-cancel" title="Cancelar"
+                                onclick="event.preventDefault(); if(confirm('¿Está seguro de cancelar esta convocatoria?')) document.getElementById('cancel-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-ban"></i>
                             </a>
                             <form id="cancel-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.cancelar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
@@ -132,18 +122,18 @@
                             </form>
                             @elseif($convocatoria->estado == 'Cancelada')
                             <!-- Botón de Recuperar para convocatorias canceladas (se recuperan como borrador) -->
-                            <a href="#" class="btn-action btn-recover" title="Recuperar" 
-                               onclick="event.preventDefault(); if(confirm('¿Está seguro de recuperar esta convocatoria? Se restaurará como borrador.')) document.getElementById('recover-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                            <a href="#" class="btn-action btn-recover" title="Recuperar"
+                                onclick="event.preventDefault(); if(confirm('¿Está seguro de recuperar esta convocatoria? Se restaurará como borrador.')) document.getElementById('recover-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-undo"></i>
                             </a>
                             <form id="recover-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.recuperar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
                                 @csrf
                                 @method('PUT')
                             </form>
-                            
+
                             <!-- Botón de Eliminar para convocatorias canceladas -->
-                            <a href="#" class="btn-action btn-delete" title="Eliminar" 
-                               onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
+                            <a href="#" class="btn-action btn-delete" title="Eliminar"
+                                onclick="event.preventDefault(); if(confirm('¿Está seguro de eliminar esta convocatoria?')) document.getElementById('delete-form-{{ $convocatoria->idConvocatoria }}').submit();">
                                 <i class="fas fa-trash"></i>
                             </a>
                             <form id="delete-form-{{ $convocatoria->idConvocatoria }}" action="{{ route('convocatorias.eliminar', $convocatoria->idConvocatoria) }}" method="POST" style="display: none;">
@@ -162,18 +152,69 @@
             </tbody>
         </table>
 
-        <!-- Pagination - only show when more than 10 convocatorias -->
-        @if(count($convocatorias) > 10)
-        <ul class="pagination">
-            <li><a href="#"><i class="fas fa-chevron-left"></i></a></li>
-            <li><a href="#">1</a></li>
-            <li class="active"><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">4</a></li>
-            <li><a href="#">5</a></li>
-            <li><a href="#"><i class="fas fa-chevron-right"></i></a></li>
-        </ul>
-        @endif
+        <!-- Pagination -->
+        <div class="paginacion">
+            <div class="pagination-container">
+                @if($convocatorias->lastPage() > 1)
+                    <ul class="pagination-list">
+                        <!-- Previous Page Link -->
+                        @if($convocatorias->currentPage() > 1)
+                            <li>
+                                <a href="{{ $convocatorias->url(1) }}" class="pagination-link">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ $convocatorias->url($convocatorias->currentPage() - 1) }}" class="pagination-link">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        @endif
+
+                        <!-- Numbered Page Links -->
+                        @for($i = max(1, $convocatorias->currentPage() - 2); $i <= min($convocatorias->lastPage(), $convocatorias->currentPage() + 2); $i++)
+                            <li>
+                                <a href="{{ $convocatorias->url($i) }}" 
+                                   class="pagination-link {{ $i == $convocatorias->currentPage() ? 'active' : '' }}">
+                                    {{ $i }}
+                                </a>
+                            </li>
+                        @endfor
+
+                        <!-- Next Page Link -->
+                        @if($convocatorias->hasMorePages())
+                            <li>
+                                <a href="{{ $convocatorias->url($convocatorias->currentPage() + 1) }}" class="pagination-link">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ $convocatorias->url($convocatorias->lastPage()) }}" class="pagination-link">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        @endif
+                    </ul>
+                    <div class="pagination-info">
+                        Mostrando {{ $convocatorias->firstItem() ?? 0 }} - {{ $convocatorias->lastItem() ?? 0 }} de {{ $convocatorias->total() }} registros
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Export PDF button
+            document.getElementById('exportPdf').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = "{{ route('convocatoria.exportar.pdf') }}";
+            });
+            // Export Excel button
+            document.getElementById('exportExcel').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = "{{ route('convocatoria.exportar.excel') }}";
+            });
+        });
+    </script>
 </x-app-layout>

@@ -4,25 +4,54 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Convocatoria extends Model
 {
     use HasFactory;
-        // Nombre de la tabla (por convención Laravel usaría 'convocatorias', pero la tuya es 'convocatoria')
-        protected $table = 'convocatoria';
+    
+    protected $table = 'convocatoria';
+    protected $primaryKey = 'idConvocatoria';
+    
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+        'fechaInicio',
+        'fechaFin',
+        'contacto',
+        'requisitos',
+        'metodoPago',
+        'estado',
+    ];
+    
+    public $timestamps = true;
+      /**
+     * Relación muchos a muchos con tutores a través de tutorAreaDelegacion
+     */
+    public function tutores()
+    {
+        return $this->belongsToMany(Tutor::class, 'tutorareadelegacion', 'idConvocatoria', 'id')
+                    ->withPivot('idArea', 'idDelegacion', 'tokenTutor')
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Obtener las áreas relacionadas con esta convocatoria a través de los tutores
+     */
+    public function areas()
+    {
+        return $this->hasManyThrough(
+            Area::class,
+            tutorareadelegacion::class,
+            'idConvocatoria', // Clave externa en tutorAreaDelegacion
+            'idArea',         // Clave externa en area
+            'idConvocatoria', // Clave local en convocatoria
+            'idArea'          // Clave local en tutorAreaDelegacion
+        );
+    }
 
-        // Nombre de la clave primaria (por defecto Laravel usa 'id', pero en tu caso es 'idConvocatoria')
-        protected $primaryKey = 'idConvocatoria';
-    
-        // Los campos que pueden ser asignados masivamente
-        protected $fillable = [
-            'fechaInicio',
-            'fechaFin',
-            'contacto',
-            'metodoPago',
-            'estado',
-        ];
-    
-        // Si no quieres usar `created_at` y `updated_at`, puedes desactivarlos
-        public $timestamps = false;
+    public function convocatoriaAreaCategorias()
+    {
+        return $this->hasMany(ConvocatoriaAreaCategoria::class, 'idConvocatoria', 'idConvocatoria');
+    }
 }

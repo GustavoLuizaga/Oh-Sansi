@@ -21,7 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('apellidoPaterno')->nullable();
             $table->string('apellidoMaterno')->nullable();
-            $table->string('ci')->nullable();
+            $table->integer('ci')->nullable();
             $table->date('fechaNacimiento')->nullable();
             $table->char('genero')->nullable();
             $table->rememberToken();

@@ -57,7 +57,7 @@
                         <p class="quote">"Participa en las Olimpiadas Oh! SanSi 2025 y demuestra tu talento en Matemáticas, Física, Informática, Robótica y más. ¡Gana premios, reconocimiento y diviértete aprendiendo!</p>
                         @if (Route::has('register'))
                         <div class="hero-buttons">
-                            <a href="{{ route('register') }}" class="register-hero-btn">
+                            <a href="#" class="register-hero-btn" id="openRegisterModal">
                                 <i class="fas fa-user-plus"></i> ¡Registrarse Ahora!
                             </a>
                         </div>

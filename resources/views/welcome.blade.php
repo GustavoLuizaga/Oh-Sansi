@@ -175,7 +175,11 @@
                         <p>Recibir la confirmación.</p>
                     </li>
                 </ol>
-                <a href="#" class="start-registration-btn"><i class="fas fa-pen-to-square"></i> Iniciar Inscripción</a>
+                @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="start-registration-btn">
+                    <i class="fas fa-user-graduate"></i> Registrarse como Estudiante
+                </a>
+                @endif
             </section>
         </main>
     </div>

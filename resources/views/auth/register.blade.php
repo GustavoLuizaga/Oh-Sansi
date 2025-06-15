@@ -138,6 +138,7 @@
                     <p class="login">¿Ya tienes una cuenta? <a href="{{ route('login') }}">Inicia Sesión aquí</a></p>
                 </div>
             </form>
+            <script src="/js/register-validation.js"></script>
         </div>
     </div>
 

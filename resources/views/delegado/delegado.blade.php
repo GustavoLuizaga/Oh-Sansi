@@ -1,6 +1,6 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/delegado/delegado.css') }}">
+    <link rel="stylesheet" href="/css/delegacion/delegacion.css">
+    <link rel="stylesheet" href="/css/delegado/delegado.css">
 
     <!-- Success Message -->
     @if(session('success'))

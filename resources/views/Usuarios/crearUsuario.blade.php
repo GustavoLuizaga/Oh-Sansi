@@ -1,6 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/usuarios/crearUsuario.css') }}">
-
+    <link rel="stylesheet" href="/css/usuarios/crearUsuario.css">
     <!-- Header Section -->
     <div class="crear-usuario-header py-2">
         <h1><i class="fas fa-user-plus"></i> {{ __('Crear Nuevo Usuario') }}</h1>

@@ -1,7 +1,6 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/delegacion/delegacion.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/delegacion/modal.css') }}">
-
+    <link rel="stylesheet" href="/css/delegacion/delegacion.css">
+    <link rel="stylesheet" href="/css/delegacion/modal.css">
     <!-- Success Message -->
     @if(session('success'))
     <div class="alert alert-success py-1 px-2 mb-1">

@@ -1,16 +1,19 @@
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionTutor.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionManual.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/mostrarConvocatoriaInfo.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/tutorDetails.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/excelUploadInfo.css') }}">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/preview-info.css') }}">
+<link rel="stylesheet" href="/css/custom.css">
+<link rel="stylesheet" href="/css/inscripcion/inscripcionTutor.css">
+<link rel="stylesheet" href="/css/inscripcion/inscripcionManual.css">
+<link rel="stylesheet" href="/css/inscripcion/mostrarConvocatoriaInfo.css">
+<link rel="stylesheet" href="/css/inscripcion/tutorDetails.css">
+<link rel="stylesheet" href="/css/inscripcion/excelUploadInfo.css">
+<link rel="stylesheet" href="/css/inscripcion/preview-info.css">
+
 <!-- Scripts necesarios para el modal y la previsualización -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="{{ asset('css/inscripcion/previsualizacion.css') }}">
-<link rel="stylesheet" href="{{ asset('css/excel-validation.css') }}">
+
+<link rel="stylesheet" href="/css/inscripcion/previsualizacion.css">
+<link rel="stylesheet" href="/css/excel-validation.css">
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -267,25 +270,27 @@
         <!-- Modal para previsualización de datos Excel -->
         @include('inscripciones/modalPrevisualizacionExcel')
 @push('scripts')
-<script src="{{ asset('js/inscripcionTutor/inscripcionExcel.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/validacion-columnas-fix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/validacion-columnas-extra.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/debug-excel-columns.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/tooltip-fix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-display.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-counter-enhance.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-cell-editing.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/validacion-inscripcion.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/convocatoria-validator-connector.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/convocatoria-fix.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/modalConvocatoria.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/excelUploadInfo.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/excelUploadInfoToggle.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/modalOverlay.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/area-validator.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/cell-error-tooltips.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/error-visualizer.js') }}"></script>
+
+<script src="/js/inscripcionTutor/inscripcionExcel.js"></script>
+<script src="/js/inscripcionTutor/validacion-inscripcion.js"></script>
+<script src="/js/inscripcionTutor/validacion-columnas-fix.js"></script>
+<script src="/js/inscripcionTutor/validacion-columnas-extra.js"></script>
+<script src="/js/inscripcionTutor/debug-excel-columns.js"></script>
+<script src="/js/inscripcionTutor/tooltip-fix.js"></script>
+<script src="/js/inscripcionTutor/error-display.js"></script>
+<script src="/js/inscripcionTutor/error-counter-enhance.js"></script>
+<script src="/js/inscripcionTutor/error-cell-editing.js"></script>
+<script src="/js/inscripcionTutor/validacion-inscripcion.js"></script>
+<script src="/js/inscripcionTutor/convocatoria-validator-connector.js"></script>
+<script src="/js/inscripcionTutor/convocatoria-fix.js"></script>
+<script src="/js/inscripcionTutor/modalConvocatoria.js"></script>
+<script src="/js/inscripcionTutor/excelUploadInfo.js"></script>
+<script src="/js/inscripcionTutor/excelUploadInfoToggle.js"></script>
+<script src="/js/inscripcionTutor/modalOverlay.js"></script>
+<script src="/js/inscripcionTutor/area-validator.js"></script>
+<script src="/js/inscripcionTutor/cell-error-tooltips.js"></script>
+<script src="/js/inscripcionTutor/error-visualizer.js"></script>
+
 <script>
     // Asegurarse de que el botón de previsualización funcione correctamente
     document.addEventListener('DOMContentLoaded', function() {
@@ -333,13 +338,13 @@
     <h4>¡Operación Exitosa!</h4>
     <span id="successText"></span>
 </div>
-<script src="{{ asset('js/inscripcionTutor/inscripcionManual.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/inscripcionSubmitHandler.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/inscripcionExistenteHandler.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/gradosCompartidosHandler.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/categoriaHandler.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/modalidadHandler.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/grupoHandler.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/tutorDetails.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/debugTutorFields.js') }}"></script>
-<script src="{{ asset('js/inscripcionTutor/tutorFieldDirectFix.js') }}"></script>
+<script src="/js/inscripcionTutor/inscripcionManual.js"></script>
+<script src="/js/inscripcionTutor/inscripcionSubmitHandler.js"></script>
+<script src="/js/inscripcionTutor/inscripcionExistenteHandler.js"></script>
+<script src="/js/inscripcionTutor/gradosCompartidosHandler.js"></script>
+<script src="/js/inscripcionTutor/categoriaHandler.js"></script>
+<script src="/js/inscripcionTutor/modalidadHandler.js"></script>
+<script src="/js/inscripcionTutor/grupoHandler.js"></script>
+<script src="/js/inscripcionTutor/tutorDetails.js"></script>
+<script src="/js/inscripcionTutor/debugTutorFields.js"></script>
+<script src="/js/inscripcionTutor/tutorFieldDirectFix.js"></script

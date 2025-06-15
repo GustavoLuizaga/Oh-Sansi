@@ -1,13 +1,13 @@
-<div id="register-type-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Registro</h2>
-        <div class="register-options">
-            <a href="{{ route('register') }}" class="register-option">
+<div id="register-type-modal" class="register-modal-overlay">
+    <div class="register-modal-container">
+        <span class="register-modal-close">&times;</span>
+        <h2 class="register-modal-title">Registro</h2>
+        <div class="register-modal-options">
+            <a href="{{ route('register') }}" class="register-modal-option">
                 <i class="fas fa-user-graduate"></i>
                 <span>Estudiante</span>
             </a>
-            <a href="{{ route('register.tutor') }}" class="register-option">
+            <a href="{{ route('register.tutor') }}" class="register-modal-option">
                 <i class="fas fa-chalkboard-teacher"></i>
                 <span>Delegado</span>
             </a>

@@ -1,6 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/delegado/solicitud.css') }}">
-
+    <link rel="stylesheet" href="/css/delegado/solicitud.css">
     <!-- Success Message -->
     @if(session('success'))
     <div class="alert alert-success py-1 px-2 mb-1">

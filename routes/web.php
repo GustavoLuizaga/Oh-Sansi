@@ -5,6 +5,8 @@ use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\Auth\ResgistrarListaEstController;
 use App\Http\Controllers\VerificarComprobanteController;
+use App\Http\Controllers\ConvocatoriaController;
+use App\Http\Controllers\WelcomeController;
 
 
 /*
@@ -23,9 +25,7 @@ Route::get('/health', function () {
 // Incluir rutas de usuarios
 require __DIR__ . '/usuarios.php';
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [WelcomeController::class, 'index']);
 
 // Las rutas de delegado se han movido a delegado.php
 
@@ -132,3 +132,6 @@ Route::post('/validar-configuracion-inscripcion', [ResgistrarListaEstController:
 Route::post('/registrar-lista-estudiantes', [ResgistrarListaEstController::class, 'store'])
     ->name('register.lista.store')
     ->middleware(['auth', 'verified']);
+
+// Ruta pública para redirigir por área
+Route::get('/redirigir-por-area/{idArea}', [ConvocatoriaController::class, 'redirigirPorArea'])->name('convocatoria.redirigirPorArea');

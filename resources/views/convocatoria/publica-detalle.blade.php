@@ -10,144 +10,150 @@
     <link rel="stylesheet" href="/css/welcome.css">
     <link rel="stylesheet" href="/css/barraNavegacionPrincipal.css">
     <link rel="stylesheet" href="/css/contentFooter.css">
-    <link rel="stylesheet" href="/css/convocatoria/ver.css">
-    <link rel="stylesheet" href="/css/convocatoria/publica.css">
+    <link rel="stylesheet" href="/css/convocatoria/publica-detalle.css">
     <link rel="stylesheet" href="/css/custom.css">
 </head>
 
 <body class="antialiased">
     @include('layouts/BarraNavegacionPrincipal')
     
-    <div class="contenedor-principal">
+    <div class="conv-detail-wrapper">
         <!-- Back Button -->
-        <a href="{{ route('convocatoria.publica') }}" class="btn-back">
+        <a href="{{ route('convocatoria.publica') }}" class="conv-back-btn">
             <i class="fas fa-arrow-left"></i> Volver a Convocatorias
         </a>
         
-        <div class="convocatoria-detail-container">
-            <div class="detail-header">
-                <h1><i class="fas fa-clipboard-list"></i> {{ $convocatoria->nombre }}</h1>
-                <span class="estado-badge estado-{{ strtolower($convocatoria->estado) }}">
+        <div class="conv-detail-container">
+            <div class="conv-detail-header">
+                <h1 class="conv-title"><i class="fas fa-clipboard-list"></i> {{ $convocatoria->nombre }}</h1>
+                <span class="conv-status-badge conv-status-{{ strtolower($convocatoria->estado) }}">
                     <i class="fas fa-circle"></i> {{ strtoupper($convocatoria->estado) }}
                 </span>
             </div>
             
             <!-- Action Buttons -->
-            <div class="action-buttons">
-                <!-- Botón de Descargar PDF siempre visible -->
-                <a href="{{ route('convocatorias.exportarPdf.UnaConvocatoria', $convocatoria->idConvocatoria) }}" class="btn-action btn-pdf">
+            <div class="conv-action-buttons">
+                <a href="{{ route('convocatorias.exportarPdf.UnaConvocatoria', $convocatoria->idConvocatoria) }}" class="conv-btn conv-btn-pdf">
                     <i class="fas fa-file-pdf"></i> Descargar PDF
                 </a>
             </div>
             
             <!-- Información General -->
-            <div class="detail-section">
-                <h2 class="section-title">Información General</h2>
+            <div class="conv-info-section">
+                <h2 class="conv-section-title">Información General</h2>
                 
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Fecha de Inicio:</span>
-                        <span class="info-value">{{ \Carbon\Carbon::parse($convocatoria->fechaInicio)->format('d M, Y') }}</span>
+                <div class="conv-info-grid">
+                    <div class="conv-info-item">
+                        <span class="conv-info-label">Fecha de Inicio:</span>
+                        <span class="conv-info-value">{{ \Carbon\Carbon::parse($convocatoria->fechaInicio)->format('d M, Y') }}</span>
                     </div>
                     
-                    <div class="info-item">
-                        <span class="info-label">Fecha de Fin:</span>
-                        <span class="info-value">{{ \Carbon\Carbon::parse($convocatoria->fechaFin)->format('d M, Y') }}</span>
+                    <div class="conv-info-item">
+                        <span class="conv-info-label">Fecha de Fin:</span>
+                        <span class="conv-info-value">{{ \Carbon\Carbon::parse($convocatoria->fechaFin)->format('d M, Y') }}</span>
                     </div>
                     
-                    <div class="info-item full-width">
-                        <span class="info-label">Descripción:</span>
-                        <span class="info-value">{{ $convocatoria->descripcion }}</span>
+                    <div class="conv-info-item conv-info-full">
+                        <span class="conv-info-label">Descripción:</span>
+                        <span class="conv-info-value">{{ $convocatoria->descripcion }}</span>
                     </div>
                     
-                    <div class="info-item">
-                        <span class="info-label">Método de Pago:</span>
-                        <span class="info-value">{{ $convocatoria->metodoPago }}</span>
+                    <div class="conv-info-item">
+                        <span class="conv-info-label">Método de Pago:</span>
+                        <span class="conv-info-value">{{ $convocatoria->metodoPago }}</span>
                     </div>
                     
-                    <div class="info-item">
-                        <span class="info-label">Contacto:</span>
-                        <span class="info-value">{{ $convocatoria->contacto }}</span>
+                    <div class="conv-info-item">
+                        <span class="conv-info-label">Contacto:</span>
+                        <span class="conv-info-value">{{ $convocatoria->contacto }}</span>
                     </div>
                     
-                    <div class="info-item full-width">
-                        <span class="info-label">Requisitos:</span>
-                        <span class="info-value">{{ $convocatoria->requisitos }}</span>
+                    <div class="conv-info-item conv-info-full">
+                        <span class="conv-info-label">Requisitos:</span>
+                        <span class="conv-info-value">{{ $convocatoria->requisitos }}</span>
                     </div>
                 </div>
             </div>
             
             <!-- Áreas y Categorías -->
-            <div class="detail-section">
-                <h2 class="section-title">Áreas y Categorías</h2>
+            <div class="conv-areas-section">
+                <h2 class="conv-section-title"><i class="fas fa-layer-group"></i> Áreas y Categorías</h2>
                 
-                <div class="areas-container">
-                    @foreach($areasConCategorias as $area)
-                    <div class="area-card">
-                        <div class="area-header">
-                            <h3><i class="fas fa-bookmark"></i> {{ $area->nombre }}</h3>
-                        </div>
-                        
-                        <div class="categorias-container">
-                            @foreach($area->categorias as $categoria)
-                            <div class="categoria-card">
-                                <div class="categoria-header">
-                                    <h4>{{ $categoria->nombre }}</h4>
+                @if(count($areasConCategorias) > 0)
+                    <div class="conv-areas-grid">
+                        @foreach($areasConCategorias as $area)
+                            <div id="area-{{ $area->idArea }}" class="conv-area-card">
+                                <div class="conv-area-header">
+                                    <h3 class="conv-area-title"><i class="fas fa-book"></i> {{ $area->nombre }}</h3>
                                 </div>
-                                
-                                <div class="categoria-body">
-                                    <!-- Precios -->
-                                    <div class="precios-container">
-                                        <h5>Precios:</h5>
-                                        <ul class="precios-list">
-                                            @php
-                                                $relacion = DB::table('convocatoriaareacategoria')
-                                                    ->where('idConvocatoria', $convocatoria->idConvocatoria)
-                                                    ->where('idArea', $area->idArea)
-                                                    ->where('idCategoria', $categoria->idCategoria)
-                                                    ->first();
-                                            @endphp
-                                            
-                                            @if($relacion && $relacion->precioIndividual)
-                                            <li>
-                                                <span class="precio-label">Individual:</span>
-                                                <span class="precio-value">Bs. {{ number_format($relacion->precioIndividual, 2) }}</span>
-                                            </li>
-                                            @endif
-                                            
-                                            @if($relacion && $relacion->precioDuo)
-                                            <li>
-                                                <span class="precio-label">Dúo:</span>
-                                                <span class="precio-value">Bs. {{ number_format($relacion->precioDuo, 2) }}</span>
-                                            </li>
-                                            @endif
-                                            
-                                            @if($relacion && $relacion->precioEquipo)
-                                            <li>
-                                                <span class="precio-label">Equipo:</span>
-                                                <span class="precio-value">Bs. {{ number_format($relacion->precioEquipo, 2) }}</span>
-                                            </li>
-                                            @endif
-                                        </ul>
-                                    </div>
-                                    
-                                    <!-- Grados -->
-                                    <div class="grados-container">
-                                        <h5>Grados:</h5>
-                                        <ul class="grados-list">
-                                            @foreach($categoria->grados as $grado)
-                                            <li>{{ $grado->nombre }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
+                                <div class="conv-area-body">
+                                    @if(count($area->categorias) > 0)
+                                        @foreach($area->categorias as $categoria)
+                                            <div class="conv-categoria-section">
+                                                <h4 class="conv-categoria-title"><i class="fas fa-tag"></i> {{ $categoria->nombre }}</h4>
+                                                @if(count($categoria->grados) > 0)
+                                                    <div class="conv-grados-list">
+                                                        @foreach($categoria->grados as $grado)
+                                                            <span class="conv-grado-badge">{{ $grado->grado }}</span>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <p class="conv-no-grados">No hay grados asignados para esta categoría.</p>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <p class="conv-no-categorias">No hay categorías asignadas para esta área.</p>
+                                    @endif
                                 </div>
                             </div>
-                            @endforeach
-                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
+                @else
+                    <div class="conv-no-areas">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>No hay áreas asignadas a esta convocatoria.</p>
+                    </div>
+                @endif
             </div>
+
+            <!-- Estilos para el resaltado -->
+            <style>
+                .conv-area-card {
+                    transition: background-color 0.3s ease;
+                }
+                
+                .conv-area-card.highlight {
+                    background-color: #fff3cd;
+                    animation: conv-highlight-fade 2s ease-out;
+                }
+                
+                @keyframes conv-highlight-fade {
+                    0% { background-color: #fff3cd; }
+                    100% { background-color: transparent; }
+                }
+            </style>
+
+            <!-- Script para el scroll automático -->
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const hash = window.location.hash;
+                
+                if (hash) {
+                    setTimeout(() => {
+                        const targetElement = document.querySelector(hash);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                            targetElement.classList.add('highlight');
+                            
+                            setTimeout(() => {
+                                targetElement.classList.remove('highlight');
+                            }, 2000);
+                        }
+                    }, 100);
+                }
+            });
+            </script>
         </div>
     </div>
 

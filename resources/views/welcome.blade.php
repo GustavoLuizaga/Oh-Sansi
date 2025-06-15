@@ -81,65 +81,19 @@
                 <p>Las Olimpiadas Oh! SanSi son un evento anual que busca fomentar el conocimiento y 
                     la competencia en diversas áreas académicas.</p>
             </section>
-             <section class="about-olympiad">
-             <h2>¿Areas de competicion?</h2>
+            @if($hayAreasDisponibles)
+            <section class="about-olympiad">
+                <h2>¿Areas de competicion?</h2>
                 <div class="areas-container">
                     <div class="areas-grid">
-                        <div class="area-card">
+                        @foreach($areas as $area)
+                        <div class="area-card" style="cursor:pointer;" onclick="window.location='{{ route('convocatoria.redirigirPorArea', $area->idArea) }}'">
                             <div class="area-icon">
-                                <i class="fas fa-calculator"></i>
+                                <i class="{{ $area->icono }}"></i>
                             </div>
-                            <h3>Matemáticas</h3>
+                            <h3>{{ $area->nombre }}</h3>
                         </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-atom"></i>
-                            </div>
-                            <h3>Física</h3>
-                        </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-laptop-code"></i>
-                            </div>
-                            <h3>Informática</h3>
-                        </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <h3>Robótica</h3>
-                        </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <h3>Química</h3>
-                        </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-dna"></i>
-                            </div>
-                            <h3>Biología</h3>
-                        </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-star"></i>
-                            </div>
-                            <h3>Astronomía</h3>
-                        </div>
-
-                        <div class="area-card">
-                            <div class="area-icon">
-                                <i class="fas fa-cogs"></i>
-                            </div>
-                            <h3>Ingeniería</h3>
-                        </div>
+                        @endforeach
                     </div>
                     <div class="areas-navigation">
                         <button class="nav-btn scroll-left">
@@ -151,6 +105,7 @@
                     </div>
                 </div>
             </section>
+            @endif
             <section class="how-to-participate">
                 <h2>¿Cómo participar?</h2>
                 <ol class="participation-steps">

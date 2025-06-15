@@ -40,18 +40,13 @@ class Convocatoria extends Model
      */
     public function areas()
     {
-        return $this->hasManyThrough(
-            Area::class,
-            tutorareadelegacion::class,
-            'idConvocatoria', // Clave externa en tutorAreaDelegacion
-            'idArea',         // Clave externa en area
-            'idConvocatoria', // Clave local en convocatoria
-            'idArea'          // Clave local en tutorAreaDelegacion
-        );
+        return $this->belongsToMany(Area::class, 'convocatoriaareacategoria', 'idConvocatoria', 'idArea')
+            ->withTimestamps();
     }
 
     public function convocatoriaAreaCategorias()
     {
-        return $this->hasMany(ConvocatoriaAreaCategoria::class, 'idConvocatoria', 'idConvocatoria');
+        return $this->hasMany(ConvocatoriaAreaCategoria::class, 'idConvocatoria', 'idConvocatoria')
+            ->with(['area', 'categoria']); // Eager load las relaciones para mejor rendimiento
     }
 }

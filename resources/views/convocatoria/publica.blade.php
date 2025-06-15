@@ -21,6 +21,14 @@
         <!-- Header Section -->
         <div class="convocatoria-header">
             <h1><i class="fas fa-bullhorn"></i> Convocatorias Activas</h1>
+            @if($areaSeleccionada)
+                <div class="area-filter-info">
+                    <i class="fas fa-filter"></i> Mostrando convocatorias para el área: <strong>{{ $areaSeleccionada->nombre }}</strong>
+                    <a href="{{ route('convocatoria.publica') }}" class="clear-filter">
+                        <i class="fas fa-times"></i> Limpiar filtro
+                    </a>
+                </div>
+            @endif
         </div>
 
         <!-- Success Message -->
@@ -80,7 +88,11 @@
             @empty
             <div class="no-convocatorias">
                 <i class="fas fa-info-circle"></i>
-                <p>No hay convocatorias publicadas actualmente</p>
+                @if($areaSeleccionada)
+                    <p>No hay convocatorias publicadas para el área de {{ $areaSeleccionada->nombre }}</p>
+                @else
+                    <p>No hay convocatorias publicadas actualmente</p>
+                @endif
             </div>
             @endforelse
         </div>

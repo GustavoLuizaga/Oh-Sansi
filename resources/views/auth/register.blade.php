@@ -98,7 +98,7 @@
                             <i class="fas fa-eye toggle-password"></i>
                         </div>
 
-                        <div class="progress-container">
+                        <div class="progress-container" style="display: none;">
                             <div class="progress">
                                 <div id="password-strength-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
@@ -138,16 +138,24 @@
                     <p class="login">¿Ya tienes una cuenta? <a href="{{ route('login') }}">Inicia Sesión aquí</a></p>
                 </div>
             </form>
-            <script src="/js/register-validation.js"></script>
         </div>
     </div>
 
     <script>
         const passwordInput = document.getElementById('password');
         const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const progressContainer = document.querySelector('.progress-container');
 
         passwordInput.addEventListener('input', function () {
             const password = passwordInput.value;
+            
+            // Mostrar u ocultar el contenedor según si hay texto
+            progressContainer.style.display = password.length > 0 ? 'block' : 'none';
+            
+            if (password.length === 0) {
+                return; // No calcular la fortaleza si no hay texto
+            }
+
             let strength = 0;
 
             if (password.length >= 8) strength++;

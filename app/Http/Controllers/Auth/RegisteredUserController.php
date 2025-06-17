@@ -21,6 +21,7 @@ use App\Models\TutorAreaDelegacion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -107,7 +108,10 @@ public function store(Request $request)
         $areas = \App\Models\Area::all();
         
         return view('auth.registerTutor', compact('unidades', 'areas', 'convocatorias'));
-    }    public function storeTutor(Request $request)
+
+    }    
+    
+    public function storeTutor(Request $request)
     {
         $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u'],
@@ -214,7 +218,7 @@ public function store(Request $request)
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            // \Log::error('Tutor registration error: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
+            Log::error('Tutor registration error: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
             return back()->withErrors(['msg' => 'Ocurrió un error durante el registro. Por favor, inténtalo de nuevo. Detalle: ' . $e->getMessage()])->withInput();
         }
     }

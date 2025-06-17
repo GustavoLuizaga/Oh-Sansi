@@ -269,13 +269,22 @@
     </div>
 </div>
 
-<script>
-    document.getElementById('generarOrdenPago').addEventListener('click', function() {
-        try {
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+    <div id="modalErrorPDF" class="modalPDF" style="display:none;">
+        <div class="modal-contentPDF">
+            <span id="cerrarModalPDF" class="close">&times;</span>
+            <h2>Verifica si tienes estudiantes inscritos</h2>
+            <p id="mensajeErrorTextoPDF"></p>
+        </div>
+    </div>
 
-            // Realizar la solicitud usando fetch
+
+<script>
+
+ document.getElementById('generarOrdenPago').addEventListener('click', function() {
+            const boton = this;
+            boton.disabled = true;
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+
             fetch('{{ route("boleta") }}', {
                     method: 'GET',
                     headers: {
@@ -283,50 +292,56 @@
                         'Accept': 'application/pdf'
                     }
                 })
-                .then(response => {
+                .then(async response => {
                     if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Error desconocido del servidor');
+                        } else {
+                            throw new Error('Error al generar la orden de pago');
+                        }
                     }
                     return response.blob();
                 })
                 .then(blob => {
-                    // Crear un objeto URL para el blob
                     const url = window.URL.createObjectURL(blob);
-                    // Crear un enlace temporal
                     const a = document.createElement('a');
-                    a.style.display = 'none';
                     a.href = url;
                     a.download = 'orden-de-pago.pdf';
-
-                    // Agregar al documento y hacer clic
                     document.body.appendChild(a);
                     a.click();
-
-                    // Limpiar
-                    window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
-
-                    // Restaurar el botón
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+                    window.URL.revokeObjectURL(url);
+                    boton.disabled = false;
+                    boton.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('mensajeError').style.display = 'block';
-                    document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
-
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+                    mostrarModalError(error.message);
+                    boton.disabled = false;
+                    boton.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
                 });
-        } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('mensajeError').style.display = 'block';
-            document.getElementById('mensajeErrorTexto').textContent = 'Error al generar la orden de pago';
+        });
 
-            this.disabled = false;
-            this.innerHTML = '<i class="fas fa-file-pdf"></i> Generar orden de pago';
+        function mostrarModalError(mensaje) {
+            const modal = document.getElementById('modalErrorPDF');
+            document.getElementById('mensajeErrorTextoPDF').textContent = mensaje;
+            modal.style.display = 'block';
         }
-    });
+
+        document.getElementById('cerrarModalPDF').addEventListener('click', function() {
+            document.getElementById('modalErrorPDF').style.display = 'none';
+        });
+
+        // Cerrar modal si el usuario hace clic fuera del contenido
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalErrorPDF');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+
 
     //EL OCR NO FUNCIONA SI NO ELIMINO ESTE SCRIPT
     document.addEventListener('DOMContentLoaded', function() {

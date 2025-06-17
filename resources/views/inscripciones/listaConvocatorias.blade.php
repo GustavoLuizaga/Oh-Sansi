@@ -1,5 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/inscripcion/inscripcionConvocatoria.css') }}">
+    <link rel="stylesheet" href="/css/inscripcion/inscripcionConvocatoria.css">
 
     <div class="convocatorias-container">
         <div class="convocatorias-header">

@@ -1,6 +1,5 @@
 <x-app-layout>
-    <link rel="stylesheet" href="{{ asset('css/usuarios/verUsuario.css') }}">
-
+    <link rel="stylesheet" href="/css/usuarios/verUsuario.css">
     <!-- Header Section -->
     <div class="ver-usuario-header py-2">
         <h1><i class="fas fa-user"></i> {{ __('Detalles del Usuario') }}</h1>

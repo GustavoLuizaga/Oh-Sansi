@@ -28,11 +28,10 @@ class AppServiceProvider extends ServiceProvider
     
     public function boot()
     {
-        // Forzar HTTPS en todos los entornos
-        //URL::forceScheme('https');
-        /*if ($this->app->environment('local')) {
+        // Forzar HTTPS solo en producción
+        if ($this->app->environment('production')) {
             URL::forceScheme('https');
-        }*/
+        }
         View::composer('layouts.sidebar', function ($view) {
             $iusIds = collect();
     

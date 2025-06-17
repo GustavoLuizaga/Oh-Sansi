@@ -1,0 +1,72 @@
+# Dockerfile para PRODUCCIÓN
+FROM php:8.1-fpm
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    nodejs \
+    npm \
+    netcat-openbsd \
+    nginx \
+    supervisor \
+    gettext-base\
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Establecer directorio de trabajo
+WORKDIR /var/www
+
+# Copiar archivos de dependencias primero (para aprovechar cache de Docker)
+COPY composer.json composer.lock package.json package-lock.json ./
+
+# Instalar dependencias PHP para producción
+RUN composer install --optimize-autoloader --no-dev --no-interaction --no-scripts
+
+# Instalar dependencias Node.js
+RUN npm install 
+
+# Copiar TODO el código de la aplicación
+COPY . .
+
+# Ejecutar scripts de Composer después de copiar todo
+RUN composer run-script post-autoload-dump
+
+# Construir assets para producción
+RUN npm run production
+
+# Crear directorios necesarios y establecer permisos
+RUN mkdir -p /var/www/storage/framework/{cache,sessions,views} \
+    && mkdir -p /var/www/storage/logs \
+    && mkdir -p /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage \
+    && chmod -R 775 /var/www/bootstrap/cache
+
+# Copiar configuración de Nginx
+COPY docker/nginx/default.conf /etc/nginx/sites-available/default
+
+# Copiar y hacer ejecutable el entrypoint
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# HEALTHCHECK para Railway (AGREGAR AL FINAL)
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=3 \
+CMD curl -f http://localhost:8080/health || exit 1
+
+# Exponer puerto
+EXPOSE 8080
+
+# Usar entrypoint personalizado
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+#CMD ["/bin/sh", "-c", "/usr/local/bin/entrypoint.sh"]

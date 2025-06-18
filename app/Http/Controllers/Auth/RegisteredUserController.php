@@ -21,6 +21,7 @@ use App\Models\TutorAreaDelegacion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -42,42 +43,51 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        'password' => ['required', 'confirmed', Rules\Password::min(8)
+            ->letters()
+            ->mixedCase()
+            ->symbols()
+            ->uncompromised(),
+        ],
+        'apellidoPaterno' => ['required', 'string', 'max:255'],
+        'apellidoMaterno' => ['required', 'string', 'max:255'],
+        'ci' => ['required', 'string', 'max:20'],
+        'fechaNacimiento' => ['required', 'date'],
+        'genero' => ['required', 'string', 'in:M,F'],
+        'terms' => ['required'],
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'apellidoPaterno' => $request->apellidoPaterno,
-            'apellidoMaterno' => $request->apellidoMaterno,
-            'ci' => $request->ci,
-            'fechaNacimiento' => $request->fechaNacimiento,
-            'genero' => $request->genero,
-            'password' => Hash::make($request->password),
-        ]);
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'apellidoPaterno' => $request->apellidoPaterno,
+        'apellidoMaterno' => $request->apellidoMaterno,
+        'ci' => $request->ci,
+        'fechaNacimiento' => $request->fechaNacimiento,
+        'genero' => $request->genero,
+        'password' => Hash::make($request->password),
+    ]);
 
-        $rol = Rol::find(3);
-        if ($rol) {
-            $user->roles()->attach($rol->idRol, ['habilitado' => true]);
-            $user->estudiante()->create();
-        }
+    $rol = Rol::find(3);
+    if ($rol) {
+        $user->roles()->attach($rol->idRol, ['habilitado' => true]);
+        $user->estudiante()->create();
+    }
 
-        // No disparamos el evento Registered aquí para que no se envíe el correo de verificación
-        // Solo lo haremos cuando el tutor sea aprobado
-        event(new CreacionCuenta(
-            $user->id,
-            '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
-            'sistema'
-        ));
-        Auth::login($user);
+    event(new CreacionCuenta(
+        $user->id,
+        '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+        'sistema'
+    ));
+    Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
-    }    //Para el registro de tutores//
+    return redirect(RouteServiceProvider::HOME)->with('message', 'Tu cuenta ha sido creada. Un administrador revisará tu solicitud para aprobarla.');
+}    //Para el registro de tutores//
     public function createTutor()
     {
         $unidades = Delegacion::all();
@@ -98,7 +108,10 @@ class RegisteredUserController extends Controller
         $areas = \App\Models\Area::all();
         
         return view('auth.registerTutor', compact('unidades', 'areas', 'convocatorias'));
-    }    public function storeTutor(Request $request)
+
+    }    
+    
+    public function storeTutor(Request $request)
     {
         $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u'],
@@ -205,7 +218,7 @@ class RegisteredUserController extends Controller
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            // \Log::error('Tutor registration error: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
+            Log::error('Tutor registration error: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
             return back()->withErrors(['msg' => 'Ocurrió un error durante el registro. Por favor, inténtalo de nuevo. Detalle: ' . $e->getMessage()])->withInput();
         }
     }

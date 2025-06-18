@@ -12,7 +12,34 @@
     --primary-dark: #002A4C;
     --secondary-dark: #631A33;
     --accent-color: #FF9E1B;
+    --fondo-secundario-claro: #ffffff;
 
+    --bg-table-header: #f7fafc;
+    /* Estáticos adicionales */
+    --azul-oscuro-estatico: #1e293b;
+    --texto-estatico: #ffffff;
+}
+/* Modo Oscuro */
+:root.modo-oscuro {
+    --primary-color: #3182ce;
+    --secondary-color: #4299e1;
+    --text-color: #e2e8f0;
+    --border-color: #2d3748;
+    --hover-color: #2d3748;
+    --button-text: #e2e8f0;
+    --success-color: #38b2ac;
+    --warning-color: #ed8936;
+    --danger-color: #f56565;
+    --primary-light: #63b3ed;
+    --primary-dark: #2c5282;
+    --secondary-dark: #9b2c2c;
+    --accent-color: #FFB347;
+    --fondo-secundario-claro: #2d3748;
+    --texto-secundario: #e2e8f0;
+    --input-borde: #4a5568;
+
+    --bg-table-header: #2d3748;
+    
     /* Estáticos adicionales */
     --azul-oscuro-estatico: #1e293b;
     --texto-estatico: #ffffff;
@@ -21,14 +48,14 @@
 /* Estilos generales */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f7fa;
+    background-color: var(--fondo-secundario-claro);
     margin: 0;
     padding: 0;
 }
 
 /* Título con franja azul */
 .page-header-blue {
-    background-color: var(--azul-oscuro-estatico);
+    background-color: var(--primary-color);
     color: var(--texto-estatico);
     padding: 0.5rem 1rem;
     display: flex;
@@ -40,6 +67,7 @@ body {
 
 .page-header-blue h1 {
     color: var(--texto-estatico);
+    background-color: var(--primary-color);
     font-size: 0.85rem;
     font-weight: 600;
     margin: 0;
@@ -55,14 +83,14 @@ body {
 /* Estilos de tabla */
 #audit-table {
     width: 100%;
-    background-color: white;
+    background-color: var(--fondo-secundario-claro);
     table-layout: fixed;
     border-collapse: collapse;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #audit-table thead {
-    background-color: #f1f5f9;
+    background-color:var(--fondo-secundario-claro);
     text-align: left;
 }
 
@@ -71,13 +99,14 @@ body {
     text-align: left;
     padding: 0.75rem 1rem;
     font-size: 0.8rem;
-    color: #334155;
+    color: var(--texto-secundario);
     vertical-align: middle;
     overflow-wrap: break-word;
 }
 
 #audit-table th {
-    background-color: var(--fondo-secundario-claro);
+    background-color: var(--bg-table-header);
+    border-bottom: 1px solid var(--border-color);
     color: var(--texto-secundario);
     font-weight: 600;
     text-align: left;
@@ -92,7 +121,7 @@ body {
 }
 
 #audit-table td {
-    background-color: #ffffff;
+    background-color: var(--fondo-secundario-claro);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -101,7 +130,7 @@ body {
 }
 
 #audit-table tr:hover td {
-    background-color: #f8fafc;
+    background-color: var(--hover-color);
 }
 
 #audit-table tr td:first-child {
@@ -127,23 +156,23 @@ body {
 /* Estilos por tipo de acción */
 .accion-cell[data-action="INSERT"] {
     background-color: #f0fdf4;
-    color: #059669;
+    color: var(--success-color);
 }
 
 .accion-cell[data-action="UPDATE"] {
     background-color: #eff6ff;
-    color: #2563eb;
+    color:var(--primary-color);
 }
 
 .accion-cell[data-action="DELETE"] {
     background-color: #fef2f2;
-    color: #dc2626;
+    color: var(--danger-color);
 }
 
 
 .json-pre {
-    background-color: #f9fafb;
-    border: 1px solid #d1d5db;
+    background-color: var(--fondo-secundario-claro);
+    border: 1px solid var(--border-color);
     padding: 1rem;
     border-radius: 0.5rem;
     max-height: 300px;
@@ -153,7 +182,7 @@ body {
 }
 
 .details-btn {
-    background-color: #11253b;
+    background-color: var(--primary-color);
     /* fondo azul oscuro */
     border: none;
     border-radius: 4px;
@@ -173,7 +202,7 @@ body {
 }
 
 .details-btn:hover {
-    background-color: #374151;
+    background-color: var(--primary-dark);
     /* fondo un poco más claro al pasar mouse */
 }
 
@@ -193,7 +222,7 @@ body {
 }
 
 .modal-content {
-    background-color: white;
+    background-color:var(--fondo-secundario-claro)!important;
     padding: 2rem;
     border-radius: 0.5rem;
     max-width: 600px;
@@ -202,18 +231,23 @@ body {
     overflow-y: auto;
     position: relative;
 }
-
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
 .close-btn {
     position: absolute;
     top: 0.5rem;
     right: 1rem;
     font-size: 2rem;
     cursor: pointer;
-    color: #888;
+    color: var(--texto-secundario);
 }
 
 .close-btn:hover {
-    color: #000;
+    color: var(--primary-color);
 }
 
 

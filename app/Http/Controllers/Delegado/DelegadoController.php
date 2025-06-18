@@ -381,7 +381,7 @@ class DelegadoController extends Controller
                 'genero' => 'required|in:M,F',
                 'fechaNacimiento' => 'required|date',
                 'colegios' => 'nullable|array',
-                'areas' => 'nullable|array',
+                'areas_colegio' => 'nullable|array',
             ]);
             
             // Iniciar transacción
@@ -406,18 +406,23 @@ class DelegadoController extends Controller
             $tutor->save();
             
             // Actualizar relaciones con colegios y áreas
-            if ($request->has('colegios') && $request->has('areas')) {
-                // Eliminar relaciones existentes
+            if ($request->has('colegios')) {
+                // Eliminar todas las relaciones existentes para este tutor
                 TutorAreaDelegacion::where('id', $id)->delete();
                 
-                // Crear nuevas relaciones
-                foreach ($request->colegios as $idDelegacion) {
-                    foreach ($request->areas as $idArea) {
-                        TutorAreaDelegacion::create([
-                            'id' => $id,
-                            'idArea' => $idArea,
-                            'idDelegacion' => $idDelegacion
-                        ]);
+                // Crear nuevas relaciones basadas en las áreas seleccionadas por colegio
+                if ($request->has('areas_colegio')) {
+                    foreach ($request->areas_colegio as $idDelegacion => $areas) {
+                        if (is_array($areas)) {
+                            foreach ($areas as $idArea) {
+                                TutorAreaDelegacion::create([
+                                    'id' => $id,
+                                    'idArea' => $idArea,
+                                    'idDelegacion' => $idDelegacion,
+                                    'tokenTutor' => $tutor->tokenTutor
+                                ]);
+                            }
+                        }
                     }
                 }
             }

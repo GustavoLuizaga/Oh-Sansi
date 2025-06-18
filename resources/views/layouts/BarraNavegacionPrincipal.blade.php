@@ -9,7 +9,7 @@
             <div class="menu-items">
                 <a href="{{ url('/') }}">Inicio</a>
                 <a href="{{ route('convocatoria.publica') }}">Convocatoria</a>
-                <a href="#">Reglamento</a>
+                <a href="{{ route('reglamento') }}">Reglamento</a>
             </div>
             <div class="menu-footer">
                 <button id="theme-toggle-mobile" class="theme-toggle mobile-only">

@@ -63,7 +63,16 @@
                 
                 <div class="form-group">
                     <label for="telefono" class="form-label required-label">Teléfono:</label>
-                    <input type="text" class="form-control" id="telefono" name="telefono" value="{{ $tutor->telefono }}" required>
+                    <input type="text" 
+                           class="form-control" 
+                           id="telefono" 
+                           name="telefono" 
+                           value="{{ $tutor->telefono }}" 
+                           pattern="^[67]\d{7}$"
+                           title="El teléfono debe tener 8 dígitos y comenzar con 6 o 7"
+                           maxlength="8"
+                           required>
+                    <span class="error-message" id="telefono-error" style="display: none;"></span>
                 </div>
             </div>
             
@@ -216,6 +225,67 @@
                     }
                 });
             });
+
+            // Validación del teléfono
+            const telefonoInput = document.getElementById('telefono');
+            
+            if (telefonoInput) {
+                // Solo permitir números y máximo 8 dígitos
+                telefonoInput.addEventListener('input', function(e) {
+                    // Remover cualquier carácter que no sea número
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Limitar a 8 dígitos
+                    if (this.value.length > 8) {
+                        this.value = this.value.slice(0, 8);
+                    }
+                    
+                    // Validar que empiece con 6 o 7
+                    const errorElement = document.getElementById('telefono-error');
+                    if (this.value.length > 0) {
+                        if (!/^[67]/.test(this.value)) {
+                            errorElement.textContent = 'El teléfono debe comenzar con 6 o 7';
+                            errorElement.style.display = 'block';
+                            this.setCustomValidity('El teléfono debe comenzar con 6 o 7');
+                        } else if (this.value.length !== 8) {
+                            errorElement.textContent = 'El teléfono debe tener 8 dígitos';
+                            errorElement.style.display = 'block';
+                            this.setCustomValidity('El teléfono debe tener 8 dígitos');
+                        } else {
+                            errorElement.textContent = '';
+                            errorElement.style.display = 'none';
+                            this.setCustomValidity('');
+                        }
+                    } else {
+                        errorElement.textContent = '';
+                        errorElement.style.display = 'none';
+                        this.setCustomValidity('');
+                    }
+                });
+
+                // Prevenir entrada de caracteres no numéricos
+                telefonoInput.addEventListener('keypress', function(e) {
+                    const char = String.fromCharCode(e.which);
+                    if (!/^[0-9]$/.test(char)) {
+                        e.preventDefault();
+                    }
+                });
+
+                // Validación al enviar el formulario
+                const form = document.querySelector('form');
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        const telefono = telefonoInput.value;
+                        if (!/^[67]\d{7}$/.test(telefono)) {
+                            e.preventDefault();
+                            const errorElement = document.getElementById('telefono-error');
+                            errorElement.textContent = 'El teléfono debe tener 8 dígitos y comenzar con 6 o 7';
+                            errorElement.style.display = 'block';
+                            telefonoInput.focus();
+                        }
+                    });
+                }
+            }
         });
     </script>
 </x-app-layout>

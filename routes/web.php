@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\ResgistrarListaEstController;
 use App\Http\Controllers\VerificarComprobanteController;
 use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\ReglamentoController;
 
 
 /*
@@ -135,3 +136,5 @@ Route::post('/registrar-lista-estudiantes', [ResgistrarListaEstController::class
 
 // Ruta pública para redirigir por área
 Route::get('/redirigir-por-area/{idArea}', [ConvocatoriaController::class, 'redirigirPorArea'])->name('convocatoria.redirigirPorArea');
+
+Route::get('/reglamento', [ReglamentoController::class, 'index'])->name('reglamento');

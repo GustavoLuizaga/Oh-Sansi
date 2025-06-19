@@ -21,7 +21,6 @@ use App\Models\TutorAreaDelegacion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class RegisteredUserController extends Controller
 {
@@ -218,7 +217,6 @@ public function store(Request $request)
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Tutor registration error: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
             return back()->withErrors(['msg' => 'Ocurrió un error durante el registro. Por favor, inténtalo de nuevo. Detalle: ' . $e->getMessage()])->withInput();
         }
     }

@@ -2,9 +2,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reglamento de Inscripción | Olimpiadas Científicas</title>
-    <link rel="stylesheet" href="{{ asset('css/reglamento.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/contentFooter.css') }}">
-    
+    <link rel="stylesheet" href="/css/reglamento.css">
+    <link rel="stylesheet" href="/css/contentFooter.css">
 
     <div class="reglamento">
         <div class="reglamento__header">

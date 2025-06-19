@@ -140,6 +140,7 @@
             </form>
         </div>
     </div>
+    <script src="/js/register-validation.js"></script>
 
     <script>
         const passwordInput = document.getElementById('password');

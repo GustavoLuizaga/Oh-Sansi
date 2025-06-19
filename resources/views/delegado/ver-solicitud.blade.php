@@ -61,7 +61,8 @@
                     <div class="info-label">Documento CV:</div>
                     <div class="info-value">
                         @if($tutor->linkRecurso)
-                            <a href="{{ asset('storage/cvs/' . basename($tutor->linkRecurso)) }}" target="_blank" class="document-link">
+                            {{-- <a href="{{ asset('storage/cvs/' . basename($tutor->linkRecurso)) }}" target="_blank" class="document-link"> --}}
+                            <a href="/storage/cvs/{{ basename($tutor->linkRecurso) }}" target="_blank" class="document-link">
                                 <i class="fas fa-file-pdf"></i> Ver documento
                             </a>
                         @else
@@ -99,7 +100,8 @@
     <div class="bg-white p-4 rounded-lg shadow-md mb-4">
         <h2 class="section-title mb-3"><i class="fas fa-file-pdf mr-2"></i>Previsualización del Documento</h2>
         <div class="pdf-preview">
-            <iframe src="{{ asset('storage/cvs/' . basename($tutor->linkRecurso)) }}" class="pdf-iframe" title="Documento CV"></iframe>
+            {{-- <iframe src="{{ asset('storage/cvs/' . basename($tutor->linkRecurso)) }}" class="pdf-iframe" title="Documento CV"></iframe> --}}
+            <iframe src="/storage/cvs/{{ basename($tutor->linkRecurso) }}" class="pdf-iframe" title="Documento CV"></iframe>
         </div>
     </div>
     @endif

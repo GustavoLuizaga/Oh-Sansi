@@ -80,7 +80,7 @@ public function store(Request $request)
 
     event(new CreacionCuenta(
         $user->id,
-        '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+        'Tu cuenta ha sido creada exitosamente, Gracias por formar parte de Ohsansi.',
         'sistema'
     ));
     Auth::login($user);
@@ -205,7 +205,7 @@ public function store(Request $request)
 
             event(new CreacionCuenta(
                 $user->id,
-                '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+                'Tu cuenta ha sido creada exitosamente, Gracias por formar parte de Ohsansi.',
                 'sistema'
             ));
             Auth::login($user);
@@ -288,7 +288,7 @@ public function store(Request $request)
         // Solo lo haremos cuando el tutor sea aprobado
         event(new CreacionCuenta(
             $user->id,
-            '¡Tu cuenta ha sido creada exitosamente!, Gracias por formar parte de Ohsansi.',
+            'Tu cuenta ha sido creada exitosamente, Gracias por formar parte de Ohsansi.',
             'sistema'
         ));
         Auth::login($user);

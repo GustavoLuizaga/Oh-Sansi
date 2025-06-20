@@ -7,7 +7,7 @@
         "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.js";
 </script>
 <x-app-layout>
-<link rel="stylesheet" href="{{ "/css/inscripcion/listaEstudiantes.css">
+<link rel="stylesheet" href="/css/inscripcion/listaEstudiantes.css">
 
 <!-- Success Message -->
 @if(session('success'))

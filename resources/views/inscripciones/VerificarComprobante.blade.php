@@ -906,20 +906,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
                 modalInstance.hide();
-                
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: '¡Comprobante aprobado!',
-                        text: data.message,
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    alert(data.message);
-                    window.location.reload();
-                }
+                window.location.reload();
             } else {
                 alert('Error: ' + data.message);
             }
@@ -960,20 +947,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 const modalInstance = bootstrap.Modal.getInstance(modal);
                 modalInstance.hide();
-                
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: '¡Comprobante rechazado!',
-                        text: data.message,
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
-                        window.location.reload();
-                    });
-                } else {
-                    alert(data.message);
-                    window.location.reload();
-                }
+                window.location.reload();
             } else {
                 alert('Error: ' + data.message);
             }

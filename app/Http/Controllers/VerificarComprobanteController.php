@@ -53,6 +53,47 @@ class VerificarComprobanteController extends Controller
     }
     
     /**
+     * Servir archivo de comprobante directamente desde storage
+     */
+    public function mostrarComprobante($idBoleta)
+    {
+        try {
+            // Obtener la ruta del comprobante
+            $comprobante = DB::table('boletapagoinscripcion as bi')
+                ->join('inscripcion as i', 'bi.idInscripcion', '=', 'i.idInscripcion')
+                ->join('verificacioninscripcion as vi', function($join) {
+                    $join->on('vi.idInscripcion', '=', 'i.idInscripcion')
+                        ->where('vi.Comprobante_valido', '=', 1);
+                })
+                ->where('bi.idBoleta', $idBoleta)
+                ->select('vi.RutaComprobante')
+                ->first();
+
+            if (!$comprobante) {
+                abort(404, 'Comprobante no encontrado');
+            }
+
+            // Ruta completa del archivo
+            $rutaCompleta = storage_path('app/' . $comprobante->RutaComprobante);
+            
+            if (!file_exists($rutaCompleta)) {
+                abort(404, 'Archivo no encontrado');
+            }
+
+            // Obtener el tipo MIME del archivo
+            $mimeType = mime_content_type($rutaCompleta);
+            
+            // Servir el archivo directamente
+            return response()->file($rutaCompleta, [
+                'Content-Type' => $mimeType,
+                'Cache-Control' => 'public, max-age=3600'
+            ]);
+            
+        } catch (\Exception $e) {
+            abort(500, 'Error al cargar el archivo: ' . $e->getMessage());
+        }
+    }
+    /**
      * Aprobar comprobante y actualizar status a "aprobado" para todos los estudiantes relacionados
      */
     public function aprobarComprobante($idBoleta)

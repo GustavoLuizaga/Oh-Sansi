@@ -47,6 +47,8 @@ Route::get('/dashboard', function () {
     //return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+   
+
     //Ruta para verificar el comprobante manualmente por el Administrador
     Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])
         ->name('verificacionManual.comprobanteDePago');
@@ -138,3 +140,7 @@ Route::post('/registrar-lista-estudiantes', [ResgistrarListaEstController::class
 Route::get('/redirigir-por-area/{idArea}', [ConvocatoriaController::class, 'redirigirPorArea'])->name('convocatoria.redirigirPorArea');
 
 Route::get('/reglamento', [ReglamentoController::class, 'index'])->name('reglamento');
+
+
+ Route::get('/comprobante/{idBoleta}', [VerificarComprobanteController::class, 'mostrarComprobante'])
+    ->name('comprobante.mostrar');

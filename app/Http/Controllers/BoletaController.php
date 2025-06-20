@@ -106,7 +106,7 @@ class BoletaController extends Controller
                 ->where('idInscripcion', $inscripcionId)
                 ->update([
                     'CodigoComprobante' => $numeroAGuardar,
-                    'RutaComprobante' => "storage/inscripcionID/{$inscripcionId}/{$filename}",
+                    'RutaComprobante' => "public/inscripcionID/{$inscripcionId}/{$filename}",
                     'Comprobante_valido' => 1,
                     'updated_at' => now()
                 ]);

@@ -183,7 +183,7 @@ class ComprobantePagoController extends Controller
                 ->where('idInscripcion', $inscripcionId)
                 ->update([
                     'CodigoComprobante' => $numeroAGuardar,
-                    'RutaComprobante' => "storage/inscripcionID/{$inscripcionId}/{$filename}",
+                    'RutaComprobante' => "public/inscripcionID/{$inscripcionId}/{$filename}",
                     'Comprobante_valido' => 1,
                     'updated_at' => now()
                 ]);
@@ -193,7 +193,7 @@ class ComprobantePagoController extends Controller
                 DB::table('verificacioninscripcion')->insert([
                     'idInscripcion' => $inscripcionId,
                     'CodigoComprobante' => $numeroAGuardar,
-                    'RutaComprobante' => "storage/inscripcionID/{$inscripcionId}/{$filename}",
+                    'RutaComprobante' => "public/inscripcionID/{$inscripcionId}/{$filename}",
                     'Comprobante_valido' => 1,
                     'created_at' => now(),
                     'updated_at' => now()

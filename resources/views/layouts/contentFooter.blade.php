@@ -24,30 +24,33 @@
         <li>
             <a href="#" onclick="abrirFooterModal('footerGuiaParticipante'); return false;">Guía del Participante</a>
         </li>
-          <li><a href="#">Preguntas Frecuentes</a></li>
+
+        <li>
+            <a href="#" onclick="abrirModalFAQ(); return false;">Preguntas Frecuentes</a>
+        </li>
         </ul>
+        
       </div>
 
       <div class="footer-column">
         <h3 class="footer-toggle">Contacto <i class="fas fa-chevron-down"></i></h3>
         <ul class="footer-collapse contact-info">
-        <li>
-        <i class="fas fa-map-marker-alt"></i>
-        <a href="https://maps.app.goo.gl/AP1AkVXmFFBsiW3f6" target="_blank" rel="noopener noreferrer">
-            Campus UMSS, Cochabamba
-        </a>
-        </li>
-        <li>
-        <i class="fas fa-phone"></i>
-        <a href="https://wa.me/591444525252" target="_blank">+591 4 4525252</a>
-        </li>
-        <li>
-            <i class="fas fa-envelope"></i>
-            <a href="mailto:olimpiadas@umss.edu">olimpiadas@umss.edu</a>
-        </li>
-
-
+            <li>
+            <i class="fas fa-map-marker-alt"></i>
+            <a href="https://maps.app.goo.gl/AP1AkVXmFFBsiW3f6" target="_blank" rel="noopener noreferrer">
+                Campus UMSS, Cochabamba
+            </a>
+            </li>
+            <li>
+            <i class="fas fa-phone"></i>
+            <a href="https://wa.me/591444525252" target="_blank">+591 4 4525252</a>
+            </li>
+            <li>
+                <i class="fas fa-envelope"></i>
+                <a href="mailto:olimpiadas@umss.edu">olimpiadas@umss.edu</a>
+            </li>
         </ul>
+
         <div class="social-media">
         <a href="http://www.facebook.com/sharer.php?u=https%3A%2F%2Fwww.umss.edu.bo&t=Universidad%20Mayor%20de%20San%20Sim%C3%B3n" target="_blank" aria-label="Facebook">
              <i class="fab fa-facebook-f"></i>
@@ -212,4 +215,6 @@
         </div>
     </div>
 </div>
+<!-- Este es para reutilizar el faq que creamos para las preguntas frecuentes en rigth-bar -->
+@include('components.faq-chat')
 </footer>

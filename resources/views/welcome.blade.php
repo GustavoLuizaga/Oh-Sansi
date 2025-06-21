@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="/css/contentFooter.css">
     <link rel="stylesheet" href="/css/registerModal.css">
     <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/faq-chat.css">
 
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -289,6 +290,7 @@
     <script src="/js/mobileMenu.js"></script>
     <script src="/js/areasCarousel.js"></script>
     <script src="/js/contentFooter.js"></script>
+    <script src="/js/faq-chat.js"></script>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {

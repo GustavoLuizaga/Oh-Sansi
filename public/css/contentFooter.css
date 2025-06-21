@@ -1,10 +1,6 @@
 
 :root {
-    --navy-900: #001f3f;
-    --blue-400: #007bff;
-    --blue-700: #0056b3;
-    --blue-800: #004085;
-    --blue-900: #003366;
+
     --surface-tertiary: #f8f9fa;
 }
 :root.modo-oscuro{

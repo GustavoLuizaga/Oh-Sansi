@@ -1,5 +1,52 @@
 // filepath: c:\xampp1\htdocs\LARAVEL2025\Oh-Sansi\public\js\dashboard.js
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+
+    const select = document.getElementById('convocatoriaFilter');
+    const totalEstudiantes = document.getElementById('totalEstudiantes');
+    const totalTutores = document.getElementById('totalTutores');
+    let areasChart; // Variable para el gráfico de áreas
+    let tipoColegioChart; 
+
+    select.addEventListener('change', function () {
+        const idConvocatoria = this.value;
+        fetch(`/dashboard/datos/${idConvocatoria}`)
+            .then(response => response.json())
+            .then(data => {
+                totalEstudiantes.textContent = data.totalEstudiantes;
+                totalTutores.textContent = data.totalTutores;
+                actualizarAreasChart(data.areasLabels, data.areasData);
+            })
+            .catch(error => {
+                totalEstudiantes.textContent = '0';
+                totalTutores.textContent = '0';
+
+            });
+
+        fetch(`/dashboard/tutores-delegaciones/${idConvocatoria}`)
+            .then(response => response.json())
+            .then(data => {
+                // data.labelD y data.dataD contienen los labels y los datos para el gráfico
+                actualizarTipoColegioChart(data.labelD, data.dataD);
+            })
+            .catch(error => {
+                console.error('Error al cargar los datos de tutores por delegación:', error);
+            });
+
+    });
+
+    // Opcional: cargar el valor inicial al cargar la página
+    if (select.value) {
+        fetch(`/dashboard/datos/${select.value}`)
+            .then(response => response.json())
+            .then(data => {
+                totalEstudiantes.textContent = data.totalEstudiantes;
+            });
+    }
+
+
+
+
+
     // Configuración de colores
     const colors = {
         primary: '#1a365d',
@@ -40,45 +87,104 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Gráfico de Participación por Área
-    new Chart(document.getElementById('areasChart'), {
-        type: 'pie',
-        data: {
-            labels: ['Matemáticas', 'Física', 'Química', 'Biología', 'Informática'],
-            datasets: [{
-                data: [35, 20, 15, 18, 12],
-                backgroundColor: [colors.primary, colors.success, colors.warning, colors.info, colors.purple]
-            }]
-        },
-        options: {
-            ...chartOptions,
-            plugins: {
-                ...chartOptions.plugins,
-                title: {
-                    display: true,
-                    text: 'Distribución por Áreas',
-                    padding: {
-                        top: 10,
-                        bottom: 20
+    function actualizarAreasChart(labels, data) {
+        // Si no hay datos, muestra "Sin información"
+        if (!labels || labels.length === 0) {
+            labels = ['Sin información'];
+            data = [1];
+        }
+
+        // Paleta de colores para las áreas (puedes agregar más si tienes más áreas)
+        const areaColors = [
+            colors.primary,
+            colors.success,
+            colors.warning,
+            colors.info,
+            colors.purple,
+            colors.pink,
+            colors.danger,
+            colors.secondary
+        ];
+
+        // Si hay más áreas que colores, repetir la paleta
+        const backgroundColors = labels.map((_, i) => areaColors[i % areaColors.length]);
+
+        if (areasChart) {
+            areasChart.data.labels = labels;
+            areasChart.data.datasets[0].data = data;
+            areasChart.data.datasets[0].backgroundColor = backgroundColors;
+            areasChart.update();
+        } else {
+            const ctx = document.getElementById('areasChart').getContext('2d');
+            areasChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        title: {
+                            display: true,
+                            text: 'Distribución por Áreas',
+                            padding: { top: 10, bottom: 20 }
+                        }
                     }
                 }
-            }
+            });
         }
-    });
+    }
 
     // Gráfico de Distribución por Tipo de Colegio
-    new Chart(document.getElementById('tipoColegioChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Fiscal', 'Particular', 'Convenio'],
-            datasets: [{
-                data: [45, 35, 20],
-                backgroundColor: [colors.primary, colors.success, colors.warning]
-            }]
-        },
-        options: {
-            ...chartOptions
-        }
-    });
+function actualizarTipoColegioChart(labels, data) {
+    // Si no hay datos, muestra "Sin información"
+    if (!labels || labels.length === 0) {
+        labels = ['Sin información'];
+        data = [1];
+    }
+
+    // Paleta de colores para los tipos de colegio
+    const colegioColors = [
+        colors.primary,
+        colors.success,
+        colors.warning,
+        colors.info,
+        colors.purple,
+        colors.pink,
+        colors.danger,
+        colors.secondary
+    ];
+
+    // Si hay más labels que colores, repetir la paleta
+    const backgroundColors = labels.map((_, i) => colegioColors[i % colegioColors.length]);
+
+    if (tipoColegioChart) {
+        tipoColegioChart.data.labels = labels;
+        tipoColegioChart.data.datasets[0].data = data;
+        tipoColegioChart.data.datasets[0].backgroundColor = backgroundColors;
+        tipoColegioChart.update();
+    } else {
+        const ctx = document.getElementById('tipoColegioChart').getContext('2d');
+        tipoColegioChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColors
+                }]
+            },
+            options: {
+                ...chartOptions
+            }
+        });
+    }
+}
 
     // Gráfico de Niveles de Participación
     new Chart(document.getElementById('nivelesChart'), {
@@ -172,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             let label = context.dataset.label || '';
                             if (label) {
                                 label += ': ';
@@ -191,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     ticks: {
                         color: 'var(--text-color)',
-                        callback: function(value) {
+                        callback: function (value) {
                             return value + ' est.';
                         }
                     }

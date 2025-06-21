@@ -8,6 +8,7 @@ use App\Http\Controllers\VerificarComprobanteController;
 use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ReglamentoController;
+use App\Http\Controllers\Dashboard\DashboardController;
 
 
 /*
@@ -30,24 +31,15 @@ Route::get('/', [WelcomeController::class, 'index']);
 
 // Las rutas de delegado se han movido a delegado.php
 
-Route::get('/dashboard', function () {
-    $user = auth()->user();
-    $rol = $user->roles->first()->nombre;
-    echo $rol;
-    switch ($rol) {
-        case 'Administrador':
-            return view('dashboard');
-        case 'Estudiante':
-            return view('dashboardEst');
-        case 'Tutor':
-            return view('dashboardTutor');
-        default:
-            return view('dashboard'); // Vista por defecto
-    }
-    //return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
-   
+Route::get('/dashboard/datos/{id}', [DashboardController::class, 'getDatosPorIdConvocatoria'])
+    ->middleware(['auth', 'verified']);    
+
+Route::get('/dashboard/tutores-delegaciones/{id}', [DashboardController::class, 'getTutoresDelegaciones']);  
+
 
     //Ruta para verificar el comprobante manualmente por el Administrador
     Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])

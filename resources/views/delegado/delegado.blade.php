@@ -11,7 +11,7 @@
 
     <!-- Header Section -->
     <div class="delegaciones-header py-2">
-        <h1><i class="fas fa-chalkboard-teacher"></i> {{ __('Administrar Tutores') }}</h1>
+        <h1><i class="fas fa-chalkboard-teacher"></i> {{ __('Administrar Delegados') }}</h1>
     </div>
 
     <!-- Actions Container (Search and Buttons) -->
@@ -123,9 +123,97 @@
 
     <!-- Pagination -->
     @if(isset($tutores) && $tutores->count() > 0)
-    <div class="pagination">
-        {{ $tutores->appends(request()->query())->links() }}
+    <div class="paginacion">
+        <div class="pagination-container">
+            @if($tutores->lastPage() > 1)
+                <ul class="pagination-list">
+                    {{-- First Page --}}
+                    <li class="{{ ($tutores->currentPage() == 1) ? 'disabled' : '' }}">
+                        <a href="{{ $tutores->url(1) }}" class="pagination-link">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    {{-- Previous Page --}}
+                    <li class="{{ ($tutores->currentPage() == 1) ? 'disabled' : '' }}">
+                        <a href="{{ $tutores->url($tutores->currentPage() - 1) }}" class="pagination-link">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {{-- Numbered Pages --}}
+                    @for($i = max(1, $tutores->currentPage() - 2); $i <= min($tutores->lastPage(), $tutores->currentPage() + 2); $i++)
+                        <li class="{{ ($tutores->currentPage() == $i) ? 'active' : '' }}">
+                            <a href="{{ $tutores->url($i) }}" class="pagination-link">{{ $i }}</a>
+                        </li>
+                    @endfor
+                    {{-- Next Page --}}
+                    <li class="{{ ($tutores->currentPage() == $tutores->lastPage()) ? 'disabled' : '' }}">
+                        <a href="{{ $tutores->url($tutores->currentPage() + 1) }}" class="pagination-link">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    {{-- Last Page --}}
+                    <li class="{{ ($tutores->currentPage() == $tutores->lastPage()) ? 'disabled' : '' }}">
+                        <a href="{{ $tutores->url($tutores->lastPage()) }}" class="pagination-link">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="pagination-info">
+                    Mostrando {{ $tutores->firstItem() ?? 0 }} - {{ $tutores->lastItem() ?? 0 }} de {{ $tutores->total() }} tutores
+                </div>
+            @endif
+        </div>
     </div>
+    <style>
+    .paginacion {
+        margin-top: 1rem;
+        padding: 1rem;
+    }
+    .pagination-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .pagination-list {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 0.5rem;
+    }
+    .pagination-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        color: #4a5568;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .pagination-list li.active .pagination-link {
+        background-color: #4299e1;
+        border-color: #4299e1;
+        color: white;
+    }
+    .pagination-list li.disabled .pagination-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .pagination-link:hover:not(.disabled) {
+        background-color: #ebf4ff;
+        border-color: #4299e1;
+    }
+    .pagination-info {
+        color: #4a5568;
+        font-size: 0.875rem;
+    }
+    </style>
     @endif
 
 

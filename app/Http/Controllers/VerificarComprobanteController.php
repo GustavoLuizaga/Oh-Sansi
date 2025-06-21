@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Events\InscripcionRechazarComprobante;
 
 class VerificarComprobanteController extends Controller
 {
@@ -191,6 +192,31 @@ class VerificarComprobanteController extends Controller
                         'updated_at' => Carbon::now()
                     ]);
                 }
+            $userId = DB::table('tutorestudianteinscripcion')
+                ->where('idInscripcion', $idInscripcion)
+                ->value('idEstudiante');
+
+            $idBoleta = DB::table('boletapagoinscripcion')
+                ->where('idInscripcion', $idInscripcion)
+                ->value('idBoleta');
+
+            $codigoComprobante = DB::table('boletapago')
+                ->where('idBoleta', $idBoleta)
+                ->value('CodigoBoleta');
+
+            // Clave única por usuario y comprobante
+            $clave = $userId . '-' . $codigoComprobante;
+
+            if (!isset($notificados[$clave])) {
+                event(new InscripcionRechazarComprobante(
+                    $userId,
+                    'Tu comprobante ha sido rechazado.',
+                    'denegacion',
+                    $codigoComprobante
+                ));
+                $notificados[$clave] = true;
+            }
+
             }
                 
             return response()->json([

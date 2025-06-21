@@ -43,6 +43,8 @@ class WelcomeController extends Controller
 
         $hayAreasDisponibles = $areas->isNotEmpty();
 
-        return view('welcome', compact('areas', 'hayAreasDisponibles'));
+        // return view('welcome', compact('areas', 'hayAreasDisponibles'));    
+        $convocatorias = Convocatoria::where('estado', 'Publicada')->orderBy('fechaInicio')->get();
+        return view('welcome', compact('areas', 'hayAreasDisponibles', 'convocatorias'));
     }
 } 

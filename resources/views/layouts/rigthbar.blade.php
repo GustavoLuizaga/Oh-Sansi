@@ -2,6 +2,7 @@
 
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ asset('css/faq-chat.css') }}">
 </head>
 <div class="sidebar-derecho">
     <div class="sidebar-derecho-calendario">
@@ -32,12 +33,22 @@
     <div class="sidebar-derecho-links">
         <h3><i class="fas fa-link"></i> Enlaces</h3>
         <ul class="lista-links">
-            <li><a href="#"><i class="fas fa-external-link-alt"></i> Ministerio de Educación</a></li>
-            <li><a href="#"><i class="fas fa-external-link-alt"></i> Contactos</a></li>
-            <li><a href="#"><i class="fas fa-external-link-alt"></i> Preguntas Frecuentes</a></li>
-            <li><a href="#"><i class="fas fa-external-link-alt"></i> Convocatoria</a></li>
+            <li><a href="https://www.minedu.gob.bo/" target="_blank"><i class="fas fa-external-link-alt"></i> Ministerio de Educación</a></li>
+            <li>
+                <a href="#" onclick="abrirModalContactos(); return false;">
+                    <i class="fas fa-external-link-alt"></i> Contactos
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="abrirModalFAQ(); return false;">
+                    <i class="fas fa-external-link-alt"></i> Asistente de FAQ
+                </a>
+            </li>
+            <li><a href="{{ url('/convocatorias') }}"><i class="fas fa-external-link-alt"></i> Convocatoria</a></li>
         </ul>
     </div>
+    <!-- Asistente de preguntas frecuentes MODAL COMPONENTE -->
+    @include('components.faq-chat')
 
     <div class="sidebar-derecho-notificacion">
         <div class="notificacion-header">
@@ -61,6 +72,7 @@
 
     @push('scripts')
     <script src="/js/calendario.js"></script>
+    <script src="{{ asset('js/faq-chat.js') }}"></script>
     @endpush
 
     <script>

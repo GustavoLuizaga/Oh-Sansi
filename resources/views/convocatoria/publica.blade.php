@@ -12,10 +12,12 @@
     <link rel="stylesheet" href="/css/contentFooter.css">
     <link rel="stylesheet" href="/css/convocatoria/convocatoria.css">
     <link rel="stylesheet" href="/css/convocatoria/publica.css">
+    <link rel="stylesheet" href="/css/faq-chat.css">
 </head>
 
 <body class="antialiased">
     @include('layouts/BarraNavegacionPrincipal')
+    @include('components/faq-chat')
     
     <div class="contenedor-principal">
         <!-- Header Section -->
@@ -147,11 +149,15 @@
             </div>
         </div>
     </div>
-
+            <!-- Botón flotante de FAQ / Asistente -->
+    <div class="faq-float-button" onclick="abrirModalFAQ()" title="Preguntas Frecuentes">
+        <i class="fas fa-robot"></i>
+    </div>
     @include('layouts/contentFooter')
 
     <script src="/js/themeToggle.js"></script>
     <script src="/js/mobileMenu.js"></script>
     <script src="/js/contentFooter.js"></script>
+    <script src="/js/faq-chat.js"></script>
 </body>
 </html>

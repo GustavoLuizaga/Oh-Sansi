@@ -1,3 +1,11 @@
+
+:root {
+
+    --surface-tertiary: #f8f9fa;
+}
+:root.modo-oscuro{
+    --surface-tertiary: #151b23;
+}
 footer {
     background:var(--navy-900);
     color: white;
@@ -270,4 +278,64 @@ footer {
         width: 32px;
         height: 32px;
     }
+}
+
+/* Estilos del modal de FAQ */
+.footer-modal-bg {
+  position: fixed;
+  background-color: var(--surface-tertiary);
+  z-index: 99999;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(30,40,60,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: faqFadeIn .2s;
+}
+.footer-modal-content {
+  background: var(--surface-tertiary);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+  width: 95vw;
+  max-width: 420px;
+  min-width: 260px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  animation: faqFadeIn .3s;
+}
+.footer-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e5aa5;
+  color: #fff;
+  padding: 0 18px;
+  height: 54px;
+  border-radius: 16px 16px 0 0;
+  font-weight: 600;
+}
+.footer-modal-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.7rem;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: 2px;
+  transition: color .2s;
+}
+.footer-modal-close:hover { color: #e74c3c; }
+.footer-modal-body {
+  padding: 18px;
+  color: var(--text-primary);
+  background: var(--surface-primary);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+@keyframes faqFadeIn {
+  from { transform: translateY(40px) scale(.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
 }

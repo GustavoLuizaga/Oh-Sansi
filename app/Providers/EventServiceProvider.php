@@ -36,8 +36,12 @@ class EventServiceProvider extends ServiceProvider
         InscripcionAprobadaEstudiante::class => [
             NotificarInscripcionAprobada::class,
 
-        ],InscripcionEstTokenDelegado::class =>[
+        ],
+        InscripcionEstTokenDelegado::class => [
             NotificarTutorInscEst::class
+        ],
+        \App\Events\InscripcionRechazarComprobante::class => [
+            \App\Listeners\NotificarRechazoComprobante::class,
         ],
     ];
 

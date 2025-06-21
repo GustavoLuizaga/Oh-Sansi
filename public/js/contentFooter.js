@@ -16,3 +16,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+// Mostrar Premios
+function abrirModalPremios() {
+    document.getElementById('footerPremios').style.display = 'block';
+}
+
+// Mostrar Resultados
+function abrirModalResultados() {
+    document.getElementById('footerResultados').style.display = 'block';
+}
+
+function abrirFooterModal(id) {
+  document.getElementById(id).style.display = 'flex';
+}
+function cerrarFooterModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+// Cerrar al hacer clic fuera del contenido
+document.addEventListener('mousedown', function(e) {
+  ['footerCategorias','footerCalendario','footerPremios','footerResultados'].forEach(id => {
+    const modal = document.getElementById(id);
+    if (modal && modal.style.display === 'flex') {
+      const content = modal.querySelector('.footer-modal-content');
+      if (content && !content.contains(e.target)) {
+        modal.style.display = 'none';
+      }
+    }
+  });
+});
+// Mostrar Guía del Participante
+function abrirFooterModal(id) {
+  document.getElementById(id).style.display = 'flex';
+}
+function cerrarFooterModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+document.addEventListener('mousedown', function(e) {
+  ['footerCategorias','footerCalendario','footerPremios','footerResultados','footerGuiaParticipante'].forEach(id => {
+    const modal = document.getElementById(id);
+    if (modal && modal.style.display === 'flex') {
+      const content = modal.querySelector('.footer-modal-content');
+      if (content && !content.contains(e.target)) {
+        modal.style.display = 'none';
+      }
+    }
+  });
+});

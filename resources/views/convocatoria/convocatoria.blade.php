@@ -20,7 +20,7 @@
 
         <!-- Header Section -->
         <div class="convocatoria-header">
-            <h1><i class="fas fa-clipboard-list"></i> Gestión de Convocatorias</h1>
+            <h1><i class="fas fa-clipboard-list"></i> Gestion de Convocatorias</h1>
         </div>
 
         <!-- Actions Container (Add and Export buttons in the same row) -->

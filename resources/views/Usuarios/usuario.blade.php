@@ -102,10 +102,108 @@
             </tr>
             @endforelse
         </tbody>
-    </table>
+    </table>    <!-- Pagination -->
+    <div class="paginacion">
+        <div class="pagination-container">
+            @if($usuarios->lastPage() > 1)
+                <ul class="pagination-list">
+                    {{-- First Page --}}
+                    <li class="{{ ($usuarios->currentPage() == 1) ? 'disabled' : '' }}">
+                        <a href="{{ $usuarios->url(1) }}" class="pagination-link">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
 
-    <!-- Pagination -->
-    <div class="pagination">
-        {{ $usuarios->appends(request()->query())->links() }}
+                    {{-- Previous Page --}}
+                    <li class="{{ ($usuarios->currentPage() == 1) ? 'disabled' : '' }}">
+                        <a href="{{ $usuarios->url($usuarios->currentPage() - 1) }}" class="pagination-link">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+
+                    {{-- Numbered Pages --}}
+                    @for($i = max(1, $usuarios->currentPage() - 2); $i <= min($usuarios->lastPage(), $usuarios->currentPage() + 2); $i++)
+                        <li class="{{ ($usuarios->currentPage() == $i) ? 'active' : '' }}">
+                            <a href="{{ $usuarios->url($i) }}" class="pagination-link">{{ $i }}</a>
+                        </li>
+                    @endfor
+
+                    {{-- Next Page --}}
+                    <li class="{{ ($usuarios->currentPage() == $usuarios->lastPage()) ? 'disabled' : '' }}">
+                        <a href="{{ $usuarios->url($usuarios->currentPage() + 1) }}" class="pagination-link">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+
+                    {{-- Last Page --}}
+                    <li class="{{ ($usuarios->currentPage() == $usuarios->lastPage()) ? 'disabled' : '' }}">
+                        <a href="{{ $usuarios->url($usuarios->lastPage()) }}" class="pagination-link">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="pagination-info">
+                    Mostrando {{ $usuarios->firstItem() ?? 0 }} - {{ $usuarios->lastItem() ?? 0 }} de {{ $usuarios->total() }} usuarios
+                </div>
+            @endif
+        </div>
     </div>
+
+    <style>
+    .paginacion {
+        margin-top: 1rem;
+        padding: 1rem;
+    }
+
+    .pagination-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .pagination-list {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 0.5rem;
+    }
+
+    .pagination-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        color: #4a5568;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pagination-list li.active .pagination-link {
+        background-color: #4299e1;
+        border-color: #4299e1;
+        color: white;
+    }
+
+    .pagination-list li.disabled .pagination-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .pagination-link:hover:not(.disabled) {
+        background-color: #ebf4ff;
+        border-color: #4299e1;
+    }
+
+    .pagination-info {
+        color: #4a5568;
+        font-size: 0.875rem;
+    }
+    </style>
 </x-app-layout>

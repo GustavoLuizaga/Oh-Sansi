@@ -356,7 +356,7 @@
 }
 
 .submit-button:hover {
-    background-color: var(--success-hover); /* Cambiar de #218838 */
+    background-color: var(--primary-dark); /* Cambiar de #218838 */
 }
 
 .cancel-button {

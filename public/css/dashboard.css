@@ -924,3 +924,32 @@
         text-align: center;
     }
 }
+
+.estado-badge {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 14px;
+    border-radius: 16px;
+    font-size: 0.95em;
+    font-weight: bold;
+    vertical-align: middle;
+}
+.estado-borrador {
+    background: #e2e3e5;
+    color: #333;
+}
+.estado-publicada {
+    background: #e6f9f0;
+    color: #1abc9c;
+    border: 1px solid #1abc9c;
+}
+.estado-finalizado {
+    background: #eaf1fb;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+}
+.estado-cancelada {
+    background: #fdeaea;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+}

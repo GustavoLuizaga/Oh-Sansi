@@ -1,6 +1,6 @@
 <x-app-layout>
     <link rel="stylesheet" href="/css/dashboard.css">
-    
+
     <div class="dashboard-container">
         <!-- Tarjetas de Resumen -->
         <div class="stats-cards">
@@ -10,7 +10,7 @@
                 </div>
                 <div class="stat-details">
                     <h3>Total Colegios</h3>
-                    <p class="stat-number">145</p>
+                    <p class="stat-number">{{ $totalDelegaciones }}</p>
                     <span class="stat-change positive">
                         <i class="fas fa-arrow-up"></i> 12% vs mes anterior
                     </span>
@@ -23,7 +23,7 @@
                 </div>
                 <div class="stat-details">
                     <h3>Total Estudiantes</h3>
-                    <p class="stat-number">2,567</p>
+                    <p class="stat-number" id="totalEstudiantes">0</p>
                     <span class="stat-change positive">
                         <i class="fas fa-arrow-up"></i> 15% vs mes anterior
                     </span>
@@ -35,8 +35,8 @@
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
                 <div class="stat-details">
-                    <h3>Total Tutores</h3>
-                    <p class="stat-number">89</p>
+                    <h3>Total Delegados</h3>
+                    <p class="stat-number" id="totalTutores">0</p>
                     <span class="stat-change positive">
                         <i class="fas fa-arrow-up"></i> 5% vs mes anterior
                     </span>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="stat-details">
                     <h3>Convocatorias Activas</h3>
-                    <p class="stat-number">3</p>
+                    <p class="stat-number">{{ $totalConvocatoriasActivas }}</p>
                     <span class="stat-change neutral">
                         <i class="fas fa-minus"></i> Sin cambios
                     </span>
@@ -87,34 +87,21 @@
         <!-- Filtros y Controles -->
         <div class="filters-section">
             <div class="filter-group">
-                <label>Año:</label>
-                <select class="filter-select" id="yearFilter">
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
+                <label>Convocatoria:</label>
+                <select class="filter-select" id="convocatoriaFilter">
+                    @foreach($convocatorias as $convocatoria)
+                    <option value="{{ $convocatoria->idConvocatoria }}" data-estado="{{ $convocatoria->estado }}">
+                        {{ $convocatoria->nombre }}
+                    </option>
+                    @endforeach
                 </select>
-            </div>
-            <div class="filter-group">
-                <label>Departamento:</label>
-                <select class="filter-select" id="regionFilter">
-                    <option value="todos">Todos</option>
-                    <option value="la-paz">La Paz</option>
-                    <option value="cochabamba">Cochabamba</option>
-                    <option value="santa-cruz">Santa Cruz</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Nivel:</label>
-                <select class="filter-select" id="levelFilter">
-                    <option value="todos">Todos</option>
-                    <option value="primaria">Primaria</option>
-                    <option value="secundaria">Secundaria</option>
-                </select>
+                <span id="estadoConvocatoriaBadge" class="estado-badge"></span>
             </div>
         </div>
 
         <!-- Gráficos Principales -->
         <div class="charts-grid">
-              <!-- Gráfico de Participación por Departamento -->
+            <!-- Gráfico de Participación por Departamento -->
             <div class="chart-card full-width">
                 <h3>Participación por Departamento</h3>
                 <canvas id="departamentosChart"></canvas>
@@ -194,7 +181,7 @@
             <!-- Top Tutores -->
             <div class="ranking-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-star"></i> Top 5 Tutores</h3>
+                    <h3><i class="fas fa-star"></i> Top 5 Delegados</h3>
                     <span class="period-badge">Este mes</span>
                 </div>
                 <div class="ranking-list">
@@ -210,7 +197,7 @@
                         </div>
                         <span class="ranking-score">95%</span>
                     </div>
-                    
+
                     <div class="ranking-item">
                         <span class="ranking-position silver">2</span>
                         <div class="ranking-info">
@@ -222,7 +209,7 @@
                         </div>
                         <span class="ranking-score">92%</span>
                     </div>
-                    
+
                     <div class="ranking-item">
                         <span class="ranking-position bronze">3</span>
                         <div class="ranking-info">
@@ -237,7 +224,7 @@
                 </div>
             </div>
 
-            <!-- Alertas -->
+            <!-- Alertas 
             <div class="alerts-card">
                 <div class="card-header">
                     <h3><i class="fas fa-bell"></i> Alertas del Sistema</h3>
@@ -274,7 +261,7 @@
                         <button class="alert-action">Detalles</button>
                     </div>
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 

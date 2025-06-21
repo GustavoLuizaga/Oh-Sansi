@@ -10,6 +10,33 @@ document.addEventListener('DOMContentLoaded', function () {
     let generoChart;
     let departamentosChart;
 
+    const badge = document.getElementById('estadoConvocatoriaBadge');
+
+    function actualizarEstadoConvocatoria() {
+        const selected = select.options[select.selectedIndex];
+        const estado = selected.getAttribute('data-estado') || '';
+        let clase = 'estado-badge ';
+        switch (estado.toLowerCase()) {
+            case 'publicada':
+                clase += 'estado-publicada';
+                break;
+            case 'finalizado':
+                clase += 'estado-finalizado';
+                break;
+            case 'cancelada':
+                clase += 'estado-cancelada';
+                break;
+            case 'borrador':
+            default:
+                clase += 'estado-borrador';
+        }
+        badge.className = clase;
+        badge.textContent = estado.toUpperCase();
+    }
+
+    select.addEventListener('change', actualizarEstadoConvocatoria);
+    actualizarEstadoConvocatoria(); // Mostrar estado al cargar la página
+
     select.addEventListener('change', function () {
         const idConvocatoria = this.value;
         fetch(`/dashboard/datos/${idConvocatoria}`)

@@ -17,7 +17,7 @@ class DashboardController extends Controller
         switch ($rol) {
             case 'Administrador':
                 $totalDelegaciones = Delegacion::count();
-                $convocatorias = \App\Models\Convocatoria::select('idConvocatoria', 'nombre')->get();
+                $convocatorias = \App\Models\Convocatoria::select('idConvocatoria', 'nombre', 'estado')->get();
                 $totalConvocatoriasActivas = \App\Models\Convocatoria::where('estado', 'publicada')->count();
                 return view('dashboard', compact('totalDelegaciones', 'convocatorias', 'totalConvocatoriasActivas'));
             case 'Estudiante':

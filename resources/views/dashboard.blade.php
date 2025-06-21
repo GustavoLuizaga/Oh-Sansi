@@ -90,9 +90,12 @@
                 <label>Convocatoria:</label>
                 <select class="filter-select" id="convocatoriaFilter">
                     @foreach($convocatorias as $convocatoria)
-                    <option value="{{ $convocatoria->idConvocatoria }}">{{ $convocatoria->nombre }}</option>
+                    <option value="{{ $convocatoria->idConvocatoria }}" data-estado="{{ $convocatoria->estado }}">
+                        {{ $convocatoria->nombre }}
+                    </option>
                     @endforeach
                 </select>
+                <span id="estadoConvocatoriaBadge" class="estado-badge"></span>
             </div>
         </div>
 

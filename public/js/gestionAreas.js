@@ -979,3 +979,300 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables de paginación
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredRows = [];
+    let allRows = [];
+
+    // Elementos del DOM
+    const searchInput = document.getElementById('searchArea');
+    const orderSelect = document.getElementById('orderBy');
+    const tableBody = document.querySelector('.areas-table tbody');
+    
+    // Inicializar paginación
+    initializePagination();
+
+    function initializePagination() {
+        // Obtener todas las filas válidas (excluyendo filas vacías y de "no hay datos")
+        allRows = Array.from(tableBody.querySelectorAll('tr')).filter(row => {
+            const firstCell = row.querySelector('td:first-child');
+            return firstCell && !firstCell.hasAttribute('colspan');
+        });
+        
+        filteredRows = [...allRows];
+        
+        // Crear contenedor de paginación
+        createPaginationContainer();
+        
+        // Aplicar estilos iniciales a las celdas de acción
+        applyActionCellStyles();
+        
+        // Mostrar primera página
+        showPage(1);
+        
+        // Configurar event listeners
+        setupEventListeners();
+    }
+
+    function createPaginationContainer() {
+        // Verificar si ya existe el contenedor
+        if (document.querySelector('.areas-pagination-container')) {
+            return;
+        }
+
+        const container = document.querySelector('.area-container');
+        const paginationHTML = `
+            <div class="areas-pagination-container">
+                <div class="areas-pagination-controls">
+                    <button id="prevPageAreas" class="areas-pagination-btn" disabled>
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <div id="pageNumbersAreas" class="areas-page-numbers"></div>
+                    <button id="nextPageAreas" class="areas-pagination-btn" disabled>
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="areas-pagination-info">
+                    <span id="areasInfo">Mostrando 0 de 0 áreas</span>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', paginationHTML);
+    }
+
+    function applyActionCellStyles() {
+        allRows.forEach(row => {
+            const actionCell = row.querySelector('.action-cell');
+            if (actionCell) {
+                actionCell.style.textAlign = 'right';
+                actionCell.style.display = 'flex';
+                actionCell.style.justifyContent = 'flex-end';
+                actionCell.style.alignItems = 'center';
+                actionCell.style.gap = '0.5rem';
+                
+                const publishedMessage = actionCell.querySelector('.published-area-message');
+                if (publishedMessage) {
+                    publishedMessage.style.display = 'flex';
+                    publishedMessage.style.justifyContent = 'flex-end';
+                    publishedMessage.style.alignItems = 'center';
+                    publishedMessage.style.width = '100%';
+                }
+            }
+        });
+    }
+
+    function setupEventListeners() {
+        // Búsqueda
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                debounce(() => {
+                    filterAndSort();
+                    currentPage = 1;
+                    showPage(currentPage);
+                }, 300)();
+            });
+        }
+
+        // Ordenamiento
+        if (orderSelect) {
+            orderSelect.addEventListener('change', function() {
+                filterAndSort();
+                currentPage = 1;
+                showPage(currentPage);
+            });
+        }
+
+        // Botones de paginación
+        document.getElementById('prevPageAreas').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+
+        document.getElementById('nextPageAreas').addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+    }
+
+    function filterAndSort() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const orderBy = orderSelect ? orderSelect.value : 'todos';
+
+        // Filtrar por nombre del área
+        filteredRows = allRows.filter(row => {
+            const areaName = row.querySelector('td:first-child').textContent.toLowerCase();
+            return areaName.includes(searchTerm);
+        });
+
+        // Ordenar según la opción seleccionada
+        switch(orderBy) {
+            case 'nombre_asc':
+                filteredRows.sort((a, b) => {
+                    const nameA = a.querySelector('td:first-child').textContent.toLowerCase();
+                    const nameB = b.querySelector('td:first-child').textContent.toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+                break;
+            case 'nombre_desc':
+                filteredRows.sort((a, b) => {
+                    const nameA = a.querySelector('td:first-child').textContent.toLowerCase();
+                    const nameB = b.querySelector('td:first-child').textContent.toLowerCase();
+                    return nameB.localeCompare(nameA);
+                });
+                break;
+            default:
+                // Mantener orden original para "todos"
+                break;
+        }
+    }
+
+    function showPage(page) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+
+        // Obtener las filas que deben mostrarse en esta página
+        const pageRows = filteredRows.slice(startIndex, endIndex);
+        
+        // Ocultar todas las filas válidas
+        allRows.forEach(row => {
+            row.style.display = 'none';
+        });
+        
+        // Mostrar solo las filas de la página actual
+        pageRows.forEach(row => {
+            row.style.display = '';
+        });
+
+        // Manejar mensaje de "no hay resultados"
+        handleNoResultsMessage();
+
+        // Actualizar información y controles de paginación
+        updatePaginationInfo(startIndex, Math.min(endIndex, filteredRows.length), filteredRows.length);
+        updatePaginationControls(page, totalPages);
+        updatePageNumbers(page, totalPages);
+    }
+
+    function handleNoResultsMessage() {
+        let noDataRow = tableBody.querySelector('.no-results-row');
+        
+        if (filteredRows.length === 0) {
+            if (!noDataRow) {
+                noDataRow = document.createElement('tr');
+                noDataRow.innerHTML = '<td colspan="2" class="text-center" style="padding: 2rem; color: var(--text-muted); font-style: italic;">No se encontraron áreas que coincidan con la búsqueda</td>';
+                noDataRow.classList.add('no-results-row');
+                tableBody.appendChild(noDataRow);
+            }
+            noDataRow.style.display = '';
+        } else if (noDataRow) {
+            noDataRow.style.display = 'none';
+        }
+    }
+
+    function updatePaginationInfo(startIndex, endIndex, total) {
+        const paginationInfo = document.getElementById('areasInfo');
+        if (total === 0) {
+            paginationInfo.textContent = 'No hay áreas para mostrar';
+        } else {
+            paginationInfo.textContent = `Mostrando ${startIndex + 1}-${endIndex} de ${total} áreas`;
+        }
+    }
+
+    function updatePaginationControls(page, totalPages) {
+        const prevBtn = document.getElementById('prevPageAreas');
+        const nextBtn = document.getElementById('nextPageAreas');
+        
+        prevBtn.disabled = page <= 1;
+        nextBtn.disabled = page >= totalPages || totalPages === 0;
+        
+        // Actualizar clases para estilos
+        prevBtn.classList.toggle('disabled', page <= 1);
+        nextBtn.classList.toggle('disabled', page >= totalPages || totalPages === 0);
+    }
+
+    function updatePageNumbers(currentPage, totalPages) {
+        const pageNumbersContainer = document.getElementById('pageNumbersAreas');
+        pageNumbersContainer.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Determinar rango de páginas a mostrar
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        // Ajustar si estamos cerca del inicio o final
+        if (currentPage <= 3) {
+            endPage = Math.min(5, totalPages);
+        }
+        if (currentPage >= totalPages - 2) {
+            startPage = Math.max(1, totalPages - 4);
+        }
+
+        // Botón primera página
+        if (startPage > 1) {
+            createPageButton(1, currentPage, pageNumbersContainer);
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '...';
+                ellipsis.className = 'areas-page-ellipsis';
+                pageNumbersContainer.appendChild(ellipsis);
+            }
+        }
+
+        // Botones de páginas
+        for (let i = startPage; i <= endPage; i++) {
+            createPageButton(i, currentPage, pageNumbersContainer);
+        }
+
+        // Botón última página
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '...';
+                ellipsis.className = 'areas-page-ellipsis';
+                pageNumbersContainer.appendChild(ellipsis);
+            }
+            createPageButton(totalPages, currentPage, pageNumbersContainer);
+        }
+    }
+
+    function createPageButton(pageNum, currentPage, container) {
+        const button = document.createElement('button');
+        button.textContent = pageNum;
+        button.className = `areas-page-btn ${pageNum === currentPage ? 'active' : ''}`;
+        button.addEventListener('click', function() {
+            currentPage = pageNum;
+            showPage(currentPage);
+        });
+        container.appendChild(button);
+    }
+
+    // Función debounce para optimizar la búsqueda
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Función pública para reinicializar la paginación (útil para actualizaciones dinámicas)
+    window.reinitializeAreasPagination = function() {
+        currentPage = 1;
+        initializePagination();
+    };
+});

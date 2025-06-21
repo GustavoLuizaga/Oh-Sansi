@@ -26,7 +26,27 @@
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+/* Fuerza los estilos necesarios para la primera página */
+.areas-table tr:first-child .action-cell,
+.areas-table tr:first-child .published-area-message {
+    text-align: right !important;
+    justify-content: flex-end !important;
+    display: flex !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+}
 
+/* Elimina cualquier padding/margin que pueda causar centrado */
+.published-area-message {
+    padding-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Asegura que el texto no tenga márgenes */
+.message-text {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
 /* Variables modo oscuro */
 :root.modo-oscuro {  
     /* Colores base - Modo oscuro */
@@ -505,5 +525,126 @@
     .areas-table {
         display: block;
         overflow-x: auto;
+    }
+}
+
+/* Contenedor de paginación - centrado y compacto */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Controles de paginación - botones y números */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Botones anterior/siguiente */
+.pagination-btn {
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--bg-secondary);
+}
+
+/* Contenedor de números de página */
+.page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0 0.5rem;
+}
+
+/* Botones de número de página */
+.page-btn {
+    background-color: var(--bg-main);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.page-btn:hover {
+    background-color: var(--hover-color);
+    border-color: var(--primary-color);
+}
+
+.page-btn.active {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+    border-color: var(--primary-color);
+}
+
+/* Puntos suspensivos */
+.page-ellipsis {
+    color: var(--text-muted);
+    padding: 0.5rem 0.25rem;
+    font-weight: 500;
+}
+
+/* Información de paginación - debajo de los controles */
+.pagination-info {
+    order: 2;
+}
+
+.pagination-info span {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pagination-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-numbers {
+        margin: 0.25rem 0;
+    }
+    
+    .pagination-btn {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+    
+    .page-btn {
+        padding: 0.375rem 0.5rem;
+        min-width: 2.25rem;
+        font-size: 0.8125rem;
     }
 }

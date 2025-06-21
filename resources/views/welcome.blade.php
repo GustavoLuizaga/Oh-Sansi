@@ -29,6 +29,7 @@
                 document.documentElement.classList.add('modo-oscuro');
             }
         </script>
+        
     <title>Oh! Sansi</title>
     <link rel="stylesheet" href="/css/welcome.css">
     <link rel="stylesheet" href="/css/barraNavegacionPrincipal.css">
@@ -279,6 +280,11 @@
                     </div>
                 </div>
             </section>
+            <!-- Botón flotante de FAQ / Asistente -->
+            <div class="faq-float-button" onclick="abrirModalFAQ()" title="Preguntas Frecuentes">
+            <i class="fas fa-robot"></i>
+            </div>
+        </div>
         </main>
     </div>
 

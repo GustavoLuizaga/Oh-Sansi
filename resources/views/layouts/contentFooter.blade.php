@@ -20,16 +20,14 @@
       <div class="footer-column">
         <h3 class="footer-toggle">Recursos <i class="fas fa-chevron-down"></i></h3>
         <ul class="footer-collapse">
-          <li><a href="https://red.minedu.gob.bo/textosAprendizajeSecundaria" target="_blank" rel="noopener noreferrer">Material de Estudio</a></li>
-        <li>
-            <a href="#" onclick="abrirFooterModal('footerGuiaParticipante'); return false;">Guía del Participante</a>
-        </li>
-
-        <li>
-            <a href="#" onclick="abrirModalFAQ(); return false;">Preguntas Frecuentes</a>
-        </li>
+            <li><a href="https://red.minedu.gob.bo/textosAprendizajeSecundaria" target="_blank" rel="noopener noreferrer">Material de Estudio</a></li>
+            <li>
+                <a href="#" onclick="abrirFooterModal('footerGuiaParticipante'); return false;">Guía del Participante</a>
+            </li>
+            <li>
+                <a href="#" onclick="abrirModalFAQ(); return false;">Preguntas Frecuentes</a>
+            </li>
         </ul>
-        
       </div>
 
       <div class="footer-column">
@@ -89,7 +87,7 @@
         <button onclick="cerrarFooterModal('footerCategorias')" class="footer-modal-close">&times;</button>
         </div>
         <div class="footer-modal-body">
-        @if($hayAreasDisponibles)
+        @if(isset($hayAreasDisponibles) && $hayAreasDisponibles)
             <section class="about-olympiad">
             <h2>¿Áreas de competición?</h2>
             <div class="areas-container">

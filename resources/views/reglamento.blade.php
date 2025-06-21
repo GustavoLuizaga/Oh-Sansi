@@ -4,6 +4,7 @@
     <title>Reglamento de Inscripción | Olimpiadas Científicas</title>
     <link rel="stylesheet" href="/css/reglamento.css">
     <link rel="stylesheet" href="/css/contentFooter.css">
+    <link rel="stylesheet" href="/css/faq-chat.css">
 
     <div class="reglamento">
         <div class="reglamento__header">
@@ -293,10 +294,17 @@
             </main>
         </div>
     </div>
+     <!-- Botón flotante de FAQ / Asistente -->
+    <div class="faq-float-button" onclick="abrirModalFAQ()" title="Preguntas Frecuentes">
+        <i class="fas fa-robot"></i>
+    </div>
 
     @include('layouts/contentFooter')
-
+    @include('components/faq-chat')
+    
+    <script src="/js/faq-chat.js"></script>
     <script>
+
         // Script para acordeones
         document.querySelectorAll('.articulo__header').forEach(header => {
             header.addEventListener('click', () => {

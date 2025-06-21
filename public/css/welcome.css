@@ -540,8 +540,48 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 129, 223, 0.3);
 }
+/*Icono fijo de faq*/
+.faq-float-button {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 40px;
+  height: 40px;
+  background-color: #1e40af; /* azul oscuro elegante */
+  color: white;
+  border-radius: 50%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulseFaq 2.8s infinite;
+}
 
-/* RESPONSIVE ADAPTATIONS */
+.faq-float-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(30, 64, 175, 0.3);
+}
+
+.faq-float-button i {
+  font-size: 1.3rem;
+}
+
+/* Animación tipo pulso */
+@keyframes pulseFaq {
+  0% {
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(30, 64, 175, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0);
+  }
+}
+
 /* RESPONSIVE ADAPTATIONS */
 /* Large Devices (992px and below) */
 @media (max-width: 992px) {

@@ -38,9 +38,17 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/dashboard/datos/{id}', [DashboardController::class, 'getDatosPorIdConvocatoria'])
     ->middleware(['auth', 'verified']);    
 
-Route::get('/dashboard/tutores-delegaciones/{id}', [DashboardController::class, 'getTutoresDelegaciones']);  
+Route::get('/dashboard/tutores-delegaciones/{id}', [DashboardController::class, 'getTutoresDelegaciones']); 
 
+Route::get('/dashboard/grados-convocatoria/{id}', [DashboardController::class, 'getGradosPorConvocatoria']);
 
+Route::get('/dashboard/genero-estudiantes/{id}', [DashboardController::class, 'getGeneroEstudiantesPorConvocatoria']);
+
+Route::get('/dashboard/top-delegaciones/{id}', [DashboardController::class, 'getTopDelegacionesPorConvocatoria']);
+
+Route::get('/dashboard/departamentos-convocatoria/{id}', [DashboardController::class, 'getDepartamentosPorConvocatoria']);
+
+Route::get('/dashboard/top-tutores/{id}', [DashboardController::class, 'getTopTutoresPorConvocatoria']);
     //Ruta para verificar el comprobante manualmente por el Administrador
     Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])
         ->name('verificacionManual.comprobanteDePago');

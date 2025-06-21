@@ -178,7 +178,7 @@
             <!-- Top Tutores -->
             <div class="ranking-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-star"></i> Top 5 Tutores</h3>
+                    <h3><i class="fas fa-star"></i> Top 5 Delegados</h3>
                     <span class="period-badge">Este mes</span>
                 </div>
                 <div class="ranking-list">
@@ -221,7 +221,7 @@
                 </div>
             </div>
 
-            <!-- Alertas -->
+            <!-- Alertas 
             <div class="alerts-card">
                 <div class="card-header">
                     <h3><i class="fas fa-bell"></i> Alertas del Sistema</h3>
@@ -258,7 +258,7 @@
                         <button class="alert-action">Detalles</button>
                     </div>
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 

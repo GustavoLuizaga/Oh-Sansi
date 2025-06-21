@@ -113,4 +113,177 @@ class DashboardController extends Controller
             'dataD' => $dataD,
         ]);
     }
+
+
+    public function getGradosPorConvocatoria($id)
+    {
+        $grados = DB::table('detalle_inscripcion as di')
+            ->join('inscripcion as i', 'di.idInscripcion', '=', 'i.idInscripcion')
+            ->join('grado as g', 'i.idGrado', '=', 'g.idGrado')
+            ->where('i.idConvocatoria', $id)
+            ->select('g.grado', DB::raw('count(distinct di.idDetalleInscripcion) as cantidad'))
+            ->groupBy('g.grado')
+            ->orderBy('g.grado')
+            ->get();
+
+        $labels = $grados->pluck('grado');
+        $data = $grados->pluck('cantidad');
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
+    }
+    public function getEstudiantesPorConvocatoria($id)
+    {
+        $totalEstudiantes = DB::table('inscripcion')
+            ->join('tutorestudianteinscripcion', 'inscripcion.idInscripcion', '=', 'tutorestudianteinscripcion.idInscripcion')
+            ->where('inscripcion.idConvocatoria', $id)
+            ->distinct('tutorestudianteinscripcion.idEstudiante')
+            ->pluck('tutorestudianteinscripcion.idEstudiante');
+        return $totalEstudiantes;
+    }
+
+    public function getGeneroEstudiantesPorConvocatoria($id)
+    {
+        // Obtén los IDs únicos de los estudiantes de la convocatoria
+        $estudiantes = $this->getEstudiantesPorConvocatoria($id);
+
+        if ($estudiantes->isEmpty()) {
+            return response()->json([
+                'masculino' => 0,
+                'femenino' => 0,
+            ]);
+        }
+
+        // Cuenta por género en la tabla users
+        $generos = DB::table('users')
+            ->whereIn('id', $estudiantes)
+            ->select('genero', DB::raw('count(*) as cantidad'))
+            ->groupBy('genero')
+            ->pluck('cantidad', 'genero');
+
+        return response()->json([
+            'masculino' => $generos->get('M', 0),
+            'femenino' => $generos->get('F', 0),
+        ]);
+    }
+
+    public function getTopDelegacionesPorConvocatoria($id)
+    {
+        // Total de estudiantes únicos en la convocatoria
+        $totalEstudiantes = DB::table('inscripcion')
+            ->join('tutorestudianteinscripcion', 'inscripcion.idInscripcion', '=', 'tutorestudianteinscripcion.idInscripcion')
+            ->where('inscripcion.idConvocatoria', $id)
+            ->distinct('tutorestudianteinscripcion.idEstudiante')
+            ->count('tutorestudianteinscripcion.idEstudiante');
+
+        // Top 5 delegaciones por cantidad de estudiantes únicos
+        $delegaciones = DB::table('inscripcion')
+            ->join('tutorestudianteinscripcion', 'inscripcion.idInscripcion', '=', 'tutorestudianteinscripcion.idInscripcion')
+            ->join('delegacion', 'inscripcion.idDelegacion', '=', 'delegacion.idDelegacion')
+            ->where('inscripcion.idConvocatoria', $id)
+            ->select(
+                'delegacion.nombre as colegio',
+                DB::raw('count(distinct tutorestudianteinscripcion.idEstudiante) as estudiantes')
+            )
+            ->groupBy('delegacion.nombre')
+            ->orderByDesc('estudiantes')
+            ->limit(5)
+            ->get();
+
+        // Calcula el porcentaje
+        $result = $delegaciones->map(function ($item) use ($totalEstudiantes) {
+            $item->porcentaje = $totalEstudiantes > 0 ? round(($item->estudiantes / $totalEstudiantes) * 100, 1) : 0;
+            return $item;
+        });
+
+        return response()->json([
+            'total' => $totalEstudiantes,
+            'top' => $result
+        ]);
+    }
+
+    public function getDepartamentosPorConvocatoria($id)
+    {
+        // Contar estudiantes únicos por departamento de la delegación
+        $departamentos = DB::table('inscripcion')
+            ->join('tutorestudianteinscripcion', 'inscripcion.idInscripcion', '=', 'tutorestudianteinscripcion.idInscripcion')
+            ->join('delegacion', 'inscripcion.idDelegacion', '=', 'delegacion.idDelegacion')
+            ->where('inscripcion.idConvocatoria', $id)
+            ->select(
+                'delegacion.departamento',
+                DB::raw('count(distinct tutorestudianteinscripcion.idEstudiante) as estudiantes')
+            )
+            ->groupBy('delegacion.departamento')
+            ->orderBy('delegacion.departamento')
+            ->get();
+
+        // Lista de departamentos en el orden que quieres mostrar
+        $departamentosLista = [
+            'La Paz',
+            'Santa Cruz',
+            'Cochabamba',
+            'Potosí',
+            'Chuquisaca',
+            'Oruro',
+            'Tarija',
+            'Beni',
+            'Pando'
+        ];
+
+        // Armar los datos para el gráfico (0 si no hay estudiantes en ese departamento)
+        $data = [];
+        foreach ($departamentosLista as $dep) {
+            $item = $departamentos->firstWhere('departamento', $dep);
+            $data[] = $item ? $item->estudiantes : 0;
+        }
+
+        return response()->json([
+            'labels' => $departamentosLista,
+            'data' => $data,
+        ]);
+    }
+
+    public function getTopTutoresPorConvocatoria($id)
+    {
+        // Total de estudiantes únicos en la convocatoria (para porcentaje)
+        $totalEstudiantes = DB::table('inscripcion')
+            ->join('tutorestudianteinscripcion', 'inscripcion.idInscripcion', '=', 'tutorestudianteinscripcion.idInscripcion')
+            ->where('inscripcion.idConvocatoria', $id)
+            ->distinct('tutorestudianteinscripcion.idEstudiante')
+            ->count('tutorestudianteinscripcion.idEstudiante');
+
+        // Top 5 tutores con más estudiantes inscritos en la convocatoria
+        $tutores = DB::table('tutorestudianteinscripcion as tei')
+            ->join('inscripcion as i', 'tei.idInscripcion', '=', 'i.idInscripcion')
+            ->join('tutor as t', 'tei.idTutor', '=', 't.id')
+            ->join('users as u', 't.id', '=', 'u.id')
+            ->where('i.idConvocatoria', $id)
+            ->select(
+                't.id as idTutor',
+                DB::raw('CONCAT(u.name, " ", u.apellidoPaterno, " ", u.apellidoMaterno) as nombre'),
+                DB::raw('count(distinct tei.idEstudiante) as estudiantes')
+            )
+            ->groupBy('t.id', 'u.name', 'u.apellidoPaterno', 'u.apellidoMaterno')
+            ->orderByDesc('estudiantes')
+            ->limit(5)
+            ->get();
+
+        // Para cada tutor, obtener sus áreas (materias)
+        foreach ($tutores as $tutor) {
+            $areas = DB::table('tutorareadelegacion as tad')
+                ->join('area as a', 'tad.idArea', '=', 'a.idArea')
+                ->where('tad.id', $tutor->idTutor)
+                ->where('tad.idConvocatoria', $id)
+                ->pluck('a.nombre');
+            $tutor->areas = $areas;
+            // Porcentaje respecto al total de estudiantes
+            $tutor->porcentaje = $totalEstudiantes > 0 ? round(($tutor->estudiantes / $totalEstudiantes) * 100, 1) : 0;
+        }
+
+        return response()->json([
+            'top' => $tutores
+        ]);
+    }
 }

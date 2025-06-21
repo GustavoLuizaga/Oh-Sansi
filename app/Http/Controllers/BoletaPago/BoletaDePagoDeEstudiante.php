@@ -324,7 +324,7 @@ class BoletaDePagoDeEstudiante extends Controller
                 ->join('boletapago', 'boletapagoinscripcion.idBoleta', '=', 'boletapago.idBoleta')
                 ->whereIn('boletapagoinscripcion.idInscripcion', $inscripcionesIds)
                 ->select(
-                    'boletapago.CodigoBoleta',
+                    'boletapago.CodigoBoletaj',
                     'boletapago.fechainicio',
                     'boletapago.fechafin'
                 )

@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        
         function validarFormulario(e) {
             e.preventDefault();
             
@@ -70,12 +71,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 .filter(select => select.value.trim() !== '');
             
             if (gradosValidos.length === 0) {
-                return; // Solo no enviar, sin alert
+                alert('Debe seleccionar al menos un grado');
+                return;
             }
             
             const formData = new FormData(FORMULARIO_PRINCIPAL);
             
-            fetch('/gestionCategorias/', {
+            // Debug: Mostrar qué se está enviando
+            console.log('Datos a enviar:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
+            // Usar la URL directa basada en tu action del formulario
+            const url = '/gestionCategorias'; // URL directa sin helper de Laravel
+            console.log('URL de envío:', url);
+            
+            fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -84,20 +96,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Status:', response.status);
+                console.log('Headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Respuesta:', data);
                 if (data.success) {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaCategoriaModal'));
                     modal.hide();
                     setTimeout(() => {
                         window.location.reload();
                     }, 300);
+                } else {
+                    alert(data.message || 'Error al crear la categoría');
                 }
-                // Si hay error, simplemente no hacer nada
             })
             .catch(error => {
-                // Silenciar errores, solo console.log para debugging si es necesario
-                console.log('Error:', error);
+                console.error('Error completo:', error);
+                alert('Error de conexión: ' + error.message);
             });
         }
         
@@ -295,4 +317,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-});
+}); 

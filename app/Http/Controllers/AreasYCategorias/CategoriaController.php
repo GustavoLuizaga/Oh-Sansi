@@ -74,12 +74,17 @@ class CategoriaController extends Controller
     public function store(Request $request)
     {
         try {
+            // Log de debugging
+            \Log::info('Datos recibidos en store:', $request->all());
+            
             // Validación de entrada
-            $request->validate([
+            $validatedData = $request->validate([
                 'nombreCategoria' => 'required|string|min:3|max:20|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
                 'grados' => 'required|array|min:1',
                 'grados.*' => 'required|exists:grado,idGrado',
             ]);
+
+            \Log::info('Datos validados:', $validatedData);
 
             // Normalización del nombre
             $nombreNormalizado = strtolower(trim($request->nombreCategoria));
@@ -88,37 +93,64 @@ class CategoriaController extends Controller
             $categoriaExistente = Categoria::whereRaw('LOWER(nombre) = ?', [$nombreNormalizado])->exists();
 
             if ($categoriaExistente) {
+                \Log::warning('Categoría duplicada:', ['nombre' => $nombreNormalizado]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Ya existe una categoría con este nombre o uno muy similar.',
                 ], 422);
             }
 
-            // Crear la nueva categoría
-            DB::statement('SET @current_user_id = ' . Auth::id());
-            $categoria = Categoria::create([
-                'nombre' => $request->nombreCategoria
-            ]);
+            // Usar transacción para asegurar consistencia
+            DB::beginTransaction();
+            
+            try {
+                // Solo usar SET si es necesario para triggers
+                if (Auth::check()) {
+                    DB::statement('SET @current_user_id = ' . Auth::id());
+                }
+                
+                // Crear la nueva categoría
+                $categoria = Categoria::create([
+                    'nombre' => $request->nombreCategoria
+                ]);
 
-            // Asociar los grados seleccionados
-            $categoria->grados()->attach($request->grados);
+                \Log::info('Categoría creada:', ['id' => $categoria->idCategoria]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Categoría creada exitosamente',
-                'categoria' => $categoria->load('grados')
-            ], 200);
+                // Asociar los grados seleccionados
+                $categoria->grados()->attach($request->grados);
+                
+                \Log::info('Grados asociados:', $request->grados);
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Categoría creada exitosamente',
+                    'categoria' => $categoria->load('grados')
+                ], 200);
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Error de validación:', $e->errors());
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación: ' . implode(', ', $e->validator->errors()->all()),
+                'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Error al crear categoría: ' . $e->getMessage());
+            \Log::error('Error al crear categoría:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error interno del servidor',
+                'message' => 'Error interno del servidor: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -136,7 +168,7 @@ class CategoriaController extends Controller
             'categoria' => $categoria
         ]);
     }
-
+ 
     /**
      * Actualiza una categoría existente
      */

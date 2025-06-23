@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        
         function validarFormulario(e) {
             e.preventDefault();
             
@@ -70,12 +71,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 .filter(select => select.value.trim() !== '');
             
             if (gradosValidos.length === 0) {
-                return; // Solo no enviar, sin alert
+                alert('Debe seleccionar al menos un grado');
+                return;
             }
             
             const formData = new FormData(FORMULARIO_PRINCIPAL);
             
-            fetch('/gestionCategorias/', {
+            // Debug: Mostrar qué se está enviando
+            console.log('Datos a enviar:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
+            // Usar la URL directa basada en tu action del formulario
+            const url = '/gestionCategorias'; // URL directa sin helper de Laravel
+            console.log('URL de envío:', url);
+            
+            fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -84,20 +96,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Status:', response.status);
+                console.log('Headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Respuesta:', data);
                 if (data.success) {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaCategoriaModal'));
                     modal.hide();
                     setTimeout(() => {
                         window.location.reload();
                     }, 300);
+                } else {
+                    alert(data.message || 'Error al crear la categoría');
                 }
-                // Si hay error, simplemente no hacer nada
             })
             .catch(error => {
-                // Silenciar errores, solo console.log para debugging si es necesario
-                console.log('Error:', error);
+                console.error('Error completo:', error);
+                alert('Error de conexión: ' + error.message);
             });
         }
         
@@ -294,5 +316,294 @@ document.addEventListener('DOMContentLoaded', function() {
                 select.focus();
             });
         }
+    }
+}); 
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables de paginación
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredRows = [];
+    let allRows = [];
+
+    // Elementos del DOM
+    const searchInput = document.querySelector('.search-box input');
+    const orderSelect = document.querySelector('.filter-dropdown select');
+    const tableBody = document.querySelector('.areas-table tbody');
+    
+    // Inicializar paginación
+    initializePagination();
+
+    function initializePagination() {
+        // Obtener todas las filas (excluyendo la fila de "no hay categorías")
+        allRows = Array.from(tableBody.querySelectorAll('tr')).filter(row => {
+            return !row.querySelector('td[colspan]') || row.classList.contains('no-results-row');
+        });
+        
+        filteredRows = [...allRows];
+        
+        // Crear contenedor de paginación
+        createPaginationContainer();
+        
+        // Asegurar que todas las filas estén visibles inicialmente
+       
+
+            // Aplicar estilos de alineación a todas las filas antes de mostrar la primera página
+        allRows.forEach(row => {
+            const actionCell = row.querySelector('.action-cell');
+            if (actionCell) {
+                actionCell.style.textAlign = 'right';
+                actionCell.style.display = 'flex';
+                actionCell.style.justifyContent = 'flex-end';
+                
+                const publishedMessage = actionCell.querySelector('.published-area-message');
+                if (publishedMessage) {
+                    publishedMessage.style.display = 'flex';
+                    publishedMessage.style.justifyContent = 'flex-end';
+                    publishedMessage.style.width = '100%';
+                    publishedMessage.style.marginLeft = '0';
+                }
+            }
+        });
+        
+        // Mostrar primera página
+        showPage(1);
+        
+        // Event listeners
+        setupEventListeners();
+    }
+
+    function createPaginationContainer() {
+        // Verificar si ya existe el contenedor
+        if (document.querySelector('.pagination-container')) {
+            return;
+        }
+
+        const container = document.querySelector('.area-container');
+        const paginationHTML = `
+            <div class="pagination-container">
+                <div class="pagination-controls">
+                    <button id="prevPage" class="pagination-btn" disabled>
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <div id="pageNumbers" class="page-numbers"></div>
+                    <button id="nextPage" class="pagination-btn" disabled>
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="pagination-info">
+                    <span id="paginationInfo">Mostrando 0 de 0 elementos</span>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', paginationHTML);
+    }
+
+    function setupEventListeners() {
+        // Búsqueda
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                filterAndSort();
+                currentPage = 1;
+                showPage(currentPage);
+            });
+        }
+
+        // Ordenamiento
+        if (orderSelect) {
+            orderSelect.addEventListener('change', function() {
+                filterAndSort();
+                currentPage = 1;
+                showPage(currentPage);
+            });
+        }
+
+        // Botones de paginación
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+    }
+
+    function filterAndSort() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const orderBy = orderSelect ? orderSelect.value : '';
+
+        // Filtrar por nombre de categoría
+        filteredRows = allRows.filter(row => {
+            const categoryName = row.querySelector('td:first-child').textContent.toLowerCase();
+            return categoryName.includes(searchTerm);
+        });
+
+        // Ordenar según la opción seleccionada
+        if (orderBy === 'Nivel (A-Z)') {
+            filteredRows.sort((a, b) => {
+                const nameA = a.querySelector('td:first-child').textContent.toLowerCase();
+                const nameB = b.querySelector('td:first-child').textContent.toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+        } else if (orderBy === 'Categoria (Z-A)') {
+            filteredRows.sort((a, b) => {
+                const nameA = a.querySelector('td:first-child').textContent.toLowerCase();
+                const nameB = b.querySelector('td:first-child').textContent.toLowerCase();
+                return nameB.localeCompare(nameA);
+            });
+        } else if (orderBy === 'Fecha de creación') {
+            // Para fecha de creación, usaremos el data-categoria-id como proxy del orden de creación
+            filteredRows.sort((a, b) => {
+                const idA = parseInt(a.getAttribute('data-categoria-id'));
+                const idB = parseInt(b.getAttribute('data-categoria-id'));
+                return idA - idB;
+            });
+        }
+    }
+
+    function showPage(page) {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+
+    // Obtener las filas que deben mostrarse en esta página
+    const pageRows = filteredRows.slice(startIndex, endIndex);
+    
+    // Primero: Restaurar estilos de todas las filas
+    allRows.forEach(row => {
+        row.style.display = 'none';
+        
+        // Aplicar estilos de alineación a todas las filas, no solo a las visibles
+        const actionCell = row.querySelector('.action-cell');
+        if (actionCell) {
+            actionCell.style.textAlign = 'right';
+            actionCell.style.display = 'flex';
+            actionCell.style.justifyContent = 'flex-end';
+            
+            const publishedMessage = actionCell.querySelector('.published-area-message');
+            if (publishedMessage) {
+                publishedMessage.style.display = 'flex';
+                publishedMessage.style.justifyContent = 'flex-end';
+                publishedMessage.style.width = '100%';
+                publishedMessage.style.marginLeft = '0';
+            }
+        }
+    });
+    
+    // Segundo: Mostrar solo las filas de la página actual
+    pageRows.forEach(row => {
+        row.style.display = '';
+    });
+
+    // Manejar mensaje de "no hay resultados"
+    let noDataRow = tableBody.querySelector('.no-results-row');
+    
+    if (filteredRows.length === 0) {
+        if (!noDataRow) {
+            noDataRow = document.createElement('tr');
+            noDataRow.innerHTML = '<td colspan="3" class="text-center">No se encontraron categorías</td>';
+            noDataRow.classList.add('no-results-row');
+            tableBody.appendChild(noDataRow);
+        }
+        noDataRow.style.display = '';
+    } else if (noDataRow) {
+        noDataRow.style.display = 'none';
+    }
+
+    // Actualizar información de paginación
+    updatePaginationInfo(startIndex, endIndex, filteredRows.length);
+    
+    // Actualizar controles de paginación
+    updatePaginationControls(page, totalPages);
+    
+    // Actualizar números de página
+    updatePageNumbers(page, totalPages);
+}
+
+    function updatePaginationInfo(startIndex, endIndex, total) {
+        const paginationInfo = document.getElementById('paginationInfo');
+        if (total === 0) {
+            paginationInfo.textContent = 'No hay elementos para mostrar';
+        } else {
+            const showing = Math.min(endIndex, total);
+            paginationInfo.textContent = `Mostrando ${startIndex + 1}-${showing} de ${total} elementos`;
+        }
+    }
+
+    function updatePaginationControls(page, totalPages) {
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        prevBtn.disabled = page <= 1;
+        nextBtn.disabled = page >= totalPages || totalPages === 0;
+        
+        // Actualizar clases para estilos
+        prevBtn.classList.toggle('disabled', page <= 1);
+        nextBtn.classList.toggle('disabled', page >= totalPages || totalPages === 0);
+    }
+
+    function updatePageNumbers(currentPage, totalPages) {
+        const pageNumbersContainer = document.getElementById('pageNumbers');
+        pageNumbersContainer.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Determinar rango de páginas a mostrar
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        // Ajustar si estamos cerca del inicio o final
+        if (currentPage <= 3) {
+            endPage = Math.min(5, totalPages);
+        }
+        if (currentPage >= totalPages - 2) {
+            startPage = Math.max(1, totalPages - 4);
+        }
+
+        // Botón primera página
+        if (startPage > 1) {
+            createPageButton(1, currentPage, pageNumbersContainer);
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '...';
+                ellipsis.className = 'page-ellipsis';
+                pageNumbersContainer.appendChild(ellipsis);
+            }
+        }
+
+        // Botones de páginas
+        for (let i = startPage; i <= endPage; i++) {
+            createPageButton(i, currentPage, pageNumbersContainer);
+        }
+
+        // Botón última página
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '...';
+                ellipsis.className = 'page-ellipsis';
+                pageNumbersContainer.appendChild(ellipsis);
+            }
+            createPageButton(totalPages, currentPage, pageNumbersContainer);
+        }
+    }
+
+    function createPageButton(pageNum, currentPage, container) {
+        const button = document.createElement('button');
+        button.textContent = pageNum;
+        button.className = `page-btn ${pageNum === currentPage ? 'active' : ''}`;
+        button.addEventListener('click', function() {
+            currentPage = pageNum;
+            showPage(currentPage);
+        });
+        container.appendChild(button);
     }
 });

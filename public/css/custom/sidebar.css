@@ -1,5 +1,9 @@
-
 /* ======= SIDEBAR ======= */
+/* En tu sidebar.css */
+:root {
+    --header-height: 40px; /* Asegúrate que coincida con tu navigation */
+}
+
 .sidebar {
     width: var(--sidebar-width);
     background: var(--color-azul-estatico);
@@ -7,22 +11,77 @@
     position: fixed;
     top: var(--header-height);
     left: 0;
-    height: calc(100vh - var(--header-height) - 50px);
+    bottom: 0;
     overflow-y: auto;
     z-index: 900;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    transition: width 0.3s ease;
 }
+
+.sidebar.collapsed {
+    width: 60px; /* Ancho colapsado */
+}
+
+.sidebar-inner {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.btn-toggle-sidebar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #1a365d;
+    --primary-color: #1a365d;
+    --secondary-color: #2c5282;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-toggle-sidebar:hover {
+    background: var(--color-acento-hover);
+    transform: scale(1.1);
+}
+
+.btn-toggle-sidebar i {
+    transition: transform 0.3s ease;
+}
+
+.sidebar:not(.collapsed) .btn-toggle-sidebar i {
+    transform: rotate(0deg);
+}
+
+
 
 .menu {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
     padding: var(--spacing-md) 0;
+    padding-top: 50px; /* Espacio para el botón toggle */
 }
 
+/* Ajustes para el contenido principal */
 .main-content {
+    margin-left: var(--sidebar-width);
     padding: var(--spacing-md);
+    transition: margin-left 0.3s ease;
+}
+
+/* Contenido principal cuando sidebar está colapsado */
+.main-content.expanded {
+    margin-left: 60px;
 }
 
 .menu-seccion {
@@ -38,11 +97,16 @@
     width: 70%;
     height: 1px;
     background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: all 0.3s ease;
+}
+
+/* Ocultar separadores cuando está colapsado */
+.sidebar.collapsed .menu-seccion:not(:last-child)::after {
+    opacity: 0;
 }
 
 .titulo-menu {
     padding: 6px 12px;
-    /* Reducido */
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     color: var(--gray-light);
@@ -51,8 +115,9 @@
     align-items: center;
     gap: var(--spacing-md);
     margin-bottom: 4px;
-    /* Reducido */
     font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .titulo-menu i {
@@ -60,6 +125,19 @@
     min-width: 24px;
     text-align: center;
     color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+/* Texto del menú */
+.menu-text {
+    transition: opacity 0.3s ease;
+}
+
+/* Ocultar texto cuando está colapsado */
+.sidebar.collapsed .menu-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
 }
 
 .menu ul {
@@ -68,7 +146,6 @@
 
 .menu ul li {
     padding: 6px 12px;
-    /* Reducido de 8px 16px */
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -78,15 +155,27 @@
     text-overflow: ellipsis;
     border-radius: 0 30px 30px 0;
     margin: 2px 0;
-    /* Reducido de 4px 0 */
     margin-right: var(--spacing-md);
     position: relative;
     font-size: var(--font-size-sm);
 }
 
+/* Ajustes para items cuando está colapsado */
+.sidebar.collapsed .menu ul li {
+    justify-content: center;
+    margin-right: 0;
+    border-radius: 8px;
+    margin: 2px 8px;
+}
+
 .menu ul li:hover {
     background-color: rgba(255, 255, 255, 0.1);
     transform: translateX(5px);
+}
+
+/* Hover diferente cuando está colapsado */
+.sidebar.collapsed .menu ul li:hover {
+    transform: scale(1.1);
 }
 
 .menu ul li.active,
@@ -108,6 +197,12 @@
     border-radius: 0 2px 2px 0;
 }
 
+/* Ocultar indicador activo cuando está colapsado */
+.sidebar.collapsed .menu ul li.active::before,
+.sidebar.collapsed .menu ul li a.active::before {
+    display: none;
+}
+
 .menu ul li a {
     display: flex;
     align-items: center;
@@ -117,11 +212,18 @@
     width: 100%;
 }
 
+/* Centrar íconos cuando está colapsado */
+.sidebar.collapsed .menu ul li a {
+    justify-content: center;
+    gap: 0;
+}
+
 .menu ul li i {
     font-size: var(--font-size-md);
     min-width: 24px;
     text-align: center;
     transition: var(--transition-normal);
+    flex-shrink: 0;
 }
 
 .menu ul li:hover i {
@@ -132,4 +234,104 @@
 .menu ul li.active i,
 .menu ul li a.active i {
     color: white;
+}
+
+/* Tooltips para elementos colapsados */
+.sidebar.collapsed .menu ul li {
+    position: relative;
+}
+
+.sidebar.collapsed .menu ul li::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .menu ul li:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Tooltip para títulos de sección */
+.sidebar.collapsed .titulo-menu {
+    position: relative;
+}
+
+.sidebar.collapsed .titulo-menu::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .titulo-menu:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive - Versión mejorada */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 250px;
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    /* Asegurar que el contenido principal ocupe todo el ancho */
+    main {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+    
+    /* Botón de hamburguesa para móviles */
+    .mobile-menu-toggle {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        background: var(--color-acento);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+    
+    /* Ocultar el botón de toggle normal en móviles */
+    .btn-toggle-sidebar {
+        display: none;
+    }
 }

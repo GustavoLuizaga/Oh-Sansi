@@ -2,7 +2,7 @@
 
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="{{ asset('css/faq-chat.css') }}">
+    <link rel="stylesheet" href="/css/faq-chat.css">
 </head>
 <div class="sidebar-derecho">
     <div class="sidebar-derecho-calendario">
@@ -72,7 +72,7 @@
 
     @push('scripts')
     <script src="/js/calendario.js"></script>
-    <script src="{{ asset('js/faq-chat.js') }}"></script>
+    <script src="/js/faq-chat.js"></script>
     @endpush
 
     <script>

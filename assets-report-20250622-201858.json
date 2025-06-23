@@ -1,0 +1,49 @@
+﻿{
+    "Summary":  {
+                    "ProblemFiles":  2,
+                    "AssetsReferences":  0,
+                    "TotalProblems":  4,
+                    "TotalFiles":  526
+                },
+    "Timestamp":  "2025-06-22 20:18:58",
+    "Problems":  [
+                     {
+                         "Extension":  ".php",
+                         "Problems":  [
+                                          {
+                                              "FullLine":  "\u003clink rel=\"stylesheet\" href=\"{{ asset(\u0027css/loginAnimacion.css\u0027) }}\"\u003e",
+                                              "Content":  "{{ asset(\u0027css/",
+                                              "Type":  "Asset helper CSS",
+                                              "Line":  9
+                                          },
+                                          {
+                                              "FullLine":  "\u003cscript src=\"{{ asset(\u0027js/loginAnimacion.js\u0027) }}\"\u003e\u003c/script\u003e",
+                                              "Content":  "{{ asset(\u0027js/",
+                                              "Type":  "Asset helper JS",
+                                              "Line":  29
+                                          }
+                                      ],
+                         "File":  "resources\\views\\auth\\loginAnimacion.blade.php",
+                         "ProblemCount":  2
+                     },
+                     {
+                         "Extension":  ".php",
+                         "Problems":  [
+                                          {
+                                              "FullLine":  "\u003clink rel=\"stylesheet\" href=\"{{ asset(\u0027css/loginAnimacion.css\u0027) }}\"\u003e",
+                                              "Content":  "{{ asset(\u0027css/",
+                                              "Type":  "Asset helper CSS",
+                                              "Line":  9
+                                          },
+                                          {
+                                              "FullLine":  "\u003cscript src=\"{{ asset(\u0027js/loginAnimacion.js\u0027) }}\"\u003e\u003c/script\u003e",
+                                              "Content":  "{{ asset(\u0027js/",
+                                              "Type":  "Asset helper JS",
+                                              "Line":  29
+                                          }
+                                      ],
+                         "File":  "resources\\views\\auth\\loginAnimacion.blade.php",
+                         "ProblemCount":  2
+                     }
+                 ]
+}

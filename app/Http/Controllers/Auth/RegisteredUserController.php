@@ -113,9 +113,9 @@ public function store(Request $request)
     public function storeTutor(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u'],
-            'apellidoPaterno' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u'],
-            'apellidoMaterno' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\s]+$/u'],
+            'apellidoPaterno' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\s]+$/u'],
+            'apellidoMaterno' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\s]+$/u'],
             'ci' => ['required', 'string', 'digits:7', 'unique:users,ci'],
             'fechaNacimiento' => ['required', 'date', function ($attribute, $value, $fail) {
                 if (Carbon::parse($value)->age < 18) {
@@ -124,7 +124,7 @@ public function store(Request $request)
             }],
             'genero' => ['required', 'string', 'in:M,F'],
             'telefono' => ['required', 'string', 'digits:8', 'unique:tutor,telefono'],
-            'profesion' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u'],
+            'profesion' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\s]+$/u'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/i'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'delegacion_tutoria' => ['required', 'integer', 'exists:delegacion,idDelegacion'],

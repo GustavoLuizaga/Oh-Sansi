@@ -31,12 +31,12 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/grados/por-categorias', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'getGradosPorCategorias']);
     Route::get('/usuarios/verificar-ci', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'verificarCI']);
     Route::get('/usuarios/verificar-email', [\App\Http\Controllers\Api\ValidacionInscripcionController::class, 'verificarEmail']);
+    
+    // Ruta para obtener detalles del tutor por convocatoria - Movida dentro del grupo auth:sanctum
+    Route::get('/tutor/convocatoria/{idConvocatoria}/details', 
+        [\App\Http\Controllers\Api\TutorConvocatoriaDetallesController::class, 'getDetails']);
 });
 
-// Temporalmente sin middleware para pruebas
-Route::get('/tutor/convocatoria/{idConvocatoria}/details', 
-    [\App\Http\Controllers\Api\TutorConvocatoriaDetallesController::class, 'getDetails']);
-    
 // Ruta de depuración para probar directamente el controlador 
 Route::get('/debug/tutor/convocatoria/{idConvocatoria}', function($idConvocatoria) {
     // Registrar información de la solicitud

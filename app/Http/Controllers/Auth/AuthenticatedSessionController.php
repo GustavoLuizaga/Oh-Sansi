@@ -29,10 +29,12 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        // Mostrar animación antes de redirigir
+        return response()->view('auth.loginAnimacion', [
+            'redirectTo' => RouteServiceProvider::HOME
+        ]);
     }
 
     /**
@@ -46,7 +48,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

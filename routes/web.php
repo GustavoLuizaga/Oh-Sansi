@@ -9,7 +9,7 @@ use App\Http\Controllers\ConvocatoriaController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ReglamentoController;
 use App\Http\Controllers\Dashboard\DashboardController;
-
+use App\Http\Controllers\TutorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +105,7 @@ require __DIR__ . '/perfil.php';
 require __DIR__ . '/notificaciones.php';
 require __DIR__ . '/backup.php';
 
+
 // Rutas para grupos
 Route::prefix('inscripcion/grupos')->middleware(['auth'])->group(function () {
     Route::get('/', [GrupoController::class, 'index'])->name('inscripcion.grupos');
@@ -118,6 +119,27 @@ Route::prefix('inscripcion/estudiantes')->middleware(['auth'])->group(function (
     Route::get('/', [EstudianteController::class, 'index'])->name('inscripcion.estudiantes');
     Route::get('/{id}', [EstudianteController::class, 'show'])->name('inscripcion.estudiantes.show');
     Route::put('/{id}', [EstudianteController::class, 'update'])->name('inscripcion.estudiantes.update');
+});
+
+// Rutas para la gestión de tutores
+Route::prefix('inscripcion/estudiante')->group(function () {
+    
+    // Ruta temporal para debug
+    Route::get('debug-tutor/{token}', [TutorController::class, 'debugTutor'])
+        ->name('tutor.debug');
+    
+    // Ruta para eliminar tutor por token (DELETE request)
+    Route::delete('informacion/eliminartutor/{token}', [TutorController::class, 'eliminarTutorPorToken'])
+        ->name('tutor.eliminar.token');
+    
+    // Ruta alternativa para POST si prefieres
+    Route::post('informacion/eliminartutor/{token}', [TutorController::class, 'eliminarTutorPorToken'])
+        ->name('tutor.eliminar.token.post');
+    
+    // Ruta para verificar si se puede eliminar un tutor
+    Route::get('verificar-eliminacion-tutor/{token}', [TutorController::class, 'verificarEliminacionTutor'])
+        ->name('tutor.verificar.eliminacion');
+    
 });
 
 Route::prefix('estudiantes')->middleware(['auth'])->group(function () {

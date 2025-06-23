@@ -171,9 +171,12 @@
                         <div class="seccion-body">
                             <div id="tutorContainer">
                                 @foreach ($tutores as $index => $tutor)
-                                <div class="tutor-block">
+                                <div class="tutor-block" data-tutor-token="{{ $tutor['token'] }}">
                                     <div class="tutor-header">
                                         <h3>Delegado {{ $index + 1 }}</h3>
+                                        <button type="button" class="btn-eliminar-tutor" title="Eliminar tutor">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                     <div class="input-grupo">
                                         <label>Token del Delegado</label>

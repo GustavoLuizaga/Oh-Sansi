@@ -418,7 +418,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-//JS que servira para cargar dinamicamente los sleectores de categorias y areas
+
+//JS que servira para cargar dinamicamente los selectores de categorias y areas
 document.addEventListener('DOMContentLoaded', function() 
 {
 const tutorContainer = document.getElementById('tutorContainer');
@@ -434,7 +435,7 @@ document.addEventListener('click', function(e) {
         validateTutorToken(tokenInput);
     } else if (e.target.closest('.btn-eliminar-tutor')) {
         const tutorBlock = e.target.closest('.tutor-block');
-        removeTutorBlock(tutorBlock);
+        eliminarTutor(tutorBlock);
     } else if (e.target.closest('.btn-add-area')) {
         const tutorBlock = e.target.closest('.tutor-block');
         addAreaBlock(tutorBlock);
@@ -534,8 +535,8 @@ function addRemoveButtonToTutor(tutorBlock) {
     tutorHeader.appendChild(removeButton);
 }
 
-// Función para eliminar un bloque de tutor
-function removeTutorBlock(tutorBlock) {
+// Función para eliminar un tutor con solicitud AJAX (actualizada)
+function eliminarTutor(tutorBlock) {
     // Verificar si es el último tutor
     const tutorBlocks = document.querySelectorAll('.tutor-block');
     if (tutorBlocks.length <= 1) {
@@ -543,552 +544,580 @@ function removeTutorBlock(tutorBlock) {
         return;
     }
 
-    tutorBlock.remove();
-    tutorCount--;
+    // Obtener el token del tutor
+    const tokenInput = tutorBlock.querySelector('.tutor-token');
+    const token = tokenInput ? tokenInput.value.trim() : tutorBlock.getAttribute('data-tutor-token');
     
-    // Actualizar los números de los tutores restantes
-    const remainingBlocks = document.querySelectorAll('.tutor-block');
-    remainingBlocks.forEach((block, index) => {
-        block.querySelector('.tutor-header h3').textContent = `Delegado ${index + 1}`;
+    if (!token) {
+        alert('No se pudo obtener el token del tutor. Asegúrese de que el token esté verificado.');
+        return;
+    }
+
+    // Confirmar eliminación
+    if (!confirm('¿Está seguro de que desea eliminar este tutor? Esta acción eliminará todas las inscripciones y datos relacionados.')) {
+        return;
+    }
+
+    // Mostrar indicador de carga
+    const eliminarBtn = tutorBlock.querySelector('.btn-eliminar-tutor');
+    const originalContent = eliminarBtn.innerHTML;
+    eliminarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    eliminarBtn.disabled = true;
+
+    // Realizar solicitud AJAX
+    fetch(`/inscripcion/estudiante/informacion/eliminartutor/${encodeURIComponent(token)}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Eliminar el bloque del tutor del DOM
+            tutorBlock.remove();
+            tutorCount--;
+            
+            // Mostrar el botón de agregar tutor si hay menos de 2
+            if (tutorCount < 2) {
+                addTutorBtn.style.display = 'block';
+            }
+            
+            // Renumerar los tutores restantes
+            renumerarTutores();
+            
+            // Actualizar el estado del botón de agregar tutor
+            updateAddTutorButtonState();
+            
+            // Mostrar mensaje de éxito
+            alert('Tutor eliminado correctamente');
+            
+            // Log para debug
+            console.log('Registros eliminados:', data.data?.registros_eliminados);
+        } else {
+            throw new Error(data.message || 'Error desconocido al eliminar el tutor');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
         
-        // Actualizar los nombres de los campos
-        const categoriaSelect = block.querySelector('.categoria-select');
-        if (categoriaSelect) {
-            categoriaSelect.name = `idCategoria`;
+        let errorMessage = 'Error al eliminar el tutor';
+        if (error.message.includes('404')) {
+            errorMessage = 'Tutor no encontrado. Puede que ya haya sido eliminado.';
+        } else if (error.message.includes('403')) {
+            errorMessage = 'No tiene permisos para eliminar este tutor.';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Error interno del servidor. Intente nuevamente.';
         }
         
-        const gradoSelect = block.querySelector('.grado-select');
-        if (gradoSelect) {
-            gradoSelect.name = `idGrado`;
+        alert(errorMessage);
+    })
+    .finally(() => {
+        // Restaurar botón original
+        if (eliminarBtn) {
+            eliminarBtn.innerHTML = originalContent;
+            eliminarBtn.disabled = false;
         }
     });
-    
-    // Mostrar el botón de agregar tutor si hay menos de 2 tutores
-    if (tutorCount < 2) {
-        addTutorBtn.style.display = 'block';
-    }
 }
 
-// Función para inicializar los manejadores de eventos para verificación de token
-function initializeTokenVerification() {
-    document.querySelectorAll('.btn-verificar-token').forEach(button => {
-        button.addEventListener('click', function() {
-            const tokenInput = this.closest('.token-verification-container').querySelector('.tutor-token');
-            validateTutorToken(tokenInput);
+// Función adicional para verificar si se puede eliminar un tutor
+function verificarEliminacionTutor(token) {
+    return fetch(`/inscripcion/estudiante/verificar-eliminacion-tutor/${encodeURIComponent(token)}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            return {
+                puedeEliminar: data.puede_eliminar,
+                registrosRelacionados: data.registros_relacionados
+            };
+        }
+        throw new Error(data.message);
+    })
+    .catch(error => {
+        console.error('Error al verificar eliminación:', error);
+        return { puedeEliminar: false, error: error.message };
+    });
+}
+
+// Función mejorada para eliminar tutor con verificación previa
+function eliminarTutorConVerificacion(tutorBlock) {
+    const tutorBlocks = document.querySelectorAll('.tutor-block');
+    if (tutorBlocks.length <= 1) {
+        alert('Debe haber al menos un tutor');
+        return;
+    }
+
+    const tokenInput = tutorBlock.querySelector('.tutor-token');
+    const token = tokenInput ? tokenInput.value.trim() : tutorBlock.getAttribute('data-tutor-token');
+    
+    if (!token) {
+        alert('No se pudo obtener el token del tutor');
+        return;
+    }
+
+    // Verificar si se puede eliminar
+    verificarEliminacionTutor(token)
+        .then(result => {
+            if (result.puedeEliminar) {
+                let mensaje = '¿Está seguro de que desea eliminar este tutor?';
+                
+                if (result.registrosRelacionados) {
+                    const { inscripciones, areas } = result.registrosRelacionados;
+                    if (inscripciones > 0 || areas > 0) {
+                        mensaje += `\n\nEsto eliminará:\n- ${inscripciones} inscripción(es)\n- ${areas} área(s) asignada(s)`;
+                    }
+                }
+                
+                if (confirm(mensaje)) {
+                    eliminarTutor(tutorBlock);
+                }
+            } else {
+                alert('No se puede eliminar este tutor: ' + (result.error || 'Razón desconocida'));
+            }
+        })
+        .catch(error => {
+            console.error('Error en verificación:', error);
+            // Proceder con eliminación básica si falla la verificación
+            if (confirm('¿Está seguro de que desea eliminar este tutor?')) {
+                eliminarTutor(tutorBlock);
+            }
+        });
+}
+
+// Función para renumerar tutores después de eliminar uno
+function renumerarTutores() {
+    const tutorBlocks = document.querySelectorAll('.tutor-block');
+    tutorBlocks.forEach((block, index) => {
+        const header = block.querySelector('.tutor-header h3');
+        if (header) {
+            header.textContent = `Tutor ${index + 1}`;
+        }
+        
+        // Actualizar nombres de campos
+        const areaSelects = block.querySelectorAll('.area-select');
+        const categoriaSelects = block.querySelectorAll('.categoria-select');
+        
+        areaSelects.forEach((select, areaIndex) => {
+            select.name = `tutor_areas_${index + 1}_${areaIndex + 1}`;
+        });
+        
+        categoriaSelects.forEach((select, areaIndex) => {
+            select.name = `tutor_categorias_${index + 1}_${areaIndex + 1}`;
         });
     });
 }
 
-function addTutorBlock() {
-    // Verificar si ya hay 2 tutores
-    const existingTutors = document.querySelectorAll('.tutor-block').length;
-    if (existingTutors >= 2) {
-        alert('El máximo de tutores permitidos es 2');
+// Función para inicializar la verificación de tokens
+function initializeTokenVerification() {
+    const tokenInputs = document.querySelectorAll('.tutor-token');
+    tokenInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const button = this.closest('.token-verification-container').querySelector('.btn-verificar-token');
+            if (this.value.trim().length >= 6) {
+                button.style.display = 'inline-block';
+            } else {
+                button.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Función para validar token del tutor
+function validateTutorToken(tokenInput) {
+    const token = tokenInput.value.trim();
+    if (token.length < 6) {
+        alert('El token debe tener al menos 6 caracteres');
+        return;
+    }
+
+    // Mostrar indicador de carga
+    const button = tokenInput.closest('.token-verification-container').querySelector('.btn-verificar-token');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+    button.disabled = true;
+
+    fetch('/inscripcion/estudiante/verificar-token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ token: token })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Token válido, actualizar información del tutor
+            const tutorBlock = tokenInput.closest('.tutor-block');
+            tutorBlock.setAttribute('data-tutor-token', token);
+            
+            // Actualizar información de delegación
+            const delegacionElement = tutorBlock.querySelector('.tutor-delegacion');
+            const delegacionInput = tutorBlock.querySelector('.idDelegacion-input');
+            
+            if (delegacionElement && delegacionInput) {
+                delegacionElement.textContent = data.tutor.colegio.nombre;
+                delegacionInput.value = data.tutor.colegio.id;
+            }
+            
+            // Cargar áreas disponibles
+            loadAreasForTutor(tutorBlock, data.tutor.areas);
+            
+            // Ocultar botón de verificar
+            button.style.display = 'none';
+            tokenInput.readOnly = true;
+            tokenInput.style.backgroundColor = '#e9ecef';
+            
+            alert('Token verificado correctamente');
+        } else {
+            alert('Token inválido: ' + (data.message || 'Token no encontrado'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al verificar el token');
+    })
+    .finally(() => {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    });
+}
+
+// Función para cargar áreas de un tutor
+function loadAreasForTutor(tutorBlock, areas) {
+    const areaSelects = tutorBlock.querySelectorAll('.area-select');
+    
+    areaSelects.forEach(select => {
+        // Limpiar opciones existentes
+        select.innerHTML = '<option value="">Seleccione un área</option>';
+        
+        // Agregar nuevas opciones
+        areas.forEach(area => {
+            const option = document.createElement('option');
+            option.value = area.id;
+            option.textContent = area.nombre;
+            select.appendChild(option);
+        });
+    });
+}
+
+// Función para cargar categorías basadas en el área seleccionada
+function loadCategorias(areaSelect) {
+    const areaId = areaSelect.value;
+    const categoriaSelect = areaSelect.closest('.info-row').querySelector('.categoria-select');
+    
+    if (!areaId) {
+        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
         return;
     }
     
-    const tutorBlock = document.querySelector('.tutor-block').cloneNode(true);
-    
-    // Limpiar todos los campos
-    tutorBlock.querySelectorAll('input, select').forEach(input => {
-        input.value = '';
-        if (input.classList.contains('categoria-select') || input.classList.contains('grado-select')) {
-            input.disabled = true;
+    // Realizar petición AJAX para obtener categorías
+    fetch(`/inscripcion/estudiante/categorias/${areaId}`)
+    .then(response => response.json())
+    .then(data => {
+        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
+        
+        if (data.success && data.categorias) {
+            data.categorias.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria.id;
+                option.textContent = categoria.nombre;
+                categoriaSelect.appendChild(option);
+            });
         }
+    })
+    .catch(error => {
+        console.error('Error al cargar categorías:', error);
+        categoriaSelect.innerHTML = '<option value="">Error al cargar categorías</option>';
     });
+}
+
+// Función para cargar grados basados en la categoría seleccionada
+function loadGrados(categoriaSelect) {
+    const categoriaId = categoriaSelect.value;
+    const gradoSelect = document.getElementById('idGrado');
     
-    // Resetear el estado del token
-    const statusElement = tutorBlock.querySelector('.token-status');
-    if (statusElement) {
-        statusElement.textContent = '';
-        statusElement.className = 'token-status';
+    if (!categoriaId) {
+        return;
     }
     
-    // Ocultar la información del tutor hasta que se valide el token
-    tutorBlock.querySelector('.tutor-info').style.display = 'none';
-    
-    // Actualizar el título del tutor
-    tutorBlock.querySelector('.tutor-header h3').textContent = `Delegado ${tutorCount}`;
-    
-    // Asegurarse de que los nombres de los campos sean únicos para cada tutor
-    const categoriaSelect = tutorBlock.querySelector('.categoria-select');
-    if (categoriaSelect) {
-        categoriaSelect.name = `idCategoria_${tutorCount}`;
-    }
-    
-    const gradoSelect = tutorBlock.querySelector('.grado-select');
-    if (gradoSelect) {
-        gradoSelect.name = `idGrado_${tutorCount}`;
-    }
-    
-    // Actualizar los nombres de los campos de área y categoría para el nuevo tutor
-    const tutorAreaBlocks = tutorBlock.querySelectorAll('.area-block');
-    tutorAreaBlocks.forEach((areaBlock, areaIndex) => {
-        const areaSelect = areaBlock.querySelector('.area-select');
-        const categoriaSelect = areaBlock.querySelector('.categoria-select');
-        if (areaSelect && categoriaSelect) {
-            areaSelect.name = `tutor_areas_${tutorCount}_${areaIndex + 1}`;
-            categoriaSelect.name = `tutor_categorias_${tutorCount}_${areaIndex + 1}`;
+    // Realizar petición AJAX para obtener grados compatibles
+    fetch(`/inscripcion/estudiante/grados/${categoriaId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.grados) {
+            // Filtrar opciones del select de grado
+            const options = gradoSelect.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === '') return; // Mantener opción vacía
+                
+                const isCompatible = data.grados.some(grado => grado.nombre === option.value);
+                option.style.display = isCompatible ? 'block' : 'none';
+                
+                if (!isCompatible && option.selected) {
+                    gradoSelect.value = '';
+                }
+            });
         }
+    })
+    .catch(error => {
+        console.error('Error al cargar grados:', error);
     });
+}
+
+// Función para agregar un nuevo bloque de tutor
+function addTutorBlock() {
+    const newTutorHtml = `
+        <div class="tutor-block">
+            <div class="tutor-header">
+                <h3>Tutor ${tutorCount}</h3>
+                <button type="button" class="btn-eliminar-tutor" title="Eliminar tutor">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="input-grupo">
+                <label>Token del Tutor</label>
+                <div class="input-with-icon token-verification-container">
+                    <input 
+                        type="text" 
+                        class="tutor-token" 
+                        name="tutor_tokens[]"
+                        placeholder="Token del Tutor" 
+                        required
+                    >
+                    <button type="button" class="btn-verificar-token" style="display: none;">
+                        <i class="fas fa-check-circle"></i> Verificar
+                    </button>
+                </div>
+            </div>
+            <div class="tutor-info">
+                <div class="info-row">
+                    <div class="info-group">
+                        <label>Delegación</label>
+                        <div class="info-value tutor-delegacion">
+                            No verificado
+                        </div>
+                        <input 
+                            type="hidden" 
+                            class="idDelegacion-input" 
+                            name="tutor_delegaciones[]"
+                        >
+                    </div>
+                </div>
+                
+                <div class="areas-container">
+                    <div class="area-block">
+                        <div class="info-row">
+                            <div class="info-group">
+                                <label>Área</label>
+                                <select 
+                                    class="area-select" 
+                                    name="tutor_areas_${tutorCount}_1" 
+                                    required
+                                >
+                                    <option value="">Seleccione un área</option>
+                                </select>
+                            </div>
+                            <div class="input-grupo">
+                                <label>Categoría</label>
+                                <select 
+                                    class="categoria-select" 
+                                    name="tutor_categorias_${tutorCount}_1" 
+                                    required
+                                >
+                                    <option value="">Seleccione una categoría</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn-eliminar-area" title="Eliminar área">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-add-area">
+                    <i class="fas fa-plus"></i> Agregar Área
+                </button>
+            </div>
+        </div>
+    `;
     
-    // Resetear el botón de verificación
-    const verifyButton = tutorBlock.querySelector('.btn-verificar-token');
-    if (verifyButton) {
-        verifyButton.innerHTML = '<i class="fas fa-check-circle"></i> Verificar';
-        verifyButton.disabled = false;
-    }
+    tutorContainer.insertAdjacentHTML('beforeend', newTutorHtml);
     
-    // Añadir el botón de eliminar al nuevo tutor
-    addRemoveButtonToTutor(tutorBlock);
-    
-    // Limpiar cualquier área adicional que pudiera haber en el tutor clonado
-    const areasContainer = tutorBlock.querySelector('.areas-container');
-    const areaBlocks = areasContainer.querySelectorAll('.area-block');
-    
-    // Mantener solo el primer bloque de área y eliminar los demás
-    if (areaBlocks.length > 1) {
-        for (let i = 1; i < areaBlocks.length; i++) {
-            areaBlocks[i].remove();
-        }
-    }
-    
-    // Añadir el nuevo bloque al contenedor
-    tutorContainer.appendChild(tutorBlock);
-    
-    // Asegurarse de que el botón de agregar tutor se muestre correctamente
-    if (tutorCount < 2) {
-        addTutorBtn.style.display = 'block';
-    } else {
-        addTutorBtn.style.display = 'none';
-    }
-    
-    // Inicializar los manejadores de eventos para el nuevo tutor
-    initializeTokenVerification();
-    
-    // Inicializar el contador de áreas para este tutor
+    // Inicializar contador de áreas para el nuevo tutor
     areaCount[tutorCount] = 1;
+    
+    // Inicializar verificación de token para el nuevo tutor
+    initializeTokenVerification();
 }
 
 // Función para agregar un nuevo bloque de área
 function addAreaBlock(tutorBlock) {
-    // Verificar el número total de áreas en todos los tutores
-    const totalAreas = document.querySelectorAll('.area-block').length;
+    const tutorIndex = Array.from(tutorContainer.children).indexOf(tutorBlock) + 1;
+    const areasContainer = tutorBlock.querySelector('.areas-container');
+    const currentAreas = areasContainer.querySelectorAll('.area-block').length;
     
-    // Limitar a un máximo de 2 áreas en total para la inscripción
-    if (totalAreas >= 2) {
-        alert('El máximo de áreas por inscripción es 2');
+    if (currentAreas >= 2) {
+        alert('Máximo 2 áreas por tutor');
         return;
     }
     
-    // Verificar si ya hay áreas seleccionadas y obtener sus valores
-    const selectedAreas = [];
-    document.querySelectorAll('.area-select').forEach(select => {
-        if (select.value) {
-            selectedAreas.push(select.value);
-        }
-    });
+    const newAreaIndex = currentAreas + 1;
     
-    // Obtener el índice del tutor
-    const tutorIndex = parseInt(tutorBlock.querySelector('.tutor-header h3').textContent.replace('Delegado ', ''));
+    const newAreaHtml = `
+        <div class="area-block">
+            <div class="info-row">
+                <div class="info-group">
+                    <label>Área</label>
+                    <select 
+                        class="area-select" 
+                        name="tutor_areas_${tutorIndex}_${newAreaIndex}" 
+                        required
+                    >
+                        <option value="">Seleccione un área</option>
+                    </select>
+                </div>
+                <div class="input-grupo">
+                    <label>Categoría</label>
+                    <select 
+                        class="categoria-select" 
+                        name="tutor_categorias_${tutorIndex}_${newAreaIndex}" 
+                        required
+                    >
+                        <option value="">Seleccione una categoría</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-eliminar-area" title="Eliminar área">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
     
-    // Inicializar el contador si no existe
-    if (!areaCount[tutorIndex]) {
-        areaCount[tutorIndex] = 1;
-    }
+    areasContainer.insertAdjacentHTML('beforeend', newAreaHtml);
     
-    // Incrementar el contador de áreas
-    areaCount[tutorIndex]++;
+    // Actualizar contador de áreas
+    areaCount[tutorIndex] = newAreaIndex;
     
-    // Clonar el primer bloque de área
-    const areasContainer = tutorBlock.querySelector('.areas-container');
-    const firstAreaBlock = areasContainer.querySelector('.area-block');
-    const newAreaBlock = firstAreaBlock.cloneNode(true);
-    
-    // Limpiar los campos
-    newAreaBlock.querySelectorAll('select').forEach(select => {
-        select.value = '';
-        if (select.classList.contains('categoria-select')) {
-            select.disabled = true;
-            select.innerHTML = '<option value="">Seleccione una categoría</option>';
-        }
-    });
-    
-    // Filtrar las opciones de área para eliminar las ya seleccionadas
-    const areaSelect = newAreaBlock.querySelector('.area-select');
-    const optionsToRemove = [];
-    
-    // Identificar las opciones que deben ser eliminadas (áreas ya seleccionadas)
-    for (let i = 0; i < areaSelect.options.length; i++) {
-        const option = areaSelect.options[i];
-        if (option.value && selectedAreas.includes(option.value)) {
-            optionsToRemove.push(i);
-        }
-    }
-    
-    // Eliminar las opciones de atrás hacia adelante para no afectar los índices
-    for (let i = optionsToRemove.length - 1; i >= 0; i--) {
-        areaSelect.remove(optionsToRemove[i]);
-    }
-    
-    // Agregar botón de eliminar si no existe
-    if (!newAreaBlock.querySelector('.btn-eliminar-area')) {
-        const areaRow = newAreaBlock.querySelector('.info-row');
-        const removeButton = document.createElement('button');
-        removeButton.type = 'button';
-        removeButton.className = 'btn-eliminar-area';
-        removeButton.innerHTML = '<i class="fas fa-trash"></i>';
-        removeButton.title = 'Eliminar área';
-        areaRow.appendChild(removeButton);
-    }
-    
-    // Actualizar los nombres de los campos para que sean únicos
-    const categoriaSelect = newAreaBlock.querySelector('.categoria-select');
-    
-    areaSelect.name = `tutor_areas_${tutorIndex}_${areaCount[tutorIndex]}`;
-    categoriaSelect.name = `tutor_categorias_${tutorIndex}_${areaCount[tutorIndex]}`;
-    
-    // Insertar el nuevo bloque antes del botón de agregar área
-    areasContainer.insertBefore(newAreaBlock, areasContainer.querySelector('.btn-add-area'));
-    
-    // Si ya hay 2 áreas en total, ocultar todos los botones de agregar área
-    if (document.querySelectorAll('.area-block').length >= 2) {
-        document.querySelectorAll('.btn-add-area').forEach(btn => {
-            btn.style.display = 'none';
-        });
+    // Si el tutor ya está verificado, cargar las áreas disponibles
+    const token = tutorBlock.getAttribute('data-tutor-token');
+    if (token) {
+        // Recargar áreas para el nuevo select
+        loadAreasFromToken(tutorBlock, token);
     }
 }
 
 // Función para eliminar un bloque de área
 function removeAreaBlock(areaBlock) {
-    const areasContainer = areaBlock.closest('.areas-container');
-    const areaBlocks = areasContainer.querySelectorAll('.area-block');
+    const tutorBlock = areaBlock.closest('.tutor-block');
+    const areasContainer = tutorBlock.querySelector('.areas-container');
+    const areas = areasContainer.querySelectorAll('.area-block');
     
-    // Verificar si es el último bloque de área
-    if (areaBlocks.length <= 1) {
-        alert('Debe haber al menos un área');
+    if (areas.length <= 1) {
+        alert('Debe haber al menos un área por tutor');
         return;
     }
     
-    // Guardar el valor del área que se va a eliminar para actualizar los otros selectores
-    const areaSelect = areaBlock.querySelector('.area-select');
-    const areaValue = areaSelect.value;
-    
-    // Eliminar el bloque
     areaBlock.remove();
     
-    // Mostrar todos los botones de agregar área si hay menos de 2 áreas en total
-    if (document.querySelectorAll('.area-block').length < 2) {
-        document.querySelectorAll('.btn-add-area').forEach(btn => {
-            btn.style.display = 'block';
-        });
-    }
-    
-    // Actualizar el selector de grado común
-    const categoriaSelects = document.querySelectorAll('.categoria-select');
-    if (categoriaSelects.length > 0 && categoriaSelects[0].value) {
-        loadGrados(categoriaSelects[0]);
-    } else {
-        // Si no hay categorías seleccionadas, deshabilitar el selector de grado
-        const gradoSelectCommon = document.querySelector('.grado-select-common');
-        gradoSelectCommon.innerHTML = '<option value="">Seleccione una categoría primero</option>';
-        gradoSelectCommon.disabled = true;
-    }
-    
-    // Si se eliminó un área con valor, actualizar los otros selectores para que muestren esa área
-    if (areaValue) {
-        document.querySelectorAll('.area-select').forEach(select => {
-            // Verificar si ya existe la opción
-            let optionExists = false;
-            for (let i = 0; i < select.options.length; i++) {
-                if (select.options[i].value === areaValue) {
-                    optionExists = true;
-                    break;
-                }
-            }
-            
-            // Si no existe, agregar la opción
-            if (!optionExists) {
-                // Buscar el nombre del área en otro selector que tenga todas las opciones
-                const allAreasSelect = document.querySelector('.area-select');
-                let areaName = '';
-                for (let i = 0; i < allAreasSelect.options.length; i++) {
-                    if (allAreasSelect.options[i].value === areaValue) {
-                        areaName = allAreasSelect.options[i].text;
-                        break;
-                    }
-                }
-                
-                if (areaName) {
-                    const newOption = new Option(areaName, areaValue);
-                    select.add(newOption);
-                }
-            }
-        });
-    }
+    // Renumerar áreas restantes
+    renumerarAreas(tutorBlock);
 }
 
-// Función para mostrar el estado del token
-function showTokenStatus(tokenInput, isValid, message) {
-    const tutorBlock = tokenInput.closest('.tutor-block');
-    const statusElement = tutorBlock.querySelector('.token-status');
+// Función para renumerar áreas después de eliminar una
+function renumerarAreas(tutorBlock) {
+    const tutorIndex = Array.from(tutorContainer.children).indexOf(tutorBlock) + 1;
+    const areaBlocks = tutorBlock.querySelectorAll('.area-block');
     
-    statusElement.textContent = message;
-    statusElement.className = 'token-status ' + (isValid ? 'valid' : 'invalid');
-    
-    if (!isValid) {
-        tutorBlock.querySelector('.tutor-info').style.display = 'none';
-    }
-}
-
-// Función para validar el token del tutor (simulada)
-function validateTutorToken(input) {
-    const token = input.value.trim();
-    const tutorBlock = input.closest('.tutor-block');
-    const statusElement = tutorBlock.querySelector('.token-status');
-    const verifyButton = tutorBlock.querySelector('.btn-verificar-token');
-    
-    if (!token) {
-        showTokenStatus(input, false, 'Por favor, ingrese un token');
-        return;
-    }
-    
-    // Simular validación (en un caso real, esto sería una llamada al servidor)
-    verifyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
-    verifyButton.disabled = true;
-    
-    // Simular retardo de red
-    setTimeout(() => {
-        // Simular respuesta exitosa (en un caso real, esto vendría del servidor)
-        const isValidToken = token.length >= 6; // Simulación simple
+    areaBlocks.forEach((block, index) => {
+        const areaSelect = block.querySelector('.area-select');
+        const categoriaSelect = block.querySelector('.categoria-select');
         
-        if (isValidToken) {
-            statusElement.textContent = 'Token válido (simulado)';
-            statusElement.classList.remove('invalid');
-            statusElement.classList.add('valid');
-            
-            // Simular datos del tutor
-            const tutorData = {
-                valid: true,
-                delegacion: 'Delegación Simulada',
-                idDelegacion: 1,
-                area: 'Área Simulada',
-                idArea: 1
-            };
-            
-            displayTutorInfo(tutorBlock, tutorData);
-        } else {
-            statusElement.textContent = 'Token no válido (simulado)';
-            statusElement.classList.remove('valid');
-            statusElement.classList.add('invalid');
-            tutorBlock.querySelector('.tutor-info').style.display = 'none';
+        if (areaSelect) {
+            areaSelect.name = `tutor_areas_${tutorIndex}_${index + 1}`;
         }
-        
-        verifyButton.innerHTML = '<i class="fas fa-check-circle"></i> Verificar';
-        verifyButton.disabled = false;
-    }, 1000);
-}
-
-function displayTutorInfo(tutorBlock, data) {
-    const tutorInfo = tutorBlock.querySelector('.tutor-info');
-    tutorInfo.style.display = 'block';
-    
-    // Mostrar información de la delegación
-    tutorBlock.querySelector('.tutor-delegacion').textContent = data.delegacion;
-    
-    // Guardar el área del tutor en un campo oculto (para referencia)
-    tutorBlock.querySelector('.tutor-area-hidden').value = data.area;
-    
-    // Actualizar los campos ocultos con los IDs
-    tutorBlock.querySelector('.idDelegacion-input').value = data.idDelegacion;
-    
-    // Seleccionar por defecto el área del tutor en el desplegable
-    const areaSelect = tutorBlock.querySelector('.area-select');
-    if (areaSelect) {
-        const options = areaSelect.options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].value == data.idArea) {
-                options[i].selected = true;
-                break;
-            }
-        }
-        
-        // Cargar las categorías para el área seleccionada
-        loadCategorias(areaSelect);
-    }
-}
-
-// Función para cargar las categorías según el área seleccionada (simulada)
-function loadCategorias(areaSelect) {
-    const areaId = areaSelect.value;
-    const tutorBlock = areaSelect.closest('.tutor-block');
-    const areaBlock = areaSelect.closest('.area-block');
-    const categoriaSelect = areaBlock.querySelector('.categoria-select');
-    
-    // Verificar si el área ya está seleccionada en otro bloque
-    if (areaId) {
-        const otherAreaSelects = document.querySelectorAll('.area-select');
-        for (const otherSelect of otherAreaSelects) {
-            if (otherSelect !== areaSelect && otherSelect.value === areaId) {
-                alert('Esta área ya ha sido seleccionada. Por favor, elija otra área.');
-                areaSelect.value = '';
-                categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
-                categoriaSelect.disabled = true;
-                return;
-            }
-        }
-    }
-    
-    // Resetear y deshabilitar el selector de categorías si no hay área seleccionada
-    if (!areaId) {
-        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
-        categoriaSelect.disabled = true;
-        return;
-    }
-    
-    // Mostrar estado de carga
-    categoriaSelect.innerHTML = '<option value="">Cargando categorías...</option>';
-    categoriaSelect.disabled = true;
-    
-    // Simular retardo de red
-    setTimeout(() => {
-        // Simular datos de categorías (en un caso real, esto vendría del servidor)
-        const categoriasSimuladas = [
-            { idCategoria: 1, nombre: 'Categoría 1' },
-            { idCategoria: 2, nombre: 'Categoría 2' }
-        ];
-        
-        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>';
-        
-        categoriasSimuladas.forEach(categoria => {
-            categoriaSelect.innerHTML += `<option value="${categoria.idCategoria}">${categoria.nombre}</option>`;
-        });
-        
-        categoriaSelect.disabled = false;
-    }, 500);
-}
-
-// Función para cargar los grados según las categorías seleccionadas (simulada)
-function loadGrados(categoriaSelect) {
-    const categoriaId = categoriaSelect.value;
-    const tutorBlock = categoriaSelect.closest('.tutor-block');
-    const areaBlock = categoriaSelect.closest('.area-block');
-    const areaSelect = areaBlock.querySelector('.area-select');
-    
-    // Obtener el selector de grado común
-    const gradoSelectCommon = document.querySelector('.grado-select-common');
-    
-    // Actualizar el estado del botón de agregar tutor
-    updateAddTutorButtonState();
-    
-    // Recopilar todas las categorías seleccionadas
-    const selectedCategorias = [];
-    document.querySelectorAll('.categoria-select').forEach(select => {
-        if (select.value) {
-            selectedCategorias.push(select.value);
+        if (categoriaSelect) {
+            categoriaSelect.name = `tutor_categorias_${tutorIndex}_${index + 1}`;
         }
     });
     
-    // Si no hay categorías seleccionadas, deshabilitar el selector de grados
-    if (selectedCategorias.length === 0) {
-        gradoSelectCommon.innerHTML = '<option value="">Seleccione una categoría primero</option>';
-        gradoSelectCommon.disabled = true;
-        return;
-    }
-    
-    // Mostrar estado de carga
-    gradoSelectCommon.innerHTML = '<option value="">Cargando grados...</option>';
-    gradoSelectCommon.disabled = true;
-    
-    // Simular retardo de red
-    setTimeout(() => {
-        // Simular datos de grados (en un caso real, esto vendría del servidor)
-        const gradosSimulados = [
-            { id: 1, nombre: 'Grado 1' },
-            { id: 2, nombre: 'Grado 2' }
-        ];
-        
-        gradoSelectCommon.innerHTML = '<option value="">Seleccione un grado</option>';
-        
-        gradosSimulados.forEach(grado => {
-            gradoSelectCommon.innerHTML += `<option value="${grado.id}">${grado.nombre}</option>`;
-        });
-        
-        // Habilitar el selector de grados común
-        gradoSelectCommon.disabled = false;
-    }, 500);
+    // Actualizar contador
+    areaCount[tutorIndex] = areaBlocks.length;
 }
 
+// Función para cargar áreas desde token
+function loadAreasFromToken(tutorBlock, token) {
+    fetch(`/inscripcion/estudiante/tutor-areas/${token}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.areas) {
+            loadAreasForTutor(tutorBlock, data.areas);
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar áreas del tutor:', error);
+    });
+}
+
+// Función de validación del formulario
 function validateForm(event) {
     event.preventDefault();
-
-    // Validar número de contacto
-    const numeroContacto = document.querySelector('input[name="numeroContacto"]');
-    if (!numeroContacto || !numeroContacto.value || numeroContacto.value.length !== 8) {
-        alert('Debe ingresar un número de contacto válido de 8 dígitos');
-        return false;
-    }
-
-    // Validar tutores
-    const tutorBlocks = document.querySelectorAll('.tutor-block');
-    let validTutorFound = false;
-    let totalValidAreas = 0;
     
-    for (const tutorBlock of tutorBlocks) {
-        const tokenInput = tutorBlock.querySelector('.tutor-token');
-        const tutorInfo = tutorBlock.querySelector('.tutor-info');
-        
-        // Verificar si el tutor tiene un token válido y su información está visible
-        if (tokenInput.value.trim() !== '' && tutorInfo.style.display !== 'none') {
-            // Validar que cada tutor tenga al menos un área y categoría seleccionada
-            const areaBlocks = tutorBlock.querySelectorAll('.area-block');
-            let validAreaFound = false;
-            
-            for (const areaBlock of areaBlocks) {
-                const areaSelect = areaBlock.querySelector('.area-select');
-                const categoriaSelect = areaBlock.querySelector('.categoria-select');
-                
-                if (areaSelect.value && categoriaSelect.value) {
-                    validAreaFound = true;
-                    totalValidAreas++;
-                }
-            }
-            
-            if (!validAreaFound) {
-                alert('Cada tutor debe tener al menos un área y categoría seleccionada');
-                return false;
-            }
-            
-            validTutorFound = true;
+    // Validar que todos los campos requeridos estén llenos
+    const requiredFields = document.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.style.borderColor = '#dc3545';
+        } else {
+            field.style.borderColor = '';
         }
-    }
-
-    if (!validTutorFound) {
-        alert('Debe tener al menos un tutor válido para continuar');
-        return false;
+    });
+    
+    // Validar que cada tutor tenga al menos un área
+    const tutorBlocks = document.querySelectorAll('.tutor-block');
+    tutorBlocks.forEach(block => {
+        const areaSelects = block.querySelectorAll('.area-select');
+        let hasValidArea = false;
+        
+        areaSelects.forEach(select => {
+            if (select.value) {
+                hasValidArea = true;
+            }
+        });
+        
+        if (!hasValidArea) {
+            isValid = false;
+            alert('Cada tutor debe tener al menos un área seleccionada');
+        }
+    });
+    
+    if (isValid) {
+        // Enviar formulario
+        document.getElementById('inscriptionForm').submit();
+    } else {
+        alert('Por favor, complete todos los campos requeridos');
     }
     
-    // Validar el número total de áreas (máximo 2)
-    if (totalValidAreas > 2) {
-        alert('El máximo de áreas por inscripción es 2');
-        return false;
-    } else if (totalValidAreas === 0) {
-        alert('Debe seleccionar al menos un área para la inscripción');
-        return false;
-    }
-
-    // Validar grado común
-    const gradoComun = document.querySelector('select[name="idGrado"]');
-    if (!gradoComun || !gradoComun.value) {
-        alert('Debe seleccionar un grado');
-        return false;
-    }
-
-    // Si todo está validado, enviar el formulario
-    document.getElementById('inscriptionForm').submit();
-    return true;
+    return false;
 }
-
 // Inicializar el contador de áreas para el primer tutor
-areaCount[1] = 1;
+
 });

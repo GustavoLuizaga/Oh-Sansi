@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenida OH SANSI</title>
-    <link rel="stylesheet" href="{{ asset('css/loginAnimacion.css') }}">
+    <link rel="stylesheet" href="/css/loginAnimacion.css">
 </head>
 <body>
     <div id="welcome-animation" style="display:flex; position:fixed; inset:0; z-index:9999; background:#111;">
@@ -26,7 +26,7 @@
             <div class="loading-bar" id="loadingBar"></div>
         </div>
     </div>
-    <script src="{{ asset('js/loginAnimacion.js') }}"></script>
+    <script src="/js/loginAnimacion.js"></script>
     <script>
         // Redirigir automáticamente después de la animación
         setTimeout(function() {

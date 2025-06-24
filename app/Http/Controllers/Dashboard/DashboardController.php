@@ -25,7 +25,7 @@ class DashboardController extends Controller
             case 'Tutor':
                 return view('dashboardTutor');
             default:
-                return view('dashboard', compact('totalDelegaciones')); // Vista por defecto
+                return view('dashboardDefault'); // Vista por defecto
         }
     }
 

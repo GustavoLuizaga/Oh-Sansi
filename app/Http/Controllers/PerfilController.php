@@ -15,7 +15,7 @@ class PerfilController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $user = User::find(Auth::id());
         return view('perfil.perfil', compact('user'));
     }
 
@@ -24,7 +24,7 @@ class PerfilController extends Controller
      */
     public function update(Request $request)
     {
-        $user = Auth::user();
+        $user = User::find(Auth::id());
         
         $request->validate([
             'name' => 'required|string|max:255',
@@ -36,10 +36,11 @@ class PerfilController extends Controller
             'genero' => 'nullable|in:M,F,O',
         ]);
 
-        $user->update($request->only([
+        $user->fill($request->only([
             'name', 'email', 'apellidoPaterno', 'apellidoMaterno',
             'ci', 'fechaNacimiento', 'genero'
         ]));
+        $user->save();
 
         return redirect()->route('perfil.index')->with('success', 'Perfil actualizado correctamente');
     }
@@ -62,7 +63,12 @@ class PerfilController extends Controller
         }
 
         $user->password = Hash::make($request->password);
-        $user->save();
+
+        if ($user instanceof \App\Models\User) {
+            $user->save();
+        } else {
+            return back()->withErrors(['user' => 'Usuario no encontrado o inválido']);
+        }
 
         return redirect()->route('perfil.index')->with('success', 'Contraseña actualizada correctamente');
     }

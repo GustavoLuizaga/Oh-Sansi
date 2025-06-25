@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         console.log('CSRF Token disponible:', !!csrfToken);
 
-        // Incluir credenciales (cookies) y headers necesarios        // Obtener la URL base actual (para manejar subdirectorios en caso de que existan)
+        // Obtener la URL base actual (para manejar subdirectorios en caso de que existan)
         const baseUrl = window.location.pathname.startsWith('/oh-sansi') ? '/oh-sansi' : '';
 
         // Construir la URL completa para la API
@@ -57,13 +57,18 @@ document.addEventListener('DOMContentLoaded', function () {
             credentials: 'same-origin', // Incluye las cookies en la solicitud
             headers: {
                 'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-                // Removido el token CSRF ya que en GET no es necesario
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken // Incluir el token CSRF para autenticación
             }
         })
             .then(response => {
                 console.log('Respuesta recibida:', response.status);
                 if (!response.ok) {
+                    // Si el error es de autenticación (401), mostrar mensaje específico
+                    if (response.status === 401) {
+                        throw new Error('No está autenticado. Por favor, inicie sesión nuevamente.');
+                    }
                     return response.text().then(text => {
                         let errorMsg = `Error ${response.status}: `;
                         try {
@@ -125,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="empty-state">
                         <i class="fas fa-exclamation-circle text-danger"></i>
                         <p>Error al cargar los datos</p>
-                        <p class="text-muted">Por favor, intente nuevamente</p>
+                        <p class="text-muted">${errorMessage}</p>
                         <div class="mt-3">
                             <button class="btn btn-sm btn-outline-danger" 
                                 onclick="document.getElementById('error-details').style.display=document.getElementById('error-details').style.display==='none'?'block':'none'">
@@ -193,7 +198,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     html += `
                         <div class="categoria-item">
                             <span class="categoria-name"><i class="fas fa-tag"></i> ${categoria.nombre}:</span>
-                    `;                    // Si hay grados para esta categoría, usar el nuevo contenedor
+                    `;
+                    // Si hay grados para esta categoría, usar el nuevo contenedor
                     if (categoria.grados && categoria.grados.length > 0) {
                         html += '<div class="grados-container">';
                         

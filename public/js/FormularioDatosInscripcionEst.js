@@ -458,29 +458,81 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(errorMsg);
             }
             
-            // Manejar éxito
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success';
-            alertDiv.textContent = data.message;
+            // *** ADAPTACIÓN DEL IF DE ÉXITO ***
+            // Cerrar el modal
+            const modal = document.getElementById('SubirComprobantePago');
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+            
+            // Solo guardar en sessionStorage si hubo corrección manual del usuario
+            // (cuando el usuario ingresó manualmente el número de comprobante)
+            if (correccionManual && correccionManual.length === 7) {
+                // Solo aquí guardamos en sessionStorage porque hubo intervención manual del usuario
+                sessionStorage.setItem('comprobanteSubidoExitoEstudiante', 'true');
+                
+                // Mostrar alerta de éxito con mensaje específico para corrección manual
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.style.position = 'fixed';
+                alertDiv.style.top = '20px';
+                alertDiv.style.right = '20px';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.style.padding = '15px 25px';
+                alertDiv.style.borderRadius = '5px';
+                alertDiv.style.backgroundColor = '#d4edda';
+                alertDiv.style.color = '#155724';
+                alertDiv.style.border = '1px solid #c3e6cb';
+                alertDiv.innerHTML = '<strong>¡Éxito!</strong> Tu comprobante se pasará a revisión por parte del admin.';
 
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'alert-close';
-            closeBtn.innerHTML = '×';
-            closeBtn.onclick = () => {
-                alertDiv.remove();
-                window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
-            };
-            alertDiv.appendChild(closeBtn);
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'btn-close';
+                closeBtn.style.position = 'absolute';
+                closeBtn.style.top = '5px';
+                closeBtn.style.right = '10px';
+                closeBtn.style.border = 'none';
+                closeBtn.style.background = 'transparent';
+                closeBtn.style.fontSize = '18px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.innerHTML = '×';
+                closeBtn.onclick = () => {
+                    alertDiv.remove();
+                    window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
+                };
+                alertDiv.appendChild(closeBtn);
 
-            document.body.appendChild(alertDiv);
+                document.body.appendChild(alertDiv);
 
-            setTimeout(() => {
-                alertDiv.style.opacity = '0';
+                // Redirigir después de 3 segundos
                 setTimeout(() => {
                     alertDiv.remove();
                     window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
-                }, 300);
-            }, 5000);
+                }, 3000);
+                
+            } else {
+                // Si fue procesamiento automático (OCR exitoso sin corrección manual)
+                // NO guardamos en sessionStorage, solo mostramos mensaje breve
+                const mensajeDiv = document.createElement('div');
+                mensajeDiv.className = 'alert alert-success';
+                mensajeDiv.textContent = 'Comprobante procesado exitosamente.';
+                mensajeDiv.style.position = 'fixed';
+                mensajeDiv.style.top = '20px';
+                mensajeDiv.style.right = '20px';
+                mensajeDiv.style.zIndex = '9999';
+                mensajeDiv.style.padding = '10px 20px';
+                mensajeDiv.style.borderRadius = '5px';
+                mensajeDiv.style.backgroundColor = '#d4edda';
+                mensajeDiv.style.color = '#155724';
+                mensajeDiv.style.border = '1px solid #c3e6cb';
+                document.body.appendChild(mensajeDiv);
+                
+                setTimeout(() => {
+                    mensajeDiv.remove();
+                    window.location.href = '/inscripcion/estudiante/imprimirFormularioInscripcion';
+                }, 2000);
+            }
+            
         } catch (error) {
             console.error('Error:', error);
             mostrarError(error.message);

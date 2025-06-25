@@ -1096,7 +1096,6 @@
                 progressBar.style.width = '100%';
                 progressText.textContent = `Completado: ${exitosos}/${estudiantesAProcesar.length} estudiantes procesados.`;
 
-                // Si fue exitoso, preparar la redirección con alerta
                 if (exitosos > 0) {
                     // Cerrar el modal
                     const modal = document.getElementById('SubirComprobantePago');
@@ -1105,11 +1104,36 @@
                         bootstrapModal.hide();
                     }
                     
-                    // Guardar en sessionStorage que se subió exitosamente
-                    sessionStorage.setItem('comprobanteSubidoExito', 'true');
-                    
-                    // Redirigir a la lista de estudiantes
-                    window.location.href = '/estudiantes';
+                    // Solo guardar en sessionStorage si hubo corrección manual del usuario
+                    if (correccionManual && correccionManual.length === 7) {
+                        sessionStorage.setItem('comprobanteSubidoExito', 'true');
+                        // Redirigir inmediatamente para que se muestre la alerta en la otra página
+                        setTimeout(() => {
+                            progressContainer.remove();
+                            window.location.href = '/estudiantes';
+                        }, 1000);
+                    } else {
+                        // Si fue procesamiento automático (OCR exitoso), mostrar mensaje breve
+                        const mensajeDiv = document.createElement('div');
+                        mensajeDiv.className = 'alert alert-success';
+                        mensajeDiv.textContent = 'Comprobantes procesados exitosamente.';
+                        mensajeDiv.style.position = 'fixed';
+                        mensajeDiv.style.top = '20px';
+                        mensajeDiv.style.right = '20px';
+                        mensajeDiv.style.zIndex = '9999';
+                        mensajeDiv.style.padding = '10px 20px';
+                        mensajeDiv.style.borderRadius = '5px';
+                        mensajeDiv.style.backgroundColor = '#d4edda';
+                        mensajeDiv.style.color = '#155724';
+                        mensajeDiv.style.border = '1px solid #c3e6cb';
+                        document.body.appendChild(mensajeDiv);
+                        
+                        setTimeout(() => {
+                            mensajeDiv.remove();
+                            progressContainer.remove();
+                            window.location.href = '/estudiantes';
+                        }, 2000);
+                    }
                 } else {
                     // Si hubo errores, mostrar mensaje de error
                     let mensajeError = `Se procesaron ${exitosos} de ${estudiantesAProcesar.length} estudiantes. `;
@@ -1117,6 +1141,7 @@
                         mensajeError += `Errores: ${errores.join('; ')}`;
                     }
                     alert(mensajeError);
+                    progressContainer.remove();
                     btnSubir.disabled = false;
                 }
                 // Mostrar mensaje de resultados

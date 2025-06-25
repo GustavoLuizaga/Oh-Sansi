@@ -247,6 +247,18 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Verificar si se subió un comprobante exitosamente
+        if (sessionStorage.getItem('comprobanteSubidoExitoEstudiante') === 'true') {
+            // Limpiar el sessionStorage
+            sessionStorage.removeItem('comprobanteSubidoExitoEstudiante');
+            
+            // Mostrar la alerta después de que la página esté completamente cargada
+            setTimeout(() => {
+                alert('Tu comprobante se ha subido correctamente. Será revisado por un administrador y te notificaremos cuando sea aprobado o rechazado.');
+            }, 500);
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
         // Export PDF button
         document.getElementById('exportPdf').addEventListener('click', function(e) {
             e.preventDefault();

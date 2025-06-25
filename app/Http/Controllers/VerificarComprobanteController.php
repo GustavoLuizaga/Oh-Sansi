@@ -22,6 +22,7 @@ class VerificarComprobanteController extends Controller
                 vi.Comprobante_valido, 
                 vi.CodigoComprobante,           
                 vi.RutaComprobante,
+                vi.id as verificacion_id,
                 CONCAT('" . url('/') . "', '/', vi.RutaComprobante) AS ruta_publica_para_usar_en_produccion,
                 vi.created_at AS fecha_verificacion,  
                 vi.updated_at AS fecha_actualizacion_verificacion  
@@ -40,35 +41,42 @@ class VerificarComprobanteController extends Controller
             JOIN boletapagoinscripcion bi 
                 ON bi.idInscripcion = i.idInscripcion
             JOIN verificacioninscripcion vi 
-                ON vi.id = (
-                    SELECT MAX(id)
-                    FROM verificacioninscripcion
-                    WHERE Comprobante_valido = 1
-                      AND idInscripcion = i.idInscripcion
-                )
-            ORDER BY tei.idEstudiante;
+                ON vi.idInscripcion = i.idInscripcion
+                AND vi.Comprobante_valido = 1
+            ORDER BY bi.idBoleta, vi.CodigoComprobante;
         ";
+        
         $results = DB::select($query);
-        $boletas = collect($results)->groupBy('idBoleta');
-        return view('inscripciones.VerificarComprobante', compact('boletas'));
+        
+        // Agrupar por idBoleta Y CodigoComprobante para generar filas únicas
+        $comprobantes = collect($results)->groupBy(function($item) {
+            return $item->idBoleta . '-' . $item->CodigoComprobante;
+        });
+        
+        return view('inscripciones.VerificarComprobante', compact('comprobantes'));
     }
     
     /**
      * Servir archivo de comprobante directamente desde storage
+     * Modificado para usar el ID de verificación específico
      */
-    public function mostrarComprobante($idBoleta)
+    public function mostrarComprobante($idBoleta, $codigoComprobante = null, $verificacionId = null)
     {
         try {
-            // Obtener la ruta del comprobante
-            $comprobante = DB::table('boletapagoinscripcion as bi')
+            $query = DB::table('boletapagoinscripcion as bi')
                 ->join('inscripcion as i', 'bi.idInscripcion', '=', 'i.idInscripcion')
-                ->join('verificacioninscripcion as vi', function($join) {
-                    $join->on('vi.idInscripcion', '=', 'i.idInscripcion')
-                        ->where('vi.Comprobante_valido', '=', 1);
-                })
+                ->join('verificacioninscripcion as vi', 'vi.idInscripcion', '=', 'i.idInscripcion')
                 ->where('bi.idBoleta', $idBoleta)
-                ->select('vi.RutaComprobante')
-                ->first();
+                ->where('vi.Comprobante_valido', '=', 1);
+                
+            // Si se proporciona el ID específico de verificación, usarlo
+            if ($verificacionId) {
+                $query->where('vi.id', $verificacionId);
+            } else if ($codigoComprobante) {
+                $query->where('vi.CodigoComprobante', $codigoComprobante);
+            }
+            
+            $comprobante = $query->select('vi.RutaComprobante')->first();
 
             if (!$comprobante) {
                 abort(404, 'Comprobante no encontrado');
@@ -94,49 +102,33 @@ class VerificarComprobanteController extends Controller
             abort(500, 'Error al cargar el archivo: ' . $e->getMessage());
         }
     }
+
     /**
-     * Aprobar comprobante y actualizar status a "aprobado" para todos los estudiantes relacionados
+     * Aprobar comprobante específico por CodigoComprobante
      */
-    public function aprobarComprobante($idBoleta)
+    public function aprobarComprobante($idBoleta, $codigoComprobante = null)
     {
         try {
-            // Obtener las inscripciones relacionadas con esta boleta
-            $inscripciones = DB::table('boletapagoinscripcion')
-                ->where('idBoleta', $idBoleta)
-                ->pluck('idInscripcion');
+            // Si no se especifica código de comprobante, aprobar todos los de la boleta
+            if (!$codigoComprobante) {
+                return $this->aprobarTodosComprobantes($idBoleta);
+            }
+            
+            // Obtener inscripciones específicas para este código de comprobante
+            $inscripciones = DB::table('boletapagoinscripcion as bi')
+                ->join('verificacioninscripcion as vi', 'vi.idInscripcion', '=', 'bi.idInscripcion')
+                ->where('bi.idBoleta', $idBoleta)
+                ->where('vi.CodigoComprobante', $codigoComprobante)
+                ->where('vi.Comprobante_valido', 1)
+                ->pluck('bi.idInscripcion');
                 
-            // Actualizar el status a "aprobado" en todas las inscripciones relacionadas
+            // Actualizar el status a "aprobado" en las inscripciones específicas
             DB::table('inscripcion')
                 ->whereIn('idInscripcion', $inscripciones)
                 ->update([
                     'status' => 'aprobado',
                     'updated_at' => Carbon::now()
                 ]);
-                
-            // Actualizar o crear registro en verificacioninscripcion
-            foreach ($inscripciones as $idInscripcion) {
-                $existeVerificacion = DB::table('verificacioninscripcion')
-                    ->where('idInscripcion', $idInscripcion)
-                    ->exists();
-                    
-                if ($existeVerificacion) {
-                    // Actualizar registro existente
-                    DB::table('verificacioninscripcion')
-                        ->where('idInscripcion', $idInscripcion)
-                        ->update([
-                            'Comprobante_valido' => 1,
-                            'updated_at' => Carbon::now()
-                        ]);
-                } else {
-                    // Crear nuevo registro
-                    DB::table('verificacioninscripcion')->insert([
-                        'idInscripcion' => $idInscripcion,
-                        'Comprobante_valido' => 1,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ]);
-                }
-            }
                 
             return response()->json([
                 'success' => true,
@@ -151,17 +143,25 @@ class VerificarComprobanteController extends Controller
     }
     
     /**
-     * Rechazar comprobante y actualizar status a "rechazado" para todos los estudiantes relacionados
+     * Rechazar comprobante específico por CodigoComprobante
      */
-    public function rechazarComprobante($idBoleta)
+    public function rechazarComprobante($idBoleta, $codigoComprobante = null)
     {
         try {
-            // Obtener las inscripciones relacionadas con esta boleta
-            $inscripciones = DB::table('boletapagoinscripcion')
-                ->where('idBoleta', $idBoleta)
-                ->pluck('idInscripcion');
+            // Si no se especifica código de comprobante, rechazar todos los de la boleta
+            if (!$codigoComprobante) {
+                return $this->rechazarTodosComprobantes($idBoleta);
+            }
+            
+            // Obtener inscripciones específicas para este código de comprobante
+            $inscripciones = DB::table('boletapagoinscripcion as bi')
+                ->join('verificacioninscripcion as vi', 'vi.idInscripcion', '=', 'bi.idInscripcion')
+                ->where('bi.idBoleta', $idBoleta)
+                ->where('vi.CodigoComprobante', $codigoComprobante)
+                ->where('vi.Comprobante_valido', 1)
+                ->pluck('bi.idInscripcion');
                 
-            // Actualizar el status a "rechazado" en todas las inscripciones relacionadas
+            // Actualizar el status a "rechazado" en las inscripciones específicas
             DB::table('inscripcion')
                 ->whereIn('idInscripcion', $inscripciones)
                 ->update([
@@ -169,54 +169,25 @@ class VerificarComprobanteController extends Controller
                     'updated_at' => Carbon::now()
                 ]);
                 
-            // Registrar en verificacioninscripcion que el comprobante no es válido
+            // Notificar a los usuarios afectados
+            $notificados = [];
             foreach ($inscripciones as $idInscripcion) {
-                $existeVerificacion = DB::table('verificacioninscripcion')
+                $userId = DB::table('tutorestudianteinscripcion')
                     ->where('idInscripcion', $idInscripcion)
-                    ->exists();
-                    
-                if ($existeVerificacion) {
-                    // Actualizar registro existente
-                    DB::table('verificacioninscripcion')
-                        ->where('idInscripcion', $idInscripcion)
-                        ->update([
-                            //'Comprobante_valido' => 0,
-                            'updated_at' => Carbon::now()
-                        ]);
-                } else {
-                    // Crear nuevo registro
-                    DB::table('verificacioninscripcion')->insert([
-                        'idInscripcion' => $idInscripcion,
-                        //'Comprobante_valido' => 0,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ]);
+                    ->value('idEstudiante');
+
+                // Clave única por usuario y comprobante
+                $clave = $userId . '-' . $codigoComprobante;
+
+                if (!isset($notificados[$clave])) {
+                    event(new InscripcionRechazarComprobante(
+                        $userId,
+                        'Tu comprobante ha sido rechazado.',
+                        'denegacion',
+                        $codigoComprobante
+                    ));
+                    $notificados[$clave] = true;
                 }
-            $userId = DB::table('tutorestudianteinscripcion')
-                ->where('idInscripcion', $idInscripcion)
-                ->value('idEstudiante');
-
-            $idBoleta = DB::table('boletapagoinscripcion')
-                ->where('idInscripcion', $idInscripcion)
-                ->value('idBoleta');
-
-            $codigoComprobante = DB::table('boletapago')
-                ->where('idBoleta', $idBoleta)
-                ->value('CodigoBoleta');
-
-            // Clave única por usuario y comprobante
-            $clave = $userId . '-' . $codigoComprobante;
-
-            if (!isset($notificados[$clave])) {
-                event(new InscripcionRechazarComprobante(
-                    $userId,
-                    'Tu comprobante ha sido rechazado.',
-                    'denegacion',
-                    $codigoComprobante
-                ));
-                $notificados[$clave] = true;
-            }
-
             }
                 
             return response()->json([
@@ -229,5 +200,46 @@ class VerificarComprobanteController extends Controller
                 'message' => 'Error al rechazar el comprobante: ' . $e->getMessage()
             ], 500);
         }
+    }
+    
+    // Métodos auxiliares para compatibilidad con el código anterior
+    private function aprobarTodosComprobantes($idBoleta)
+    {
+        // Lógica original para aprobar todos los comprobantes de una boleta
+        $inscripciones = DB::table('boletapagoinscripcion')
+            ->where('idBoleta', $idBoleta)
+            ->pluck('idInscripcion');
+            
+        DB::table('inscripcion')
+            ->whereIn('idInscripcion', $inscripciones)
+            ->update([
+                'status' => 'aprobado',
+                'updated_at' => Carbon::now()
+            ]);
+            
+        return response()->json([
+            'success' => true,
+            'message' => 'Todos los comprobantes aprobados correctamente'
+        ]);
+    }
+    
+    private function rechazarTodosComprobantes($idBoleta)
+    {
+        // Lógica original para rechazar todos los comprobantes de una boleta
+        $inscripciones = DB::table('boletapagoinscripcion')
+            ->where('idBoleta', $idBoleta)
+            ->pluck('idInscripcion');
+            
+        DB::table('inscripcion')
+            ->whereIn('idInscripcion', $inscripciones)
+            ->update([
+                'status' => 'rechazado',
+                'updated_at' => Carbon::now()
+            ]);
+            
+        return response()->json([
+            'success' => true,
+            'message' => 'Todos los comprobantes rechazados correctamente'
+        ]);
     }
 }

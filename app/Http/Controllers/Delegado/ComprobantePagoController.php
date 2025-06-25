@@ -94,12 +94,12 @@ class ComprobantePagoController extends Controller
                 'numeric',
                 'digits:7',
             ],
-            'comprobantePago' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            'comprobantePago' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'estado_ocr' => 'required|in:1,2'
         ], [
             'idEstudiante.exists' => 'El estudiante no existe o no tiene una inscripción.',
             'user_number.digits' => 'El número de comprobante debe tener 7 dígitos.',
-            'comprobantePago.mimes' => 'Solo se permiten imágenes JPG, JPEG o PNG.',
+            'comprobantePago.mimes' => 'Solo se permiten imágenes JPG, JPEG,PNG o archivos PDFs',
             'comprobantePago.max' => 'El tamaño máximo permitido es 5MB.',
             'estado_ocr.in' => 'El comprobante no es válido.',
         ]);
@@ -108,7 +108,7 @@ class ComprobantePagoController extends Controller
         if ($request->estado_ocr == 2) {
             $validator->errors()->add(
                 'ocr_error',
-                'No se detectó el número de comprobante. Suba una imagen nítida.'
+                'No se detectó el número de comprobante. Suba una imagen nítida o un PDF legible'
             );
         }
 

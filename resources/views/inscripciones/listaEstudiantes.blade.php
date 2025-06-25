@@ -161,6 +161,19 @@
     </div>
 
     <script>
+        // Agregar este script en la página /estudiantes (lista de estudiantes)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si se subió un comprobante exitosamente
+            if (sessionStorage.getItem('comprobanteSubidoExito') === 'true') {
+                // Limpiar el sessionStorage
+                sessionStorage.removeItem('comprobanteSubidoExito');
+                
+                // Mostrar la alerta después de que la página esté completamente cargada
+                setTimeout(() => {
+                    alert('Tu comprobante se ha subido correctamente. Será revisado por un administrador y te notificaremos cuando sea aprobado o rechazado.');
+                }, 500);
+            }
+        });
         document.addEventListener('DOMContentLoaded', function() {
             const convocatoriaSelect = document.getElementById('convocatoria');
             const areaSelect = document.getElementById('area');

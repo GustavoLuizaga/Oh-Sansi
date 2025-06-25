@@ -622,29 +622,100 @@
             feedbackArea.className = 'file-feedback text-info';
         }
 
-        // Función para extraer número de comprobante del texto
-        function extraerNumeroComprobante(texto) {
-            // Buscar en los primeros 150 caracteres (ampliado para PDF)
-            const textoBusqueda = texto.substring(0, 150);
+    // Función para extraer número de comprobante del texto (mejorada)
+    function extraerNumeroComprobante(texto) {
+        // Buscar en los primeros 150 caracteres (ampliado para PDF)
+        const textoBusqueda = texto.substring(0, 150);
+        
+        // Patrones de búsqueda más amplios y específicos
+        const patrones = [
+            // Buscar patrones con palabras clave seguidas de números de 6-7 dígitos
+            /(Nro|No\.?|Numero?|Comprobante|Boleta|Recibo)[\s:.\-#]*([0-9]{6,7})/i,
+            // Buscar números de exactamente 7 dígitos precedidos por espacios o caracteres especiales
+            /[\s\-#:.]([0-9]{7})[\s\-#:.\n\r]?/g,
+            // Buscar números de exactamente 6 dígitos precedidos por espacios o caracteres especiales
+            /[\s\-#:.]([0-9]{6})[\s\-#:.\n\r]?/g,
+            // Buscar al inicio de línea números de 6-7 dígitos
+            /^([0-9]{6,7})[\s\-#:.\n\r]?/gm,
+            // Patrón más general para números de 6-7 dígitos
+            /([0-9]{6,7})/g
+        ];
+        
+        console.log("Texto a analizar:", textoBusqueda);
+        
+        for (let i = 0; i < patrones.length; i++) {
+            const patron = patrones[i];
+            console.log(`Probando patrón ${i + 1}:`, patron);
             
-            // Patrones de búsqueda más amplios
-            const patrones = [
-                /(Nro|No|Numero?|Comprobante)[\s:.-]*([0-9]{7})/i,
-                /([0-9]{7})/g
-            ];
+            // Resetear el índice del patrón para búsquedas globales
+            patron.lastIndex = 0;
             
-            for (const patron of patrones) {
-                const matches = textoBusqueda.match(patron);
-                if (matches) {
-                    const numero = matches[2] ? matches[2] : matches[1] || matches[0];
-                    const numeroLimpio = numero.replace(/\D/g, '');
-                    if (numeroLimpio.length === 7) {
-                        return parseInt(numeroLimpio);
+            let match;
+            const matches = [];
+            
+            // Para patrones globales, obtener todas las coincidencias
+            if (patron.flags.includes('g')) {
+                while ((match = patron.exec(textoBusqueda)) !== null) {
+                    matches.push(match);
+                    // Evitar bucle infinito en patrones que coinciden con string vacío
+                    if (match.index === patron.lastIndex) {
+                        patron.lastIndex++;
+                    }
+                }
+            } else {
+                // Para patrones no globales, obtener la primera coincidencia
+                match = textoBusqueda.match(patron);
+                if (match) {
+                    matches.push(match);
+                }
+            }
+            
+            console.log(`Coincidencias encontradas para patrón ${i + 1}:`, matches);
+            
+            // Procesar todas las coincidencias encontradas
+            for (const coincidencia of matches) {
+                // Extraer el número (puede estar en grupo 1 o 2 dependiendo del patrón)
+                const numero = coincidencia[2] || coincidencia[1] || coincidencia[0];
+                
+                if (numero) {
+                    // Limpiar el número pero mantener los ceros iniciales
+                    const numeroLimpio = numero.replace(/[^\d]/g, ''); // Solo eliminar no-dígitos
+                    
+                    console.log(`Número extraído: "${numero}" -> Limpio: "${numeroLimpio}"`);
+                    
+                    // Validar que tenga entre 6 y 7 dígitos
+                    if (numeroLimpio.length >= 6 && numeroLimpio.length <= 7) {
+                        console.log(`Número válido encontrado: "${numeroLimpio}"`);
+                        
+                        // Si tiene 6 dígitos, agregar un cero al inicio para hacerlo de 7
+                        if (numeroLimpio.length === 6) {
+                            const numeroCompleto = '0' + numeroLimpio;
+                            console.log(`Número de 6 dígitos convertido a 7: "${numeroCompleto}"`);
+                            return numeroCompleto;
+                        }
+                        
+                        // Si ya tiene 7 dígitos, devolverlo tal como está (preservando ceros iniciales)
+                        return numeroLimpio;
                     }
                 }
             }
-            return null;
         }
+        
+        console.log("No se encontró ningún número de comprobante válido");
+        return null;
+    }
+
+    // Función auxiliar para validar formato de número de comprobante
+    function validarFormatoComprobante(numero) {
+        // Debe ser exactamente 7 dígitos
+        return /^[0-9]{7}$/.test(numero);
+    }
+
+    // Función auxiliar para formatear número de comprobante (opcional)
+    function formatearNumeroComprobante(numero) {
+        // Asegurar que siempre tenga 7 dígitos con ceros a la izquierda
+        return numero.toString().padStart(7, '0');
+    }
 
         // Función para mostrar confirmación
         function mostrarConfirmacion() {
@@ -1025,6 +1096,29 @@
                 progressBar.style.width = '100%';
                 progressText.textContent = `Completado: ${exitosos}/${estudiantesAProcesar.length} estudiantes procesados.`;
 
+                // Si fue exitoso, preparar la redirección con alerta
+                if (exitosos > 0) {
+                    // Cerrar el modal
+                    const modal = document.getElementById('SubirComprobantePago');
+                    const bootstrapModal = bootstrap.Modal.getInstance(modal);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                    
+                    // Guardar en sessionStorage que se subió exitosamente
+                    sessionStorage.setItem('comprobanteSubidoExito', 'true');
+                    
+                    // Redirigir a la lista de estudiantes
+                    window.location.href = '/estudiantes';
+                } else {
+                    // Si hubo errores, mostrar mensaje de error
+                    let mensajeError = `Se procesaron ${exitosos} de ${estudiantesAProcesar.length} estudiantes. `;
+                    if (errores.length > 0) {
+                        mensajeError += `Errores: ${errores.join('; ')}`;
+                    }
+                    alert(mensajeError);
+                    btnSubir.disabled = false;
+                }
                 // Mostrar mensaje de resultados
                 let mensaje = '';
                 if (exitosos === estudiantesAProcesar.length) {

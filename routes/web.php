@@ -49,15 +49,23 @@ Route::get('/dashboard/top-delegaciones/{id}', [DashboardController::class, 'get
 Route::get('/dashboard/departamentos-convocatoria/{id}', [DashboardController::class, 'getDepartamentosPorConvocatoria']);
 
 Route::get('/dashboard/top-tutores/{id}', [DashboardController::class, 'getTopTutoresPorConvocatoria']);
-    //Ruta para verificar el comprobante manualmente por el Administrador
+// Rutas para verificación de comprobantes
+Route::middleware(['auth'])->group(function () {
+    // Ruta para mostrar el comprobante (actualizada)
+    Route::get('/comprobante/{idBoleta}/{codigoComprobante?}/{verificacionId?}', [VerificarComprobanteController::class, 'mostrarComprobante'])
+        ->name('comprobante.mostrar');
+    
+    // Rutas para aprobar/rechazar (actualizadas)
+    Route::post('/aprobar-comprobante/{idBoleta}/{codigoComprobante?}', [VerificarComprobanteController::class, 'aprobarComprobante'])
+        ->name('aprobar.comprobante');
+    
+    Route::post('/rechazar-comprobante/{idBoleta}/{codigoComprobante?}', [VerificarComprobanteController::class, 'rechazarComprobante'])
+        ->name('rechazar.comprobante');
+        
+    // Ruta para la vista principal
     Route::get('/VerificacionManual/ComprobanteDePago', [VerificarComprobanteController::class, 'index'])
         ->name('verificacionManual.comprobanteDePago');
-
-    // Rutas para verificación de comprobantes
-    Route::middleware(['auth'])->group(function () {
-        Route::post('/aprobar-comprobante/{idBoleta}', [VerificarComprobanteController::class, 'aprobarComprobante'])->name('aprobar.comprobante');
-        Route::post('/rechazar-comprobante/{idBoleta}', [VerificarComprobanteController::class, 'rechazarComprobante'])->name('rechazar.comprobante');
-    });
+});
 
 Route::get('/servicios', [\App\Http\Controllers\ServiceController::class, 'index'])->middleware(['auth'])->name('servicios');
 Route::get('/servicios/obtener-funciones-rol/{idRol}', [\App\Http\Controllers\ServiceController::class, 'obtenerFuncionesRol'])->middleware(['auth'])->name('servicios.obtenerFuncionesRol');
@@ -164,5 +172,3 @@ Route::get('/redirigir-por-area/{idArea}', [ConvocatoriaController::class, 'redi
 Route::get('/reglamento', [ReglamentoController::class, 'index'])->name('reglamento');
 
 
- Route::get('/comprobante/{idBoleta}', [VerificarComprobanteController::class, 'mostrarComprobante'])
-    ->name('comprobante.mostrar');
